@@ -7,4 +7,16 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+
+    <color name="project_light_velvet">#9D55BD</color>
+    <color name="project_dark_velvet">#730DA1</color>
+
+
+    <color name="project_light_cyan">#32ADFF</color>
+    <color name="project_dark_cyan">#2379B2</color>
+
+
+    <color name="project_light_green">#55BD9D</color>
+    <color name="project_dark_green">#0DA173</color>
 </resources>
