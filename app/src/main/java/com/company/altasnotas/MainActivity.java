@@ -24,6 +24,9 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setItemIconTintList(null);
         bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
 
+        getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment()).commit();
+        bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
+
     }
 
 

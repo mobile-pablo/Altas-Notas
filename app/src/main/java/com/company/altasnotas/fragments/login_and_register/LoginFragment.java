@@ -1,7 +1,9 @@
 package com.company.altasnotas.fragments.login_and_register;
 
+import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -9,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.company.altasnotas.R;
+
+import pl.droidsonroids.gif.GifImageButton;
 
 
 public class LoginFragment extends Fragment {
