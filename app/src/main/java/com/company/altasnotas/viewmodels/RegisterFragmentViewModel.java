@@ -9,9 +9,12 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 
 import com.company.altasnotas.MainActivity;
+import com.company.altasnotas.R;
+import com.company.altasnotas.fragments.home.HomeFragment;
 import com.company.altasnotas.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -32,28 +35,26 @@ public class RegisterFragmentViewModel extends ViewModel {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
-                        Toast.makeText(activity, "Added User "+mAuth.getCurrentUser().getUid(), Toast.LENGTH_SHORT).show();
-                        activity.updateUI(activity,mAuth.getCurrentUser());
 
                         User user = new User("", "", mail, 0, true, " ", 0, 0);
 
-                        database.child("users").child(mAuth.getCurrentUser().getUid()).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    int count = activity.getSupportFragmentManager().getBackStackEntryCount();
+                        database.child("users").child(mAuth.getCurrentUser().getUid()).setValue(user).addOnCompleteListener(task1 -> {
+                            if (task1.isSuccessful()) {
 
-                                    for (int i = 0; i < count; i++) {
-                                        activity.getSupportFragmentManager().popBackStack();
-                                    }
+                                int count = activity.getSupportFragmentManager().getBackStackEntryCount();
 
-                                    //Walkthrough will be here
-                                }else {
-                                    System.out.println("Error while adding a user to firebase db");
+                                for (int i = 0; i < count; i++) {
+                                    activity.getSupportFragmentManager().popBackStack();
                                 }
+                                activity.updateUI(activity,mAuth.getCurrentUser());
+                              BottomNavigationView bottomNavigationView =  activity.findViewById(R.id.main_nav_bottom);
+                              bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
+
+                                activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new HomeFragment()).commit();
+                                //Walkthrough will be here
+                            }else {
+                                System.out.println("Error while adding a user to firebase db");
                             }
-
-
                         });
 
 

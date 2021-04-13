@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         updateUI(MainActivity.this,mAuth.getCurrentUser());
+
         if(savedInstanceState==null) {
             if (mAuth.getCurrentUser() != null) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment()).commit();
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new LoginFragment()).commit();
                 bottomNavigationView.setSelectedItemId(R.id.nav_profile_or_login_item);
+                bottomNavigationView.getMenu().findItem(R.id.nav_profile_or_login_item).setTitle("Login");
             }
         }
 
@@ -82,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
                         mAuth.signOut();
                         updateUI(MainActivity.this,null);
                         getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new LoginFragment()).commit();
-
                     }
                     break;
 
@@ -91,7 +92,8 @@ public class MainActivity extends AppCompatActivity {
                     //Sprawdza czy jest zalogowany czy tez nie  wtedy rozne zadania robi etc
                     //Narazie niech bedzie szło do login
                 if(mAuth.getCurrentUser()==null){
-                    selectedFragment = new LoginFragment();}else{
+                    selectedFragment = new LoginFragment();}
+                else{
                     selectedFragment = new ProfileFragment();
                 }
                     break;
@@ -116,11 +118,6 @@ public class MainActivity extends AppCompatActivity {
             menu.findItem(R.id.nav_home_item).setVisible(true);
             menu.findItem(R.id.nav_playlist_item).setVisible(true);
             menu.findItem(R.id.nav_profile_or_login_item).setTitle("Profile");
-
-            bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
-            activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new HomeFragment());
-
-
         }else{
             menu.findItem(R.id.nav_logout_item).setVisible(false);
             menu.findItem(R.id.nav_fav_item).setVisible(false);
@@ -128,8 +125,6 @@ public class MainActivity extends AppCompatActivity {
             menu.findItem(R.id.nav_playlist_item).setVisible(false);
             menu.findItem(R.id.nav_profile_or_login_item).setTitle("Login");
 
-            bottomNavigationView.setSelectedItemId(R.id.nav_profile_or_login_item);
-            activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new LoginFragment());
         }
     }
 }

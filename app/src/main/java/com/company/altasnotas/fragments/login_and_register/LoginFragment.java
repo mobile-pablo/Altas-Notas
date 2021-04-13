@@ -4,12 +4,12 @@ import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
+
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModel;
+
 import androidx.lifecycle.ViewModelProvider;
 
-import android.util.Log;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,8 +29,8 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+
 import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -39,14 +39,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 
-import bolts.Task;
-import pl.droidsonroids.gif.GifImageButton;
-
-import static android.content.ContentValues.TAG;
 
 
 public class LoginFragment extends Fragment {
@@ -60,17 +54,16 @@ public class LoginFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
       View view = inflater.inflate(R.layout.fragment_login, container, false);
-        mAuth = FirebaseAuth.getInstance();
+      mAuth = FirebaseAuth.getInstance();
       model = new ViewModelProvider(Objects.requireNonNull(getActivity())).get(LoginFragmentViewModel.class);
-       EditText email_editext = view.findViewById(R.id.login_email_edittext);
-        EditText password_editext = view.findViewById(R.id.login_password_edittext);
+      EditText email_editext = view.findViewById(R.id.login_email_edittext);
+      EditText password_editext = view.findViewById(R.id.login_password_edittext);
       view.findViewById(R.id.login_w_mail_btn).setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View v) {
             model.login((MainActivity) Objects.requireNonNull(getActivity()),email_editext.getText().toString().toLowerCase().trim(),password_editext.getText().toString().toLowerCase().trim());
           }
       });
-
       view.findViewById(R.id.jump_to_register_btn).setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View v) {
@@ -79,26 +72,32 @@ public class LoginFragment extends Fragment {
       });
 
 
+      //Po kolei sprawdzić wszystko jutro , najwyzej post na  stacku napisac
         // Initialize Facebook Login button
+        FacebookSdk.sdkInitialize(getContext());
          mCallbackManager = CallbackManager.Factory.create();
         loginButton = view.findViewById(R.id.fb_new_login_button);
         loginButton.setReadPermissions("email", "public_profile");
+
         loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
+                System.out.println(loginResult.toString());
                 handleFacebookAccessToken(loginResult.getAccessToken());
             }
 
             @Override
             public void onCancel() {
-
+                System.out.println("Canceled");
             }
 
             @Override
             public void onError(FacebookException error) {
-
+                System.out.println("Error: "+error.toString());
             }
         });
+
+        System.out.println("End of FB callback");
 
         return view;
     }
@@ -106,7 +105,6 @@ public class LoginFragment extends Fragment {
 
 
     private void handleFacebookAccessToken(AccessToken token) {
-        Log.d(TAG, "handleFacebookAccessToken:" + token);
 
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         MainActivity mainActivity  = (MainActivity) getActivity();
