@@ -1,6 +1,6 @@
 package com.company.altasnotas.models;
 
-public class playlist {
+public class Playlist {
     private String title;
     private String description;
     private Integer song_amount;

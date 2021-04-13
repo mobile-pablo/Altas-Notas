@@ -1,6 +1,6 @@
 package com.company.altasnotas.models;
 
-public class song {
+public class Song {
 
     //Song isnt on their own objects.Its object connected to array of songs for playlist
     private Integer playlistID;

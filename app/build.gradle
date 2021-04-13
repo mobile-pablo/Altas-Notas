@@ -67,6 +67,13 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-auth:6.4.0'
 
 
+    //Facebook
+    implementation 'com.facebook.android:facebook-android-sdk:[5,6)'
+    implementation 'com.facebook.android:facebook-login:5.15.3'
+
+
+
+
 
 
 }
