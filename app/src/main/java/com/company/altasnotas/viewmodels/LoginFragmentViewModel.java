@@ -45,7 +45,7 @@ public class LoginFragmentViewModel extends ViewModel {
                     if(task.isSuccessful()){
 
                         Toast.makeText(context, "Login succeed!", Toast.LENGTH_SHORT).show();
-                        mainActivity.updateUI(mainActivity, mAuth.getCurrentUser());
+                        mainActivity.updateUI(mAuth.getCurrentUser());
                        bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
                        int  count= mainActivity.getSupportFragmentManager().getBackStackEntryCount();
                         for (int i = 0; i < count; i++) {

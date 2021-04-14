@@ -46,7 +46,7 @@ public class RegisterFragmentViewModel extends ViewModel {
                                 for (int i = 0; i < count; i++) {
                                     activity.getSupportFragmentManager().popBackStack();
                                 }
-                                activity.updateUI(activity,mAuth.getCurrentUser());
+                                activity.updateUI(mAuth.getCurrentUser());
                               BottomNavigationView bottomNavigationView =  activity.findViewById(R.id.main_nav_bottom);
                               bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
 
