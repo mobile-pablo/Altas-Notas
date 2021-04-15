@@ -11,6 +11,7 @@
         android:label="@string/app_name"
         android:roundIcon="@drawable/altas_notes"
         android:supportsRtl="true"
+        android:testOnly="false"
         android:theme="@style/Theme.AltasNotas">
 
         <meta-data android:name="com.facebook.sdk.ApplicationId"
