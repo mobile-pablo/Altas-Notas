@@ -25,6 +25,7 @@ import com.company.altasnotas.fragments.home.HomeFragment;
 import com.company.altasnotas.viewmodels.LoginFragmentViewModel;
 
 
+import java.util.Map;
 import java.util.Objects;
 
 import com.facebook.AccessToken;
@@ -33,6 +34,7 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 
 import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -49,6 +51,7 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.ktx.Firebase;
 
 import static android.content.ContentValues.TAG;
 
@@ -66,19 +69,19 @@ public class LoginFragment extends Fragment {
         // Inflate the layout for this fragment
       View view = inflater.inflate(R.layout.fragment_login, container, false);
       mAuth = FirebaseAuth.getInstance();
-      model = new ViewModelProvider(Objects.requireNonNull(getActivity())).get(LoginFragmentViewModel.class);
+      model = new ViewModelProvider(requireActivity()).get(LoginFragmentViewModel.class);
       EditText email_editext = view.findViewById(R.id.login_email_edittext);
       EditText password_editext = view.findViewById(R.id.login_password_edittext);
       view.findViewById(R.id.login_w_mail_btn).setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View v) {
-            model.login((MainActivity) Objects.requireNonNull(getActivity()),email_editext.getText().toString().toLowerCase().trim(),password_editext.getText().toString().toLowerCase().trim());
+            model.login((MainActivity) requireActivity(),email_editext.getText().toString().toLowerCase().trim(),password_editext.getText().toString().toLowerCase().trim());
           }
       });
       view.findViewById(R.id.jump_to_register_btn).setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View v) {
-              Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.main_fragment_container, new RegisterFragment()).commit();
+              requireActivity().getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.main_fragment_container, new RegisterFragment()).commit();
           }
       });
 
@@ -86,8 +89,6 @@ public class LoginFragment extends Fragment {
         FacebookSdk.sdkInitialize(getContext());
 
         callbackManager = CallbackManager.Factory.create();
-
-
         facebookLoginButton = view.findViewById(R.id.fb_new_login_button);
         facebookLoginButton.setReadPermissions("email", "public_profile");
         facebookLoginButton.setFragment(this);
@@ -148,10 +149,9 @@ public class LoginFragment extends Fragment {
     public void onStart() {
         super.onStart();
         FirebaseUser user = mAuth.getCurrentUser();
-        if(user !=null){
-            MainActivity mainActivity = (MainActivity) getActivity();
-           mainActivity.updateUI(user);
-        }
+        MainActivity mainActivity = (MainActivity) getActivity();
+        mainActivity.updateUI(user);
+
     }
 
 
@@ -166,23 +166,6 @@ public class LoginFragment extends Fragment {
         Log.d(TAG, "handleFacebookAccessToken:" + token);
 
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(mainActivity, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            mainActivity.updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(mainActivity.getApplicationContext(), "Authentication failed.", Toast.LENGTH_SHORT).show();
-                            mainActivity.updateUI(null);
-                        }
-                    }
-                });
 
         mAuth.signInWithCredential(credential).addOnCompleteListener(mainActivity, new OnCompleteListener<AuthResult>() {
             @Override
@@ -190,12 +173,23 @@ public class LoginFragment extends Fragment {
                 if (task.isSuccessful()) {
                     FirebaseUser user = mAuth.getCurrentUser();
                     mainActivity.updateUI(user);
-                    mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment());
+                    int  count= mainActivity.getSupportFragmentManager().getBackStackEntryCount();
+                    for (int i = 0; i < count; i++) {
+                        mainActivity.getSupportFragmentManager().popBackStack();
+                    }
+
+
                     BottomNavigationView bottomNavigationView =  mainActivity.findViewById(R.id.main_nav_bottom);
                     bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
-
+                    mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment()).commit();
                 } else {
+                    AccessToken accessToken = AccessToken.getCurrentAccessToken();
+                    boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
+                    if(isLoggedIn==true){
 
+                        LoginManager.getInstance().logOut();
+                    }
+                    Toast.makeText(mainActivity.getApplicationContext(), "Facebook login failed.\nTry another mail",Toast.LENGTH_SHORT).show();
                     mainActivity.updateUI(null);
                 }
             }
@@ -245,24 +239,31 @@ public class LoginFragment extends Fragment {
     private void firebaseAuthWithGoogle(String idToken) {
         MainActivity mainActivity = (MainActivity) getActivity();
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(LoginFragment.this.getActivity(), new OnCompleteListener<AuthResult>() {
+
+        mAuth.signInWithCredential(credential).addOnCompleteListener(mainActivity, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
+                            Toast.makeText(mainActivity.getApplicationContext(), "Google Login success",Toast.LENGTH_SHORT).show();
                             FirebaseUser user = mAuth.getCurrentUser();
                             mainActivity.updateUI(user);
                             BottomNavigationView bottomNavigationView = mainActivity.findViewById(R.id.main_nav_bottom);
                             //We shouldnt could go back so if i were transfering to another activity
                             // I should add finish(); at the end of code after starting another activity
                             bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
+
+                            int  count= mainActivity.getSupportFragmentManager().getBackStackEntryCount();
+                            for (int i = 0; i < count; i++) {
+                                mainActivity.getSupportFragmentManager().popBackStack();
+                            }
                             mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment()).commit();
 
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
+                            Toast.makeText(mainActivity.getApplicationContext(), "Google Login failed.\nTry another mail",Toast.LENGTH_SHORT).show();
                             mainActivity.updateUI(null);
                         }
                     }

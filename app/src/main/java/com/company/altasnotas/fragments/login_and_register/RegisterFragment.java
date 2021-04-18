@@ -27,7 +27,7 @@ public class RegisterFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
        View view=  inflater.inflate(R.layout.fragment_register, container, false);
-        model = new ViewModelProvider(Objects.requireNonNull(getActivity())).get(RegisterFragmentViewModel.class);
+        model = new ViewModelProvider(requireActivity()).get(RegisterFragmentViewModel.class);
 
         EditText et_mail = view.findViewById(R.id.register_email_edittext);
         EditText et_pass_one = view.findViewById(R.id.register_password_one_edittext);

@@ -26,7 +26,6 @@ public class RegisterFragmentViewModel extends ViewModel {
     FirebaseAuth mAuth;
 
     public void  register(MainActivity activity, String mail, String pass_one, String pass_two) {
-        //Check it later if it works
         if (checkData(activity.getApplicationContext(), mail, pass_one, pass_two)) {
             mAuth = FirebaseAuth.getInstance();
             database = FirebaseDatabase.getInstance().getReference();
@@ -49,15 +48,16 @@ public class RegisterFragmentViewModel extends ViewModel {
                                 activity.updateUI(mAuth.getCurrentUser());
                               BottomNavigationView bottomNavigationView =  activity.findViewById(R.id.main_nav_bottom);
                               bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
+                                Toast.makeText(activity, "Register success",Toast.LENGTH_SHORT).show();
 
                                 activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new HomeFragment()).commit();
                                 //Walkthrough will be here
-                            }else {
-                                System.out.println("Error while adding a user to firebase db");
                             }
                         });
 
 
+                    }else{
+                        Toast.makeText(activity, "Register error.\nTry another mail",Toast.LENGTH_SHORT).show();
                     }
                 }
 
