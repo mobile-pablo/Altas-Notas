@@ -74,6 +74,10 @@ dependencies {
     implementation 'com.facebook.android:facebook-login:5.15.3'
 
 
+    //Choose age in your app by nice scroll
+    compile 'com.webianks.library:scroll-choice:1.0.1'
+
+
 
 
 
