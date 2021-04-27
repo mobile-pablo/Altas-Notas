@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
@@ -79,10 +80,12 @@ public class WalkthoughFragment extends Fragment {
 
                   backBtn.setVisibility(View.INVISIBLE);
                   nextBtn.setText("Next");
+
                   backBtn.setText("");
               } else if (position == lastOne) {
                   nextBtn.setText("Finish");
                   backBtn.setText("Back");
+
               } else {
                   nextBtn.setEnabled(true);
                   backBtn.setEnabled(true);
@@ -90,6 +93,7 @@ public class WalkthoughFragment extends Fragment {
                   backBtn.setVisibility(View.VISIBLE);
                   nextBtn.setText("Next");
                   backBtn.setText("Back");
+
               }
           }
 
@@ -102,10 +106,13 @@ public class WalkthoughFragment extends Fragment {
       backBtn.setOnClickListener(v -> viewPager.setCurrentItem(currentPage-1));
 
       nextBtn.setOnClickListener(v -> {
-          System.out.println(nextBtn);
-          if(currentPage+1==3){
+          if(currentPage+1==1){
+              slideAdapter.updateBIO(1);
+          }else if(currentPage+1==2){
+              slideAdapter.updateBIO(2);
+          }else if(currentPage+1==3){
               int count = getActivity().getSupportFragmentManager().getBackStackEntryCount();
-
+              slideAdapter.updateBIO(3);
               for (int i = 0; i < count; i++) {
                   getActivity().getSupportFragmentManager().popBackStack();
                      }

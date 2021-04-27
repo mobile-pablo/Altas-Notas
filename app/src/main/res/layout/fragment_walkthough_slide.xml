@@ -99,31 +99,41 @@
         <com.webianks.library.scroll_choice.ScrollChoice
             android:id="@+id/walkthrough_slide_age_input"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="4.5"
             android:visibility="gone"
             app:scroll_atmospheric="true"
             app:scroll_background_color="#f5f5f5"
             app:scroll_indicator="true"
             app:scroll_indicator_color="#fff"
             app:scroll_item_align="center"
+            app:scroll_item_text_size="15dp"
             app:scroll_item_text_color="@color/cardview_shadow_start_color"
             app:scroll_selected_item_background="#fff"
             app:scroll_selected_item_text_color="@color/black" />
 
         <TextView
-            android:id="@+id/walkthrough_slide_third_string_textview"
+            android:id="@+id/walkthrough_slide_spinner_blank_space"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:text="textview_3"
-            android:textColor="#050505" />
+            android:layout_weight="1.5"
+            android:visibility="visible" />
 
-        <EditText
-            android:id="@+id/walkthrough_slide_string_third_input"
+        <TextView
+            android:id="@+id/walkthrough_slide_spinner_textview"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="3"
-            android:ems="10"
-            android:inputType="textPersonName" />
+            android:layout_weight="1.5"
+            android:text="spinner"
+            android:textColor="#000000"
+            android:visibility="visible" />
+
+        <Spinner
+            android:id="@+id/walkthrough_slide_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="2.5"
+            android:visibility="visible" />
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

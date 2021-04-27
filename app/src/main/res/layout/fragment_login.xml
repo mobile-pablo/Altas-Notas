@@ -82,6 +82,7 @@
                 android:hint="john.krasinski@gmail.com"
                 android:inputType="textPersonName"
                 android:paddingLeft="5dp"
+                android:paddingRight="5dp"
                 android:textColor="#050505" />
 
 
@@ -113,6 +114,7 @@
                 android:hint="********"
                 android:inputType="textPassword"
                 android:paddingLeft="5dp"
+                android:paddingRight="5dp"
                 android:textColor="#050505"
                 android:textSize="18sp" />
 
