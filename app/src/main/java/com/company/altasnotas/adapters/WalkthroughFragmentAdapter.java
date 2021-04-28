@@ -1,34 +1,38 @@
 package com.company.altasnotas.adapters;
 
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.TextView;
+import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.view.menu.MenuView;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.PagerAdapter;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 
-import com.company.altasnotas.R;
-import com.company.altasnotas.models.User;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.webianks.library.scroll_choice.ScrollChoice;
+import com.company.altasnotas.fragments.walkthrough.fragments.WalkthroughSlideFragment;
 
-import java.util.ArrayList;
-import java.util.List;
 
-public class WalkthroughFragmentAdapter extends PagerAdapter {
+public class WalkthroughFragmentAdapter extends FragmentStatePagerAdapter {
+
+    public WalkthroughFragmentAdapter(FragmentManager fm) {
+        super(fm);
+    }
+
+    @Override
+    public Fragment getItem(int i) {
+
+     WalkthroughSlideFragment fragment = new   WalkthroughSlideFragment();
+        Bundle bundle = new Bundle();
+        i = i + 1;
+        bundle.putString("MESSAGE", "Step " + i+"/3" );
+        fragment.setArguments(bundle);
+
+
+        return fragment;
+    }
+
+    @Override
+    public int getCount() {
+        return 3;
+    }
+    /*
     private Context context;
     private  FirebaseAuth mAuth;
     private DatabaseReference database;
@@ -74,10 +78,10 @@ public class WalkthroughFragmentAdapter extends PagerAdapter {
 
         View view= layoutInflater.inflate(R.layout.fragment_walkthough_slide,container,false);
         mAuth = FirebaseAuth.getInstance();
-        /**
+
          * I made so weird names becouse i will make those input on most of slides but with diffrent textview and data.
          * Only Age will be on slide first so it remain as it is
-         */
+
 
         counter= view.findViewById(R.id.walkthrough_slide_counter);
 
@@ -258,5 +262,5 @@ public class WalkthroughFragmentAdapter extends PagerAdapter {
        });
 
 
-    }
+    } */
 }

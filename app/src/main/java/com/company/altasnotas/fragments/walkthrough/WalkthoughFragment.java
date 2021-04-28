@@ -51,7 +51,7 @@ public class WalkthoughFragment extends Fragment {
 
       viewPager = view.findViewById(R.id.walkthrough_ViewPager);
       linearLayout = view.findViewById(R.id.walkthrough_dots_layout);
-      slideAdapter = new WalkthroughFragmentAdapter(requireContext());
+      slideAdapter = new WalkthroughFragmentAdapter(mainActivity.getSupportFragmentManager());
       viewPager.setAdapter(slideAdapter);
 
       addDots(0);
@@ -107,12 +107,12 @@ public class WalkthoughFragment extends Fragment {
 
       nextBtn.setOnClickListener(v -> {
           if(currentPage+1==1){
-              slideAdapter.updateBIO(1);
+            //  slideAdapter.updateBIO(1);
           }else if(currentPage+1==2){
-              slideAdapter.updateBIO(2);
+          //    slideAdapter.updateBIO(2);
           }else if(currentPage+1==3){
               int count = getActivity().getSupportFragmentManager().getBackStackEntryCount();
-              slideAdapter.updateBIO(3);
+          //    slideAdapter.updateBIO(3);
               for (int i = 0; i < count; i++) {
                   getActivity().getSupportFragmentManager().popBackStack();
                      }
