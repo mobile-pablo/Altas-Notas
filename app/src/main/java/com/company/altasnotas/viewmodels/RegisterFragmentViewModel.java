@@ -10,8 +10,8 @@ import androidx.lifecycle.ViewModel;
 
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
+
 import com.company.altasnotas.fragments.home.HomeFragment;
-import com.company.altasnotas.fragments.walkthrough.WalkthoughFragment;
 import com.company.altasnotas.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -36,7 +36,7 @@ public class RegisterFragmentViewModel extends ViewModel {
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
 
-                        User user = new User("", "", mail, 0, true, " ", 0, 0,"","","","");
+                        User user = new User("", "", mail, 0, " ", 0, 0);
 
                         database.child("users").child(mAuth.getCurrentUser().getUid()).setValue(user).addOnCompleteListener(task1 -> {
                             if (task1.isSuccessful()) {
@@ -51,7 +51,7 @@ public class RegisterFragmentViewModel extends ViewModel {
                               bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
                                 Toast.makeText(activity, "Register success",Toast.LENGTH_SHORT).show();
 
-                                activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new WalkthoughFragment()).commit();
+                                activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new HomeFragment()).commit();
                                 //Walkthrough will be here
                             }
                         });

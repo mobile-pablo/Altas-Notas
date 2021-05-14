@@ -1,3 +1,4 @@
+
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Theme.AltasNotas" parent="Theme.MaterialComponents.Light.NoActionBar">
@@ -22,4 +23,10 @@
     <style name="Theme.AltasNotas.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.AltasNotas.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+
+    <style name="roundedImageViewRounded">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
 </resources>
