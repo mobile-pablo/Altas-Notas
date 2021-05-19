@@ -5,7 +5,7 @@
         android:top="-200dp">
         <shape xmlns:android="http://schemas.android.com/apk/res/android"
             android:shape="oval">
-            <solid android:color="#2E0540" />
+            <gradient android:startColor="#2E0540" android:endColor="#FF354C" android:angle="90"/>
             <stroke android:width="0dp"/>
         </shape>
     </item>
