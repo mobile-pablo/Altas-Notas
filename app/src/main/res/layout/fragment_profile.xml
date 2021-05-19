@@ -115,22 +115,50 @@
                     android:id="@+id/profile_age_number"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:enabled="false"
                     android:layout_weight="3"
+                    android:enabled="false"
                     android:fontFamily="@font/oswald"
                     android:gravity="right|center_vertical"
-                    android:text="21"
+                    android:inputType="number"
 
+                    android:text="21"
                     android:textSize="18sp" />
 
-                <ImageButton
-                    android:id="@+id/profile_age_btn"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1.3"
-                    android:background="@android:color/transparent"
-                    android:gravity="center"
-                    android:src="@drawable/ic_edit" />
+                    android:layout_weight="1.2"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/profile_age_edit_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:gravity="center"
+                        android:src="@drawable/ic_edit" />
+
+                    <ImageButton
+                        android:id="@+id/profile_age_cancel_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/cross"
+                        android:visibility="gone" />
+
+                    <ImageButton
+                        android:id="@+id/profile_age_accept_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_check"
+                        android:visibility="gone" />
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -162,16 +190,42 @@
 
                     android:textSize="18sp" />
 
-                <ImageButton
-                    android:id="@+id/profile_phone_btn"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1.3"
-                    android:background="@android:color/transparent"
-                    android:gravity="center"
-                    android:src="@drawable/ic_edit" />
-            </LinearLayout>
+                    android:layout_weight="1.2"
+                    android:orientation="horizontal">
 
+                    <ImageButton
+                        android:id="@+id/profile_phone_edit_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:gravity="center"
+                        android:src="@drawable/ic_edit" />
+
+                    <ImageButton
+                        android:id="@+id/profile_phone_cancel_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/cross"
+                        android:visibility="gone" />
+
+                    <ImageButton
+                        android:id="@+id/profile_phone_accept_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_check"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/profile_address_box"
@@ -201,14 +255,42 @@
                     android:text="East Ave 7,NY"
                     android:textSize="18sp" />
 
-                <ImageButton
-                    android:id="@+id/profile_address_btn"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1.3"
-                    android:background="@android:color/transparent"
-                    android:gravity="center"
-                    android:src="@drawable/ic_edit" />
+                    android:layout_weight="1.2"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/profile_address_edit_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:gravity="center"
+                        android:src="@drawable/ic_edit" />
+
+                    <ImageButton
+                        android:id="@+id/profile_address_cancel_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/cross"
+                        android:visibility="gone" />
+
+                    <ImageButton
+                        android:id="@+id/profile_address_accept_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_check"
+                        android:visibility="gone" />
+                </LinearLayout>
+
             </LinearLayout>
         </LinearLayout>
 
