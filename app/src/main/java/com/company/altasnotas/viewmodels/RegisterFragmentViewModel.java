@@ -36,7 +36,7 @@ public class RegisterFragmentViewModel extends ViewModel {
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
 
-                        User user = new User("", mail, 0, "",1, 0, 0);
+                        User user = new User("", mail, "0", "","",1, 0, 0);
                         /**
                          * Login methods :
                          *  1 - Mail
