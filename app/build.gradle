@@ -65,7 +65,7 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:26.4.0')
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-database:20.0.0'
-    implementation 'com.google.firebase:firebase-storage:20.0.0'
+    implementation 'com.google.firebase:firebase-storage:7.0.0'
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.firebaseui:firebase-ui-auth:6.4.0'
 
@@ -76,6 +76,12 @@ dependencies {
 
     //Choose age in your app by nice scroll
     compile 'com.webianks.library:scroll-choice:1.0.1'
+
+
+    //Profile pic
+  //  compile 'com.squareup.picasso:picasso:2.5.2'
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    compile 'com.github.bumptech.glide:compiler:4.11.0'
 
 
 

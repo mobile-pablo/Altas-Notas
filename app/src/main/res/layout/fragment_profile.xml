@@ -131,8 +131,7 @@
                     android:fontFamily="@font/oswald"
                     android:gravity="right|center_vertical"
                     android:inputType="number"
-
-                    android:text="21"
+                    android:hint="20"
                     android:textSize="18sp" />
 
                 <LinearLayout
@@ -197,7 +196,7 @@
                     android:enabled="false"
                     android:fontFamily="@font/oswald"
                     android:gravity="right|center_vertical"
-                    android:text="+48 663-903-677"
+                    android:hint="+48 633 973 627"
 
                     android:textSize="18sp" />
 
@@ -263,7 +262,7 @@
                     android:enabled="false"
                     android:fontFamily="@font/oswald"
                     android:gravity="right|center_vertical"
-                    android:text="East Ave 7,NY"
+                    android:hint="East Ave 7,NY"
                     android:textSize="18sp" />
 
                 <LinearLayout

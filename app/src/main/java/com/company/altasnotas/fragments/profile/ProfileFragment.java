@@ -25,6 +25,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.company.altasnotas.R;
 import com.company.altasnotas.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -70,145 +71,146 @@ public class ProfileFragment extends Fragment {
         // Inflate the layout for this fragment
       View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-      mAuth = FirebaseAuth.getInstance();
-      database = FirebaseDatabase.getInstance();
-      database_ref = database.getReference();
+          mAuth = FirebaseAuth.getInstance();
+          database = FirebaseDatabase.getInstance();
+          database_ref = database.getReference();
 
-      age_edit_btn = view.findViewById(R.id.profile_age_edit_btn);
-      phone_edit_btn = view.findViewById(R.id.profile_phone_edit_btn);
-      address_edit_btn = view.findViewById(R.id.profile_address_edit_btn);
+          age_edit_t = view.findViewById(R.id.profile_age_number);
+          phone_edit_t = view.findViewById(R.id.profile_phone_number);
+          address_edit_t = view.findViewById(R.id.profile_address_number);
 
-      age_cancel_btn = view.findViewById(R.id.profile_age_cancel_btn);
-      phone_cancel_btn = view.findViewById(R.id.profile_phone_cancel_btn);
-      address_cancel_btn = view.findViewById(R.id.profile_address_cancel_btn);
+          downloadProfile();
 
+          age_edit_btn = view.findViewById(R.id.profile_age_edit_btn);
+          phone_edit_btn = view.findViewById(R.id.profile_phone_edit_btn);
+          address_edit_btn = view.findViewById(R.id.profile_address_edit_btn);
 
-      age_accept_btn = view.findViewById(R.id.profile_age_accept_btn);
-      phone_accept_btn = view.findViewById(R.id.profile_phone_accept_btn);
-      address_accept_btn = view.findViewById(R.id.profile_address_accept_btn);
-
-      age_edit_t = view.findViewById(R.id.profile_age_number);
-      phone_edit_t = view.findViewById(R.id.profile_phone_number);
-      address_edit_t = view.findViewById(R.id.profile_address_number);
-
-      downloadProfile();
-
-      age_edit_btn.setOnClickListener(v -> {
-          backup_age = age_edit_t.getText().toString();
-          age_edit_t.setEnabled(true);
-          age_edit_btn.setVisibility(View.GONE);
-          age_accept_btn.setVisibility(View.VISIBLE);
-          age_cancel_btn.setVisibility(View.VISIBLE);
-      });
-      phone_edit_btn.setOnClickListener(v->{
-          backup_phone= phone_edit_t.getText().toString();
-          phone_edit_t.setEnabled(true);
-          phone_edit_btn.setVisibility(View.GONE);
-          phone_accept_btn.setVisibility(View.VISIBLE);
-          phone_cancel_btn.setVisibility(View.VISIBLE);
-      });
-      address_edit_btn.setOnClickListener(v->{
-          backup_address= address_edit_t.getText().toString();
-          address_edit_t.setEnabled(true);
-          address_edit_btn.setVisibility(View.GONE);
-          address_accept_btn.setVisibility(View.VISIBLE);
-          address_cancel_btn.setVisibility(View.VISIBLE);
-      });
+          age_cancel_btn = view.findViewById(R.id.profile_age_cancel_btn);
+          phone_cancel_btn = view.findViewById(R.id.profile_phone_cancel_btn);
+          address_cancel_btn = view.findViewById(R.id.profile_address_cancel_btn);
 
 
-      //Cancel
-
-        age_cancel_btn.setOnClickListener(v->{
-            age_edit_t.setEnabled(false);
-            age_edit_t.setText(backup_age);
-            age_cancel_btn.setVisibility(View.GONE);
-            age_accept_btn.setVisibility(View.GONE);
-            age_edit_btn.setVisibility(View.VISIBLE);
-        });
-        phone_cancel_btn.setOnClickListener(v->{
-            phone_edit_t.setEnabled(false);
-            phone_edit_t.setText(backup_phone);
-            phone_cancel_btn.setVisibility(View.GONE);
-            phone_accept_btn.setVisibility(View.GONE);
-            phone_edit_btn.setVisibility(View.VISIBLE);
-        });
-        address_cancel_btn.setOnClickListener(v->{
-            address_edit_t.setEnabled(false);
-            address_edit_t.setText(backup_address);
-            address_cancel_btn.setVisibility(View.GONE);
-            address_accept_btn.setVisibility(View.GONE);
-            address_edit_btn.setVisibility(View.VISIBLE);
-        });
+          age_accept_btn = view.findViewById(R.id.profile_age_accept_btn);
+          phone_accept_btn = view.findViewById(R.id.profile_phone_accept_btn);
+          address_accept_btn = view.findViewById(R.id.profile_address_accept_btn);
 
 
-      //Accept
+          age_edit_btn.setOnClickListener(v -> {
+              backup_age = age_edit_t.getText().toString();
+              age_edit_t.setEnabled(true);
+              age_edit_btn.setVisibility(View.GONE);
+              age_accept_btn.setVisibility(View.VISIBLE);
+              age_cancel_btn.setVisibility(View.VISIBLE);
+          });
+          phone_edit_btn.setOnClickListener(v->{
+              backup_phone= phone_edit_t.getText().toString();
+              phone_edit_t.setEnabled(true);
+              phone_edit_btn.setVisibility(View.GONE);
+              phone_accept_btn.setVisibility(View.VISIBLE);
+              phone_cancel_btn.setVisibility(View.VISIBLE);
+          });
+          address_edit_btn.setOnClickListener(v->{
+              backup_address= address_edit_t.getText().toString();
+              address_edit_t.setEnabled(true);
+              address_edit_btn.setVisibility(View.GONE);
+              address_accept_btn.setVisibility(View.VISIBLE);
+              address_cancel_btn.setVisibility(View.VISIBLE);
+          });
 
 
-        age_accept_btn.setOnClickListener(v->{
-            age_edit_t.setEnabled(false);
-            backup_age= age_edit_t.getText().toString();
-            age_cancel_btn.setVisibility(View.GONE);
-            age_accept_btn.setVisibility(View.GONE);
-            age_edit_btn.setVisibility(View.VISIBLE);
-            updateProfile();
-        });
-        phone_accept_btn.setOnClickListener(v->{
-            phone_edit_t.setEnabled(false);
-            backup_phone= phone_edit_t.getText().toString();
-            phone_cancel_btn.setVisibility(View.GONE);
-            phone_accept_btn.setVisibility(View.GONE);
-            phone_edit_btn.setVisibility(View.VISIBLE);
-            updateProfile();
-        });
-        address_accept_btn.setOnClickListener(v->{
-            address_edit_t.setEnabled(false);
-            backup_address=address_edit_t.getText().toString();
-            address_cancel_btn.setVisibility(View.GONE);
-            address_accept_btn.setVisibility(View.GONE);
-            address_edit_btn.setVisibility(View.VISIBLE);
-            updateProfile();
-        });
+          //Cancel
+
+            age_cancel_btn.setOnClickListener(v->{
+                age_edit_t.setEnabled(false);
+                age_edit_t.setText(backup_age);
+                age_cancel_btn.setVisibility(View.GONE);
+                age_accept_btn.setVisibility(View.GONE);
+                age_edit_btn.setVisibility(View.VISIBLE);
+            });
+            phone_cancel_btn.setOnClickListener(v->{
+                phone_edit_t.setEnabled(false);
+                phone_edit_t.setText(backup_phone);
+                phone_cancel_btn.setVisibility(View.GONE);
+                phone_accept_btn.setVisibility(View.GONE);
+                phone_edit_btn.setVisibility(View.VISIBLE);
+            });
+            address_cancel_btn.setOnClickListener(v->{
+                address_edit_t.setEnabled(false);
+                address_edit_t.setText(backup_address);
+                address_cancel_btn.setVisibility(View.GONE);
+                address_accept_btn.setVisibility(View.GONE);
+                address_edit_btn.setVisibility(View.VISIBLE);
+            });
+
+
+          //Accept
+
+
+            age_accept_btn.setOnClickListener(v->{
+                age_edit_t.setEnabled(false);
+                backup_age= age_edit_t.getText().toString();
+                age_cancel_btn.setVisibility(View.GONE);
+                age_accept_btn.setVisibility(View.GONE);
+                age_edit_btn.setVisibility(View.VISIBLE);
+                updateProfile();
+            });
+            phone_accept_btn.setOnClickListener(v->{
+                phone_edit_t.setEnabled(false);
+                backup_phone= phone_edit_t.getText().toString();
+                phone_cancel_btn.setVisibility(View.GONE);
+                phone_accept_btn.setVisibility(View.GONE);
+                phone_edit_btn.setVisibility(View.VISIBLE);
+                updateProfile();
+            });
+            address_accept_btn.setOnClickListener(v->{
+                address_edit_t.setEnabled(false);
+                backup_address=address_edit_t.getText().toString();
+                address_cancel_btn.setVisibility(View.GONE);
+                address_accept_btn.setVisibility(View.GONE);
+                address_edit_btn.setVisibility(View.VISIBLE);
+                updateProfile();
+            });
 
 
 
 
-        profile_img = view.findViewById(R.id.profile_user_img);
-        profile_img_edit_btn = view.findViewById(R.id.profile_user_img_btn);
+            profile_img = view.findViewById(R.id.profile_user_img);
+            profile_img_edit_btn = view.findViewById(R.id.profile_user_img_btn);
 
-        profile_name = view.findViewById(R.id.profile_full_name);
-        profile_name_edit_btn = view.findViewById(R.id.profile_name_edit_btn);
+            profile_name = view.findViewById(R.id.profile_full_name);
+            profile_name_edit_btn = view.findViewById(R.id.profile_name_edit_btn);
 
-        profile_email = view.findViewById(R.id.profile_email);
+            profile_email = view.findViewById(R.id.profile_email);
 
-      profile_img_edit_btn.setOnClickListener(v->{
-          if(ActivityCompat.checkSelfPermission(getActivity(),
-                  Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-          {
-              requestPermissions(
-                      new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                      2000);
-          }
-          else {
-              startGallery();
-          }
-      });
-      profile_name_edit_btn.setOnClickListener(v->{
-          final EditText taskEditText = new EditText(v.getContext());
-          AlertDialog dialog = new AlertDialog.Builder(v.getContext())
-                  .setTitle("Change username")
-                  .setMessage("Change current username")
-                  .setView(taskEditText)
-                  .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                      @Override
-                      public void onClick(DialogInterface dialog, int which) {
-                          profile_name.setText(String.valueOf(taskEditText.getText()));
-                          updateProfile();
-                      }
-                  })
-                  .setNegativeButton("Cancel", null)
-                  .create();
-          dialog.show();
-      });
+            profile_img_edit_btn.setOnClickListener(v->{
+              if(ActivityCompat.checkSelfPermission(getActivity(),
+                      Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+              {
+                  requestPermissions(
+                          new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                          2000);
+              }
+              else {
+                  startGallery();
+              }
+          });
+            profile_name_edit_btn.setOnClickListener(v->{
+              final EditText taskEditText = new EditText(v.getContext());
+              AlertDialog dialog = new AlertDialog.Builder(v.getContext())
+                      .setTitle("Change username")
+                      .setMessage("Change current username")
+                      .setView(taskEditText)
+                      .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                          @Override
+                          public void onClick(DialogInterface dialog, int which) {
+                              profile_name.setText(String.valueOf(taskEditText.getText()));
+                              updateProfile();
+                          }
+                      })
+                      .setNegativeButton("Cancel", null)
+                      .create();
+              dialog.show();
+          });
 
 
       return view;
@@ -246,15 +248,14 @@ public class ProfileFragment extends Fragment {
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                         if(task.isSuccessful()){
                             System.out.println("Upload image is successful!");
-
                         }else{
                             System.out.println("Upload image failed!");
 
                         }
                     }
                 });
-                //Upload rest of information
-                updateProfile();
+
+
             }
         }
 
@@ -273,9 +274,6 @@ public class ProfileFragment extends Fragment {
                         localUser.age = snapshot.child("age").getValue().toString();
                         localUser.phone = snapshot.child("phone").getValue().toString();
                         localUser.address = snapshot.child("address").getValue().toString();
-                        localUser.login_method = Integer.parseInt(snapshot.child("login_method").getValue().toString());
-                        localUser.playlist_amount = Integer.parseInt(snapshot.child("playlist_amount").getValue().toString());
-                        localUser.fav_song_amount = Integer.parseInt(snapshot.child("fav_song_amount").getValue().toString());
 
                         profile_email.setText(localUser.mail);
                         profile_name.setText( localUser.name);
@@ -284,31 +282,33 @@ public class ProfileFragment extends Fragment {
                         address_edit_t.setText(localUser.address);
 
                         //  Image download
-                        storageReference = storage.getReferenceFromUrl("gs://altas-notas.appspot.com");
+                        storageReference = storage.getReference();
 
-                        storageReference.child("images/"+mAuth.getCurrentUser().getUid()+".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        storageReference.child("images/"+mAuth.getCurrentUser().getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
-                                profile_img.setImageURI(uri);
+                            /**    This line below helps us load image into ImageView
+                            *      Picasso.with(getContext()).load(uri).into(profile_img);
+                            *      But later I found Glide which speeds up loading process
+                            */
+                                Glide.with(getContext()).load(uri).into(profile_img);
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception exception) {
-                                // Handle any errors
+                              Log.d("Storage exception: "+exception.getLocalizedMessage(), "FirebaseStorage");
                             }
                         });
 
-                        /**
-                         * I can set logo for picture only for 1s becouse its imidietly go back to this transparent stuff.
-                         */
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-
+                    Log.d("FirebaseDatabase error: "+error.getMessage(), "FirebaseDatabase");
                 }
             });
+
         }
     }
 
