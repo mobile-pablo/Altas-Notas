@@ -36,8 +36,13 @@ public class RegisterFragmentViewModel extends ViewModel {
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
 
-                        User user = new User("", "", mail, 0, " ", 0, 0);
-
+                        User user = new User("", mail, 0, "",1, 0, 0);
+                        /**
+                         * Login methods :
+                         *  1 - Mail
+                         *  2 - Google
+                         *  3 - Facebook
+                         */
                         database.child("users").child(mAuth.getCurrentUser().getUid()).setValue(user).addOnCompleteListener(task1 -> {
                             if (task1.isSuccessful()) {
 
