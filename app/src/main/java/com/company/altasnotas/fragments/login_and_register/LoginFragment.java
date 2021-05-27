@@ -1,6 +1,10 @@
 package com.company.altasnotas.fragments.login_and_register;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,6 +15,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 
 import android.os.Handler;
+import android.os.StrictMode;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,9 +28,17 @@ import android.widget.Toast;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.fragments.home.HomeFragment;
+import com.company.altasnotas.models.User;
 import com.company.altasnotas.viewmodels.LoginFragmentViewModel;
 
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Map;
 import java.util.Objects;
 
@@ -34,13 +48,18 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 
 import com.facebook.FacebookSdk;
+import com.facebook.internal.ImageDownloader;
+import com.facebook.internal.ImageRequest;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.auth.api.signin.internal.Storage;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -51,18 +70,25 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.ktx.Firebase;
-
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import java.net.URI;
 import static android.content.ContentValues.TAG;
 
 
 public class LoginFragment extends Fragment {
+
     private static final int RC_SIGN_IN = 120;
-    GoogleSignInClient mGoogleSignInClient;
-    CallbackManager callbackManager;
-    LoginFragmentViewModel model;
-    LoginButton facebookLoginButton;
-    FirebaseAuth mAuth;
+    private GoogleSignInClient mGoogleSignInClient;
+    private CallbackManager callbackManager;
+    private LoginFragmentViewModel model;
+    private LoginButton facebookLoginButton;
+    private FirebaseAuth mAuth;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -99,7 +125,7 @@ public class LoginFragment extends Fragment {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 AccessToken token = loginResult.getAccessToken();
-                Log.d("Dziala ", "Token: "+ token.getUserId());
+                 Log.d("Dziala ", "Token: "+ token.getUserId());
                 handleFacebookAccessToken(loginResult.getAccessToken());
             }
 
@@ -164,13 +190,16 @@ public class LoginFragment extends Fragment {
 
         String TAG="Facebook";
         Log.d(TAG, "handleFacebookAccessToken:" + token);
-
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
 
         mAuth.signInWithCredential(credential).addOnCompleteListener(mainActivity, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
+                    mainActivity.photoUrl = mAuth.getCurrentUser().getPhotoUrl() + "/picture?height=1000&access_token=" +token.getToken();
+                    if(task.getResult().getAdditionalUserInfo().isNewUser()){
+                        addUser(3);
+                    }
                     FirebaseUser user = mAuth.getCurrentUser();
                     mainActivity.updateUI(user);
                     int  count= mainActivity.getSupportFragmentManager().getBackStackEntryCount();
@@ -240,13 +269,19 @@ public class LoginFragment extends Fragment {
         MainActivity mainActivity = (MainActivity) getActivity();
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
 
+        mAuth= FirebaseAuth.getInstance();
+        mAuth.signOut();
         mAuth.signInWithCredential(credential).addOnCompleteListener(mainActivity, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+                            mainActivity.photoUrl = task.getResult().getUser().getPhotoUrl().toString();
+                            if(task.getResult().getAdditionalUserInfo().isNewUser()){
+                                System.out.println("Google Photo URL: "+mainActivity.photoUrl);
+                                addUser(2);
+                            }
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            Toast.makeText(mainActivity.getApplicationContext(), "Google Login success",Toast.LENGTH_SHORT).show();
                             FirebaseUser user = mAuth.getCurrentUser();
                             mainActivity.updateUI(user);
                             BottomNavigationView bottomNavigationView = mainActivity.findViewById(R.id.main_nav_bottom);
@@ -269,5 +304,16 @@ public class LoginFragment extends Fragment {
                     }
                 });
     }
+
+    private void addUser(int i) {
+        MainActivity mainActivity = (MainActivity) getActivity();
+        User user = new User(mAuth.getCurrentUser().getDisplayName(), mAuth.getCurrentUser().getEmail(), "", "","",mainActivity.photoUrl,i, 0, 0);
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+        database.child("users").child(mAuth.getCurrentUser().getUid()).setValue(user);
+    }
+
+
+
+
 
 }

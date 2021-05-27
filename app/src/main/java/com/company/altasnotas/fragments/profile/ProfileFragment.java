@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
@@ -26,7 +27,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
+import com.company.altasnotas.fragments.login_and_register.LoginFragment;
 import com.company.altasnotas.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -56,7 +59,7 @@ public class ProfileFragment extends Fragment {
     private FirebaseStorage storage = FirebaseStorage.getInstance("gs://altas-notas.appspot.com");
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
-    private Uri returnUri;
+    private Uri returnUri=null;
     private StorageReference storageReference;
     private ShapeableImageView profile_img;
     private TextView profile_name, profile_email;
@@ -74,7 +77,6 @@ public class ProfileFragment extends Fragment {
           mAuth = FirebaseAuth.getInstance();
           database = FirebaseDatabase.getInstance();
           database_ref = database.getReference();
-
           age_edit_t = view.findViewById(R.id.profile_age_number);
           phone_edit_t = view.findViewById(R.id.profile_phone_number);
           address_edit_t = view.findViewById(R.id.profile_address_number);
@@ -198,9 +200,8 @@ public class ProfileFragment extends Fragment {
               final EditText taskEditText = new EditText(v.getContext());
               AlertDialog dialog = new AlertDialog.Builder(v.getContext())
                       .setTitle("Change username")
-                      .setMessage("Change current username")
                       .setView(taskEditText)
-                      .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                      .setPositiveButton("Accept", new DialogInterface.OnClickListener() {
                           @Override
                           public void onClick(DialogInterface dialog, int which) {
                               profile_name.setText(String.valueOf(taskEditText.getText()));
@@ -209,7 +210,11 @@ public class ProfileFragment extends Fragment {
                       })
                       .setNegativeButton("Cancel", null)
                       .create();
-              dialog.show();
+
+
+              dialog.setView(taskEditText,50,0,50,0);
+                dialog.show();
+              taskEditText.setText(profile_name.getText());
           });
 
 
@@ -227,22 +232,16 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         //super method removed
-        if (resultCode == RESULT_OK) {
-
-            if (requestCode == 1000) {
+        if (resultCode == RESULT_OK && requestCode == 1000) {
                  returnUri = data.getData();
                 Bitmap bitmapImage = null;
                 try {
                     bitmapImage = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), returnUri);
                     profile_img.setImageBitmap(bitmapImage);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                        e.printStackTrace();
                 }
-
-
                 //Upload image
-
-                storageReference = FirebaseStorage.getInstance().getReference();
                 storageReference.child("images/"+mAuth.getCurrentUser().getUid()).putFile(returnUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
@@ -256,14 +255,14 @@ public class ProfileFragment extends Fragment {
                 });
 
 
-            }
+
         }
 
     }
 
     private void downloadProfile() {
 
-        User localUser = new User("","","0","","",0,0,0);
+        User localUser = new User("Username","","","","","",0,0,0);
         if(mAuth.getCurrentUser()!=null){
             database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -273,6 +272,7 @@ public class ProfileFragment extends Fragment {
                         localUser.mail = mAuth.getCurrentUser().getEmail();
                         localUser.age = snapshot.child("age").getValue().toString();
                         localUser.phone = snapshot.child("phone").getValue().toString();
+                        localUser.photoUrl = snapshot.child("photoUrl").getValue().toString();
                         localUser.address = snapshot.child("address").getValue().toString();
 
                         profile_email.setText(localUser.mail);
@@ -284,19 +284,31 @@ public class ProfileFragment extends Fragment {
                         //  Image download
                         storageReference = storage.getReference();
 
-                        storageReference.child("images/"+mAuth.getCurrentUser().getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
-                            public void onSuccess(Uri uri) {
-                            /**    This line below helps us load image into ImageView
-                            *      Picasso.with(getContext()).load(uri).into(profile_img);
-                            *      But later I found Glide which speeds up loading process
-                            */
-                                Glide.with(getContext()).load(uri).into(profile_img);
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                Drawable bg = getResources().getDrawable(R.drawable.ic_launcher_background);
+                                    storageReference.child("images/" + mAuth.getCurrentUser().getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                        @Override
+                                        public void onSuccess(Uri uri) {
+                                            Glide.with(getContext()).load(uri).into(profile_img);
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception exception) {
+                                            if((Integer.parseInt(snapshot.child("login_method").getValue().toString()))!=1) {
+                                                String url = snapshot.child("photoUrl").getValue().toString();
+                                                Glide.with(getContext()).load(url).into(profile_img);
+                                                Log.d("Storage exception: " + exception.getLocalizedMessage() + "\nLoad from Page URL instead", "FirebaseStorage");
+
+                                            }
+                                           }
+                                    });
                             }
-                        }).addOnFailureListener(new OnFailureListener() {
+
                             @Override
-                            public void onFailure(@NonNull Exception exception) {
-                              Log.d("Storage exception: "+exception.getLocalizedMessage(), "FirebaseStorage");
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                Log.d("DatabaseError: "+error.getMessage(),"FirebaseDatabase");
                             }
                         });
 
@@ -312,11 +324,12 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+
     private void updateProfile() {
 
 
 
-       User localUser = new User("","","0","","",0,0,0);
+       User localUser = new User("Username","","","","","",0,0,0);
         if(mAuth.getCurrentUser()!=null){
             database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -327,6 +340,7 @@ public class ProfileFragment extends Fragment {
                         localUser.age = snapshot.child("age").getValue().toString();
                         localUser.phone = snapshot.child("phone").getValue().toString();
                         localUser.address = snapshot.child("address").getValue().toString();
+                        localUser.photoUrl = snapshot.child("photoUrl").getValue().toString();
                         localUser.login_method = Integer.parseInt(snapshot.child("login_method").getValue().toString());
                         localUser.playlist_amount = Integer.parseInt(snapshot.child("playlist_amount").getValue().toString());
                         localUser.fav_song_amount = Integer.parseInt(snapshot.child("fav_song_amount").getValue().toString());
@@ -351,6 +365,5 @@ public class ProfileFragment extends Fragment {
         }
 
     }
-
 
 }

@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     DatabaseReference database_ref;
     FirebaseDatabase database;
     FirebaseAuth mAuth;
-
+    public  String photoUrl;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
 
                 case R.id.nav_logout_item:
                     //Logout
+                    photoUrl=null;
                     AccessToken accessToken = AccessToken.getCurrentAccessToken();
                     boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
                     if(isLoggedIn==true){
