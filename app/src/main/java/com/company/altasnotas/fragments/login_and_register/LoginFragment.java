@@ -1,10 +1,6 @@
 package com.company.altasnotas.fragments.login_and_register;
 
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,9 +10,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 
-import android.os.Handler;
-import android.os.StrictMode;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,34 +25,19 @@ import com.company.altasnotas.models.User;
 import com.company.altasnotas.viewmodels.LoginFragmentViewModel;
 
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Map;
-import java.util.Objects;
-
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 
 import com.facebook.FacebookSdk;
-import com.facebook.internal.ImageDownloader;
-import com.facebook.internal.ImageRequest;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
-import com.google.android.gms.auth.api.signin.internal.Storage;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -70,13 +48,12 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.ktx.Firebase;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-import java.net.URI;
+import com.google.firebase.database.ValueEventListener;
+
 import static android.content.ContentValues.TAG;
 
 
@@ -197,9 +174,9 @@ public class LoginFragment extends Fragment {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     mainActivity.photoUrl = mAuth.getCurrentUser().getPhotoUrl() + "/picture?height=1000&access_token=" +token.getToken();
-                    if(task.getResult().getAdditionalUserInfo().isNewUser()){
-                        addUser(3);
-                    }
+
+                        addUser(3, task.getResult().getAdditionalUserInfo().isNewUser());
+
                     FirebaseUser user = mAuth.getCurrentUser();
                     mainActivity.updateUI(user);
                     int  count= mainActivity.getSupportFragmentManager().getBackStackEntryCount();
@@ -276,10 +253,7 @@ public class LoginFragment extends Fragment {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             mainActivity.photoUrl = task.getResult().getUser().getPhotoUrl().toString();
-                            if(task.getResult().getAdditionalUserInfo().isNewUser()){
-                                System.out.println("Google Photo URL: "+mainActivity.photoUrl);
-                                addUser(2);
-                            }
+                                addUser(2,task.getResult().getAdditionalUserInfo().isNewUser());
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
@@ -305,11 +279,17 @@ public class LoginFragment extends Fragment {
                 });
     }
 
-    private void addUser(int i) {
-        MainActivity mainActivity = (MainActivity) getActivity();
-        User user = new User(mAuth.getCurrentUser().getDisplayName(), mAuth.getCurrentUser().getEmail(), "", "","",mainActivity.photoUrl,i, 0, 0);
+    private void addUser(int i, boolean newUser) {
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+        MainActivity mainActivity = (MainActivity) getActivity();
+        User user;
+        if(newUser)
+        {
+         user = new User(mAuth.getCurrentUser().getDisplayName(), mAuth.getCurrentUser().getEmail(), "", "","",mainActivity.photoUrl,i, 0, 0);
         database.child("users").child(mAuth.getCurrentUser().getUid()).setValue(user);
+        }else{
+            database.child("users").child(mAuth.getCurrentUser().getUid()).child("login_method").setValue(i);
+        }
     }
 
 

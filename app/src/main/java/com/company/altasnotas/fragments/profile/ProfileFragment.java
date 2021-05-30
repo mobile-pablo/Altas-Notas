@@ -1,6 +1,7 @@
 package com.company.altasnotas.fragments.profile;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,7 +13,6 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
@@ -24,12 +24,10 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
+
 
 import com.bumptech.glide.Glide;
-import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
-import com.company.altasnotas.fragments.login_and_register.LoginFragment;
 import com.company.altasnotas.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -46,17 +44,19 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+
 import java.io.ByteArrayInputStream;
-import java.io.File;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Objects;
+import java.io.InputStream;
 
 import static android.app.Activity.RESULT_OK;
 
 
 public class ProfileFragment extends Fragment {
     private DatabaseReference database_ref;
-    private FirebaseStorage storage = FirebaseStorage.getInstance("gs://altas-notas.appspot.com");
+    private final FirebaseStorage storage = FirebaseStorage.getInstance("gs://altas-notas.appspot.com");
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
     private Uri returnUri=null;
@@ -241,8 +241,17 @@ public class ProfileFragment extends Fragment {
                 } catch (IOException e) {
                         e.printStackTrace();
                 }
+
+
+            try {
+                Bitmap compresedImg =  getBitmapFormUri(getActivity(), returnUri);
+                ByteArrayOutputStream bao = new ByteArrayOutputStream();
+                compresedImg.compress(Bitmap.CompressFormat.PNG, 100, bao);
+                compresedImg.recycle();
+                byte[] byteArray = bao.toByteArray();
+
                 //Upload image
-                storageReference.child("images/"+mAuth.getCurrentUser().getUid()).putFile(returnUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                storageReference.child("images/"+mAuth.getCurrentUser().getUid()).putBytes(byteArray).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                         if(task.isSuccessful()){
@@ -255,11 +264,72 @@ public class ProfileFragment extends Fragment {
                 });
 
 
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.d("Error while compressing and uploading photo to Firebase", "FirebaseStorage");
+            }
+
+
+
+
 
         }
 
     }
+    /**
+     *
+     *
+     */
+    public static Bitmap getBitmapFormUri(Activity ac, Uri uri) throws IOException {
+        InputStream input = ac.getContentResolver().openInputStream(uri);
+        BitmapFactory.Options onlyBoundsOptions = new BitmapFactory.Options();
+        onlyBoundsOptions.inJustDecodeBounds = true;
+        onlyBoundsOptions.inDither = true;//optional
+        onlyBoundsOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;//optional
+        BitmapFactory.decodeStream(input, null, onlyBoundsOptions);
+        input.close();
+        int originalWidth = onlyBoundsOptions.outWidth;
+        int originalHeight = onlyBoundsOptions.outHeight;
+        if ((originalWidth == -1) || (originalHeight == -1))
+            return null;
+        //Image resolution is based on 480x800
+        float hh = 800f;//The height is set as 800f here
+        float ww = 480f;//Set the width here to 480f
+        //Zoom ratio. Because it is a fixed scale, only one data of height or width is used for calculation
+        int be = 1;//be=1 means no scaling
+        if (originalWidth > originalHeight && originalWidth > ww) {//If the width is large, scale according to the fixed size of the width
+            be = (int) (originalWidth / ww);
+        } else if (originalWidth < originalHeight && originalHeight > hh) {//If the height is high, scale according to the fixed size of the width
+            be = (int) (originalHeight / hh);
+        }
+        if (be <= 0)
+            be = 1;
+        //Proportional compression
+        BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+        bitmapOptions.inSampleSize = be;//Set scaling
+        bitmapOptions.inDither = true;//optional
+        bitmapOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;//optional
+        input = ac.getContentResolver().openInputStream(uri);
+        Bitmap bitmap = BitmapFactory.decodeStream(input, null, bitmapOptions);
+        input.close();
 
+        return compressImage(bitmap);//Mass compression again
+    }
+    public static Bitmap compressImage(Bitmap image) {
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);//Quality compression method, here 100 means no compression, store the compressed data in the BIOS
+        int options = 100;
+        while (baos.toByteArray().length / 1024 > 100) {  //Cycle to determine if the compressed image is greater than 100kb, greater than continue compression
+            baos.reset();//Reset the BIOS to clear it
+            //First parameter: picture format, second parameter: picture quality, 100 is the highest, 0 is the worst, third parameter: save the compressed data stream
+            image.compress(Bitmap.CompressFormat.JPEG, options, baos);//Here, the compression options are used to store the compressed data in the BIOS
+            options -= 10;//10 less each time
+        }
+        ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//Store the compressed data in ByteArrayInputStream
+        Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);//Generate image from ByteArrayInputStream data
+        return bitmap;
+    }
     private void downloadProfile() {
 
         User localUser = new User("Username","","","","","",0,0,0);
