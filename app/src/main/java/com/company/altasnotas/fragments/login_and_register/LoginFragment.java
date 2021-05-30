@@ -103,7 +103,7 @@ public class LoginFragment extends Fragment {
             public void onSuccess(LoginResult loginResult) {
                 AccessToken token = loginResult.getAccessToken();
                  Log.d("Dziala ", "Token: "+ token.getUserId());
-                handleFacebookAccessToken(loginResult.getAccessToken());
+                model.handleFacebookAccessToken((MainActivity) getActivity(), loginResult.getAccessToken());
             }
 
             @Override
@@ -157,63 +157,10 @@ public class LoginFragment extends Fragment {
 
     }
 
-
-
-
-
-    private void handleFacebookAccessToken(AccessToken token) {
-        MainActivity mainActivity  = (MainActivity) getActivity();
-        mAuth = FirebaseAuth.getInstance();
-
-        String TAG="Facebook";
-        Log.d(TAG, "handleFacebookAccessToken:" + token);
-        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
-
-        mAuth.signInWithCredential(credential).addOnCompleteListener(mainActivity, new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()) {
-                    mainActivity.photoUrl = mAuth.getCurrentUser().getPhotoUrl() + "/picture?height=1000&access_token=" +token.getToken();
-
-                        addUser(3, task.getResult().getAdditionalUserInfo().isNewUser());
-
-                    FirebaseUser user = mAuth.getCurrentUser();
-                    mainActivity.updateUI(user);
-                    int  count= mainActivity.getSupportFragmentManager().getBackStackEntryCount();
-                    for (int i = 0; i < count; i++) {
-                        mainActivity.getSupportFragmentManager().popBackStack();
-                    }
-
-
-                    BottomNavigationView bottomNavigationView =  mainActivity.findViewById(R.id.main_nav_bottom);
-                    bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
-                    mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment()).commit();
-                } else {
-                    AccessToken accessToken = AccessToken.getCurrentAccessToken();
-                    boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
-                    if(isLoggedIn==true){
-
-                        LoginManager.getInstance().logOut();
-                    }
-                    Toast.makeText(mainActivity.getApplicationContext(), "Facebook login failed.\nTry another mail",Toast.LENGTH_SHORT).show();
-                    mainActivity.updateUI(null);
-                }
-            }
-        });
-
-    }
-
-
-
-
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
-
-
-
-
 
 
     @Override
@@ -228,7 +175,7 @@ public class LoginFragment extends Fragment {
                     // Google Sign In was successful, authenticate with Firebase
                     GoogleSignInAccount account = task.getResult(ApiException.class);
                     Log.d(TAG, "firebaseAuthWithGoogle:" + account.getId());
-                    firebaseAuthWithGoogle(account.getIdToken());
+                    model.firebaseAuthWithGoogle((MainActivity) getActivity(), account.getIdToken());
                 } catch (ApiException e) {
                     // Google Sign In failed, update UI appropriately
                     Log.w(TAG, "Google sign in failed", e);
@@ -242,55 +189,7 @@ public class LoginFragment extends Fragment {
 
 
 
-    private void firebaseAuthWithGoogle(String idToken) {
-        MainActivity mainActivity = (MainActivity) getActivity();
-        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
 
-        mAuth= FirebaseAuth.getInstance();
-        mAuth.signOut();
-        mAuth.signInWithCredential(credential).addOnCompleteListener(mainActivity, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            mainActivity.photoUrl = task.getResult().getUser().getPhotoUrl().toString();
-                                addUser(2,task.getResult().getAdditionalUserInfo().isNewUser());
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            mainActivity.updateUI(user);
-                            BottomNavigationView bottomNavigationView = mainActivity.findViewById(R.id.main_nav_bottom);
-                            //We shouldnt could go back so if i were transfering to another activity
-                            // I should add finish(); at the end of code after starting another activity
-                            bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
-
-                            int  count= mainActivity.getSupportFragmentManager().getBackStackEntryCount();
-                            for (int i = 0; i < count; i++) {
-                                mainActivity.getSupportFragmentManager().popBackStack();
-                            }
-                            mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment()).commit();
-
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(mainActivity.getApplicationContext(), "Google Login failed.\nTry another mail",Toast.LENGTH_SHORT).show();
-                            mainActivity.updateUI(null);
-                        }
-                    }
-                });
-    }
-
-    private void addUser(int i, boolean newUser) {
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-        MainActivity mainActivity = (MainActivity) getActivity();
-        User user;
-        if(newUser)
-        {
-         user = new User(mAuth.getCurrentUser().getDisplayName(), mAuth.getCurrentUser().getEmail(), "", "","",mainActivity.photoUrl,i, 0, 0);
-        database.child("users").child(mAuth.getCurrentUser().getUid()).setValue(user);
-        }else{
-            database.child("users").child(mAuth.getCurrentUser().getUid()).child("login_method").setValue(i);
-        }
-    }
 
 
 

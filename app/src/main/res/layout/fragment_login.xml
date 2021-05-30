@@ -141,7 +141,7 @@
                     android:text="Login With Mail"
                     android:textAlignment="center"
                     android:textColor="@color/white"
-                    app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+                    app:layout_constraintBottom_toTopOf="@+id/login_fb_google_box"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="parent"
@@ -149,7 +149,7 @@
 
 
                 <LinearLayout
-                    android:id="@+id/linearLayout"
+                    android:id="@+id/login_fb_google_box"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"

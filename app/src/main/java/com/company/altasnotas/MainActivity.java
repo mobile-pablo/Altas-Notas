@@ -25,6 +25,7 @@ import android.view.WindowManager;
 import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.fragments.home.HomeFragment;
 import com.company.altasnotas.fragments.login_and_register.LoginFragment;
+import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.fragments.playlists.PlaylistsFragment;
 import com.company.altasnotas.fragments.profile.ProfileFragment;
 import com.facebook.AccessToken;
@@ -89,7 +90,9 @@ public class MainActivity extends AppCompatActivity {
 
             switch (item.getItemId()){
                 case R.id.nav_home_item:
-                    selectedFragment = new HomeFragment();
+                 //   selectedFragment = new HomeFragment();
+                    //Temporarly we are changing selectedFragment to PlayerFragment
+                    selectedFragment = new PlayerFragment();
                     break;
 
                 case R.id.nav_fav_item:
