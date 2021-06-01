@@ -31,6 +31,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class ProfileFragmentViewModel extends ViewModel {
+    /**
+     *
+     * Two functions below are copied from : https://programming.vip/docs/android-uri-to-bitmap-image-and-compress.html
+     * It helps me compress the photo to 5 times worse quality than the original (5MB -> 1MB)
+     */
     public static Bitmap getBitmapFormUri(Activity ac, Uri uri) throws IOException {
         InputStream input = ac.getContentResolver().openInputStream(uri);
         BitmapFactory.Options onlyBoundsOptions = new BitmapFactory.Options();
