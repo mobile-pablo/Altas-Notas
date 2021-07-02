@@ -1,12 +1,9 @@
 package com.company.altasnotas.fragments.player;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -14,30 +11,31 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
-import com.company.altasnotas.BackgroundSoundService;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
+import com.example.jean.jcplayer.model.JcAudio;
+import com.example.jean.jcplayer.view.JcPlayerView;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 
-import java.io.IOException;
+import java.util.ArrayList;
 
 
 public class PlayerFragment extends Fragment {
     private FirebaseStorage storage;
-
-    private ImageButton main_btn, next_btn, back_btn, fav_btn, settings_btn;
+    private ArrayList<JcAudio> jcAudios = new ArrayList<>();
+    private JcPlayerView jcplayerView;
+    private ImageButton fav_btn, settings_btn;
   private Uri localSong;
-private   Intent myService;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
       View view=  inflater.inflate(R.layout.fragment_player, container, false);
       storage = FirebaseStorage.getInstance();
-    main_btn=  view.findViewById(R.id.player_main_btn);
-    next_btn=  view.findViewById(R.id.player_next_btn);
-    back_btn=  view.findViewById(R.id.player_back_btn);
+        jcplayerView = (JcPlayerView) view.findViewById(R.id.jcplayer);
+
+
     fav_btn = view.findViewById(R.id.player_song_fav_btn);
     settings_btn = view.findViewById(R.id.player_song_options_btn);
 
@@ -47,40 +45,11 @@ private   Intent myService;
                 localSong=uri;
             }
         });
-        MainActivity mainActivity = (MainActivity) getActivity();
-         myService = new Intent(getActivity(), BackgroundSoundService.class);
 
 
-
-        main_btn.setOnClickListener(v -> {
-
-            if( main_btn.getDrawable().getConstantState().equals( main_btn.getContext().getDrawable(R.drawable.ic_play).getConstantState()))
-            {
-
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        myService.putExtra("uri",localSong.toString() );
-                        mainActivity.startService(myService);
-                    }
-                }).start();
-
-               main_btn.setImageResource(R.drawable.ic_pause);
-            }
-            else
-            {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                      //  mainActivity.stopService(myService);
-                        main_btn.setImageResource(R.drawable.ic_play);
-                    }
-                }).start();
-
-            }
-
-
-        });
+        jcAudios.add(JcAudio.createFromURL("Bad Bunny - NI BIEN NI MAL","https://firebasestorage.googleapis.com/v0/b/altas-notas.appspot.com/o/songs%2Fni_bien_ni_mal.mp3?alt=media&token=387f5d90-b513-48cd-9d64-6fd595ca1e9a"));
+        jcplayerView.initPlaylist(jcAudios, null);
+        jcplayerView.createNotification(R.drawable.altas_notes);
 
     fav_btn.setOnClickListener(v->{
 

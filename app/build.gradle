@@ -3,6 +3,7 @@ plugins {
     id 'com.google.gms.google-services'
 }
 apply plugin: 'com.android.application'
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
@@ -81,6 +82,11 @@ dependencies {
   //  compile 'com.squareup.picasso:picasso:2.5.2'
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     compile 'com.github.bumptech.glide:compiler:4.11.0'
+
+
+    //Music Player
+    implementation 'com.karumi:dexter:6.0.1'
+    implementation 'com.github.jeancsanchez:JcPlayer:2.7.0'
 
 
 

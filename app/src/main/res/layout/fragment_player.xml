@@ -46,32 +46,7 @@
                 android:layout_height="match_parent"
                 android:layout_margin="5dp"
                 android:layout_weight="10"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/player_song_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/archivo_narrow"
-                    android:gravity="bottom|center_horizontal"
-                    android:text="Ni Bien Ni Mal"
-                    android:textColor="#000000"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/player_song_author"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif-medium"
-                    android:gravity="center_horizontal|top"
-                    android:text="Bad Bunny"
-                    android:textAlignment="center"
-                    android:textColor="#000000"
-                    android:textSize="18sp" />
-            </LinearLayout>
+                android:orientation="vertical"/>
 
             <ImageButton
                 android:id="@+id/player_song_fav_btn"
@@ -99,58 +74,13 @@
 
         </LinearLayout>
 
-        <ProgressBar
-            android:id="@+id/player_song_progress_bar"
-            style="?android:attr/progressBarStyleHorizontal"
+        <com.example.jean.jcplayer.view.JcPlayerView
+            android:id="@+id/jcplayer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/player_song_info_box"
             tools:layout_editor_absoluteX="10dp" />
-
-        <LinearLayout
-            android:id="@+id/linearLayout"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/player_song_progress_bar"
-            tools:layout_editor_absoluteX="-16dp">
-
-            <ImageButton
-                android:id="@+id/player_back_btn"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="15dp"
-                android:layout_weight="1"
-                android:scaleX="-1"
-                android:elevation="20dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_chevron_double_right" />
-
-            <ImageButton
-                android:id="@+id/player_main_btn"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="5dp"
-                android:layout_weight="1"
-                android:elevation="30dp"
-                android:background="@android:color/transparent"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_play" />
-
-            <ImageButton
-                android:id="@+id/player_next_btn"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="15dp"
-                android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:elevation="20dp"
-                android:scaleType="centerInside"
-                android:src="@drawable/ic_chevron_double_right"
-                />
-        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </RelativeLayout>

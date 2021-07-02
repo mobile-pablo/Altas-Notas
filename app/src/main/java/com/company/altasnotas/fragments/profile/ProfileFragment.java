@@ -251,6 +251,8 @@ public class ProfileFragment extends Fragment {
                 byte[] byteArray = bao.toByteArray();
 
                 //Upload image
+
+                storageReference = FirebaseStorage.getInstance().getReference();
                 storageReference.child("images/"+mAuth.getCurrentUser().getUid()).putBytes(byteArray).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
