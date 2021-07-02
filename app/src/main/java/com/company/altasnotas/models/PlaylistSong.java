@@ -1,12 +1,12 @@
 package com.company.altasnotas.models;
 
 public class PlaylistSong {
-
     //Song isnt on their own objects.Its object connected to array of songs for playlist
     private Integer playlistID;
     private String author;
     private String album;
     private String title;
+    private String path;
 
 
     public Integer getPlaylistID() {
@@ -42,4 +42,11 @@ public class PlaylistSong {
     }
 
 
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
 }

@@ -223,7 +223,7 @@ public class ProfileFragment extends Fragment {
 
     private void startGallery() {
         Intent cameraIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        cameraIntent.setType("image/*");
+        cameraIntent.setType("image/profiles/*");
         if (cameraIntent.resolveActivity(getActivity().getPackageManager()) != null) {
             startActivityForResult(cameraIntent, 1000);
         }
@@ -253,7 +253,7 @@ public class ProfileFragment extends Fragment {
                 //Upload image
 
                 storageReference = FirebaseStorage.getInstance().getReference();
-                storageReference.child("images/"+mAuth.getCurrentUser().getUid()).putBytes(byteArray).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                storageReference.child("images/profiles/"+mAuth.getCurrentUser().getUid()).putBytes(byteArray).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                         if(task.isSuccessful()){

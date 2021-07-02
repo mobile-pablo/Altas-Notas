@@ -13,6 +13,7 @@ import android.widget.ImageButton;
 
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
+import com.company.altasnotas.models.PlaylistSong;
 import com.example.jean.jcplayer.model.JcAudio;
 import com.example.jean.jcplayer.view.JcPlayerView;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -26,14 +27,22 @@ public class PlayerFragment extends Fragment {
     private ArrayList<JcAudio> jcAudios = new ArrayList<>();
     private JcPlayerView jcplayerView;
     private ImageButton fav_btn, settings_btn;
-  private Uri localSong;
+    private ArrayList<PlaylistSong> playlist;
+
+
+    public PlayerFragment(ArrayList<PlaylistSong> playlist){
+        this.playlist = playlist;
+        //We are sending playlist to this player and let it play all of it
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             Bundle savedInstanceState)
+    {
         // Inflate the layout for this fragment
       View view=  inflater.inflate(R.layout.fragment_player, container, false);
       storage = FirebaseStorage.getInstance();
-        jcplayerView = (JcPlayerView) view.findViewById(R.id.jcplayer);
+      jcplayerView = (JcPlayerView) view.findViewById(R.id.jcplayer);
 
 
     fav_btn = view.findViewById(R.id.player_song_fav_btn);
@@ -42,15 +51,21 @@ public class PlayerFragment extends Fragment {
         storage.getReference().child("songs/ni_bien_ni_mal.mp3").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
-                localSong=uri;
+
             }
         });
 
 
-        jcAudios.add(JcAudio.createFromURL("Bad Bunny - NI BIEN NI MAL","https://firebasestorage.googleapis.com/v0/b/altas-notas.appspot.com/o/songs%2Fni_bien_ni_mal.mp3?alt=media&token=387f5d90-b513-48cd-9d64-6fd595ca1e9a"));
-        jcplayerView.initPlaylist(jcAudios, null);
-        jcplayerView.createNotification(R.drawable.altas_notes);
+        for (PlaylistSong song: playlist){
+            jcAudios.add(JcAudio.createFromURL(song.getTitle(),song.getPath()));
+        }
 
+
+    if(jcAudios!=null && jcAudios.size()>0)
+    {
+    jcplayerView.initPlaylist(jcAudios, null);
+    jcplayerView.createNotification(R.drawable.altas_notes);
+    }
     fav_btn.setOnClickListener(v->{
 
         if( fav_btn.getDrawable().getConstantState().equals( fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState()))
@@ -62,4 +77,6 @@ public class PlayerFragment extends Fragment {
     });
       return view;
     }
+
+
 }

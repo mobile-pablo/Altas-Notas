@@ -28,6 +28,7 @@ import com.company.altasnotas.fragments.login_and_register.LoginFragment;
 import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.fragments.playlists.PlaylistsFragment;
 import com.company.altasnotas.fragments.profile.ProfileFragment;
+import com.company.altasnotas.models.PlaylistSong;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
@@ -44,6 +45,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     DatabaseReference database_ref;
@@ -92,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                  //   selectedFragment = new HomeFragment();
 
                  //   Temporarly we are changing selectedFragment to PlayerFragment
-                    selectedFragment = new PlayerFragment();
+                    selectedFragment = new PlayerFragment(new ArrayList<PlaylistSong>());
                     break;
 
                 case R.id.nav_fav_item:
