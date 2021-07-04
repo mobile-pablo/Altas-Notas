@@ -1,6 +1,5 @@
 package com.company.altasnotas.fragments.player;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -11,9 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
-import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
-import com.company.altasnotas.models.PlaylistSong;
+import com.company.altasnotas.models.Playlist;
+import com.company.altasnotas.models.Song;
 import com.example.jean.jcplayer.model.JcAudio;
 import com.example.jean.jcplayer.view.JcPlayerView;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -24,13 +23,13 @@ import java.util.ArrayList;
 
 public class PlayerFragment extends Fragment {
     private FirebaseStorage storage;
-    private ArrayList<JcAudio> jcAudios = new ArrayList<>();
+    private final ArrayList<JcAudio> jcAudios = new ArrayList<>();
     private JcPlayerView jcplayerView;
     private ImageButton fav_btn, settings_btn;
-    private ArrayList<PlaylistSong> playlist;
+    private final Playlist playlist;
 
 
-    public PlayerFragment(ArrayList<PlaylistSong> playlist){
+    public PlayerFragment(Playlist playlist, int position){
         this.playlist = playlist;
         //We are sending playlist to this player and let it play all of it
     }
@@ -56,7 +55,7 @@ public class PlayerFragment extends Fragment {
         });
 
 
-        for (PlaylistSong song: playlist){
+        for (Song song: playlist.getSongs()){
             jcAudios.add(JcAudio.createFromURL(song.getTitle(),song.getPath()));
         }
 

@@ -1,50 +1,32 @@
 package com.company.altasnotas;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
-import android.database.Cursor;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Base64;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 
 import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.fragments.home.HomeFragment;
 import com.company.altasnotas.fragments.login_and_register.LoginFragment;
 import com.company.altasnotas.fragments.player.PlayerFragment;
+import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.fragments.playlists.PlaylistsFragment;
 import com.company.altasnotas.fragments.profile.ProfileFragment;
-import com.company.altasnotas.models.PlaylistSong;
+import com.company.altasnotas.models.Playlist;
+import com.company.altasnotas.models.Song;
 import com.facebook.AccessToken;
-import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.imageview.ShapeableImageView;
-import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -94,7 +76,20 @@ public class MainActivity extends AppCompatActivity {
                  //   selectedFragment = new HomeFragment();
 
                  //   Temporarly we are changing selectedFragment to PlayerFragment
-                    selectedFragment = new PlayerFragment(new ArrayList<PlaylistSong>());
+                    Playlist x = new Playlist("Spokojnie","Kult", 0,"0","");
+                    Song s1 = new Song(0, "Kult", x.getTitle(),"Arahja","https://firebasestorage.googleapis.com/v0/b/altas-notas.appspot.com/o/songs%2Fkult%2Fspokojnie%2FArahja.mp3?alt=media&token=64a83a64-cfc6-4b0b-a230-1905c67ca9db");
+                    Song s2 = new Song(0, "Kult",  x.getTitle(),"Axe","https://firebasestorage.googleapis.com/v0/b/altas-notas.appspot.com/o/songs%2Fkult%2Fspokojnie%2FAxe.mp3?alt=media&token=01aa3a6a-9d3d-4316-a379-94a3ec921f66");
+                    Song s3 = new Song(0, "Kult",  x.getTitle(), "Czarne słońca", "https://firebasestorage.googleapis.com/v0/b/altas-notas.appspot.com/o/songs%2Fkult%2Fspokojnie%2FCzarne%20s%C5%82o%C5%84ca.mp3?alt=media&token=46d4131c-9d0b-4151-82c7-da3b421fab4e");
+                    Song s4 = new Song(0,"Kult",  x.getTitle(), "Do Ani", "https://firebasestorage.googleapis.com/v0/b/altas-notas.appspot.com/o/songs%2Fkult%2Fspokojnie%2FCzarne%20s%C5%82o%C5%84ca.mp3?alt=media&token=46d4131c-9d0b-4151-82c7-da3b421fab4e");
+
+                    ArrayList<Song> songs = new ArrayList<>();
+                    songs.add(s1);
+                    songs.add(s2);
+                    songs.add(s3);
+                    songs.add(s4);
+                    x.setSongs(songs);
+
+                    selectedFragment = new CurrentPlaylistFragment(x);
                     break;
 
                 case R.id.nav_fav_item:

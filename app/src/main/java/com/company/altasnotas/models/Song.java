@@ -1,12 +1,20 @@
 package com.company.altasnotas.models;
 
-public class PlaylistSong {
+public class Song {
     //Song isnt on their own objects.Its object connected to array of songs for playlist
-    private Integer playlistID;
+    private int playlistID;
     private String author;
     private String album;
     private String title;
     private String path;
+
+    public Song(int playlistID, String author, String album, String title, String path){
+        this.playlistID=playlistID;
+        this.author=author;
+        this.album=album;
+        this.title=title;
+        this.path=path;
+    }
 
 
     public Integer getPlaylistID() {

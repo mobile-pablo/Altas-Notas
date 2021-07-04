@@ -205,7 +205,7 @@ public class ProfileFragment extends Fragment {
                           @Override
                           public void onClick(DialogInterface dialog, int which) {
                               profile_name.setText(String.valueOf(taskEditText.getText()));
-                              model.updateProfile(mAuth,database_ref ,profile_name, age_edit_t, phone_edit_t, address_edit_t);;
+                              model.updateProfile(mAuth,database_ref ,profile_name, age_edit_t, phone_edit_t, address_edit_t);
                           }
                       })
                       .setNegativeButton("Cancel", null)
@@ -244,7 +244,7 @@ public class ProfileFragment extends Fragment {
 
 
             try {
-                Bitmap compresedImg =  model.getBitmapFormUri(getActivity(), returnUri);
+                Bitmap compresedImg =  ProfileFragmentViewModel.getBitmapFormUri(getActivity(), returnUri);
                 ByteArrayOutputStream bao = new ByteArrayOutputStream();
                 compresedImg.compress(Bitmap.CompressFormat.PNG, 100, bao);
                 compresedImg.recycle();
