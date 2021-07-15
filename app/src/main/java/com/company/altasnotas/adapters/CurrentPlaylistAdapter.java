@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.fragments.player.PlayerFragment;
@@ -68,12 +69,19 @@ private ArrayList<Song> songs;
 
         holder.currentBox.setOnClickListener(v -> {
             PlayerFragment playerFragment = new PlayerFragment(playlist, position);
-            activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, playerFragment).commit();
+            activity.getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment).commit();
         });
 
         holder.currentFav_btn.setOnClickListener(v -> Toast.makeText(holder.itemView.getContext(), "Fav btn of item is clicked!",Toast.LENGTH_SHORT).show());
 
         holder.currentSettings_btn.setOnClickListener(v -> Toast.makeText(holder.itemView.getContext(), "Settings btn of item is clicked!",Toast.LENGTH_SHORT).show());
+
+        if(playlist.isAlbum()==true){
+            holder.photo.setVisibility(View.INVISIBLE);
+        }else{
+            Glide.with(activity.getApplicationContext()).load(playlist.getImage_id()).into(holder.photo);
+        }
+
 
 
 

@@ -8,11 +8,16 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
+import com.example.jean.jcplayer.JcPlayerManager;
 import com.example.jean.jcplayer.model.JcAudio;
 import com.example.jean.jcplayer.view.JcPlayerView;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -25,12 +30,14 @@ public class PlayerFragment extends Fragment {
     private FirebaseStorage storage;
     private final ArrayList<JcAudio> jcAudios = new ArrayList<>();
     private JcPlayerView jcplayerView;
-    private ImageButton fav_btn, settings_btn;
+    private ImageButton fav_btn;
+    private Button settings_btn;
     private final Playlist playlist;
-
+    int position;
 
     public PlayerFragment(Playlist playlist, int position){
         this.playlist = playlist;
+        this.position=position;
         //We are sending playlist to this player and let it play all of it
     }
 
@@ -47,27 +54,39 @@ public class PlayerFragment extends Fragment {
     fav_btn = view.findViewById(R.id.player_song_fav_btn);
     settings_btn = view.findViewById(R.id.player_song_options_btn);
 
-        storage.getReference().child("songs/ni_bien_ni_mal.mp3").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-
-            }
-        });
-
 
         for (Song song: playlist.getSongs()){
-            jcAudios.add(JcAudio.createFromURL(song.getTitle(),song.getPath()));
+            jcAudios.add(JcAudio.createFromURL(song.getTitle()+"\n"+song.getAuthor(),song.getPath()));
         }
+
+
 
 
     if(jcAudios!=null && jcAudios.size()>0)
     {
+    Glide.with(container).load(playlist.getImage_id()).into((ImageView) view.findViewById(R.id.player_song_img));
     jcplayerView.initPlaylist(jcAudios, null);
     jcplayerView.createNotification(R.drawable.altas_notes);
     }
+
+
+        if(jcplayerView.getCurrentAudio()!=null){
+            if (jcplayerView.getCurrentAudio().hashCode() == jcAudios.get(position).hashCode())
+            {
+                System.out.println("Same song!");
+                
+             //   jcplayerView.continueAudio();
+            } else{
+                jcplayerView.playAudio(jcAudios.get(position));
+            }
+        }else{
+            jcplayerView.playAudio(jcAudios.get(position));
+        }
+
+
     fav_btn.setOnClickListener(v->{
 
-        if( fav_btn.getDrawable().getConstantState().equals( fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState()))
+        if( fav_btn.getDrawable().getConstantState().equals(fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState()))
         {
             fav_btn.setImageResource(R.drawable.ic_heart_full);
         }else{
@@ -79,3 +98,4 @@ public class PlayerFragment extends Fragment {
 
 
 }
+

@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
@@ -38,6 +39,8 @@ public class CurrentPlaylistFragment extends Fragment {
 
         title.setText(playlist.getTitle());
         description.setText(playlist.getDescription());
+
+        Glide.with(container).load(playlist.getImage_id()).into(imageView);
 
 
        recyclerView =  view.findViewById(R.id.current_playlist_recycler_view);
