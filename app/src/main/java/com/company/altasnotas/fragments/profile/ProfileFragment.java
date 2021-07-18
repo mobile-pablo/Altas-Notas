@@ -3,6 +3,7 @@ package com.company.altasnotas.fragments.profile;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,9 +30,11 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.bumptech.glide.Glide;
+import com.canhub.cropper.CropImage;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.models.User;
@@ -53,6 +56,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -67,8 +71,7 @@ import static com.company.altasnotas.viewmodels.ProfileFragmentViewModel.compres
 
 public class ProfileFragment extends Fragment {
     private DatabaseReference database_ref;
-    private Bitmap rotatedBitmap;
-    private int bitmapWidth, bitmapHeight;
+    final int PIC_CROP = 1;
     private final FirebaseStorage storage = FirebaseStorage.getInstance("gs://altas-notas.appspot.com");
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
@@ -201,7 +204,8 @@ public class ProfileFragment extends Fragment {
                           2000);
               }
               else {
-                  startGallery();
+                  CropImage.activity()
+                          .start(getContext(), this);
               }
           });
           profile_name_edit_btn.setOnClickListener(v->{
@@ -229,13 +233,7 @@ public class ProfileFragment extends Fragment {
       return view;
     }
 
-    private void startGallery() {
-        Intent cameraIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        cameraIntent.setType("image/profiles/*");
-        if (cameraIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-            startActivityForResult(cameraIntent, 1000);
-        }
-    }
+
 /*
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -291,21 +289,29 @@ public class ProfileFragment extends Fragment {
  */
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK && requestCode == 1000) {
-           returnUri = data.getData();
 
-            try {
+        if(resultCode ==RESULT_CANCELED){
+           Log.d("RESULT HAVE BEEN CANCELED", "RESULT");
+        }
 
-               Bitmap compresedImg =  ProfileFragmentViewModel.getBitmapFormUri(getActivity(), returnUri);
-               Bitmap compressImgRotated = rotateImageIfRequired(getContext(), compresedImg,returnUri);
-                ByteArrayOutputStream bao = new ByteArrayOutputStream();
-                compressImgRotated = getResizedBitmap(compressImgRotated,300);
-                compressImgRotated.compress(Bitmap.CompressFormat.PNG, 100, bao);
-                profile_img.setImageBitmap(compressImgRotated);
-                byte[] byteArray = bao.toByteArray();
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == RESULT_OK) {
+               returnUri = result.getUriContent();
 
-                compresedImg.recycle();
+                try {
+
+                    Bitmap compresedImg =  ProfileFragmentViewModel.getBitmapFormUri(getActivity(), returnUri);
+                    Bitmap compressImgRotated = rotateImageIfRequired(getContext(), compresedImg,returnUri);
+                    ByteArrayOutputStream bao = new ByteArrayOutputStream();
+                    compressImgRotated = getResizedBitmap(compressImgRotated,300);
+                    compressImgRotated.compress(Bitmap.CompressFormat.PNG, 100, bao);
+                    profile_img.setImageBitmap(compressImgRotated);
+                    byte[] byteArray = bao.toByteArray();
+
+                    compresedImg.recycle();
 
                     //Upload image
 
@@ -324,16 +330,14 @@ public class ProfileFragment extends Fragment {
 
 
 
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.d("Error while compressing and uploading photo to Firebase", "FirebaseStorage");
-            }
-        }else{
-            super.onActivityResult(requestCode, resultCode, data);
-        }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.d("Error while compressing and uploading photo to Firebase", "FirebaseStorage");
+                }
 
-        if(resultCode ==RESULT_CANCELED){
-           Log.d("RESULT HAVE BEEN CANCELED", "RESULT");
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
+            }
         }
     }
         private static Bitmap rotateImageIfRequired(Context context, Bitmap img, Uri selectedImage) throws IOException {
@@ -381,5 +385,7 @@ public class ProfileFragment extends Fragment {
         }
         return Bitmap.createScaledBitmap(image, width, height, true);
     }
+
+
 
 }

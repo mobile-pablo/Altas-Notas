@@ -88,8 +88,8 @@ dependencies {
     implementation 'com.karumi:dexter:6.0.1'
     implementation 'com.github.jeancsanchez:JcPlayer:2.7.0'
 
-
-
+    //Crop profile
+    implementation 'com.github.CanHub:Android-Image-Cropper:3.2.1'
 
 
 
