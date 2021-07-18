@@ -18,10 +18,14 @@ import com.company.altasnotas.R;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
 import com.example.jean.jcplayer.JcPlayerManager;
+import com.example.jean.jcplayer.JcPlayerManagerListener;
+import com.example.jean.jcplayer.general.JcStatus;
 import com.example.jean.jcplayer.model.JcAudio;
 import com.example.jean.jcplayer.view.JcPlayerView;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
@@ -29,7 +33,7 @@ import java.util.ArrayList;
 public class PlayerFragment extends Fragment {
     private FirebaseStorage storage;
     private final ArrayList<JcAudio> jcAudios = new ArrayList<>();
-    private JcPlayerView jcplayerView;
+    public JcPlayerView jcplayerView;
     private ImageButton fav_btn;
     private Button settings_btn;
     private final Playlist playlist;
@@ -56,8 +60,9 @@ public class PlayerFragment extends Fragment {
 
 
         for (Song song: playlist.getSongs()){
-            jcAudios.add(JcAudio.createFromURL(song.getTitle()+"\n"+song.getAuthor(),song.getPath()));
+            jcAudios.add(JcAudio.createFromURL(song.getTitle()+"\n"+song.getAuthor(),song.getPath().toString()));
         }
+
 
 
 
@@ -70,18 +75,22 @@ public class PlayerFragment extends Fragment {
     }
 
 
-        if(jcplayerView.getCurrentAudio()!=null){
-            if (jcplayerView.getCurrentAudio().hashCode() == jcAudios.get(position).hashCode())
-            {
-                System.out.println("Same song!");
-                
-             //   jcplayerView.continueAudio();
-            } else{
-                jcplayerView.playAudio(jcAudios.get(position));
-            }
-        }else{
-            jcplayerView.playAudio(jcAudios.get(position));
-        }
+        jcplayerView.playAudio(jcAudios.get(position));
+/**
+ *         if(jcplayerView.getCurrentAudio()!=null){
+ *             //Here I check if I get back to song I been before.
+ *             // If I been I want to seekTo current timeStamp.
+ *             if (jcplayerView.getCurrentAudio().hashCode() == jcAudios.get(position).hashCode())
+ *             {
+ *                 System.out.println("Same song!");
+ *
+ *             } else{
+ *
+ *             }
+ *         }else{
+ *             jcplayerView.playAudio(jcAudios.get(position));
+ *         }
+ */
 
 
     fav_btn.setOnClickListener(v->{

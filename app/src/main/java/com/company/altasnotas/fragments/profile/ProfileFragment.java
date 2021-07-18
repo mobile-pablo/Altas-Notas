@@ -3,13 +3,17 @@ package com.company.altasnotas.fragments.profile;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
+import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -56,11 +60,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 
+import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
+import static com.company.altasnotas.viewmodels.ProfileFragmentViewModel.compressImage;
 
 
 public class ProfileFragment extends Fragment {
     private DatabaseReference database_ref;
+    private Bitmap rotatedBitmap;
+    private int bitmapWidth, bitmapHeight;
     private final FirebaseStorage storage = FirebaseStorage.getInstance("gs://altas-notas.appspot.com");
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
@@ -228,7 +236,7 @@ public class ProfileFragment extends Fragment {
             startActivityForResult(cameraIntent, 1000);
         }
     }
-
+/*
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         //super method removed
@@ -278,4 +286,100 @@ public class ProfileFragment extends Fragment {
         }
 
     }
+
+
+ */
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (resultCode == RESULT_OK && requestCode == 1000) {
+           returnUri = data.getData();
+
+            try {
+
+               Bitmap compresedImg =  ProfileFragmentViewModel.getBitmapFormUri(getActivity(), returnUri);
+               Bitmap compressImgRotated = rotateImageIfRequired(getContext(), compresedImg,returnUri);
+                ByteArrayOutputStream bao = new ByteArrayOutputStream();
+                compressImgRotated = getResizedBitmap(compressImgRotated,300);
+                compressImgRotated.compress(Bitmap.CompressFormat.PNG, 100, bao);
+                profile_img.setImageBitmap(compressImgRotated);
+                byte[] byteArray = bao.toByteArray();
+
+                compresedImg.recycle();
+
+                    //Upload image
+
+                    storageReference = FirebaseStorage.getInstance().getReference();
+                    storageReference.child("images/profiles/"+mAuth.getCurrentUser().getUid()).putBytes(byteArray).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                            if(task.isSuccessful()){
+                                System.out.println("Upload image is successful!");
+                            }else{
+                                System.out.println("Upload image failed!");
+
+                            }
+                        }
+                    });
+
+
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.d("Error while compressing and uploading photo to Firebase", "FirebaseStorage");
+            }
+        }else{
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+
+        if(resultCode ==RESULT_CANCELED){
+           Log.d("RESULT HAVE BEEN CANCELED", "RESULT");
+        }
+    }
+        private static Bitmap rotateImageIfRequired(Context context, Bitmap img, Uri selectedImage) throws IOException {
+
+            InputStream input = context.getContentResolver().openInputStream(selectedImage);
+            ExifInterface ei;
+            if (Build.VERSION.SDK_INT > 23)
+                ei = new ExifInterface(input);
+            else
+                ei = new ExifInterface(selectedImage.getPath());
+
+            int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    return rotateImage(img, 90);
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    return rotateImage(img, 180);
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    return rotateImage(img, 270);
+                default:
+                    return img;
+            }
+        }
+
+        private static Bitmap rotateImage(Bitmap img, int degree) {
+            Matrix matrix = new Matrix();
+            matrix.postRotate(degree);
+            Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
+            img.recycle();
+            return rotatedImg;
+        }
+
+    public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        float bitmapRatio = (float)width / (float) height;
+        if (bitmapRatio > 1) {
+            width = maxSize;
+            height = (int) (width / bitmapRatio);
+        } else {
+            height = maxSize;
+            width = (int) (height * bitmapRatio);
+        }
+        return Bitmap.createScaledBitmap(image, width, height, true);
+    }
+
 }

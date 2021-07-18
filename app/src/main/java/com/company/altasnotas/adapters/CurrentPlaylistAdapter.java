@@ -69,7 +69,8 @@ private ArrayList<Song> songs;
 
         holder.currentBox.setOnClickListener(v -> {
             PlayerFragment playerFragment = new PlayerFragment(playlist, position);
-            activity.getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment).commit();
+             activity.getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment).commit();
+
         });
 
         holder.currentFav_btn.setOnClickListener(v -> Toast.makeText(holder.itemView.getContext(), "Fav btn of item is clicked!",Toast.LENGTH_SHORT).show());

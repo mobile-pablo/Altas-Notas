@@ -80,7 +80,13 @@ public class ProfileFragmentViewModel extends ViewModel {
             baos.reset();//Reset the BIOS to clear it
             //First parameter: picture format, second parameter: picture quality, 100 is the highest, 0 is the worst, third parameter: save the compressed data stream
             image.compress(Bitmap.CompressFormat.JPEG, options, baos);//Here, the compression options are used to store the compressed data in the BIOS
+            if(options>=30){
             options -= 10;//10 less each time
+                }else{
+                ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//Store the compressed data in ByteArrayInputStream
+                Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);//Generate image from ByteArrayInputStream data
+                return bitmap;
+            }
         }
         ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//Store the compressed data in ByteArrayInputStream
         Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);//Generate image from ByteArrayInputStream data
@@ -119,6 +125,7 @@ public class ProfileFragmentViewModel extends ViewModel {
                                     @Override
                                     public void onSuccess(Uri uri) {
                                         if(mainActivity!=null)
+
                                             Glide.with(mainActivity.getApplicationContext()).load(uri).into(profile_img);
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {

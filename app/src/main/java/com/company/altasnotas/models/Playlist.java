@@ -7,13 +7,11 @@ public class Playlist {
     private String description;
     private int song_amount;
     private String image_id;
-    private final String year;
+    private String year;
     private boolean isAlbum;
     private ArrayList <Song> songs;
 
-    public Playlist(String title, String description, int song_amount, String image_id, String year, boolean isAlbum){
-        this.title=title;
-        this.description= description;
+    public Playlist( int song_amount, String image_id, String year, boolean isAlbum){
         this.song_amount=song_amount;
         this.image_id=image_id;
         this.year=year;
