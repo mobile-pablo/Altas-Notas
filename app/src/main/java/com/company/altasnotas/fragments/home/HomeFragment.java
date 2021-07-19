@@ -37,6 +37,11 @@ HomeFragmentAdapter adapter;
     DatabaseReference database_ref;
     FirebaseDatabase database;
     FirebaseAuth mAuth;
+    String[] album_array = new String[1];
+    String[] author_array = new String[1];
+    ArrayList<Playlist> playlists = new ArrayList<>();
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -100,26 +105,38 @@ HomeFragmentAdapter adapter;
            */
 
 
-        Playlist x = new Playlist();
 
 
-        CountDownLatch conditionLatch = new CountDownLatch(1);
+
+
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         database_ref = database.getReference();
-        final String[] album_array = new String[1];
-        final String[] author_array = new String[1];
-        ArrayList<Song> songs = new ArrayList<>();
-        ArrayList<Playlist> playlists = new ArrayList<>();
 
+   initializePlaylist("Kult", "Spokojnie");
+  initializePlaylist("Johnny Cash", "The Baron");
+     recyclerView = view.findViewById(R.id.home_recycler_view);
+     adapter = new HomeFragmentAdapter((MainActivity) getActivity(),playlists );
+     recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+     recyclerView.setAdapter(adapter);
+     return  view;
+    }
+
+    private void initializePlaylist(String author, String album) {
+        ArrayList<Song> songs = new ArrayList<>();
+        CountDownLatch conditionLatch = new CountDownLatch(1);
+        Playlist x = new Playlist();
         if (mAuth.getCurrentUser() != null) {
 
-            database_ref.child("music").child("albums").child("Kult").child("Spokojnie").addListenerForSingleValueEvent(new ValueEventListener() {
+            database_ref.child("music").child("albums").child(author).child(album).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+
                     album_array[0] = snapshot.child("songs").getRef().getParent().getKey();
                     author_array[0] = snapshot.child("songs").getRef().getParent().getParent().getKey();
                     int i=0;
+                    songs.clear();
                     for (DataSnapshot ds: snapshot.child("songs").getChildren()){
                         i++;
 
@@ -141,13 +158,6 @@ HomeFragmentAdapter adapter;
                     x.setDescription(author_array[0]);
                     x.setSong_amount(Integer.valueOf(snapshot.child("song_amount").getValue().toString()));
                     playlists.add(x);
-                    playlists.add(x);
-                    playlists.add(x);
-                    playlists.add(x);
-                    playlists.add(x);
-                    playlists.add(x);
-                    playlists.add(x);
-                    playlists.add(x);
                     adapter.notifyDataSetChanged();
                 }
 
@@ -160,12 +170,5 @@ HomeFragmentAdapter adapter;
 
 
         }
-
-        System.out.println(x.getTitle());
-     recyclerView = view.findViewById(R.id.home_recycler_view);
-     adapter = new HomeFragmentAdapter((MainActivity) getActivity(),playlists );
-     recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-     recyclerView.setAdapter(adapter);
-     return  view;
     }
 }
