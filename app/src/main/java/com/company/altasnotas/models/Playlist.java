@@ -18,6 +18,10 @@ public class Playlist {
         this.isAlbum = isAlbum;
     }
 
+    public Playlist(){
+
+    }
+
 
     public String getTitle() {
         return title;

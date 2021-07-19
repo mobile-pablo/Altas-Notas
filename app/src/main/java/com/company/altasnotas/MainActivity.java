@@ -82,10 +82,10 @@ public class MainActivity extends AppCompatActivity {
 
             switch (item.getItemId()){
                 case R.id.nav_home_item:
-                 //   selectedFragment = new HomeFragment();
+                  selectedFragment[0] = new HomeFragment();
 
-                 //   Temporarly we are changing selectedFragment to PlayerFragment
-                    Playlist x = new Playlist (0,"","", true);
+          /* IMPORTANT CODE
+                    Playlist x = new Playlist();
 
 
                     CountDownLatch conditionLatch = new CountDownLatch(1);
@@ -126,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
                                    x.setAlbum((Boolean) snapshot.child("isAlbum").getValue());
                                    x.setTitle(album_array[0]);
                                    x.setDescription(author_array[0]);
+                                   x.setSong_amount(Integer.valueOf(snapshot.child("song_amount").getValue().toString()));
                                 }
 
                                 @Override
@@ -138,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
 
+           */
 
                     break;
 
