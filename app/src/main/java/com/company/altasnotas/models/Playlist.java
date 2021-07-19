@@ -67,4 +67,12 @@ public class Playlist {
     public void setAlbum(boolean album) {
         this.isAlbum = album;
     }
+
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
+    }
 }

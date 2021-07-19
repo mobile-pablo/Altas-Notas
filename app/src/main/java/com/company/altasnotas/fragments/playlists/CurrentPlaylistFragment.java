@@ -38,7 +38,7 @@ public class CurrentPlaylistFragment extends Fragment {
 
 
         title.setText(playlist.getTitle());
-        description.setText(playlist.getDescription());
+        description.setText(playlist.getDescription()+"\n("+playlist.getYear()+")");
 
         Glide.with(container).load(playlist.getImage_id()).into(imageView);
 

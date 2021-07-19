@@ -33,6 +33,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
 
 import bolts.Task;
 
@@ -84,11 +85,10 @@ public class MainActivity extends AppCompatActivity {
                  //   selectedFragment = new HomeFragment();
 
                  //   Temporarly we are changing selectedFragment to PlayerFragment
-                    Playlist x = new Playlist (0,"0","1988", true);
-                    x.setTitle("Spokojnie");
-                    x.setDescription("Kult");
+                    Playlist x = new Playlist (0,"","", true);
 
 
+                    CountDownLatch conditionLatch = new CountDownLatch(1);
                     mAuth = FirebaseAuth.getInstance();
                     database = FirebaseDatabase.getInstance();
                     database_ref = database.getReference();
@@ -114,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
                                          if(i==snapshot.child("songs").getChildrenCount()){
                                              x.setSongs(songs);
                                              selectedFragment[0] = new CurrentPlaylistFragment(x);
+                                             conditionLatch.countDown();
                                              getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, selectedFragment[0]).commit();
 
                                          }
@@ -121,18 +122,19 @@ public class MainActivity extends AppCompatActivity {
 
 
                                    x.setImage_id(snapshot.child("image_id").getValue().toString());
-
+                                   x.setYear(snapshot.child("year").getValue().toString());
+                                   x.setAlbum((Boolean) snapshot.child("isAlbum").getValue());
+                                   x.setTitle(album_array[0]);
+                                   x.setDescription(author_array[0]);
                                 }
 
                                 @Override
                                 public void onCancelled(@NonNull DatabaseError error) {
-
+                                    conditionLatch.countDown();
                                 }
                             });
 
 
-                        }else{
-                            selectedFragment[0] = new HomeFragment();
                         }
 
 
