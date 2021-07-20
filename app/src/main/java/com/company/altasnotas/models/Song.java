@@ -1,18 +1,14 @@
 package com.company.altasnotas.models;
 
-import android.net.Uri;
-
-import java.net.URI;
-
 public class Song {
     //Song isnt on their own objects.Its object connected to array of songs for playlist
     private int playlistID;
     private String author;
     private String album;
     private String title;
-    private Uri path;
+    private String path;
 
-    public Song(int playlistID, String author, String album, String title, Uri path){
+    public Song(int playlistID, String author, String album, String title, String path){
         this.playlistID=playlistID;
         this.author=author;
         this.album=album;
@@ -54,11 +50,11 @@ public class Song {
     }
 
 
-    public Uri getPath() {
+    public String getPath() {
         return path;
     }
 
-    public void setPath(Uri path) {
+    public void setPath(String path) {
         this.path = path;
     }
 }

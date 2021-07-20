@@ -1,6 +1,5 @@
 package com.company.altasnotas.fragments.player;
 
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -13,19 +12,12 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
-import com.example.jean.jcplayer.JcPlayerManager;
-import com.example.jean.jcplayer.JcPlayerManagerListener;
-import com.example.jean.jcplayer.general.JcStatus;
 import com.example.jean.jcplayer.model.JcAudio;
 import com.example.jean.jcplayer.view.JcPlayerView;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
