@@ -27,11 +27,13 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 private final Playlist playlist;
 private MainActivity activity;
 private ArrayList<Song> songs;
+private Boolean isFavFragment;
 
-    public CurrentPlaylistAdapter(MainActivity activity, Playlist playlist){
+    public CurrentPlaylistAdapter(MainActivity activity, Playlist playlist, Boolean isFavFragment){
         this.playlist=playlist;
         songs =playlist.getSongs();
         this.activity =activity;
+        this.isFavFragment=isFavFragment;
     }
 
 
@@ -80,7 +82,7 @@ private ArrayList<Song> songs;
         if(playlist.isAlbum()==true){
             holder.photo.setVisibility(View.INVISIBLE);
         }else{
-            Glide.with(activity.getApplicationContext()).load(playlist.getImage_id()).into(holder.photo);
+            Glide.with(activity.getApplicationContext()).load(songs.get(position).getImage_url()).into(holder.photo);
         }
 
 

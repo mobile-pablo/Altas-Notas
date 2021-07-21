@@ -61,7 +61,7 @@ public class PlayerFragment extends Fragment {
 
     if(jcAudios!=null && jcAudios.size()>0)
     {
-    Glide.with(container).load(playlist.getImage_id()).into((ImageView) view.findViewById(R.id.player_song_img));
+    Glide.with(container).load(playlist.getSongs().get(position).getImage_url()).into((ImageView) view.findViewById(R.id.player_song_img));
     jcplayerView.initPlaylist(jcAudios, null);
     jcplayerView.createNotification(R.drawable.altas_notes);
     }

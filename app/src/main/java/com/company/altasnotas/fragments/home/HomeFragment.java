@@ -90,8 +90,6 @@ HomeFragmentAdapter adapter;
                        x.setYear(snapshot.child("year").getValue().toString());
                        x.setTitle(album_array[0]);
                        x.setDescription(author_array[0]);
-                       x.setAlbum((Boolean) snapshot.child("isAlbum").getValue());
-                       x.setSong_amount(Integer.valueOf(snapshot.child("song_amount").getValue().toString()));
                        playlists.add(x);
                        adapter.notifyDataSetChanged();
 

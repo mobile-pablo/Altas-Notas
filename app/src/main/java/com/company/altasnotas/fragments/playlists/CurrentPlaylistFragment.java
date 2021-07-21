@@ -3,7 +3,6 @@ package com.company.altasnotas.fragments.playlists;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -114,7 +113,7 @@ public class CurrentPlaylistFragment extends Fragment {
 
                         for (FirebaseSong song: firebaseSongs) {
 
-                            Song local_song = new Song(0, playlist.getDescription(), playlist.getTitle(), song.getTitle(), song.getPath());
+                            Song local_song = new Song( playlist.getDescription(), playlist.getTitle(), song.getTitle(), song.getPath(), playlist.getImage_id());
                             songs.add(local_song);
                         }
 
@@ -131,8 +130,11 @@ public class CurrentPlaylistFragment extends Fragment {
                             System.out.println("ConditionLatch error");
                         }
 
+                        playlist.setAlbum((Boolean) snapshot.child("isAlbum").getValue());
+                        playlist.setSong_amount(Integer.valueOf(snapshot.child("song_amount").getValue().toString()));
+
                         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-                        adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist);
+                        adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist,false);
                         adapter.notifyDataSetChanged();
                         recyclerView.setAdapter(adapter);
                     }
