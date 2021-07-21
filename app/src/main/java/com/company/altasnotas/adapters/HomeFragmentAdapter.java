@@ -21,9 +21,13 @@ import java.util.ArrayList;
 public class HomeFragmentAdapter extends RecyclerView.Adapter<HomeFragmentAdapter.MyViewHolder>  {
     MainActivity mainActivity;
     ArrayList<Playlist> playlists;
+    ArrayList<String> authors;
+    ArrayList<String> albums;
 
-    public HomeFragmentAdapter(MainActivity mainActivity, ArrayList<Playlist> playlists){
+    public HomeFragmentAdapter(MainActivity mainActivity,    ArrayList<String> authors, ArrayList<String> albums, ArrayList<Playlist> playlists){
         this.mainActivity=mainActivity;
+        this.authors=authors;
+        this.albums=albums;
         this.playlists=playlists;
     }
 
@@ -44,7 +48,7 @@ public class HomeFragmentAdapter extends RecyclerView.Adapter<HomeFragmentAdapte
     holder.home_row_img.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlists.get(position))).commit();
+            mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment( authors.get(position),albums.get(position),  playlists.get(position))).commit();
 
         }
     });

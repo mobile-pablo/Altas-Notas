@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,12 +39,14 @@ public class HomeFragment extends Fragment {
 
 RecyclerView recyclerView;
 HomeFragmentAdapter adapter;
-    DatabaseReference database_ref;
-    FirebaseDatabase database;
-    FirebaseAuth mAuth;
-    String[] album_array = new String[1];
-    String[] author_array = new String[1];
-    ArrayList<Playlist> playlists = new ArrayList<>();
+    private DatabaseReference database_ref;
+    private FirebaseDatabase database;
+    private FirebaseAuth mAuth;
+    private String[] album_array = new String[1];
+    private String[] author_array = new String[1];
+    private ArrayList<Playlist> playlists = new ArrayList<>();
+    private ArrayList<String> authors;
+    private ArrayList<String> albums;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -53,76 +56,51 @@ HomeFragmentAdapter adapter;
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         database_ref = database.getReference();
-
+        albums= new ArrayList<>();
+        authors = new ArrayList<>();
      initializePlaylist("Kult", "Spokojnie");
      initializePlaylist("Johnny Cash", "The Baron");
      initializePlaylist("Bad Bunny", "YHLQMDLG");
      initializePlaylist("Analogs", "Pełnoletnia Oi! Młodzież");
      
      recyclerView = view.findViewById(R.id.home_recycler_view);
-     adapter = new HomeFragmentAdapter((MainActivity) getActivity(),playlists );
+     adapter = new HomeFragmentAdapter((MainActivity) getActivity(),authors,albums, playlists );
      recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
      recyclerView.setAdapter(adapter);
      return  view;
     }
 
     private void initializePlaylist(String author, String album) {
-        ArrayList<FirebaseSong> firebaseSongs = new ArrayList<>();
-        ArrayList<Song> songs = new ArrayList<>();
-        CountDownLatch conditionLatch = new CountDownLatch(1);
         Playlist x = new Playlist();
         if (mAuth.getCurrentUser() != null) {
 
             database_ref.child("music").child("albums").child(author).child(album).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot!=null){
+                    if(snapshot!=null){
 
-                   album_array[0] = snapshot.child("title").getValue().toString();
-                    author_array[0] = snapshot.child("description").getValue().toString();
-
-                    int i=0;
-                    songs.clear();
-                    for (DataSnapshot ds: snapshot.child("songs").getChildren()){
-                        i++;
-
-                        FirebaseSong firebaseSong = new FirebaseSong();
-                        firebaseSong.setOrder(Integer.valueOf(ds.child("order").getValue().toString()));
-                        firebaseSong.setPath(ds.child("path").getValue().toString());
-                        firebaseSong.setTitle(ds.child("title").getValue().toString());
-                        firebaseSongs.add(firebaseSong);
-                       }
+                       album_array[0] = snapshot.child("title").getValue().toString();
+                       author_array[0] = snapshot.child("description").getValue().toString();
 
 
-                    Collections.sort(firebaseSongs, (f1, f2) -> f1.getOrder().compareTo(f2.getOrder()));
+                       albums.add(album);
+                       authors.add(author);
 
+                       x.setImage_id(snapshot.child("image_id").getValue().toString());
+                       x.setYear(snapshot.child("year").getValue().toString());
+                       x.setTitle(album_array[0]);
+                       x.setDescription(author_array[0]);
+                       x.setAlbum((Boolean) snapshot.child("isAlbum").getValue());
+                       x.setSong_amount(Integer.valueOf(snapshot.child("song_amount").getValue().toString()));
+                       playlists.add(x);
+                       adapter.notifyDataSetChanged();
 
-                    for (FirebaseSong song: firebaseSongs) {
-
-                        Song local_song = new Song(0, author_array[0], album_array[0], song.getTitle(), song.getPath());
-                        songs.add(local_song);
-
-                        if(i==snapshot.child("songs").getChildrenCount()){
-                            x.setSongs(songs);
-                            conditionLatch.countDown();
-                        }
                     }
-
-                    x.setImage_id(snapshot.child("image_id").getValue().toString());
-                    x.setYear(snapshot.child("year").getValue().toString());
-                    x.setAlbum((Boolean) snapshot.child("isAlbum").getValue());
-                    x.setTitle(album_array[0]);
-                    x.setDescription(author_array[0]);
-                    x.setSong_amount(Integer.valueOf(snapshot.child("song_amount").getValue().toString()));
-                    playlists.add(x);
-                    adapter.notifyDataSetChanged();
-
-                }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    conditionLatch.countDown();
+                    Log.d("Error: "+error.getMessage(),"FirebaseDatabase");
                 }
 
             });
