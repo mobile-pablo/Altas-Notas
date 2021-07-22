@@ -23,6 +23,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+
+        compileOptions {
+            targetCompatibility JavaVersion.VERSION_1_8
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -84,9 +88,9 @@ dependencies {
     compile 'com.github.bumptech.glide:compiler:4.11.0'
 
 
+
     //Music Player
-    implementation 'com.karumi:dexter:6.0.1'
-    implementation 'com.github.jeancsanchez:JcPlayer:2.7.0'
+   implementation 'com.google.android.exoplayer:exoplayer:2.14.2'
 
     //Crop profile
     implementation 'com.github.CanHub:Android-Image-Cropper:3.2.1'

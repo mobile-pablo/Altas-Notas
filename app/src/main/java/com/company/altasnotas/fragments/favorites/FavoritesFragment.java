@@ -45,7 +45,7 @@ public class FavoritesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
        View view =  inflater.inflate(R.layout.fragment_current_playlist, container, false);
 
 
@@ -125,16 +125,6 @@ public class FavoritesFragment extends Fragment {
                                             }
                                         }
 
-
-                                        for(Song firebaseSong : songs){
-                                            System.out.println("Title: "+firebaseSong.getTitle());
-                                            System.out.println("Author: "+firebaseSong.getAuthor());
-                                            System.out.println("Album: "+firebaseSong.getAlbum());
-                                            System.out.println("Path: "+firebaseSong.getPath());
-                                        }
-
-
-
                                         playlist.setSongs(songs);
                                         playlist.setAlbum(false);
                                         playlist.setTitle("Favorites");
@@ -147,7 +137,7 @@ public class FavoritesFragment extends Fragment {
                                         title.setText(playlist.getTitle());
                                         description.setText(playlist.getDescription()+"\n("+playlist.getYear()+")");
 
-                                        Glide.with(getContext()).load(playlist.getImage_id()).into(imageView);
+                                        Glide.with(requireActivity()).load(playlist.getImage_id()).into(imageView);
 
                                         if(playlist.getSongs()!=null) {
                                             adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, true);
