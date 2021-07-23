@@ -95,6 +95,9 @@ dependencies {
     //Crop profile
     implementation 'com.github.CanHub:Android-Image-Cropper:3.2.1'
 
+    //Song metadata
+    implementation 'com.github.Adonai:jaudiotagger:2.3.14'
+
 
 
 }

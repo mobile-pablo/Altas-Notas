@@ -94,6 +94,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:hide_on_touch="false"
             app:layout_constraintTop_toBottomOf="@+id/player_song_img"
             app:show_buffering="when_playing" />
     </LinearLayout>

@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.os.ParcelFileDescriptor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,9 +22,13 @@ import com.company.altasnotas.models.Song;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
@@ -32,10 +37,26 @@ import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.firebase.storage.FirebaseStorage;
 
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.exceptions.CannotReadException;
+import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
+import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
+import org.jaudiotagger.audio.flac.metadatablock.MetadataBlockDataPicture;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
+import org.jaudiotagger.tag.TagException;
+import org.jaudiotagger.tag.images.Artwork;
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import javax.sql.DataSource;
@@ -125,11 +146,11 @@ public class PlayerFragment extends Fragment {
         playerView.setCameraDistance(0);
         simpleExoPlayer = new SimpleExoPlayer.Builder(getContext()).build();
         playerView.setPlayer(simpleExoPlayer);
-
             DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(getContext(), Util.getUserAgent(getContext(), "app"));
             ArrayList<MediaSource> mediaSources = new ArrayList<>();
             for (Song song : playlist.getSongs()) {
-                MediaSource audioSource = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(song.getPath()));
+                Uri uri = Uri.parse(song.getPath());
+                MediaSource audioSource = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
                 mediaSources.add(audioSource);
             }
 
@@ -152,44 +173,47 @@ public class PlayerFragment extends Fragment {
 
     class ExoListener implements Player.Listener{
         Player player = playerView.getPlayer();
+
         @Override
-        public void onIsPlayingChanged(boolean isPlaying) {
+        public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+            // Video playback status
             title.setText(playlist.getSongs().get(player.getCurrentWindowIndex()).getTitle());
             author.setText(playlist.getSongs().get(player.getCurrentWindowIndex()).getAuthor());
             Glide.with(getContext()).load(playlist.getSongs().get(player.getCurrentWindowIndex()).getImage_url()).into(song_img);
-            if (isPlaying) {
-                System.out.println("Gramy piosenke: "+playlist.getSongs().get((int) player.getCurrentWindowIndex()).getTitle());
+            System.out.println("Gramy piosenke: "+playlist.getSongs().get((int) player.getCurrentWindowIndex()).getTitle());
 
-            } else {
-               if(player.getPlayWhenReady()==true){
-               //Zmiana piosenki
-                   }else{
-                   System.out.println(player.getPlaybackState());
-
-               }
+            Log.d("playbackState = " + playbackState + " playWhenReady = " + playWhenReady,"Exo");
+            switch (playbackState){
+                case Player.STATE_IDLE:
+                    // free
+                    break;
+                case Player.STATE_BUFFERING:
+                    // Buffer
+                    break;
+                case Player.STATE_READY:
+                    // Get ready
+                    break;
+                case Player.STATE_ENDED:
+                    // End
+                    break;
+                default:
+                    break;
             }
         }
 
-
         @Override
         public void onPlayerError(ExoPlaybackException error) {
-            if (error.type == ExoPlaybackException.TYPE_SOURCE) {
-                IOException cause = error.getSourceException();
-                if (cause instanceof HttpDataSource.HttpDataSourceException) {
-                    // An HTTP error occurred.
-                    HttpDataSource.HttpDataSourceException httpError = (HttpDataSource.HttpDataSourceException) cause;
-                    // This is the request for which the error occurred.
-                    DataSpec requestDataSpec = httpError.dataSpec;
-                    // It's possible to find out more about the error both by casting and by
-                    // querying the cause.
-                    if (httpError instanceof HttpDataSource.InvalidResponseCodeException) {
-                        // Cast to InvalidResponseCodeException and retrieve the response code,
-                        // message and headers.
-                    } else {
-                        // Try calling httpError.getCause() to retrieve the underlying cause,
-                        // although note that it may be null.
-                    }
-                }
+            // Report errors
+            switch (error.type){
+                case ExoPlaybackException.TYPE_SOURCE:
+                    // Error loading resources
+                    break;
+                case ExoPlaybackException.TYPE_RENDERER:
+                    // Errors in rendering
+                    break;
+                case ExoPlaybackException.TYPE_UNEXPECTED:
+                    // unexpected error
+                    break;
             }
         }
 

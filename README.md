@@ -12,10 +12,12 @@ Export project from Zip and Import full folder
 
 ## 💻 Progress
 
-▰▰▱▱▱▱▱▱▱▱ 20%
+▰▰▰▰▰▰▱▱▱▱ 60%
 
 
 <br /><br/>
 ## 📷 Screenshots
 
-Currently no photo available
+<p align="center">
+<img src="gif_1.gif" width="270px">
+</p>
