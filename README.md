@@ -19,7 +19,7 @@ Export project from Zip and Import full folder
 * SearchView connected with Albums and Songs from Firebase
 * Favorites Button on Every song
 * Settings Button on Every song (Optional)
-* Playlist fragment
+* Player fragment
 * Configure Player (resume song etc.)
 * Add Notifications 
 * Small version of ExoPlayer added to MainActivity
