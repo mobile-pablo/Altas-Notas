@@ -23,6 +23,7 @@ Export project from Zip and Import full folder
 * Configure Player (resume song etc.)
 * Add Notifications 
 * Small version of ExoPlayer added to MainActivity
+* Better design for UI
 
 
 <br /><br/>
