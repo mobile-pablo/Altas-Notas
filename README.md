@@ -14,6 +14,16 @@ Export project from Zip and Import full folder
 
 ▰▰▰▰▰▰▱▱▱▱ 60%
 
+## 🧭 What's next
+
+* SearchView connected with Albums and Songs from Firebase
+* Favorites Button on Every song
+* Settings Button on Every song (Optional)
+* Playlist fragment
+* Configure Player (resume song etc.)
+* Add Notifications 
+* Small display of playing current Song
+
 
 <br /><br/>
 ## 📷 Screenshots
