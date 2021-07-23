@@ -22,7 +22,7 @@ Export project from Zip and Import full folder
 * Playlist fragment
 * Configure Player (resume song etc.)
 * Add Notifications 
-* Small display of playing current Song
+* Small version of ExoPlayer added to MainActivity
 
 
 <br /><br/>
