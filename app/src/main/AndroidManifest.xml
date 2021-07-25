@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <meta-data
         android:name="preloaded_fonts"
         android:resource="@array/preloaded_fonts" />
@@ -64,6 +65,9 @@
 
         <activity android:name="com.canhub.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat"/>
+
+
+        <service android:name=".services.BackgroundService"/>
     </application>
 
 </manifest>

@@ -1,10 +1,16 @@
 package com.company.altasnotas.fragments.player;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +25,7 @@ import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
+import com.company.altasnotas.services.BackgroundService;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -41,16 +48,6 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.firebase.storage.FirebaseStorage;
 
-import org.jaudiotagger.audio.AudioFile;
-import org.jaudiotagger.audio.AudioFileIO;
-import org.jaudiotagger.audio.exceptions.CannotReadException;
-import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
-import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
-import org.jaudiotagger.audio.flac.metadatablock.MetadataBlockDataPicture;
-import org.jaudiotagger.tag.FieldKey;
-import org.jaudiotagger.tag.Tag;
-import org.jaudiotagger.tag.TagException;
-import org.jaudiotagger.tag.images.Artwork;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -75,6 +72,23 @@ public class PlayerFragment extends Fragment {
 
     private SimpleExoPlayer simpleExoPlayer;
     private PlayerView playerView;
+    private BackgroundService mService;
+    private boolean mBound = false;
+    private Intent intent;
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            BackgroundService.LocalBinder binder = (BackgroundService.LocalBinder) iBinder;
+            mService = binder.getService();
+            mBound = true;
+            initializePlayer();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            mBound = false;
+        }
+    };
 
     public PlayerFragment(Playlist playlist, int position){
         this.playlist = playlist;
@@ -92,40 +106,20 @@ public class PlayerFragment extends Fragment {
       title = view.findViewById(R.id.player_song_title);
       author = view.findViewById(R.id.player_song_author);
       song_img =view.findViewById(R.id.player_song_img);
+        playerView= view.findViewById(R.id.player_view);
+        playerView.setBackgroundColor(Color.TRANSPARENT);
+        setUI();
 
-
-
-        title.setText(playlist.getSongs().get(position).getTitle());
-        author.setText(playlist.getSongs().get(position).getAuthor());
-        Glide.with(getContext()).load(playlist.getSongs().get(position).getImage_url()).into(song_img);
-
-
-
-        initPlayer(view);
-
-
+         intent = new Intent(getActivity(), BackgroundService.class);
+        intent.putExtra("playlist", playlist);
+        intent.putExtra("pos", position);
+        intent.putParcelableArrayListExtra("songs", playlist.getSongs());
+        Util.startForegroundService(getActivity(), intent);
 
 
 
     fav_btn = view.findViewById(R.id.player_song_fav_btn);
     settings_btn = view.findViewById(R.id.player_song_options_btn);
-
-      /**
- *         if(jcplayerView.getCurrentAudio()!=null){
- *             //Here I check if I get back to song I been before.
- *             // If I been I want to seekTo current timeStamp.
- *             if (jcplayerView.getCurrentAudio().hashCode() == jcAudios.get(position).hashCode())
- *             {
- *                 System.out.println("Same song!");
- *
- *             } else{
- *
- *             }
- *         }else{
- *             jcplayerView.playAudio(jcAudios.get(position));
- *         }
- */
-
 
     fav_btn.setOnClickListener(v->{
 
@@ -139,40 +133,43 @@ public class PlayerFragment extends Fragment {
       return view;
     }
 
-    private void initPlayer(View view) {
 
-        playerView= view.findViewById(R.id.player_view);
-        playerView.setControllerShowTimeoutMs(0);
-        playerView.setCameraDistance(0);
-        simpleExoPlayer = new SimpleExoPlayer.Builder(getContext()).build();
-        playerView.setPlayer(simpleExoPlayer);
-            DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(getContext(), Util.getUserAgent(getContext(), "app"));
-            ArrayList<MediaSource> mediaSources = new ArrayList<>();
-            for (Song song : playlist.getSongs()) {
-                Uri uri = Uri.parse(song.getPath());
-                MediaSource audioSource = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
-                mediaSources.add(audioSource);
-            }
+    private void initializePlayer() {
+        if (mBound) {
+            SimpleExoPlayer player = mService.getPlayerInstance();
+            player.addListener(new ExoListener(player));
+            playerView.setPlayer(player);
+            playerView.setUseController(true);
+            playerView.showController();
+            playerView.setControllerShowTimeoutMs(0);
+            playerView.setCameraDistance(0);
+            playerView.setControllerAutoShow(true);
+            playerView.setControllerHideOnTouch(false);
+
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        requireActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private void setUI() {
+
+        title.setText(playlist.getSongs().get(position).getTitle());
+        author.setText(playlist.getSongs().get(position).getAuthor());
+        Glide.with(requireContext()).load(playlist.getSongs().get(position).getImage_url()).into(song_img);
 
 
-
-
-            ConcatenatingMediaSource concatenatingMediaSource = new ConcatenatingMediaSource();
-            concatenatingMediaSource.addMediaSources(mediaSources);
-
-            simpleExoPlayer.seekTo(position, C.INDEX_UNSET);
-
-            simpleExoPlayer.prepare(concatenatingMediaSource,false,false);
-            simpleExoPlayer.setPlayWhenReady(false);
-
-            simpleExoPlayer.addListener(new ExoListener());
 
     }
 
-
-
-    class ExoListener implements Player.Listener{
-        Player player = playerView.getPlayer();
+   public class ExoListener implements Player.Listener{
+        SimpleExoPlayer player;
+        public ExoListener(SimpleExoPlayer player){
+            this.player=player;
+        }
 
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
@@ -218,6 +215,8 @@ public class PlayerFragment extends Fragment {
         }
 
     }
+
+
 
 
 }

@@ -1,6 +1,9 @@
 package com.company.altasnotas.models;
 
-public class Song {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Song implements Parcelable {
     //Song isnt on their own objects.Its object connected to array of songs for playlist
 
     private String author;
@@ -16,6 +19,26 @@ public class Song {
         this.path=path;
         this.image_url = image_url;
     }
+
+    protected Song(Parcel in) {
+        author = in.readString();
+        album = in.readString();
+        title = in.readString();
+        path = in.readString();
+        image_url = in.readString();
+    }
+
+    public static final Creator<Song> CREATOR = new Creator<Song>() {
+        @Override
+        public Song createFromParcel(Parcel in) {
+            return new Song(in);
+        }
+
+        @Override
+        public Song[] newArray(int size) {
+            return new Song[size];
+        }
+    };
 
     public String getAuthor() {
         return author;
@@ -56,5 +79,19 @@ public class Song {
 
     public void setImage_url(String image_url) {
         this.image_url = image_url;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+    dest.writeString(author);
+    dest.writeString(album);
+    dest.writeString(title);
+    dest.writeString(path);
+    dest.writeString(image_url);
     }
 }
