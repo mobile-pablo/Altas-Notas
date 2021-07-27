@@ -54,7 +54,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
 
 
     private String externalPath;
-
+    private String externalPlaylistTitle;
     @Override
     public void onCreate() {
         super.onCreate();
@@ -70,8 +70,9 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         externalPath = intent.getStringExtra("path");
+        externalPlaylistTitle = intent.getStringExtra("playlistTitle");
         if(playlist!=null){
-           if(!playlist.getSongs().get(position).getPath().equals(externalPath)){
+           if(!(playlist.getSongs().get(position).getPath().equals(externalPath) && playlist.getTitle().equals(externalPath))){
 
                playlist =  intent.getParcelableExtra("playlist");
                position = intent.getIntExtra("pos",0);
@@ -92,7 +93,13 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                            @Nullable
                            @Override
                            public PendingIntent createCurrentContentIntent(Player player) {
+
+
                                Intent intent = new Intent(context, MainActivity.class);
+                               intent.putExtra("frag","PlayerFragment");
+                               intent.putExtra("playlist", playlist);
+                               intent.putExtra("pos", position);
+                               intent.putParcelableArrayListExtra("songs", songs);
                                return PendingIntent.getActivity(context, 0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
                            }
 
@@ -141,7 +148,6 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         }
 
         playlist =  intent.getParcelableExtra("playlist");
-
        position = intent.getIntExtra("pos",0);
        ArrayList<Song> songs = intent.getParcelableArrayListExtra("songs");
        playlist.setSongs(songs);
@@ -195,6 +201,10 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                 @Override
                 public PendingIntent createCurrentContentIntent(Player player) {
                     Intent intent = new Intent(context, MainActivity.class);
+                    intent.putExtra("frag","PlayerFragment");
+                    intent.putExtra("playlist", playlist);
+                    intent.putExtra("pos", position);
+                    intent.putParcelableArrayListExtra("songs", songs);
                     return PendingIntent.getActivity(context, 0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
                 }
 
@@ -226,15 +236,13 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                           new PlayerNotificationManager.NotificationListener() {
               @Override
               public void onNotificationPosted(int notificationId, Notification notification, boolean ongoing) {
-                  if(!ongoing){
                       startForeground(notificationId,notification);
-                  }
               }
 
               @Override
               public void onNotificationCancelled(int notificationId, boolean dismissedByUser) {
-                        stopForeground(true);
-                        stopSelf();
+                      stopForeground(true);
+                      stopSelf();
               }
           })
                   .build();
@@ -290,7 +298,6 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
             // https://developer.android.com/reference/android/support/v4/app/NotificationCompat.Builder.html#NotificationCompat.Builder(android.content.Context)
             channelId="";
         }
-
         Notification.Builder notificationBuilder = new Notification.Builder(this, channelId);
         Notification notification = notificationBuilder.setOngoing(true)
                 .setSmallIcon(R.drawable.altas_notes)

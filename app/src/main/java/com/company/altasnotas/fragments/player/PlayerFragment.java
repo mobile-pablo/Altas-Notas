@@ -89,6 +89,7 @@ public class PlayerFragment extends Fragment {
         intent.putExtra("playlist", playlist);
         intent.putExtra("pos", position);
         intent.putExtra("path", playlist.getSongs().get(position).getPath());
+        intent.putExtra("playlistTitle", playlist.getTitle());
         intent.putParcelableArrayListExtra("songs", playlist.getSongs());
             Util.startForegroundService(getActivity(), intent);
 
@@ -113,12 +114,15 @@ public class PlayerFragment extends Fragment {
             SimpleExoPlayer player = mService.getPlayerInstance();
             exoListener = new ExoListener(player);
             player.addListener(exoListener);
+            playerView.setShutterBackgroundColor(Color.TRANSPARENT);
+            playerView.setKeepContentOnPlayerReset(true);
             playerView.setPlayer(player);
             playerView.setUseController(true);
             playerView.showController();
             playerView.setControllerShowTimeoutMs(0);
             playerView.setCameraDistance(0);
             playerView.setControllerAutoShow(true);
+            player.setPlayWhenReady(true);
             playerView.setControllerHideOnTouch(false);
 
         }
@@ -151,11 +155,6 @@ public class PlayerFragment extends Fragment {
 
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-            // Video playback status
-            title.setText(playlist.getSongs().get(player.getCurrentWindowIndex()).getTitle());
-            author.setText(playlist.getSongs().get(player.getCurrentWindowIndex()).getAuthor());
-            Glide.with(getContext()).load(playlist.getSongs().get(player.getCurrentWindowIndex()).getImage_url()).into(song_img);
-            System.out.println("Gramy piosenke: " + playlist.getSongs().get(player.getCurrentWindowIndex()).getTitle());
 
             Log.d("playbackState = " + playbackState + " playWhenReady = " + playWhenReady, "Exo");
             switch (playbackState) {
@@ -195,6 +194,7 @@ public class PlayerFragment extends Fragment {
         @Override
         public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
             position = player.getCurrentWindowIndex();
+            System.out.println("Gramy piosenke: " + playlist.getSongs().get(player.getCurrentWindowIndex()).getTitle());
             title.setText(playlist.getSongs().get(player.getCurrentWindowIndex()).getTitle());
             author.setText(playlist.getSongs().get(player.getCurrentWindowIndex()).getAuthor());
             Glide.with(getContext()).load(playlist.getSongs().get(player.getCurrentWindowIndex()).getImage_url()).into(song_img);

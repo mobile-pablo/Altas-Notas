@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -17,6 +18,7 @@ import android.view.View;
 import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.fragments.home.HomeFragment;
 import com.company.altasnotas.fragments.login_and_register.LoginFragment;
+import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.fragments.playlists.PlaylistsFragment;
 import com.company.altasnotas.fragments.profile.ProfileFragment;
@@ -63,6 +65,9 @@ public class MainActivity extends AppCompatActivity {
 
         updateUI(mAuth.getCurrentUser());
 
+        String frag = getIntent().getStringExtra("frag");
+
+
         if(savedInstanceState==null) {
             if (mAuth.getCurrentUser() != null) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment()).commit();
@@ -75,7 +80,21 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+        if(frag!=null) {
+            if (frag.equals("PlayerFragment")) {
+                System.out.println(frag);
 
+
+
+                Playlist playlist = getIntent().getParcelableExtra("playlist");
+               Integer position = getIntent().getIntExtra("pos", 0);
+                ArrayList<Song> local_songs = getIntent().getParcelableArrayListExtra("songs");
+                playlist.setSongs(local_songs);
+                PlayerFragment playerFragment = new PlayerFragment(playlist, position);
+                System.out.println(local_songs.size());
+                getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment).commit();
+            }
+        }
     }
 
 
@@ -230,8 +249,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-     Intent intent = new Intent(this, BackgroundService.class);
-        stopService(intent);
+  //   Intent intent = new Intent(this, BackgroundService.class);
+    //    stopService(intent);
         super.onDestroy();
     }
 }

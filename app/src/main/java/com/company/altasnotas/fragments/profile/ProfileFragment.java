@@ -85,6 +85,7 @@ public class ProfileFragment extends Fragment {
     private ImageButton age_accept_btn, phone_accept_btn, address_accept_btn;
     private String backup_age, backup_phone, backup_address;
     private EditText   age_edit_t, phone_edit_t, address_edit_t;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

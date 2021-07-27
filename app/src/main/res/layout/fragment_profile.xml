@@ -110,6 +110,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
+
                 android:orientation="horizontal">
 
                 <TextView
@@ -123,8 +124,7 @@
                     android:textSize="18sp" />
 
                 <EditText
-                    android:paddingLeft="20dp"
-                    android:paddingRight="20dp"
+                    android:padding="5dp"
                     android:id="@+id/profile_age_number"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -134,7 +134,7 @@
                     android:textColor="@drawable/custom_edittext_text_color"
                     android:fontFamily="@font/oswald"
                     android:gravity="right|center_vertical"
-                    android:inputType="number"
+                    android:inputType="number|textNoSuggestions"
                     android:hint="20"
                     android:textSize="18sp" />
 
@@ -193,8 +193,7 @@
                     android:textSize="18sp" />
 
                 <EditText
-                    android:paddingLeft="20dp"
-                    android:paddingRight="20dp"
+                    android:padding="5dp"
                     android:id="@+id/profile_phone_number"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -203,6 +202,7 @@
                     android:background="@android:color/transparent"
                     android:textColor="@drawable/custom_edittext_text_color"
                     android:fontFamily="@font/oswald"
+                    android:inputType="textNoSuggestions"
                     android:gravity="right|center_vertical"
                     android:hint="+48 633 973 627"
 
@@ -263,8 +263,6 @@
                     android:textSize="18sp" />
 
                 <EditText
-                    android:paddingLeft="20dp"
-                    android:paddingRight="20dp"
                     android:id="@+id/profile_address_number"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -275,6 +273,8 @@
                     android:fontFamily="@font/oswald"
                     android:gravity="right|center_vertical"
                     android:hint="East Ave 7,NY"
+                    android:padding="5dp"
+                    android:inputType="textNoSuggestions"
                     android:textSize="18sp" />
 
                 <LinearLayout
