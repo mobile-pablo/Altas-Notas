@@ -9,56 +9,36 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.media.MediaMetadataRetriever;
+
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
+
 import android.os.IBinder;
 import android.provider.MediaStore;
-import android.support.v4.media.MediaDescriptionCompat;
-import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.core.app.NotificationCompat;
-import androidx.media2.exoplayer.external.source.ExtractorMediaSource;
+
 
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
-import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
-import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.PlayerNotificationManager;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
-
-import static androidx.core.app.NotificationCompat.PRIORITY_MIN;
+import java.util.concurrent.CountDownLatch;
 
 
 public class BackgroundService extends Service implements ExoPlayer.EventListener {
@@ -67,10 +47,13 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     private Playlist playlist;
     private Context context;
     private PlayerNotificationManager playerNotificationManager;
-    private String streamUrl = "https://firebasestorage.googleapis.com/v0/b/altas-notas.appspot.com/o/songs%2Fbad%20bunny%2Fyhlqmdlg%2FHABLAMOS%20MA%C3%91ANA.mp3?alt=media&token=07a9d499-22b5-4586-9b57-7219b2812335";
     private final IBinder mBinder = new LocalBinder();
-    private String CHANNEL_ID="6", NOTIFICATION_ID="8";
+    private final String CHANNEL_ID="6";
+    private final String NOTIFICATION_ID="8";
     private Integer position;
+
+
+    private String externalPath;
 
     @Override
     public void onCreate() {
@@ -86,7 +69,79 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        externalPath = intent.getStringExtra("path");
+        if(playlist!=null){
+           if(!playlist.getSongs().get(position).getPath().equals(externalPath)){
+
+               playlist =  intent.getParcelableExtra("playlist");
+               position = intent.getIntExtra("pos",0);
+               ArrayList<Song> songs = intent.getParcelableArrayListExtra("songs");
+               playlist.setSongs(songs);
+
+               releasePlayer();
+               startPlayer();
+               playerNotificationManager = new PlayerNotificationManager.Builder(context,
+                       Integer.parseInt(NOTIFICATION_ID),
+                       CHANNEL_ID,
+                       new PlayerNotificationManager.MediaDescriptionAdapter() {
+                           @Override
+                           public CharSequence getCurrentContentTitle(Player player) {
+                               return playlist.getSongs().get(position).getTitle();
+                           }
+
+                           @Nullable
+                           @Override
+                           public PendingIntent createCurrentContentIntent(Player player) {
+                               Intent intent = new Intent(context, MainActivity.class);
+                               return PendingIntent.getActivity(context, 0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+                           }
+
+                           @Nullable
+                           @Override
+                           public CharSequence getCurrentContentText(Player player) {
+                               return playlist.getSongs().get(position).getAuthor();
+                           }
+
+                           @Nullable
+                           @Override
+                           public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
+             /*
+                    try {
+                        System.out.println("Parse: "+playlist.getSongs().get(position).getImage_url());
+                        Uri uri = Uri.parse(playlist.getSongs().get(position).getImage_url());
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                        return bitmap;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+              */
+                               return null;
+
+                           }
+                       })
+                       .setNotificationListener(
+                               new PlayerNotificationManager.NotificationListener() {
+                                   @Override
+                                   public void onNotificationPosted(int notificationId, Notification notification, boolean ongoing) {
+                                       if(!ongoing){
+                                           startForeground(notificationId,notification);
+                                       }
+                                   }
+
+                                   @Override
+                                   public void onNotificationCancelled(int notificationId, boolean dismissedByUser) {
+                                       stopForeground(true);
+                                       stopSelf();
+                                   }
+                               })
+                       .build();
+               playerNotificationManager.setPlayer(player);
+           }
+        }
+
         playlist =  intent.getParcelableExtra("playlist");
+
        position = intent.getIntExtra("pos",0);
        ArrayList<Song> songs = intent.getParcelableArrayListExtra("songs");
        playlist.setSongs(songs);
@@ -152,6 +207,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                 @Nullable
                 @Override
                 public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
+             /*
                     try {
                         System.out.println("Parse: "+playlist.getSongs().get(position).getImage_url());
                         Uri uri = Uri.parse(playlist.getSongs().get(position).getImage_url());
@@ -161,6 +217,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                         e.printStackTrace();
                         return null;
                     }
+              */
+                    return null;
 
                 }
             })
@@ -168,15 +226,15 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                           new PlayerNotificationManager.NotificationListener() {
               @Override
               public void onNotificationPosted(int notificationId, Notification notification, boolean ongoing) {
+                  if(!ongoing){
                       startForeground(notificationId,notification);
+                  }
               }
 
               @Override
               public void onNotificationCancelled(int notificationId, boolean dismissedByUser) {
-                  if (dismissedByUser) {
-                      stopForeground(true);
-                      stopSelf();
-                  }
+                        stopForeground(true);
+                        stopSelf();
               }
           })
                   .build();
@@ -243,6 +301,16 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         startForeground(101, notification);
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    private String createNotificationChannel( String channelId,  String channelName){
+   NotificationChannel  chan = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_NONE);
+   chan.setLightColor(Color.BLUE);
+     chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+        NotificationManager service =  ( NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        service.createNotificationChannel(chan);
+        return channelId;
+    }
+
 
     //Basic Notification
     //Not ExoPlayer Notification!
@@ -251,7 +319,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         NotificationChannel channel;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-          channel = new NotificationChannel(notificationChannelID, "Endless Service notifications Chanell", NotificationManager.IMPORTANCE_HIGH);
+            channel = new NotificationChannel(notificationChannelID, "Endless Service notifications Chanell", NotificationManager.IMPORTANCE_HIGH);
 
             channel.setDescription("Endless Service Channel");
             channel.enableLights(true);
@@ -262,9 +330,9 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         }
 
         Intent intent = new Intent(context, MainActivity.class);
-       PendingIntent pendingIntent =  PendingIntent.getActivity(context, 0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent =  PendingIntent.getActivity(context, 0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
 
-    Notification.Builder builder;
+        Notification.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             builder = new Notification.Builder(this,notificationChannelID);
         }else{
@@ -281,17 +349,6 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     }
 
 
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private String createNotificationChannel( String channelId,  String channelName){
-   NotificationChannel  chan = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_NONE);
-   chan.setLightColor(Color.BLUE);
-     chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-        NotificationManager service =  ( NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-        service.createNotificationChannel(chan);
-        return channelId;
-    }
-
     public SimpleExoPlayer getPlayerInstance() {
         if (player == null) {
             return  startPlayer();
@@ -300,10 +357,14 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         }
     }
 
+    public void setPosition(Integer integer){
+        position= integer;
+    }
 
     public String getSongPath(){
         return playlist.getSongs().get(position).getPath();
     }
+
 
     public class LocalBinder extends Binder {
         public BackgroundService getService() {

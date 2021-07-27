@@ -30,9 +30,9 @@ import java.util.ArrayList;
 
 public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylistAdapter.MyViewHolder> {
 private final Playlist playlist;
-private MainActivity activity;
-private ArrayList<Song> songs;
-private Boolean isFavFragment;
+private final MainActivity activity;
+private final ArrayList<Song> songs;
+private final Boolean isFavFragment;
 
     public CurrentPlaylistAdapter(MainActivity activity, Playlist playlist, Boolean isFavFragment){
         this.playlist=playlist;

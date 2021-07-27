@@ -41,7 +41,8 @@ public class CurrentPlaylistFragment extends Fragment {
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
     CurrentPlaylistAdapter adapter;
-    private String author,album;
+    private final String author;
+    private final String album;
 
     @Override
 

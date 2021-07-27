@@ -5,13 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.os.IBinder;
-import android.os.ParcelFileDescriptor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,62 +15,39 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.fragment.app.Fragment;
+
 import com.bumptech.glide.Glide;
-import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.models.Playlist;
-import com.company.altasnotas.models.Song;
 import com.company.altasnotas.services.BackgroundService;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.MetadataOutput;
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.ui.StyledPlayerView;
-import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.firebase.storage.FirebaseStorage;
-
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-
-import javax.sql.DataSource;
 
 
 public class PlayerFragment extends Fragment {
     private FirebaseStorage storage;
     private ImageButton fav_btn;
     private Button settings_btn;
-    private final Playlist playlist;
+    private Playlist playlist;
     int position;
     private ImageView song_img;
-
+    private ExoListener exoListener;
     private TextView title, author;
 
 
-    private SimpleExoPlayer simpleExoPlayer;
     private PlayerView playerView;
     private BackgroundService mService;
     private boolean mBound = false;
     private Intent intent;
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             BackgroundService.LocalBinder binder = (BackgroundService.LocalBinder) iBinder;
@@ -90,54 +62,57 @@ public class PlayerFragment extends Fragment {
         }
     };
 
-    public PlayerFragment(Playlist playlist, int position){
+    public PlayerFragment(Playlist playlist, int position) {
+        this.playlist=null;
         this.playlist = playlist;
-        this.position=position;
+        this.position = position;
         //We are sending playlist to this player and let it play all of it
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
-    {
+                             Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-      View view=  inflater.inflate(R.layout.fragment_player, container, false);
-      storage = FirebaseStorage.getInstance();
-      title = view.findViewById(R.id.player_song_title);
-      author = view.findViewById(R.id.player_song_author);
-      song_img =view.findViewById(R.id.player_song_img);
-        playerView= view.findViewById(R.id.player_view);
+        View view = inflater.inflate(R.layout.fragment_player, container, false);
+        storage = FirebaseStorage.getInstance();
+        title = view.findViewById(R.id.player_song_title);
+        author = view.findViewById(R.id.player_song_author);
+        song_img = view.findViewById(R.id.player_song_img);
+        playerView = view.findViewById(R.id.player_view);
         playerView.setBackgroundColor(Color.TRANSPARENT);
         setUI();
 
-         intent = new Intent(getActivity(), BackgroundService.class);
+
+
+        intent = new Intent(getActivity(), BackgroundService.class);
+        System.out.println("Playlist name: "+playlist.getTitle());
         intent.putExtra("playlist", playlist);
         intent.putExtra("pos", position);
+        intent.putExtra("path", playlist.getSongs().get(position).getPath());
         intent.putParcelableArrayListExtra("songs", playlist.getSongs());
-        Util.startForegroundService(getActivity(), intent);
+            Util.startForegroundService(getActivity(), intent);
 
 
+        fav_btn = view.findViewById(R.id.player_song_fav_btn);
+        settings_btn = view.findViewById(R.id.player_song_options_btn);
 
-    fav_btn = view.findViewById(R.id.player_song_fav_btn);
-    settings_btn = view.findViewById(R.id.player_song_options_btn);
+        fav_btn.setOnClickListener(v -> {
 
-    fav_btn.setOnClickListener(v->{
-
-        if( fav_btn.getDrawable().getConstantState().equals(fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState()))
-        {
-            fav_btn.setImageResource(R.drawable.ic_heart_full);
-        }else{
-            fav_btn.setImageResource(R.drawable.ic_heart_empty);
-        }
-    });
-      return view;
+            if (fav_btn.getDrawable().getConstantState().equals(fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+                fav_btn.setImageResource(R.drawable.ic_heart_full);
+            } else {
+                fav_btn.setImageResource(R.drawable.ic_heart_empty);
+            }
+        });
+        return view;
     }
 
 
     private void initializePlayer() {
         if (mBound) {
             SimpleExoPlayer player = mService.getPlayerInstance();
-            player.addListener(new ExoListener(player));
+            exoListener = new ExoListener(player);
+            player.addListener(exoListener);
             playerView.setPlayer(player);
             playerView.setUseController(true);
             playerView.showController();
@@ -152,6 +127,8 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+      //  intent = new Intent(getActivity(), BackgroundService.class);
+      //  getActivity().stopService(intent);
         requireActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
@@ -162,13 +139,14 @@ public class PlayerFragment extends Fragment {
         Glide.with(requireContext()).load(playlist.getSongs().get(position).getImage_url()).into(song_img);
 
 
-
     }
 
-   public class ExoListener implements Player.Listener{
+
+    public class ExoListener implements Player.Listener {
         SimpleExoPlayer player;
-        public ExoListener(SimpleExoPlayer player){
-            this.player=player;
+
+        public ExoListener(SimpleExoPlayer player) {
+            this.player = player;
         }
 
         @Override
@@ -177,10 +155,10 @@ public class PlayerFragment extends Fragment {
             title.setText(playlist.getSongs().get(player.getCurrentWindowIndex()).getTitle());
             author.setText(playlist.getSongs().get(player.getCurrentWindowIndex()).getAuthor());
             Glide.with(getContext()).load(playlist.getSongs().get(player.getCurrentWindowIndex()).getImage_url()).into(song_img);
-            System.out.println("Gramy piosenke: "+playlist.getSongs().get((int) player.getCurrentWindowIndex()).getTitle());
+            System.out.println("Gramy piosenke: " + playlist.getSongs().get(player.getCurrentWindowIndex()).getTitle());
 
-            Log.d("playbackState = " + playbackState + " playWhenReady = " + playWhenReady,"Exo");
-            switch (playbackState){
+            Log.d("playbackState = " + playbackState + " playWhenReady = " + playWhenReady, "Exo");
+            switch (playbackState) {
                 case Player.STATE_IDLE:
                     // free
                     break;
@@ -201,7 +179,7 @@ public class PlayerFragment extends Fragment {
         @Override
         public void onPlayerError(ExoPlaybackException error) {
             // Report errors
-            switch (error.type){
+            switch (error.type) {
                 case ExoPlaybackException.TYPE_SOURCE:
                     // Error loading resources
                     break;
@@ -214,9 +192,15 @@ public class PlayerFragment extends Fragment {
             }
         }
 
+        @Override
+        public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+            position = player.getCurrentWindowIndex();
+            title.setText(playlist.getSongs().get(player.getCurrentWindowIndex()).getTitle());
+            author.setText(playlist.getSongs().get(player.getCurrentWindowIndex()).getAuthor());
+            Glide.with(getContext()).load(playlist.getSongs().get(player.getCurrentWindowIndex()).getImage_url()).into(song_img);
+            mService.setPosition(position);
+        }
     }
-
-
 
 
 }

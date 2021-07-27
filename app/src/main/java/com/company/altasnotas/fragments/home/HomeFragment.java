@@ -42,9 +42,9 @@ HomeFragmentAdapter adapter;
     private DatabaseReference database_ref;
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
-    private String[] album_array = new String[1];
-    private String[] author_array = new String[1];
-    private ArrayList<Playlist> playlists = new ArrayList<>();
+    private final String[] album_array = new String[1];
+    private final String[] author_array = new String[1];
+    private final ArrayList<Playlist> playlists = new ArrayList<>();
     private ArrayList<String> authors;
     private ArrayList<String> albums;
 
