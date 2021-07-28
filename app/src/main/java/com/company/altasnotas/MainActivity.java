@@ -4,13 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,7 +14,6 @@ import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.fragments.home.HomeFragment;
 import com.company.altasnotas.fragments.login_and_register.LoginFragment;
 import com.company.altasnotas.fragments.player.PlayerFragment;
-import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.fragments.playlists.PlaylistsFragment;
 import com.company.altasnotas.fragments.profile.ProfileFragment;
 import com.company.altasnotas.models.Playlist;
@@ -31,22 +25,13 @@ import com.facebook.login.LoginManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.concurrent.CountDownLatch;
-
-import bolts.Task;
 
 public class MainActivity extends AppCompatActivity {
-    DatabaseReference database_ref;
-    FirebaseDatabase database;
+
     FirebaseAuth mAuth;
     public  String photoUrl;
     @Override
@@ -88,9 +73,10 @@ public class MainActivity extends AppCompatActivity {
 
                 Playlist playlist = getIntent().getParcelableExtra("playlist");
                Integer position = getIntent().getIntExtra("pos", 0);
+               long seekedTo = getIntent().getLongExtra("ms", 0);
                 ArrayList<Song> local_songs = getIntent().getParcelableArrayListExtra("songs");
                 playlist.setSongs(local_songs);
-                PlayerFragment playerFragment = new PlayerFragment(playlist, position);
+                PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo);
                 System.out.println(local_songs.size());
                 getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment).commit();
             }
@@ -106,66 +92,8 @@ public class MainActivity extends AppCompatActivity {
 
             switch (item.getItemId()){
                 case R.id.nav_home_item:
-                  selectedFragment[0] = new HomeFragment();
-
-          /* IMPORTANT CODE
-                    Playlist x = new Playlist();
-
-
-                    CountDownLatch conditionLatch = new CountDownLatch(1);
-                    mAuth = FirebaseAuth.getInstance();
-                    database = FirebaseDatabase.getInstance();
-                    database_ref = database.getReference();
-                    final String[] album_array = new String[1];
-                    final String[] author_array = new String[1];
-                    ArrayList<Song> songs = new ArrayList<>();
-
-                        if (mAuth.getCurrentUser() != null) {
-
-                            database_ref.child("music").child("albums").child("Kult").child("Spokojnie").addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    album_array[0] = snapshot.child("songs").getRef().getParent().getKey();
-                                    author_array[0] = snapshot.child("songs").getRef().getParent().getParent().getKey();
-                                    int i=0;
-                                     for (DataSnapshot ds: snapshot.child("songs").getChildren()){
-                                         i++;
-
-                                        Song local_song = new Song(0, author_array[0], album_array[0], ds.getKey().toString(),Uri.parse(ds.child("path").getValue().toString()));
-                                        songs.add(local_song);
-
-
-                                         if(i==snapshot.child("songs").getChildrenCount()){
-                                             x.setSongs(songs);
-                                             selectedFragment[0] = new CurrentPlaylistFragment(x);
-                                             conditionLatch.countDown();
-                                             getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, selectedFragment[0]).commit();
-
-                                         }
-                                     }
-
-
-                                   x.setImage_id(snapshot.child("image_id").getValue().toString());
-                                   x.setYear(snapshot.child("year").getValue().toString());
-                                   x.setAlbum((Boolean) snapshot.child("isAlbum").getValue());
-                                   x.setTitle(album_array[0]);
-                                   x.setDescription(author_array[0]);
-                                   x.setSong_amount(Integer.valueOf(snapshot.child("song_amount").getValue().toString()));
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-                                    conditionLatch.countDown();
-                                }
-                            });
-
-
-                        }
-
-
-           */
-
-                    break;
+                     selectedFragment[0] = new HomeFragment();
+                     break;
 
                 case R.id.nav_fav_item:
                     selectedFragment[0] = new FavoritesFragment();
@@ -249,8 +177,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-  //   Intent intent = new Intent(this, BackgroundService.class);
-    //    stopService(intent);
+     Intent intent = new Intent(this, BackgroundService.class);
+        stopService(intent);
         super.onDestroy();
     }
 }

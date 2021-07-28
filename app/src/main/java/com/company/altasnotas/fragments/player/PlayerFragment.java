@@ -1,5 +1,7 @@
 package com.company.altasnotas.fragments.player;
 
+import android.app.NotificationManager;
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -47,6 +49,8 @@ public class PlayerFragment extends Fragment {
     private BackgroundService mService;
     private boolean mBound = false;
     private Intent intent;
+
+    private Long seekedTo;
     private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -62,10 +66,11 @@ public class PlayerFragment extends Fragment {
         }
     };
 
-    public PlayerFragment(Playlist playlist, int position) {
+    public PlayerFragment(Playlist playlist, int position, long seekedTo) {
         this.playlist=null;
         this.playlist = playlist;
         this.position = position;
+        this.seekedTo=seekedTo;
         //We are sending playlist to this player and let it play all of it
     }
 
@@ -83,13 +88,13 @@ public class PlayerFragment extends Fragment {
         setUI();
 
 
-
         intent = new Intent(getActivity(), BackgroundService.class);
         System.out.println("Playlist name: "+playlist.getTitle());
         intent.putExtra("playlist", playlist);
         intent.putExtra("pos", position);
         intent.putExtra("path", playlist.getSongs().get(position).getPath());
         intent.putExtra("playlistTitle", playlist.getTitle());
+        intent.putExtra("ms",seekedTo);
         intent.putParcelableArrayListExtra("songs", playlist.getSongs());
             Util.startForegroundService(getActivity(), intent);
 
@@ -155,6 +160,7 @@ public class PlayerFragment extends Fragment {
 
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+
 
             Log.d("playbackState = " + playbackState + " playWhenReady = " + playWhenReady, "Exo");
             switch (playbackState) {

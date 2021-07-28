@@ -1,8 +1,6 @@
 package com.company.altasnotas.adapters;
 
 
-import android.content.Intent;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,10 +20,7 @@ import com.company.altasnotas.R;
 import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
-import com.company.altasnotas.services.BackgroundService;
-import com.google.android.exoplayer2.util.Util;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylistAdapter.MyViewHolder> {
@@ -75,7 +70,7 @@ private final Boolean isFavFragment;
         holder.currentAuthor.setText(songs.get(position).getAuthor());
 
         holder.currentBox.setOnClickListener(v -> {
-            PlayerFragment playerFragment = new PlayerFragment(playlist, position);
+            PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0);
              activity.getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment).commit();
 
         });
