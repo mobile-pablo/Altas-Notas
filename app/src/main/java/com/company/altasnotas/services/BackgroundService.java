@@ -8,6 +8,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 
 import android.net.Uri;
@@ -17,9 +18,11 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.provider.MediaStore;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
 
 
 import com.company.altasnotas.MainActivity;
@@ -139,9 +142,13 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                                new PlayerNotificationManager.NotificationListener() {
                                    @Override
                                    public void onNotificationPosted(int notificationId, Notification notification, boolean ongoing) {
-                                     //  if(!ongoing) {
+                                       if (ongoing) {
+                                           // Make sure the service will not get destroyed while playing media.
                                            startForeground(notificationId, notification);
-                                     //  }
+                                       } else {
+                                           // Make notification cancellable.
+                                           stopForeground(false);
+                                       }
                                    }
 
                                    @Override
@@ -212,10 +219,13 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                           new PlayerNotificationManager.NotificationListener() {
               @Override
               public void onNotificationPosted(int notificationId, Notification notification, boolean ongoing) {
-                 // if(!ongoing) {
+                  if (ongoing) {
+                      // Make sure the service will not get destroyed while playing media.
                       startForeground(notificationId, notification);
-                //  }
-
+                  } else {
+                      // Make notification cancellable.
+                      stopForeground(false);
+                  }
               }
 
               @Override

@@ -162,6 +162,7 @@ public class PlayerFragment extends Fragment {
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
 
 
+
             Log.d("playbackState = " + playbackState + " playWhenReady = " + playWhenReady, "Exo");
             switch (playbackState) {
                 case Player.STATE_IDLE:
