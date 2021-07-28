@@ -1,5 +1,6 @@
 package com.company.altasnotas.services;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -11,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 
+import android.media.session.MediaSession;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
@@ -32,6 +34,7 @@ import com.company.altasnotas.models.Song;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
@@ -43,8 +46,12 @@ import com.google.android.exoplayer2.util.Util;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
-
+import android.support.v4.media.session.MediaSessionCompat;
+import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 
 public class BackgroundService extends Service implements ExoPlayer.EventListener {
 
@@ -64,9 +71,6 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     public void onCreate() {
         super.onCreate();
         context =this;
-
-
-
     }
 
     @Nullable
@@ -158,18 +162,25 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                                    }
                                })
                        .build();
+
+
+               MediaSessionCompat mediaSession = new MediaSessionCompat(context, context.getString(R.string.app_name));
+               mediaSession.setActive(true);
+               playerNotificationManager.setMediaSessionToken(mediaSession.getSessionToken());
+
+               playerNotificationManager.setSmallIcon(R.drawable.altas_notes);
+               playerNotificationManager.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+               playerNotificationManager.setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL);
                playerNotificationManager.setPlayer(player);
            }
-        }
-
-
-        if (player == null) {
+        }else{
             playlist =  intent.getParcelableExtra("playlist");
             position = intent.getIntExtra("pos",0);
             ArrayList<Song> songs = intent.getParcelableArrayListExtra("songs");
             playlist.setSongs(songs);
 
-            startPlayer();
+         //   startPlayer();
+            testingPlayer();
           playerNotificationManager = new PlayerNotificationManager.Builder(context,
                   Integer.parseInt(NOTIFICATION_ID),
                   CHANNEL_ID,
@@ -235,9 +246,23 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
               }
           })
                   .build();
+
+            MediaSessionCompat mediaSession = new MediaSessionCompat(context, context.getString(R.string.app_name));
+            mediaSession.setActive(true);
+            playerNotificationManager.setMediaSessionToken(mediaSession.getSessionToken());
+
+            playerNotificationManager.setSmallIcon(R.drawable.altas_notes);
+            playerNotificationManager.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+            playerNotificationManager.setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL);
             playerNotificationManager.setPlayer(player);
         }
         return START_STICKY;
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        stopSelf();
     }
 
     @Override
@@ -277,7 +302,24 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         if(seekedTo!=0){
             player.seekTo(seekedTo);
         }
+
        player.prepare(concatenatingMediaSource,false,false);
+
+
+
+
+        return player;
+    }
+
+    public SimpleExoPlayer testingPlayer(){
+        player = new SimpleExoPlayer.Builder(this).build();
+
+        MediaItem mediaItem = MediaItem.fromUri(Uri.parse("https://media1.vocaroo.com/mp3/1nS8YXb35PBj"));
+// Set the media item to be played.
+        player.setMediaItem(mediaItem);
+// Prepare the player.
+        player.prepare();
+
         return player;
     }
 
@@ -317,6 +359,40 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                 .build();
     }
 
+
+
+    //Notificion for older version of player
+    private void createNotification() {
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), "notify_001");
+        Intent ii = new Intent(getApplicationContext(), MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, ii, 0);
+
+        NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
+        bigText.bigText(playlist.getSongs().get(position).getAuthor()); //detail mode is the "expanded" notification
+        bigText.setBigContentTitle(playlist.getSongs().get(position).getTitle());
+        bigText.setSummaryText(playlist.getSongs().get(position).getTitle()); //small text under notification
+
+        mBuilder.setContentIntent(pendingIntent);
+        mBuilder.setSmallIcon(R.drawable.altas_notes); //notification icon
+        mBuilder.setContentTitle(playlist.getSongs().get(position).getTitle()); //main title
+        mBuilder.setContentText(playlist.getSongs().get(position).getTitle()); //main text when you "haven't expanded" the notification yet
+        mBuilder.setPriority(Notification.PRIORITY_MAX);
+        mBuilder.setStyle(bigText);
+
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        NotificationChannel channel = new NotificationChannel("notify_001",
+                "Channel human readable title",
+                NotificationManager.IMPORTANCE_DEFAULT);
+        if (mNotificationManager != null) {
+            mNotificationManager.createNotificationChannel(channel);
+        }
+
+        if (mNotificationManager != null) {
+            mNotificationManager.notify(0, mBuilder.build());
+        }
+
+    }
 
     public SimpleExoPlayer getPlayerInstance() {
         if (player == null) {

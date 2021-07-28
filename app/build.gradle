@@ -92,6 +92,7 @@ dependencies {
 
     //Music Player
    implementation 'com.google.android.exoplayer:exoplayer:2.14.2'
+    implementation 'com.google.android.exoplayer:extension-mediasession:2.14.2'
 
     //Crop profile
     implementation 'com.github.CanHub:Android-Image-Cropper:3.2.1'

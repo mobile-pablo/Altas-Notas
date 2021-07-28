@@ -96,8 +96,12 @@ public class PlayerFragment extends Fragment {
         intent.putExtra("playlistTitle", playlist.getTitle());
         intent.putExtra("ms",seekedTo);
         intent.putParcelableArrayListExtra("songs", playlist.getSongs());
-            Util.startForegroundService(getActivity(), intent);
 
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            Util.startForegroundService(getActivity(), intent);
+        }else{
+            getActivity().startService(intent);
+        }
 
         fav_btn = view.findViewById(R.id.player_song_fav_btn);
         settings_btn = view.findViewById(R.id.player_song_options_btn);
