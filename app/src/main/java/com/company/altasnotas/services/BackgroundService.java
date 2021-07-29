@@ -10,8 +10,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
 
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.session.MediaSession;
 import android.net.Uri;
 import android.os.Binder;
@@ -22,11 +25,15 @@ import android.os.IBinder;
 import android.provider.MediaStore;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.models.Playlist;
@@ -65,8 +72,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     private Integer position;
     private Long seekedTo;
 
-    private String externalPath;
-    private String externalPlaylistTitle;
+    private String externalPath, externalPlaylistTitle, externalDescription;
     @Override
     public void onCreate() {
         super.onCreate();
@@ -83,10 +89,14 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     public int onStartCommand(Intent intent, int flags, int startId) {
         externalPath = intent.getStringExtra("path");
         externalPlaylistTitle = intent.getStringExtra("playlistTitle");
+        externalDescription = intent.getStringExtra("desc");
+
         seekedTo = intent.getLongExtra("ms",0);
         System.out.println("seekedTo: "+seekedTo);
-        if(playlist!=null){
-           if(!(playlist.getSongs().get(position).getPath().equals(externalPath) && playlist.getTitle().equals(externalPlaylistTitle))){
+
+        if(playlist!=null)
+        {
+           if(!(playlist.getSongs().get(position).getPath().equals(externalPath) && playlist.getTitle().equals(externalPlaylistTitle) && playlist.getDescription().equals(externalDescription))){
 
                playlist =  intent.getParcelableExtra("playlist");
                position = intent.getIntExtra("pos",0);
@@ -127,17 +137,21 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                            @Nullable
                            @Override
                            public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
-             /*
-                    try {
-                        System.out.println("Parse: "+playlist.getSongs().get(position).getImage_url());
-                        Uri uri = Uri.parse(playlist.getSongs().get(position).getImage_url());
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                        return bitmap;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-              */
+
+
+                               Uri uri = Uri.parse(playlist.getSongs().get(position).getImage_url());
+                               Glide.with(getApplicationContext())
+                                       .load(uri).into(new CustomTarget<Drawable>() {
+                                   @Override
+                                   public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                                       callback.onBitmap(drawableToBitmap(resource));
+                                   }
+
+                                   @Override
+                                   public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                                   }
+                               });
                                return null;
 
                            }
@@ -173,14 +187,14 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                playerNotificationManager.setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL);
                playerNotificationManager.setPlayer(player);
            }
-        }else{
+        }
+        else
+        {
             playlist =  intent.getParcelableExtra("playlist");
             position = intent.getIntExtra("pos",0);
             ArrayList<Song> songs = intent.getParcelableArrayListExtra("songs");
             playlist.setSongs(songs);
-
-         //   startPlayer();
-            testingPlayer();
+            startPlayer();
           playerNotificationManager = new PlayerNotificationManager.Builder(context,
                   Integer.parseInt(NOTIFICATION_ID),
                   CHANNEL_ID,
@@ -211,21 +225,26 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                 @Nullable
                 @Override
                 public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
-             /*
-                    try {
-                        System.out.println("Parse: "+playlist.getSongs().get(position).getImage_url());
-                        Uri uri = Uri.parse(playlist.getSongs().get(position).getImage_url());
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                        return bitmap;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-              */
+
+                    Uri uri = Uri.parse(playlist.getSongs().get(position).getImage_url());
+                    Glide.with(getApplicationContext())
+                            .load(uri).into(new CustomTarget<Drawable>() {
+                        @Override
+                        public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                           callback.onBitmap(drawableToBitmap(resource));
+                        }
+
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                        }
+                    });
                     return null;
 
                 }
-            })
+
+
+          })
                   .setNotificationListener(
                           new PlayerNotificationManager.NotificationListener() {
               @Override
@@ -256,6 +275,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
             playerNotificationManager.setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL);
             playerNotificationManager.setPlayer(player);
         }
+
         return START_STICKY;
     }
 
@@ -323,43 +343,27 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         return player;
     }
 
-    //Basic Notification
-    //Not ExoPlayer Notification!
-    Notification createNotif(){
-        String notificationChannelID="ENDLESS SERVICE CHANNELL";
-        NotificationChannel channel;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            channel = new NotificationChannel(notificationChannelID, "Endless Service notifications Chanell", NotificationManager.IMPORTANCE_HIGH);
+    public  Bitmap drawableToBitmap (Drawable drawable) {
+        Bitmap bitmap = null;
 
-            channel.setDescription("Endless Service Channel");
-            channel.enableLights(true);
-            channel.setLightColor(Color.RED);
-            channel.enableVibration(true);
-            channel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
-            notificationManager.createNotificationChannel(channel);
+        if (drawable instanceof BitmapDrawable) {
+            BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
+            if(bitmapDrawable.getBitmap() != null) {
+                return bitmapDrawable.getBitmap();
+            }
         }
 
-        Intent intent = new Intent(context, MainActivity.class);
-        PendingIntent pendingIntent =  PendingIntent.getActivity(context, 0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
-
-        Notification.Builder builder;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            builder = new Notification.Builder(this,notificationChannelID);
-        }else{
-            builder = new Notification.Builder(this);
+        if(drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
+            bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Single color bitmap will be created of 1x1 pixel
+        } else {
+            bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
         }
 
-        return builder.setContentTitle("Endless Service")
-                .setContentText("This is your favorite endless service working")
-                .setContentIntent(pendingIntent)
-                .setSmallIcon(R.drawable.altas_notes)
-                .setTicker("Ticker text")
-                .setPriority(Notification.PRIORITY_HIGH) // for under android 26 compatibility
-                .build();
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+        return bitmap;
     }
-
-
 
     //Notificion for older version of player
     private void createNotification() {

@@ -94,6 +94,7 @@ public class PlayerFragment extends Fragment {
         intent.putExtra("pos", position);
         intent.putExtra("path", playlist.getSongs().get(position).getPath());
         intent.putExtra("playlistTitle", playlist.getTitle());
+        intent.putExtra("desc", playlist.getDescription());
         intent.putExtra("ms",seekedTo);
         intent.putParcelableArrayListExtra("songs", playlist.getSongs());
 

@@ -93,7 +93,7 @@ public class CurrentPlaylistFragment extends Fragment {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if(snapshot!=null){
                         int x = (int) snapshot.child("songs").getChildrenCount();
-                        System.out.println("Children count: "+x);
+
                         int i=0;
                         songs.clear();
                         for (DataSnapshot ds: snapshot.child("songs").getChildren()){
@@ -121,7 +121,7 @@ public class CurrentPlaylistFragment extends Fragment {
                         if(i==x){
                             playlist.setSongs(songs);
                             conditionLatch.countDown();
-                            System.out.println("Size: "+songs.size());
+
                         }
 
                         try {

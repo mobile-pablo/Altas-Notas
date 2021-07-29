@@ -235,60 +235,6 @@ public class ProfileFragment extends Fragment {
     }
 
 
-/*
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        //super method removed
-        if (resultCode == RESULT_OK && requestCode == 1000) {
-                 returnUri = data.getData();
-                Bitmap bitmapImage = null;
-                try {
-                    bitmapImage = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), returnUri);
-                    profile_img.setImageBitmap(bitmapImage);
-                } catch (IOException e) {
-                        e.printStackTrace();
-                }
-
-
-            try {
-                Bitmap compresedImg =  ProfileFragmentViewModel.getBitmapFormUri(getActivity(), returnUri);
-                ByteArrayOutputStream bao = new ByteArrayOutputStream();
-                compresedImg.compress(Bitmap.CompressFormat.PNG, 100, bao);
-                compresedImg.recycle();
-                byte[] byteArray = bao.toByteArray();
-
-                //Upload image
-
-                storageReference = FirebaseStorage.getInstance().getReference();
-                storageReference.child("images/profiles/"+mAuth.getCurrentUser().getUid()).putBytes(byteArray).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                        if(task.isSuccessful()){
-                            System.out.println("Upload image is successful!");
-                        }else{
-                            System.out.println("Upload image failed!");
-
-                        }
-                    }
-                });
-
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.d("Error while compressing and uploading photo to Firebase", "FirebaseStorage");
-            }
-
-
-
-
-
-        }
-
-    }
-
-
- */
-
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
