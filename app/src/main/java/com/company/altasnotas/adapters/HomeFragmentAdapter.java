@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
@@ -39,7 +40,7 @@ public class HomeFragmentAdapter extends RecyclerView.Adapter<HomeFragmentAdapte
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-    Glide.with(mainActivity.getApplicationContext()).load(playlists.get(position).getImage_id()).into(holder.home_row_img);
+    Glide.with(mainActivity.getApplicationContext()).load(playlists.get(position).getImage_id()).apply(RequestOptions.centerCropTransform()).into(holder.home_row_img);
     holder.home_row_year.setText(playlists.get(position).getYear());
     holder.home_row_title.setText(playlists.get(position).getTitle());
     holder.home_row_author.setText(playlists.get(position).getDescription());

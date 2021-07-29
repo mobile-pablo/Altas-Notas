@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
@@ -130,13 +131,14 @@ public class FavoritesFragment extends Fragment {
                                         playlist.setTitle("Favorites");
                                         playlist.setDescription("Store here Your favorites Playlists!");
                                         playlist.setYear(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
+
                                         playlist.setImage_id("https://firebasestorage.googleapis.com/v0/b/altas-notas.appspot.com/o/images%2Fother%2Ffav_songs.png?alt=media&token=87f19535-f413-4c14-ace5-b97bff1975ef");
 
 
                                         title.setText(playlist.getTitle());
                                         description.setText(playlist.getDescription()+"\n("+playlist.getYear()+")");
 
-                                        Glide.with(requireActivity()).load(playlist.getImage_id()).into(imageView);
+                                        Glide.with(requireActivity()).load(playlist.getImage_id()).apply(RequestOptions.centerCropTransform()).into(imageView);
 
                                         if(playlist.getSongs()!=null) {
                                             adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, true);

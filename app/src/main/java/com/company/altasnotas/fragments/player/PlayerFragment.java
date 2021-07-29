@@ -20,6 +20,7 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.company.altasnotas.R;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.services.BackgroundService;
@@ -146,7 +147,7 @@ public class PlayerFragment extends Fragment {
 
         title.setText(playlist.getSongs().get(position).getTitle());
         author.setText(playlist.getSongs().get(position).getAuthor());
-        Glide.with(requireContext()).load(playlist.getSongs().get(position).getImage_url()).into(song_img);
+        Glide.with(requireContext()).load(playlist.getSongs().get(position).getImage_url()).apply(RequestOptions.centerCropTransform()).into(song_img);
 
 
     }

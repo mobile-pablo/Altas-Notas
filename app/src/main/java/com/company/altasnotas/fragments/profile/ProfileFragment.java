@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.canhub.cropper.CropImage;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
@@ -255,7 +256,9 @@ public class ProfileFragment extends Fragment {
                     ByteArrayOutputStream bao = new ByteArrayOutputStream();
                     compressImgRotated = getResizedBitmap(compressImgRotated,300);
                     compressImgRotated.compress(Bitmap.CompressFormat.PNG, 100, bao);
-                    profile_img.setImageBitmap(compressImgRotated);
+
+                    Glide.with(requireActivity()).load(compressImgRotated).apply(RequestOptions.centerCropTransform()).into(profile_img);
+
                     byte[] byteArray = bao.toByteArray();
 
                     compresedImg.recycle();
