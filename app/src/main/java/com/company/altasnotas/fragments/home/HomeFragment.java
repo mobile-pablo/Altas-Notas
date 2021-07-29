@@ -61,6 +61,7 @@ HomeFragmentAdapter adapter;
      initializePlaylist("Kult", "Spokojnie");
      initializePlaylist("Johnny Cash", "The Baron");
      initializePlaylist("Bad Bunny", "YHLQMDLG");
+
      initializePlaylist("Analogs", "Pełnoletnia Oi! Młodzież");
      
      recyclerView = view.findViewById(R.id.home_recycler_view);

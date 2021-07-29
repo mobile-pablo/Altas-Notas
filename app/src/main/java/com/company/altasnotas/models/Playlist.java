@@ -80,8 +80,8 @@ public class Playlist implements Parcelable {
         return isAlbum;
     }
 
-    public void setAlbum(boolean album) {
-        this.isAlbum = album;
+    public void setAlbum(boolean isAlbum) {
+        this.isAlbum=isAlbum;
     }
 
     public String getYear() {

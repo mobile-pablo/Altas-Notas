@@ -69,7 +69,11 @@ public class CurrentPlaylistFragment extends Fragment {
         title.setText(playlist.getTitle());
         description.setText(playlist.getDescription()+"\n("+playlist.getYear()+")");
 
-        Glide.with(container).load(playlist.getImage_id()).into(imageView);
+        if(!playlist.getImage_id().isEmpty()) {
+            Glide.with(container).load(playlist.getImage_id()).into(imageView);
+        }else{
+              Glide.with(container).load(R.drawable.img_not_found).into(imageView);
+        }
 
         recyclerView =  view.findViewById(R.id.current_playlist_recycler_view);
 
@@ -181,68 +185,74 @@ public class CurrentPlaylistFragment extends Fragment {
         ArrayList<Song> songs = new ArrayList<>();
         if (mAuth.getCurrentUser() != null) {
             CountDownLatch conditionLatch = new CountDownLatch(1);
-            database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(title).addListenerForSingleValueEvent(new ValueEventListener() {
+            database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
 
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if(snapshot!=null) {
-                        int x = (int) snapshot.child("songs").getChildrenCount();
-                        if (x != 0 ){
-                            int i = 0;
-                        songs.clear();
-                        for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
-                            i++;
+                      for(DataSnapshot da : snapshot.getChildren()){
+                          if(da.child("title").getValue().equals(title)){
+                              snapshot =da;
+                              int x = (int) snapshot.child("songs").getChildrenCount();
+                              if (x != 0 ){
+                                  int i = 0;
+                                  songs.clear();
+                                  for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
+                                      i++;
 
-                            FirebaseSong firebaseSong = new FirebaseSong();
-                            firebaseSong.setOrder(Integer.valueOf(ds.child("order").getValue().toString()));
-                            firebaseSong.setPath(ds.child("path").getValue().toString());
-                            firebaseSong.setTitle(ds.child("title").getValue().toString());
-                            firebaseSongs.add(firebaseSong);
-                        }
-
-
-                        Collections.sort(firebaseSongs, (f1, f2) -> f1.getOrder().compareTo(f2.getOrder()));
-
-
-                        for (FirebaseSong song : firebaseSongs) {
-
-                            Song local_song = new Song(playlist.getDescription(), playlist.getTitle(), song.getTitle(), song.getPath(), playlist.getImage_id());
-                            songs.add(local_song);
-                        }
-
-                        if (i == x) {
-                            playlist.setSongs(songs);
-                            conditionLatch.countDown();
-
-                        }
-
-                        try {
-                            conditionLatch.await();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            System.out.println("ConditionLatch error");
-                        }
-
-                            recyclerView.setVisibility(View.VISIBLE);
-                            recyclerViewState.setVisibility(View.GONE);
-                        }else{
-                            recyclerViewState.setText("Empty Playlist");
-                            recyclerViewState.setVisibility(View.VISIBLE);
-                            recyclerView.setVisibility(View.GONE);
-                        }
-
-                        playlist.setAlbum((Boolean) snapshot.child("album").getValue());
-                            if(!playlist.isAlbum()){
-                                fab.setVisibility(View.VISIBLE);
-                            }
+                                      FirebaseSong firebaseSong = new FirebaseSong();
+                                      firebaseSong.setOrder(Integer.valueOf(ds.child("order").getValue().toString()));
+                                      firebaseSong.setPath(ds.child("path").getValue().toString());
+                                      firebaseSong.setTitle(ds.child("title").getValue().toString());
+                                      firebaseSongs.add(firebaseSong);
+                                  }
 
 
-                      if(x!=0) {
-                          recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-                          adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, false);
-                          adapter.notifyDataSetChanged();
-                          recyclerView.setAdapter(adapter);
+                                  Collections.sort(firebaseSongs, (f1, f2) -> f1.getOrder().compareTo(f2.getOrder()));
+
+
+                                  for (FirebaseSong song : firebaseSongs) {
+
+                                      Song local_song = new Song(playlist.getDescription(), playlist.getTitle(), song.getTitle(), song.getPath(), playlist.getImage_id());
+                                      songs.add(local_song);
+                                  }
+
+                                  if (i == x) {
+                                      playlist.setSongs(songs);
+                                      conditionLatch.countDown();
+
+                                  }
+
+                                  try {
+                                      conditionLatch.await();
+                                  } catch (InterruptedException e) {
+                                      e.printStackTrace();
+                                      System.out.println("ConditionLatch error");
+                                  }
+
+                                  recyclerView.setVisibility(View.VISIBLE);
+                                  recyclerViewState.setVisibility(View.GONE);
+                              }else{
+                                  recyclerViewState.setText("Empty Playlist");
+                                  recyclerViewState.setVisibility(View.VISIBLE);
+                                  recyclerView.setVisibility(View.GONE);
+                              }
+
+                              playlist.setAlbum((Boolean) snapshot.child("isAlbum").getValue());
+                              if(!playlist.isAlbum()){
+                                  fab.setVisibility(View.VISIBLE);
+                              }
+
+
+                              if(x!=0) {
+                                  recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+                                  adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, false);
+                                  adapter.notifyDataSetChanged();
+                                  recyclerView.setAdapter(adapter);
+                              }
+                          }
                       }
+
                     }
 
 

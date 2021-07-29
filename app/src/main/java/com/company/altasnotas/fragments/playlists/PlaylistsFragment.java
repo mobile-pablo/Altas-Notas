@@ -9,6 +9,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.Gravity;
@@ -22,16 +23,25 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
+import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
+import com.company.altasnotas.adapters.PlaylistsFragmentAdapter;
+import com.company.altasnotas.models.FirebaseSong;
 import com.company.altasnotas.models.Playlist;
+import com.company.altasnotas.models.Song;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class PlaylistsFragment extends Fragment {
@@ -44,6 +54,8 @@ private FloatingActionButton fab;
     private FirebaseAuth mAuth;
 private Dialog dialog;
 private EditText dialog_playlist_name,dialog_playlist_desc;
+private ArrayList<Playlist> playlists;
+private PlaylistsFragmentAdapter adapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -64,7 +76,43 @@ private EditText dialog_playlist_name,dialog_playlist_desc;
                openDialog();
            }
        });
+
+       initalizeList();
+
+
+
        return view;
+    }
+
+    private void initalizeList() {
+        playlists = new ArrayList<>();
+
+        database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot dataSnapshot: snapshot.getChildren()){
+                    Playlist playlist = new Playlist();
+                    playlist.setTitle(dataSnapshot.child("title").getValue().toString());
+                    playlist.setDescription(dataSnapshot.child("description").getValue().toString());
+                    playlist.setImage_id(dataSnapshot.child("image_id").getValue().toString());
+                    playlist.setYear(dataSnapshot.child("year").getValue().toString());
+                    playlist.setAlbum((Boolean) dataSnapshot.child("isAlbum").getValue());
+
+                    playlists.add(playlist);
+                }
+
+
+                recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+                adapter = new PlaylistsFragmentAdapter((MainActivity) getActivity(), playlists);
+                adapter.notifyDataSetChanged();
+                recyclerView.setAdapter(adapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void openDialog() {
@@ -119,23 +167,37 @@ private EditText dialog_playlist_name,dialog_playlist_desc;
 
     private void createPlaylist(String name ,String desc) {
 
-        String defaultPhoto = "https://firebasestorage.googleapis.com/v0/b/altas-notas.appspot.com/o/images%2Fother%2Fimg_not_found.png?alt=media&token=7846c56f-6437-4064-9867-c11662c42d29";
-        Playlist playlist = new Playlist();
+          Playlist playlist = new Playlist();
 
         playlist.setTitle(name);
         playlist.setAlbum(false);
         playlist.setDescription(desc);
         playlist.setYear(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
-        playlist.setImage_id(defaultPhoto);
+        playlist.setImage_id("");
         playlist.setSongs(null);
-
-        database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(name).setValue(playlist).addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
+        String key = database_ref.push().getKey();
+        database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).setValue(playlist).addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(!task.isSuccessful()){
                   Toast.makeText(getContext(), "Error while adding Playlist.",Toast.LENGTH_SHORT).show();
                 }else{
-                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment( name,"",playlist, 0)).commit();
+                    database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).child("isAlbum").setValue(playlist.isAlbum()).addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if(task.isSuccessful()){
+                                database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).child("album").removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if(task.isSuccessful()){
+                                            adapter.notifyDataSetChanged();
+                                            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment( name,"",playlist, 0)).commit();
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
 
                 }
             }
