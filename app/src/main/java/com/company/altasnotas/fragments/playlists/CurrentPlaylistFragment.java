@@ -20,6 +20,7 @@ import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
 import com.company.altasnotas.models.FirebaseSong;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -43,7 +44,11 @@ public class CurrentPlaylistFragment extends Fragment {
     CurrentPlaylistAdapter adapter;
     private final String author;
     private final String album;
+    private final Integer isAlbum;
 
+
+    private TextView recyclerViewState;
+    private FloatingActionButton fab;
     @Override
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -54,8 +59,8 @@ public class CurrentPlaylistFragment extends Fragment {
         imageView = view.findViewById(R.id.current_playlist_img);
         title = view.findViewById(R.id.current_playlist_title);
         description = view.findViewById(R.id.current_playlist_description);
-
-
+        fab = view.findViewById(R.id.current_playlist_photo_btn);
+        recyclerViewState = view.findViewById(R.id.current_playlist_recycler_state);
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         database_ref = database.getReference();
@@ -67,21 +72,31 @@ public class CurrentPlaylistFragment extends Fragment {
         Glide.with(container).load(playlist.getImage_id()).into(imageView);
 
         recyclerView =  view.findViewById(R.id.current_playlist_recycler_view);
-        initializePlaylist(author,album);
+
+        if(isAlbum!=0)
+        {
+        initializeAlbum(author,album);
+        }
+        else
+        {
+            initializePlaylist(author);
+        }
+
         return view;
 
     }
 
 
 
-    public CurrentPlaylistFragment(String author, String album , Playlist playlist){
+    public CurrentPlaylistFragment(String author, String album, Playlist playlist, Integer isAlbum){
         this.playlist=playlist;
         this.author=author;
         this.album=album;
+        this.isAlbum=isAlbum;
     }
 
 
-    private void initializePlaylist(String author, String album) {
+    private void initializeAlbum(String author, String album) {
 
         ArrayList<FirebaseSong> firebaseSongs = new ArrayList<>();
         ArrayList<Song> songs = new ArrayList<>();
@@ -93,10 +108,10 @@ public class CurrentPlaylistFragment extends Fragment {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if(snapshot!=null){
                         int x = (int) snapshot.child("songs").getChildrenCount();
-
-                        int i=0;
+                    if(x!=0) {
+                        int i = 0;
                         songs.clear();
-                        for (DataSnapshot ds: snapshot.child("songs").getChildren()){
+                        for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
                             i++;
 
                             FirebaseSong firebaseSong = new FirebaseSong();
@@ -107,18 +122,95 @@ public class CurrentPlaylistFragment extends Fragment {
                         }
 
 
+                        Collections.sort(firebaseSongs, (f1, f2) -> f1.getOrder().compareTo(f2.getOrder()));
+
+
+                        for (FirebaseSong song : firebaseSongs) {
+
+                            Song local_song = new Song(playlist.getDescription(), playlist.getTitle(), song.getTitle(), song.getPath(), playlist.getImage_id());
+                            songs.add(local_song);
+                        }
+
+                        if (i == x) {
+                            playlist.setSongs(songs);
+                            conditionLatch.countDown();
+
+                        }
+
+                        try {
+                            conditionLatch.await();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            System.out.println("ConditionLatch error");
+                        }
+                        recyclerView.setVisibility(View.VISIBLE);
+                        recyclerViewState.setVisibility(View.GONE);
+                    }else{
+                        recyclerViewState.setText("Empty Album");
+                        recyclerView.setVisibility(View.GONE);
+                        recyclerViewState.setVisibility(View.VISIBLE);
+                    }
+                        playlist.setAlbum((Boolean) snapshot.child("isAlbum").getValue());
+                        if(playlist.isAlbum()){
+                            fab.setVisibility(View.INVISIBLE);
+                        }
+                        if(x!=0){
+                        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+                        adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist,false);
+                        adapter.notifyDataSetChanged();
+                        recyclerView.setAdapter(adapter);
+                        }
+                    }
+
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    conditionLatch.countDown();
+                }
+
+            });
+
+
+        }
+    }
+    private void initializePlaylist(String title) {
+
+        ArrayList<FirebaseSong> firebaseSongs = new ArrayList<>();
+        ArrayList<Song> songs = new ArrayList<>();
+        if (mAuth.getCurrentUser() != null) {
+            CountDownLatch conditionLatch = new CountDownLatch(1);
+            database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(title).addListenerForSingleValueEvent(new ValueEventListener() {
+
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if(snapshot!=null) {
+                        int x = (int) snapshot.child("songs").getChildrenCount();
+                        if (x != 0 ){
+                            int i = 0;
+                        songs.clear();
+                        for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
+                            i++;
+
+                            FirebaseSong firebaseSong = new FirebaseSong();
+                            firebaseSong.setOrder(Integer.valueOf(ds.child("order").getValue().toString()));
+                            firebaseSong.setPath(ds.child("path").getValue().toString());
+                            firebaseSong.setTitle(ds.child("title").getValue().toString());
+                            firebaseSongs.add(firebaseSong);
+                        }
 
 
                         Collections.sort(firebaseSongs, (f1, f2) -> f1.getOrder().compareTo(f2.getOrder()));
 
 
-                        for (FirebaseSong song: firebaseSongs) {
+                        for (FirebaseSong song : firebaseSongs) {
 
-                            Song local_song = new Song( playlist.getDescription(), playlist.getTitle(), song.getTitle(), song.getPath(), playlist.getImage_id());
+                            Song local_song = new Song(playlist.getDescription(), playlist.getTitle(), song.getTitle(), song.getPath(), playlist.getImage_id());
                             songs.add(local_song);
                         }
 
-                        if(i==x){
+                        if (i == x) {
                             playlist.setSongs(songs);
                             conditionLatch.countDown();
 
@@ -131,13 +223,26 @@ public class CurrentPlaylistFragment extends Fragment {
                             System.out.println("ConditionLatch error");
                         }
 
-                        playlist.setAlbum((Boolean) snapshot.child("isAlbum").getValue());
-                        playlist.setSong_amount(Integer.valueOf(snapshot.child("song_amount").getValue().toString()));
+                            recyclerView.setVisibility(View.VISIBLE);
+                            recyclerViewState.setVisibility(View.GONE);
+                        }else{
+                            recyclerViewState.setText("Empty Playlist");
+                            recyclerViewState.setVisibility(View.VISIBLE);
+                            recyclerView.setVisibility(View.GONE);
+                        }
 
-                        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-                        adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist,false);
-                        adapter.notifyDataSetChanged();
-                        recyclerView.setAdapter(adapter);
+                        playlist.setAlbum((Boolean) snapshot.child("album").getValue());
+                            if(!playlist.isAlbum()){
+                                fab.setVisibility(View.VISIBLE);
+                            }
+
+
+                      if(x!=0) {
+                          recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+                          adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, false);
+                          adapter.notifyDataSetChanged();
+                          recyclerView.setAdapter(adapter);
+                      }
                     }
 
 

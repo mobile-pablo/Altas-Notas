@@ -1,6 +1,5 @@
 package com.company.altasnotas.adapters;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,7 +47,7 @@ public class HomeFragmentAdapter extends RecyclerView.Adapter<HomeFragmentAdapte
     holder.home_row_img.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment( authors.get(position),albums.get(position),  playlists.get(position))).commit();
+            mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment( authors.get(position),albums.get(position),  playlists.get(position), 1)).commit();
 
         }
     });

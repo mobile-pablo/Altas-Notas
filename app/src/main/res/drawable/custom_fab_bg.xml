@@ -1,0 +1,62 @@
+
+<ripple android:color="?attr/colorControlHighlight"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <layer-list>
+            <item>
+                <shape android:shape="oval">
+                    <stroke android:width="0dp"/>
+                    <gradient
+                        android:type="linear"
+                        android:angle="90"
+                        android:startColor="@color/project_dark_velvet"
+                        android:endColor="@color/project_light_cyan" />
+                </shape>
+            </item>
+            <item android:drawable="@drawable/ic_add_cross" android:gravity="center"  />
+        </layer-list>
+    </item>
+</ripple>
+
+<!--
+ OLDER VERSION!
+
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape xmlns:android="http://schemas.android.com/apk/res/android"
+            android:shape="oval">
+            <gradient
+                android:angle="90"
+                android:startColor="@color/project_dark_velvet"
+                android:endColor="@color/project_light_cyan" />
+            <size
+                android:width="56dp"
+                android:height="56dp" />
+        </shape>
+    </item>
+    <item
+        android:left="15dp"
+        android:right="15dp">
+        <shape android:shape="line">
+            <stroke
+                android:width="2dp"
+                android:color="#ffffff" />
+        </shape>
+    </item>
+    <item
+        android:left="15dp"
+        android:right="15dp">
+        <rotate
+            android:fromDegrees="90">
+            <shape android:shape="line">
+                <stroke
+                    android:width="2dp"
+                    android:color="#ffffff" />
+            </shape>
+        </rotate>
+    </item>
+</layer-list>
+
+
+
+-->

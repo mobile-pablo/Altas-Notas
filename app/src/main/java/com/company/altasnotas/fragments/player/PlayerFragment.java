@@ -35,7 +35,6 @@ import com.google.firebase.storage.FirebaseStorage;
 
 
 public class PlayerFragment extends Fragment {
-    private FirebaseStorage storage;
     private ImageButton fav_btn;
     private Button settings_btn;
     private Playlist playlist;
@@ -79,7 +78,6 @@ public class PlayerFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_player, container, false);
-        storage = FirebaseStorage.getInstance();
         title = view.findViewById(R.id.player_song_title);
         author = view.findViewById(R.id.player_song_author);
         song_img = view.findViewById(R.id.player_song_img);
@@ -141,8 +139,6 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-      //  intent = new Intent(getActivity(), BackgroundService.class);
-      //  getActivity().stopService(intent);
         requireActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 

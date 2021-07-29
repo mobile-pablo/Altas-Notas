@@ -130,7 +130,6 @@ public class FavoritesFragment extends Fragment {
                                         playlist.setTitle("Favorites");
                                         playlist.setDescription("Store here Your favorites Playlists!");
                                         playlist.setYear(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
-                                        playlist.setSong_amount(songs.size());
                                         playlist.setImage_id("https://firebasestorage.googleapis.com/v0/b/altas-notas.appspot.com/o/images%2Fother%2Ffav_songs.png?alt=media&token=87f19535-f413-4c14-ace5-b97bff1975ef");
 
 

@@ -18,7 +18,7 @@
         <FrameLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="2">
+            android:layout_weight="2.5">
 
             <ImageView
                 android:id="@+id/current_playlist_img"
@@ -26,7 +26,21 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="2"
+                android:paddingRight="30dp"
                 android:src="@drawable/ic_launcher_background" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/current_playlist_photo_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|right"
+                android:layout_marginBottom="20dp"
+                android:layout_marginRight="10dp"
+                android:clickable="true"
+                android:scaleX="0.6"
+                android:visibility="invisible"
+                android:scaleY="0.6"
+                android:foreground="@drawable/custom_fab_bg" />
         </FrameLayout>
 
         <LinearLayout
@@ -79,5 +93,20 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_margin="10dp"
-        android:layout_weight="5" />
+        android:layout_weight="5">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <TextView
+        android:id="@+id/current_playlist_recycler_state"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="5"
+        android:fontFamily="@font/archivo_narrow"
+        android:gravity="center"
+        android:text="Empty Playlist"
+        android:textColor="#3E3D3D"
+        android:visibility="gone"
+        android:textSize="24sp"
+        android:textStyle="bold" />
 </LinearLayout>

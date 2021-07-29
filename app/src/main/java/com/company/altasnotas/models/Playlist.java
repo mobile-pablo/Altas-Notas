@@ -12,18 +12,10 @@ import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 public class Playlist implements Parcelable {
     private String title;
     private String description;
-    private int song_amount;
     private String image_id;
     private String year;
     private boolean isAlbum;
     private ArrayList <Song> songs;
-
-    public Playlist( int song_amount, String image_id, String year, boolean isAlbum){
-        this.song_amount=song_amount;
-        this.image_id=image_id;
-        this.year=year;
-        this.isAlbum = isAlbum;
-    }
 
     public Playlist(){
 
@@ -33,7 +25,6 @@ public class Playlist implements Parcelable {
     protected Playlist(Parcel in) {
         title = in.readString();
         description = in.readString();
-        song_amount = in.readInt();
         image_id = in.readString();
         year = in.readString();
         isAlbum = in.readByte() != 0;
@@ -67,13 +58,6 @@ public class Playlist implements Parcelable {
         this.description = description;
     }
 
-    public Integer getSong_amount() {
-        return song_amount;
-    }
-
-    public void setSong_amount(Integer song_amount) {
-        this.song_amount = song_amount;
-    }
 
     public String getImage_id() {
         return image_id;
@@ -117,7 +101,6 @@ public class Playlist implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(title);
         dest.writeString(description);
-        dest.writeInt(song_amount);
         dest.writeString(image_id);
         dest.writeString(year);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

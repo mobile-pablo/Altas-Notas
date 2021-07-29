@@ -104,7 +104,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                playlist.setSongs(songs);
 
                releasePlayer();
-               startPlayer();
+             //  startPlayer();
+               testingPlayer();
                playerNotificationManager = new PlayerNotificationManager.Builder(context,
                        Integer.parseInt(NOTIFICATION_ID),
                        CHANNEL_ID,
@@ -194,7 +195,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
             position = intent.getIntExtra("pos",0);
             ArrayList<Song> songs = intent.getParcelableArrayListExtra("songs");
             playlist.setSongs(songs);
-            startPlayer();
+          //  startPlayer();
+            testingPlayer();
           playerNotificationManager = new PlayerNotificationManager.Builder(context,
                   Integer.parseInt(NOTIFICATION_ID),
                   CHANNEL_ID,
@@ -332,13 +334,36 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     }
 
     public SimpleExoPlayer testingPlayer(){
+
+
+    Uri uri = Uri.parse("https://media1.vocaroo.com/mp3/1nS8YXb35PBj");
+
+
         player = new SimpleExoPlayer.Builder(this).build();
 
-        MediaItem mediaItem = MediaItem.fromUri(Uri.parse("https://media1.vocaroo.com/mp3/1nS8YXb35PBj"));
-// Set the media item to be played.
-        player.setMediaItem(mediaItem);
-// Prepare the player.
-        player.prepare();
+        DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "app"));
+        ArrayList<MediaSource> mediaSources = new ArrayList<>();
+        for (Song song : playlist.getSongs()) {
+            MediaSource audioSource = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
+            mediaSources.add(audioSource);
+        }
+
+
+
+
+        ConcatenatingMediaSource concatenatingMediaSource = new ConcatenatingMediaSource();
+        concatenatingMediaSource.addMediaSources(mediaSources);
+
+        player.seekTo(position, C.INDEX_UNSET);
+
+        if(seekedTo!=0){
+            player.seekTo(seekedTo);
+        }
+
+        player.prepare(concatenatingMediaSource,false,false);
+
+
+
 
         return player;
     }
