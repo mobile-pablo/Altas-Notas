@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -42,6 +43,8 @@ public class FavoritesFragment extends Fragment {
     private    CountDownLatch conditionLatch;
     private ImageView imageView;
     private TextView title, description;
+    private ImageButton settings;
+    private TextView fav_state;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -57,7 +60,9 @@ public class FavoritesFragment extends Fragment {
         imageView = view.findViewById(R.id.current_playlist_img);
         title = view.findViewById(R.id.current_playlist_title);
         description = view.findViewById(R.id.current_playlist_description);
-
+        settings = view.findViewById(R.id.current_playlist_settings);
+        settings.setVisibility(View.INVISIBLE);
+        fav_state=  view.findViewById(R.id.current_playlist_recycler_state);
 
             conditionLatch = new CountDownLatch(1);
             initializeFavorites();
@@ -87,6 +92,16 @@ public class FavoritesFragment extends Fragment {
         playlist = new Playlist();
         ArrayList<FavoriteFirebaseSong> favoriteFirebaseSongs = new ArrayList<>();
         ArrayList<Song> songs = new ArrayList<>();
+        playlist.setImage_id("");
+        playlist.setAlbum(false);
+        playlist.setTitle("Favorites");
+        playlist.setDescription("Store here Your favorites Songs!");
+        playlist.setYear(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
+        title.setText(playlist.getTitle());
+        description.setText(playlist.getDescription()+"\n("+playlist.getYear()+")");
+
+        Glide.with(requireActivity()).load(R.drawable.fav_songs).into(imageView);
+
 
         if (mAuth.getCurrentUser() != null) {
             songs.clear();
@@ -95,23 +110,25 @@ public class FavoritesFragment extends Fragment {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if(snapshot!=null){
 
+                        int x = (int) snapshot.child("songs").getChildrenCount();
+                        if(x!=0) {
+                            for (DataSnapshot ds : snapshot.getChildren()) {
 
-
-                        for (DataSnapshot ds: snapshot.getChildren()){
-
-                            FavoriteFirebaseSong  favoriteFirebaseSong = new FavoriteFirebaseSong();
-                            favoriteFirebaseSong.setNumerInAlbum(Integer.valueOf(ds.child("numberInAlbum").getValue().toString()));
-                            favoriteFirebaseSong.setAuthor(ds.child("author").getValue().toString());
-                            favoriteFirebaseSong.setAlbum(ds.child("album").getValue().toString());
-                            favoriteFirebaseSongs.add(favoriteFirebaseSong);
+                                FavoriteFirebaseSong favoriteFirebaseSong = new FavoriteFirebaseSong();
+                                favoriteFirebaseSong.setNumerInAlbum(Integer.valueOf(ds.child("numberInAlbum").getValue().toString()));
+                                favoriteFirebaseSong.setAuthor(ds.child("author").getValue().toString());
+                                favoriteFirebaseSong.setAlbum(ds.child("album").getValue().toString());
+                                favoriteFirebaseSongs.add(favoriteFirebaseSong);
+                            }
+                            recyclerView.setVisibility(View.VISIBLE);
+                            fav_state.setVisibility(View.GONE);
+                        }else{
+                            fav_state.setText("Empty Favorites");
+                            recyclerView.setVisibility(View.GONE);
+                            fav_state.setVisibility(View.VISIBLE);
                         }
 
-
-
-
-                        //Zamienic na query z orderByKey()
-
-
+                        if(x!=0){
                         for (FavoriteFirebaseSong song: favoriteFirebaseSongs) {
 
                             database_ref.child("music").child("albums").child(song.getAuthor()).child(song.getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -127,20 +144,11 @@ public class FavoritesFragment extends Fragment {
                                         }
 
                                         playlist.setSongs(songs);
-                                        playlist.setAlbum(false);
-                                        playlist.setTitle("Favorites");
-                                        playlist.setDescription("Store here Your favorites Playlists!");
-                                        playlist.setYear(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
-
-                                        playlist.setImage_id("https://firebasestorage.googleapis.com/v0/b/altas-notas.appspot.com/o/images%2Fother%2Ffav_songs.png?alt=media&token=87f19535-f413-4c14-ace5-b97bff1975ef");
 
 
-                                        title.setText(playlist.getTitle());
-                                        description.setText(playlist.getDescription()+"\n("+playlist.getYear()+")");
 
-                                        Glide.with(requireActivity()).load(playlist.getImage_id()).apply(RequestOptions.centerCropTransform()).into(imageView);
 
-                                        if(playlist.getSongs()!=null) {
+                                                if(playlist.getSongs()!=null) {
                                             adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, true);
                                             recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
                                             recyclerView.setAdapter(adapter);
@@ -159,7 +167,7 @@ public class FavoritesFragment extends Fragment {
 
 
 
-                        }
+                        }}
                     }else{
                         System.out.println("This song doesnt exist in Album!");
                     }
