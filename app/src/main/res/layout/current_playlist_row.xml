@@ -60,7 +60,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@android:color/transparent"
-            app:srcCompat="@drawable/ic_favorite" />
+            app:srcCompat="@drawable/ic_heart_empty" />
 
         <ImageButton
             android:id="@+id/current_playlist_row_settings"

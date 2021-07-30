@@ -138,12 +138,11 @@ public class FavoritesFragment extends Fragment {
                                     if(snapshot!=null) {
                                         for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
                                             if(Integer.parseInt(ds.child("order").getValue().toString()) == song.getNumerInAlbum()){
-                                                Song local_song = new Song( song.getAuthor(), song.getAlbum(),  ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString());
+                                                Song local_song = new Song(snapshot.child("description").getValue().toString(), snapshot.child("title").getValue().toString(),  ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString());
                                                 songs.add(local_song);
                                             }
                                         }
 
-                                        playlist.setSongs(songs);
 
 
 

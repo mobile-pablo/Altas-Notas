@@ -17,12 +17,14 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.company.altasnotas.R;
 import com.company.altasnotas.models.Playlist;
+import com.company.altasnotas.models.Song;
 import com.company.altasnotas.services.BackgroundService;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -32,6 +34,14 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 
 
@@ -44,6 +54,8 @@ public class PlayerFragment extends Fragment {
     private ExoListener exoListener;
     private TextView title, author;
 
+    private DatabaseReference database_ref;
+    private FirebaseAuth mAuth;
 
     private PlayerView playerView;
     private BackgroundService mService;
@@ -106,16 +118,84 @@ public class PlayerFragment extends Fragment {
         fav_btn = view.findViewById(R.id.player_song_fav_btn);
         settings_btn = view.findViewById(R.id.player_song_options_btn);
 
+
+        database_ref = FirebaseDatabase.getInstance().getReference();
+        mAuth= FirebaseAuth.getInstance();
+
+        //Loading fav btn state
+        database_ref.child("fav_music")
+                .child(mAuth.getCurrentUser().getUid())
+                .orderByKey()
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if(snapshot!=null){
+                            Song mySong = playlist.getSongs().get(position);
+
+                            for(DataSnapshot ds: snapshot.getChildren()){
+
+                                if(
+                                        ds.child("album").getValue().equals(mySong.getAlbum())
+                                                &&
+                                                ds.child("author").getValue().equals(mySong.getAuthor())
+                                )
+                                {
+                                    //Same album and Author now we check song title
+                                    database_ref
+                                            .child("music")
+                                            .child("albums")
+                                            .child(mySong.getAuthor())
+                                            .child(mySong.getAlbum())
+                                            .addListenerForSingleValueEvent(new ValueEventListener() {
+
+                                                @Override
+                                                public void onDataChange(@NonNull DataSnapshot snap) {
+
+                                                    for(DataSnapshot s: snap.child("songs").getChildren()){
+
+                                                        if(
+                                                                s.child("order").getValue().toString().trim().equals(ds.child("numberInAlbum").getValue().toString().trim())
+                                                                        &&
+                                                                        s.child("title").getValue().equals(mySong.getTitle())
+                                                        ){
+                                                            //We found a song in Album and We need to set icon
+                                                          fav_btn.setImageResource(R.drawable.ic_heart_full);
+
+                                                        }
+                                                    }
+
+                                                }
+
+                                                @Override
+                                                public void onCancelled(@NonNull DatabaseError error) {
+
+                                                }
+                                            });
+                                }
+                            }
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+
         fav_btn.setOnClickListener(v -> {
 
             if (fav_btn.getDrawable().getConstantState().equals(fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
-                fav_btn.setImageResource(R.drawable.ic_heart_full);
+                addToFav();
             } else {
-                fav_btn.setImageResource(R.drawable.ic_heart_empty);
+                removeFromFav();
             }
         });
         return view;
     }
+
+
 
 
     private void initializePlayer() {
@@ -150,6 +230,41 @@ public class PlayerFragment extends Fragment {
         Glide.with(requireContext()).load(playlist.getSongs().get(position).getImage_url()).into(song_img);
     }
 
+    private void removeFromFav() {
+        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot firebaseFav: snapshot.getChildren()){
+                    String pos = String.valueOf(position+1);
+                    if(firebaseFav.child("numberInAlbum").getValue().toString().equals(pos)){
+
+                        System.out.println(firebaseFav.child("album").getValue().toString()+"\n"+firebaseFav.child("author").getValue().toString()+"\n"+firebaseFav.child("numberInAlbum").getValue().toString()+"\n\n     ");
+                        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(firebaseFav.getKey()).removeValue().addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if(task.isSuccessful()){
+                                    fav_btn.setImageResource(R.drawable.ic_heart_empty);
+                                }
+                            }
+                        });
+                        }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void addToFav() {
+        String key = database_ref.push().getKey();
+        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("numberInAlbum").setValue(position+1);
+        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("album").setValue(playlist.getDir_title());
+        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("author").setValue(playlist.getDir_desc());
+        fav_btn.setImageResource(R.drawable.ic_heart_full);
+    }
 
     public class ExoListener implements Player.Listener {
         SimpleExoPlayer player;

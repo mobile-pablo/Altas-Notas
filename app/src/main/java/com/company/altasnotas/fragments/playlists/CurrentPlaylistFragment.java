@@ -224,7 +224,6 @@ public class CurrentPlaylistFragment extends Fragment {
         }
     }
 
-
     private void initializePlaylist(String title) {
 
         ArrayList<FavoriteFirebaseSong> favoriteFirebaseSongs = new ArrayList<>();
