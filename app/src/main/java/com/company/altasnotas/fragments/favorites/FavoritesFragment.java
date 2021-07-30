@@ -113,60 +113,59 @@ public class FavoritesFragment extends Fragment {
                         int x = (int) snapshot.getChildrenCount();
                         if(x!=0) {
                             for (DataSnapshot ds : snapshot.getChildren()) {
-
                                 FavoriteFirebaseSong favoriteFirebaseSong = new FavoriteFirebaseSong();
                                 favoriteFirebaseSong.setNumerInAlbum(Integer.valueOf(ds.child("numberInAlbum").getValue().toString()));
                                 favoriteFirebaseSong.setAuthor(ds.child("author").getValue().toString());
                                 favoriteFirebaseSong.setAlbum(ds.child("album").getValue().toString());
                                 favoriteFirebaseSongs.add(favoriteFirebaseSong);
                             }
+
                             recyclerView.setVisibility(View.VISIBLE);
                             fav_state.setVisibility(View.GONE);
+
+                            for (int i =0; i<favoriteFirebaseSongs.size(); i++) {
+                                FavoriteFirebaseSong song=favoriteFirebaseSongs.get(i);
+                                int finalI = i;
+                                database_ref.child("music").child("albums").child(song.getAuthor()).child(song.getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                                        if(snapshot!=null) {
+                                            for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
+                                                if(Integer.parseInt(ds.child("order").getValue().toString()) == song.getNumerInAlbum()){
+
+                                                    Song local_song = new Song(snapshot.child("dir_desc").getValue().toString(), snapshot.child("dir_title").getValue().toString(),  ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString());
+                                                    songs.add(local_song);
+                                                }
+                                            }
+
+                                            if(finalI ==favoriteFirebaseSongs.size()-1) {
+                                                playlist.setSongs(songs);
+
+                                                if (playlist.getSongs() != null) {
+                                                    adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, true);
+                                                    recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+                                                    recyclerView.setAdapter(adapter);
+                                                }
+                                            }
+                                        }
+                                    }
+
+
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+
+                                    }
+                                });
+                            }
                         }else{
                             fav_state.setText("Empty Favorites");
                             recyclerView.setVisibility(View.GONE);
                             fav_state.setVisibility(View.VISIBLE);
                         }
 
-                        if(x!=0){
-                        for (FavoriteFirebaseSong song: favoriteFirebaseSongs) {
 
-                            database_ref.child("music").child("albums").child(song.getAuthor()).child(song.getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                                    if(snapshot!=null) {
-                                        for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
-                                            if(Integer.parseInt(ds.child("order").getValue().toString()) == song.getNumerInAlbum()){
-                                                Song local_song = new Song(snapshot.child("description").getValue().toString(), snapshot.child("title").getValue().toString(),  ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString());
-                                                songs.add(local_song);
-                                            }
-                                        }
-
-
-
-
-
-                                                if(playlist.getSongs()!=null) {
-                                            adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, true);
-                                            recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-                                            recyclerView.setAdapter(adapter);
-                                        }
-
-                                    }
-                                }
-
-
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-
-                                }
-                            });
-
-
-
-                        }}
                     }else{
                         System.out.println("This song doesnt exist in Album!");
                     }
@@ -179,8 +178,6 @@ public class FavoritesFragment extends Fragment {
 
 
             });
-
-
         }
     }
 }

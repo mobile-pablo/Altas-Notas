@@ -175,7 +175,7 @@ public class CurrentPlaylistFragment extends Fragment {
 
                         for (FirebaseSong song : firebaseSongs) {
 
-                            Song local_song = new Song(playlist.getDescription(), playlist.getTitle(), song.getTitle(), song.getPath(), playlist.getImage_id());
+                            Song local_song = new Song(playlist.getDir_desc(), playlist.getDir_title(), song.getTitle(), song.getPath(), playlist.getImage_id());
                             songs.add(local_song);
                         }
 

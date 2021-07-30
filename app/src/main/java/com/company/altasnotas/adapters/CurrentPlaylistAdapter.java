@@ -17,9 +17,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
+import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -34,7 +37,8 @@ private final Playlist playlist;
 private final MainActivity activity;
 private final ArrayList<Song> songs;
 private final Boolean isFavFragment;
-
+    private  DatabaseReference database_ref = FirebaseDatabase.getInstance().getReference();
+    private    FirebaseAuth mAuth = FirebaseAuth.getInstance();
     public CurrentPlaylistAdapter(MainActivity activity, Playlist playlist, Boolean isFavFragment){
         this.playlist=playlist;
         songs =playlist.getSongs();
@@ -71,12 +75,12 @@ private final Boolean isFavFragment;
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new MyViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.current_playlist_row, parent,false));
-
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         holder.setIsRecyclable(false);
+
         holder.currentTitle.setText(songs.get(position).getTitle());
         holder.currentAuthor.setText(songs.get(position).getAuthor());
 
@@ -97,6 +101,7 @@ private final Boolean isFavFragment;
                     Song mySong = songs.get(position);
 
                     for(DataSnapshot ds: snapshot.getChildren()){
+                        System.out.println("Database fav song: "+ds.child("author").getValue().toString()+", Mysong: "+mySong.getAuthor()+"\n");
 
                         if(
                                 ds.child("album").getValue().equals(mySong.getAlbum())
@@ -104,7 +109,7 @@ private final Boolean isFavFragment;
                                 ds.child("author").getValue().equals(mySong.getAuthor())
                         )
                         {
-                            //Same album and Author now we check song title
+                              //Same album and Author now we check song title
                             holder.databaseReference
                                     .child("music")
                                     .child("albums")
@@ -115,6 +120,7 @@ private final Boolean isFavFragment;
                                             @Override
                                             public void onDataChange(@NonNull DataSnapshot snap) {
 
+                                           //    holder.currentAuthor.setText(snap.child("description").getValue().toString());
                                                   for(DataSnapshot s: snap.child("songs").getChildren()){
 
                                                        if(
@@ -150,11 +156,29 @@ private final Boolean isFavFragment;
         });
 
 
-        holder.currentFav_btn.setOnClickListener(v -> Toast.makeText(holder.itemView.getContext(), "Fav btn of item is clicked!",Toast.LENGTH_SHORT).show());
+        holder.currentFav_btn.setOnClickListener(v -> {
+            if (holder.currentFav_btn.getDrawable().getConstantState().equals(holder.currentFav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+                addToFav(position,holder.currentFav_btn);
+            } else {
+                removeFromFav(position,holder.currentFav_btn);
+            }
+        });
 
         holder.currentSettings_btn.setOnClickListener(v -> Toast.makeText(holder.itemView.getContext(), "Settings btn of item is clicked!",Toast.LENGTH_SHORT).show());
 
-        if(playlist.isAlbum()==true){
+        holder.databaseReference.child("music").child("albums").child(songs.get(position).getAuthor()).child(songs.get(position).getAlbum()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snap) {
+                holder.currentAuthor.setText(snap.child("description").getValue().toString());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        if(playlist.isAlbum()){
             holder.photo.setVisibility(View.INVISIBLE);
         }else{
             Glide.with(activity.getApplicationContext()).load(songs.get(position).getImage_url()).into(holder.photo);
@@ -165,6 +189,44 @@ private final Boolean isFavFragment;
 
 
 
+    }
+
+    private void removeFromFav(Integer position, ImageButton fav_btn) {
+
+        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot firebaseFav: snapshot.getChildren()){
+
+                    if( firebaseFav.child("album").getValue().toString().trim().equals(playlist.getSongs().get(position).getAlbum().trim())){
+                        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(firebaseFav.getKey()).removeValue().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if(task.isSuccessful()){
+                                    fav_btn.setImageResource(R.drawable.ic_heart_empty);
+
+                                    playlist.getSongs().remove(playlist.getSongs().get(position));
+                                   activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new FavoritesFragment()).commit();
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void addToFav(Integer position, ImageButton fav_btn) {
+        String key = database_ref.push().getKey();
+        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("numberInAlbum").setValue(position+1);
+        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("album").setValue(playlist.getDir_title());
+        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("author").setValue(playlist.getDir_desc());
+        fav_btn.setImageResource(R.drawable.ic_heart_full);
     }
 
     @Override

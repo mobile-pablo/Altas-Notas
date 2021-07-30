@@ -225,8 +225,21 @@ public class PlayerFragment extends Fragment {
 
     private void setUI() {
 
-        title.setText(playlist.getSongs().get(position).getTitle());
-        author.setText(playlist.getSongs().get(position).getAuthor());
+        database_ref = FirebaseDatabase.getInstance().getReference();
+        database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                title.setText(playlist.getSongs().get(position).getTitle());
+                author.setText(snapshot.child("description").getValue().toString());
+                Glide.with(requireContext()).load(playlist.getSongs().get(position).getImage_url()).into(song_img);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
         Glide.with(requireContext()).load(playlist.getSongs().get(position).getImage_url()).into(song_img);
     }
 
@@ -235,11 +248,8 @@ public class PlayerFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for(DataSnapshot firebaseFav: snapshot.getChildren()){
-                    String pos = String.valueOf(position+1);
-                    if(firebaseFav.child("numberInAlbum").getValue().toString().equals(pos)){
-
-                        System.out.println(firebaseFav.child("album").getValue().toString()+"\n"+firebaseFav.child("author").getValue().toString()+"\n"+firebaseFav.child("numberInAlbum").getValue().toString()+"\n\n     ");
-                        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(firebaseFav.getKey()).removeValue().addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
+                    if( firebaseFav.child("album").getValue().toString().trim().equals(playlist.getSongs().get(position).getAlbum().trim())){
+                           database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(firebaseFav.getKey()).removeValue().addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if(task.isSuccessful()){
@@ -317,9 +327,70 @@ public class PlayerFragment extends Fragment {
         public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
             position = player.getCurrentWindowIndex();
             System.out.println("Gramy piosenke: " + playlist.getSongs().get(player.getCurrentWindowIndex()).getTitle());
-            title.setText(playlist.getSongs().get(player.getCurrentWindowIndex()).getTitle());
-            author.setText(playlist.getSongs().get(player.getCurrentWindowIndex()).getAuthor());
-            Glide.with(getContext()).load(playlist.getSongs().get(player.getCurrentWindowIndex()).getImage_url()).into(song_img);
+          setUI();
+            fav_btn.setImageResource(R.drawable.ic_heart_empty);
+
+            //Loading fav btn state
+            database_ref.child("fav_music")
+                    .child(mAuth.getCurrentUser().getUid())
+                    .orderByKey()
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if(snapshot!=null){
+                                Song mySong = playlist.getSongs().get(position);
+
+                                for(DataSnapshot ds: snapshot.getChildren()){
+
+                                    if(
+                                            ds.child("album").getValue().equals(mySong.getAlbum())
+                                                    &&
+                                                    ds.child("author").getValue().equals(mySong.getAuthor())
+                                    )
+                                    {
+                                        //Same album and Author now we check song title
+                                        database_ref
+                                                .child("music")
+                                                .child("albums")
+                                                .child(mySong.getAuthor())
+                                                .child(mySong.getAlbum())
+                                                .addListenerForSingleValueEvent(new ValueEventListener() {
+
+                                                    @Override
+                                                    public void onDataChange(@NonNull DataSnapshot snap) {
+
+                                                        for(DataSnapshot s: snap.child("songs").getChildren()){
+
+                                                            if(
+                                                                    s.child("order").getValue().toString().trim().equals(ds.child("numberInAlbum").getValue().toString().trim())
+                                                                            &&
+                                                                            s.child("title").getValue().equals(mySong.getTitle())
+                                                            ){
+                                                                //We found a song in Album and We need to set icon
+                                                                fav_btn.setImageResource(R.drawable.ic_heart_full);
+
+                                                            }
+                                                        }
+
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(@NonNull DatabaseError error) {
+
+                                                    }
+                                                });
+                                    }
+                                }
+
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+
             mService.setPosition(position);
         }
     }
