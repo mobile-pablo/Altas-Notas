@@ -12,19 +12,19 @@ Export project from Zip and Import full folder
 
 ## 💻 Progress
 
-▰▰▰▰▰▰▱▱▱▱ 60%
+▰▰▰▰▰▰▰▱▱▱ 70%
 
 ## 🧭 What's next
 
-* SearchView connected with Albums and Songs from Firebase
+
 * Favorites Button on Every song
 * Settings Button on Every song (Optional)
-* Player fragment
-* Configure Player (resume song etc.)
-* Add Notifications 
-* Small version of ExoPlayer added to MainActivity
 * Better design for UI
+* User Playlists 
 
+## 🚀 v2.0
+* SearchView connected with Albums and Songs from Firebase
+* Mini controller of ExoPlayer added to MainActivity
 
 <br /><br/>
 ## 📷 Screenshots
