@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -159,8 +160,33 @@ private PlaylistsFragmentAdapter adapter;
                     Toast.makeText(getContext(), "Description is empty.\nPlease fill data.",Toast.LENGTH_SHORT).show();
                 }
             }else{
-                dialog.dismiss();
-                createPlaylist(name,desc);
+                String finalName = name;
+                String finalDesc = desc;
+                database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if(snapshot!=null){
+                            int x= (int) snapshot.getChildrenCount();
+                            for(DataSnapshot ds: snapshot.getChildren()){
+                                if(ds.child("title").getValue().toString().trim().equals(finalName)){
+                                    x--;
+                                    Toast.makeText(requireContext(), "Playlist exist with same title!",Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            if(x ==snapshot.getChildrenCount()){
+                                dialog.dismiss();
+                                createPlaylist(finalName, finalDesc);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.d("Firebase DB error", "FirebaseDatabase");
+                    }
+                });
+
             }
         }
     }
