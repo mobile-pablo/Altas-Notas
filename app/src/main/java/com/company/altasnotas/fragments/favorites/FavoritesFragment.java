@@ -110,7 +110,7 @@ public class FavoritesFragment extends Fragment {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if(snapshot!=null){
 
-                        int x = (int) snapshot.child("songs").getChildrenCount();
+                        int x = (int) snapshot.getChildrenCount();
                         if(x!=0) {
                             for (DataSnapshot ds : snapshot.getChildren()) {
 

@@ -65,7 +65,6 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot!=null) {
                     for (DataSnapshot ds : snapshot.getChildren()) {
-                        System.out.println(ds.child("title").getValue().toString());
                         if (ds.child("title").getValue().toString().equals(playlists.get(position).getTitle())) {
                             storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + ds.getKey()).getDownloadUrl().addOnCompleteListener(mainActivity, new OnCompleteListener<Uri>() {
                                 @Override

@@ -147,9 +147,7 @@ public class PlayerFragment extends Fragment {
 
         title.setText(playlist.getSongs().get(position).getTitle());
         author.setText(playlist.getSongs().get(position).getAuthor());
-        Glide.with(requireContext()).load(playlist.getSongs().get(position).getImage_url()).apply(RequestOptions.centerCropTransform()).into(song_img);
-
-
+        Glide.with(requireContext()).load(playlist.getSongs().get(position).getImage_url()).into(song_img);
     }
 
 
