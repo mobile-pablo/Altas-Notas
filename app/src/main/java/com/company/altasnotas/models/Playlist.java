@@ -4,16 +4,15 @@ import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 
 public class Playlist implements Parcelable {
     private String title;
     private String description;
     private String image_id;
     private String year;
+    private String dir_title;
+    private String dir_desc;
     private boolean isAlbum;
     private ArrayList <Song> songs;
 
@@ -27,6 +26,9 @@ public class Playlist implements Parcelable {
         description = in.readString();
         image_id = in.readString();
         year = in.readString();
+        dir_title = in.readString();
+        dir_desc = in.readString();
+
         isAlbum = in.readByte() != 0;
     }
 
@@ -92,6 +94,15 @@ public class Playlist implements Parcelable {
         this.year = year;
     }
 
+
+    public String getDir_title() { return dir_title; }
+
+    public void setDir_title(String dir_title) { this.dir_title = dir_title; }
+
+    public String getDir_desc() { return dir_desc; }
+
+    public void setDir_desc(String dir_desc) { this.dir_desc = dir_desc; }
+
     @Override
     public int describeContents() {
         return 0;
@@ -103,6 +114,9 @@ public class Playlist implements Parcelable {
         dest.writeString(description);
         dest.writeString(image_id);
         dest.writeString(year);
+        dest.writeString(dir_title);
+        dest.writeString(dir_desc);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             dest.writeBoolean(isAlbum);
         }
