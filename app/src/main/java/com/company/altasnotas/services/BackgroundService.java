@@ -44,6 +44,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
@@ -71,8 +72,12 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     private final String NOTIFICATION_ID="8";
     private Integer position;
     private Long seekedTo;
-
     private String externalPath, externalPlaylistTitle, externalDescription;
+
+    private  AudioAttributes audioAttributes = new AudioAttributes.Builder()
+            .setUsage(C.USAGE_MEDIA)
+            .setContentType(C.CONTENT_TYPE_MOVIE)
+            .build();
     @Override
     public void onCreate() {
         super.onCreate();
@@ -278,6 +283,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
             playerNotificationManager.setPlayer(player);
         }
 
+
+
         return START_STICKY;
     }
 
@@ -296,6 +303,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     private void releasePlayer() {
         if (player != null) {
             playerNotificationManager.setPlayer(null);
+            player.setAudioAttributes(null, false);
             player.release();
             player = null;
         }
@@ -325,6 +333,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
             player.seekTo(seekedTo);
         }
 
+        player.setAudioAttributes(audioAttributes,true);
+
        player.prepare(concatenatingMediaSource,false,false);
 
 
@@ -348,8 +358,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
             mediaSources.add(audioSource);
         }
 
-
-
+        player.setAudioAttributes(audioAttributes,true);
 
         ConcatenatingMediaSource concatenatingMediaSource = new ConcatenatingMediaSource();
         concatenatingMediaSource.addMediaSources(mediaSources);
