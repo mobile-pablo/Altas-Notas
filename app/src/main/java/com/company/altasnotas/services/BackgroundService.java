@@ -303,7 +303,6 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     private void releasePlayer() {
         if (player != null) {
             playerNotificationManager.setPlayer(null);
-            player.setAudioAttributes(null, false);
             player.release();
             player = null;
         }

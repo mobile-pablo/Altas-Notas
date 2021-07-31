@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -196,17 +197,29 @@ private final Boolean isFavFragment;
         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+
                 for(DataSnapshot firebaseFav: snapshot.getChildren()){
 
-                    if( firebaseFav.child("album").getValue().toString().trim().equals(playlist.getSongs().get(position).getAlbum().trim())){
+                    System.out.println("ORDER: "+playlist.getSongs().get(position).getOrder()+", DB VALUE: "+firebaseFav.child("numberInAlbum").getValue().toString());
+                    if
+                    (
+                       playlist.getSongs().get(position).getOrder().toString().trim().equals(firebaseFav.child("numberInAlbum").getValue().toString().trim())
+                            &&
+                       firebaseFav.child("album").getValue().toString().trim().equals(playlist.getSongs().get(position).getAlbum().trim())
+                    )
+                    {
                         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(firebaseFav.getKey()).removeValue().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if(task.isSuccessful()){
                                     fav_btn.setImageResource(R.drawable.ic_heart_empty);
 
-                                    playlist.getSongs().remove(playlist.getSongs().get(position));
-                                   activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new FavoritesFragment()).commit();
+                                    Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                                    if(currentFragment instanceof FavoritesFragment){
+                                        playlist.getSongs().remove(playlist.getSongs().get(position));
+                                        activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();
+
+                                    }
                                 }
                             }
                         });
@@ -223,10 +236,30 @@ private final Boolean isFavFragment;
 
     private void addToFav(Integer position, ImageButton fav_btn) {
         String key = database_ref.push().getKey();
-        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("numberInAlbum").setValue(position+1);
-        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("album").setValue(playlist.getDir_title());
-        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("author").setValue(playlist.getDir_desc());
-        fav_btn.setImageResource(R.drawable.ic_heart_full);
+
+        database_ref
+                .child("music")
+                .child("albums")
+                .child(playlist.getSongs().get(position).getAuthor())
+                .child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot dataSnapshot: snapshot.child("songs").getChildren()){
+                   if( dataSnapshot.child("title").getValue().equals(playlist.getSongs().get(position).getTitle())){
+                       database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("numberInAlbum").setValue(dataSnapshot.child("order").getValue().toString());
+                       database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("album").setValue(playlist.getSongs().get(position).getAlbum());
+                       database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("author").setValue(playlist.getSongs().get(position).getAuthor());
+                       fav_btn.setImageResource(R.drawable.ic_heart_full);
+                   }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
     }
 
     @Override

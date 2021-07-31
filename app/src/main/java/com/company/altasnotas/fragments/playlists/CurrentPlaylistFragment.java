@@ -36,8 +36,6 @@ import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
 import com.company.altasnotas.viewmodels.ProfileFragmentViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -175,7 +173,7 @@ public class CurrentPlaylistFragment extends Fragment {
 
                         for (FirebaseSong song : firebaseSongs) {
 
-                            Song local_song = new Song(playlist.getDir_desc(), playlist.getDir_title(), song.getTitle(), song.getPath(), playlist.getImage_id());
+                            Song local_song = new Song(playlist.getDir_desc(), playlist.getDir_title(), song.getTitle(), song.getPath(), playlist.getImage_id(), song.getOrder());
                             songs.add(local_song);
                         }
 
@@ -262,7 +260,7 @@ public class CurrentPlaylistFragment extends Fragment {
                                               if(snapshot!=null) {
                                                   for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
                                                       if(Integer.parseInt(ds.child("order").getValue().toString()) == song.getNumerInAlbum()){
-                                                          Song local_song = new Song( song.getAuthor(), song.getAlbum(),  ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString());
+                                                          Song local_song = new Song( song.getAuthor(), song.getAlbum(),  ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString(), song.getNumerInAlbum());
                                                           songs.add(local_song);
                                                       }
                                                   }

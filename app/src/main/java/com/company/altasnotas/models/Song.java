@@ -12,12 +12,16 @@ public class Song implements Parcelable {
     private String path;
     private String image_url;
 
-    public Song(String author, String album, String title, String path, String image_url){
+
+    private Integer order;
+
+    public Song(String author, String album, String title, String path, String image_url, Integer order){
         this.author=author;
         this.album=album;
         this.title=title;
         this.path=path;
         this.image_url = image_url;
+        this.order = order;
     }
 
     protected Song(Parcel in) {
@@ -26,6 +30,7 @@ public class Song implements Parcelable {
         title = in.readString();
         path = in.readString();
         image_url = in.readString();
+        order = in.readInt();
     }
 
     public static final Creator<Song> CREATOR = new Creator<Song>() {
@@ -81,6 +86,10 @@ public class Song implements Parcelable {
         this.image_url = image_url;
     }
 
+
+    public Integer getOrder() { return order; }
+
+    public void setOrder(Integer order) { this.order = order; }
     @Override
     public int describeContents() {
         return 0;
@@ -93,5 +102,6 @@ public class Song implements Parcelable {
     dest.writeString(title);
     dest.writeString(path);
     dest.writeString(image_url);
+    dest.writeInt(order);
     }
 }

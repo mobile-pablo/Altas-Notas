@@ -15,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
@@ -134,7 +133,7 @@ public class FavoritesFragment extends Fragment {
                                             for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
                                                 if(Integer.parseInt(ds.child("order").getValue().toString()) == song.getNumerInAlbum()){
 
-                                                    Song local_song = new Song(snapshot.child("dir_desc").getValue().toString(), snapshot.child("dir_title").getValue().toString(),  ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString());
+                                                    Song local_song = new Song(snapshot.child("dir_desc").getValue().toString(), snapshot.child("dir_title").getValue().toString(),  ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString(), song.getNumerInAlbum());
                                                     songs.add(local_song);
                                                 }
                                             }
