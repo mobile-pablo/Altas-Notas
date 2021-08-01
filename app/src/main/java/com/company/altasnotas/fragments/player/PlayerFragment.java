@@ -15,9 +15,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
@@ -36,6 +38,8 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -47,7 +51,7 @@ import com.google.firebase.storage.FirebaseStorage;
 
 public class PlayerFragment extends Fragment {
     private ImageButton fav_btn;
-    private Button settings_btn;
+    private ImageButton settings_btn;
     private Playlist playlist;
     int position;
     private ImageView song_img;
@@ -77,6 +81,11 @@ public class PlayerFragment extends Fragment {
             mBound = false;
         }
     };
+
+
+    private BottomSheetDialog bottomSheetDialog;
+
+
 
     public PlayerFragment(Playlist playlist, int position, long seekedTo) {
         this.playlist=null;
@@ -192,10 +201,40 @@ public class PlayerFragment extends Fragment {
                 removeFromFav();
             }
         });
+
+        settings_btn.setOnClickListener(v->{
+            openSettingsDialog();
+        });
         return view;
     }
 
+    private void openSettingsDialog() {
+      bottomSheetDialog = new BottomSheetDialog(getContext());
+        bottomSheetDialog.setContentView(R.layout.bottom_settings_layout);
 
+        LinearLayout  showAlbum = bottomSheetDialog.findViewById(R.id.bottom_settings_album_box);
+        LinearLayout  addToPlaylist = bottomSheetDialog.findViewById(R.id.bottom_settings_playlists_box);
+        LinearLayout   shareOnFacebook = bottomSheetDialog.findViewById(R.id.bottom_settings_share_box);
+        LinearLayout  dismissDialog = bottomSheetDialog.findViewById(R.id.bottom_settings_dismiss_box);
+
+        showAlbum.setOnClickListener(v->{
+            //Shows album
+            bottomSheetDialog.dismiss();
+        });
+
+        addToPlaylist.setOnClickListener(v -> {
+            //Add to playlist
+            bottomSheetDialog.dismiss();
+        });
+
+        shareOnFacebook.setOnClickListener(v ->{
+            //Share
+            bottomSheetDialog.dismiss();
+        });
+       dismissDialog.setOnClickListener(v -> bottomSheetDialog.dismiss());
+
+        bottomSheetDialog.show();
+    }
 
 
     private void initializePlayer() {

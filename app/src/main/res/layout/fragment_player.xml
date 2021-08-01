@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-
-
-    <LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".fragments.player.PlayerFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-    android:background="@drawable/custom_player_fragment_bg"
-        android:gravity="bottom"
+        android:layout_height="fill_parent"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
+        android:background="@drawable/custom_player_fragment_bg"
+        android:gravity="bottom"
         android:orientation="vertical"
-        tools:context=".fragments.player.PlayerFragment"
         android:padding="10dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -31,6 +34,7 @@
                 android:id="@+id/player_song_fav_btn"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
+                android:layout_margin="10dp"
                 android:background="@android:color/transparent"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_heart_empty"
@@ -38,14 +42,14 @@
                 app:layout_constraintEnd_toStartOf="@+id/player_song_options_btn"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/player_song_options_btn"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
+                android:layout_margin="10dp"
                 android:background="@android:color/transparent"
-                android:drawableLeft="@drawable/ic_three_dots_vertical"
-                android:drawableTint="#000"
                 android:scaleType="centerCrop"
+                android:src="@drawable/ic_three_dots_vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -65,36 +69,42 @@
             app:layout_constraintTop_toBottomOf="@+id/player_song_info_box" />
 
 
-    <TextView
-        android:id="@+id/player_song_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/roboto"
-        android:text="TextView"
-        android:textAlignment="center"
-        android:textColor="#FFFFFF"
-        android:textSize="24sp" />
+        <TextView
+            android:id="@+id/player_song_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto"
+            android:text="TextView"
+            android:textAlignment="center"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp" />
 
-    <TextView
-        android:id="@+id/player_song_author"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/oswald"
-        android:text="TextView"
-        android:paddingBottom="10dp"
-        android:textAlignment="center"
-        android:textColor="#F3F1F1"
-        android:textSize="18sp" />
+        <TextView
+            android:id="@+id/player_song_author"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/oswald"
+            android:paddingBottom="10dp"
+            android:text="TextView"
+            android:textAlignment="center"
+            android:textColor="#F3F1F1"
+            android:textSize="18sp" />
 
-    <com.google.android.exoplayer2.ui.PlayerView
+        <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/player_view"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:background="@android:color/transparent"
+            app:shutter_background_color="@android:color/transparent"
+            app:hide_on_touch="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:hide_on_touch="false"
             app:layout_constraintTop_toBottomOf="@+id/player_song_img"
             app:show_buffering="when_playing" />
+
     </LinearLayout>
+
+    <include
+        layout="@layout/bottom_settings_layout"/>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

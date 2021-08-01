@@ -42,7 +42,7 @@ public class FavoritesFragment extends Fragment {
     private    CountDownLatch conditionLatch;
     private ImageView imageView;
     private TextView title, description;
-    private ImageButton settings;
+    private ImageView settings;
     private TextView fav_state;
 
     @Override

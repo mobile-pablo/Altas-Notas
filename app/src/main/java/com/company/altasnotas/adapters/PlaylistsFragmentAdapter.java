@@ -70,9 +70,9 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                 @Override
                                 public void onComplete(@NonNull Task<Uri> task) {
                                     if(task.isSuccessful()){
-                                        Glide.with(mainActivity).load(task.getResult()).apply(RequestOptions.centerCropTransform()).into(holder.photo);
+                                        Glide.with(mainActivity).load(task.getResult()).apply(RequestOptions.centerCropTransform()).override(holder.photo.getWidth(),holder.photo.getWidth()).into(holder.photo);
                                     }else{
-                                        Glide.with(mainActivity.getApplicationContext()).load(R.drawable.img_not_found).apply(RequestOptions.centerCropTransform()).into(holder.photo);
+                                        Glide.with(mainActivity.getApplicationContext()).load(R.drawable.img_not_found).apply(RequestOptions.centerCropTransform()).override(holder.photo.getWidth(),holder.photo.getWidth()).into(holder.photo);
                                         Log.d("Error while loading photo", "Firebase");
                                     }
                                 }
@@ -81,13 +81,13 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                         }
                     }
                 }else{
-                    Glide.with(mainActivity.getApplicationContext()).load(R.drawable.img_not_found).apply(RequestOptions.centerCropTransform()).into(holder.photo);
+                    Glide.with(mainActivity.getApplicationContext()).load(R.drawable.img_not_found).apply(RequestOptions.centerCropTransform()).override(holder.photo.getWidth(),holder.photo.getWidth()).into(holder.photo);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Glide.with(mainActivity.getApplicationContext()).load(R.drawable.img_not_found).apply(RequestOptions.centerCropTransform()).into(holder.photo);
+                Glide.with(mainActivity.getApplicationContext()).load(R.drawable.img_not_found).apply(RequestOptions.centerCropTransform()).override(holder.photo.getWidth(),holder.photo.getWidth()).into(holder.photo);
             }
         });
 
@@ -95,12 +95,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
         holder.title.setText(title);
         holder.desc.setText(playlists.get(position).getDescription());
 
-        holder.fav_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-            }
-        });
 
         holder.settings_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -125,16 +120,15 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
     public class MyViewHolder extends RecyclerView.ViewHolder {
         ImageView photo;
         TextView title, desc;
-        ImageButton fav_btn, settings_btn;
+        ImageButton  settings_btn;
         LinearLayout linearLayout;
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
             photo = itemView.findViewById(R.id.playlists_recycler_row_photo);
             title = itemView.findViewById(R.id.playlists_recycler_row_title);
             desc = itemView.findViewById(R.id.playlists_recycler_row_desc);
-            fav_btn = itemView.findViewById(R.id.playlists_recycler_row_fav_btn);
-            settings_btn = itemView.findViewById(R.id.playlists_recycler_row_settings_btn);
 
+            settings_btn = itemView.findViewById(R.id.playlists_recycler_row_settings_btn);
             linearLayout = itemView.findViewById(R.id.playlists_recycler_row_box);
         }
     }
