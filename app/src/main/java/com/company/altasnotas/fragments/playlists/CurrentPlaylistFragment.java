@@ -244,7 +244,7 @@ public class CurrentPlaylistFragment extends Fragment {
                                       i++;
 
                                       FavoriteFirebaseSong favoriteFirebaseSong = new FavoriteFirebaseSong();
-                                      favoriteFirebaseSong.setNumerInAlbum(Integer.valueOf(ds.child("numberInAlbum").getValue().toString()));
+                                      favoriteFirebaseSong.setNumberInAlbum(Integer.valueOf(ds.child("numberInAlbum").getValue().toString()));
                                       favoriteFirebaseSong.setAuthor(ds.child("author").getValue().toString());
                                       favoriteFirebaseSong.setAlbum(ds.child("album").getValue().toString());
 
@@ -259,8 +259,8 @@ public class CurrentPlaylistFragment extends Fragment {
 
                                               if(snapshot!=null) {
                                                   for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
-                                                      if(Integer.parseInt(ds.child("order").getValue().toString()) == song.getNumerInAlbum()){
-                                                          Song local_song = new Song( song.getAuthor(), song.getAlbum(),  ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString(), song.getNumerInAlbum());
+                                                      if(Integer.parseInt(ds.child("order").getValue().toString()) == song.getNumberInAlbum()){
+                                                          Song local_song = new Song( song.getAuthor(), song.getAlbum(),  ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString(), song.getNumberInAlbum());
                                                           songs.add(local_song);
                                                       }
                                                   }

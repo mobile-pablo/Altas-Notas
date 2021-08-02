@@ -307,13 +307,8 @@ public class PlayerFragment extends Fragment {
                 if(x==snapshot.getChildrenCount()){
 
 
-                    for(int i=0; i<playlists_titles.size(); i++){
-                        System.out.println("Title: "+playlists_titles.get(i)+", Key: "+playlists_keys.get(i) );
-                    }
 
-                    System.out.println("ROZMIAR: "+playlists_titles.size());
-
-                    ChoosePlaylistAdapter choosePlaylistAdapter = new ChoosePlaylistAdapter((MainActivity) requireActivity(), playlists_titles, playlists_keys);
+                    ChoosePlaylistAdapter choosePlaylistAdapter = new ChoosePlaylistAdapter((MainActivity) requireActivity(),choosePlaylistDialog,playlist.getSongs().get(position),  playlists_titles, playlists_keys);
                     chooseRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
                     choosePlaylistAdapter.notifyDataSetChanged();
                     chooseRecyclerView.setAdapter(choosePlaylistAdapter);
@@ -338,7 +333,7 @@ public class PlayerFragment extends Fragment {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
             shareIntent.putExtra(android.content.Intent.EXTRA_TITLE, "Altas Notas");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "My favorite Song is : "+ playlist.getSongs().get(position).getTitle() +" from "+ playlist.getSongs().get(position).getAuthor() +".\nListen this on \"Altas Notas\".\nExternal Link: [ "+playlist.getSongs().get(position).getPath()+" ]");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "My favorite Song is \""+ playlist.getSongs().get(position).getTitle() +"\" from \""+ playlist.getSongs().get(position).getAuthor() +"\".\nListen this on \"Altas Notas\".\nExternal Link: [ "+playlist.getSongs().get(position).getPath()+" ]");
             startActivity(Intent.createChooser(shareIntent,"Share using"));
            getContext().startActivity(shareIntent);
 

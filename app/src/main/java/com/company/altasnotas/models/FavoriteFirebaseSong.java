@@ -1,7 +1,7 @@
 package com.company.altasnotas.models;
 
 public class FavoriteFirebaseSong {
-    private Integer numerInAlbum;
+    private Integer numberInAlbum;
     private String author;
     private String album;
 
@@ -9,18 +9,18 @@ public class FavoriteFirebaseSong {
 
     }
 
-    public FavoriteFirebaseSong(Integer numerInAlbum, String author,String album) {
-        this.numerInAlbum = numerInAlbum;
+    public FavoriteFirebaseSong(Integer numberInAlbum, String author,String album) {
+        this.numberInAlbum = numberInAlbum;
         this.author = author;
         this.album=album;
     }
 
-    public Integer getNumerInAlbum() {
-        return numerInAlbum;
+    public Integer getNumberInAlbum() {
+        return numberInAlbum;
     }
 
-    public void setNumerInAlbum(Integer numerInAlbum) {
-        this.numerInAlbum = numerInAlbum;
+    public void setNumberInAlbum(Integer numberInAlbum) {
+        this.numberInAlbum = numberInAlbum;
     }
 
     public String getAuthor() {

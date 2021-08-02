@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -113,7 +112,7 @@ public class FavoritesFragment extends Fragment {
                         if(x!=0) {
                             for (DataSnapshot ds : snapshot.getChildren()) {
                                 FavoriteFirebaseSong favoriteFirebaseSong = new FavoriteFirebaseSong();
-                                favoriteFirebaseSong.setNumerInAlbum(Integer.valueOf(ds.child("numberInAlbum").getValue().toString()));
+                                favoriteFirebaseSong.setNumberInAlbum(Integer.valueOf(ds.child("numberInAlbum").getValue().toString()));
                                 favoriteFirebaseSong.setAuthor(ds.child("author").getValue().toString());
                                 favoriteFirebaseSong.setAlbum(ds.child("album").getValue().toString());
                                 favoriteFirebaseSongs.add(favoriteFirebaseSong);
@@ -131,9 +130,9 @@ public class FavoritesFragment extends Fragment {
 
                                         if(snapshot!=null) {
                                             for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
-                                                if(Integer.parseInt(ds.child("order").getValue().toString()) == song.getNumerInAlbum()){
+                                                if(Integer.parseInt(ds.child("order").getValue().toString()) == song.getNumberInAlbum()){
 
-                                                    Song local_song = new Song(snapshot.child("dir_desc").getValue().toString(), snapshot.child("dir_title").getValue().toString(),  ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString(), song.getNumerInAlbum());
+                                                    Song local_song = new Song(snapshot.child("dir_desc").getValue().toString(), snapshot.child("dir_title").getValue().toString(),  ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString(), song.getNumberInAlbum());
                                                     songs.add(local_song);
                                                 }
                                             }

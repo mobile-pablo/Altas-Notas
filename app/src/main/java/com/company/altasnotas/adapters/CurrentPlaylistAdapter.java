@@ -1,18 +1,21 @@
 package com.company.altasnotas.adapters;
 
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -20,10 +23,12 @@ import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.fragments.player.PlayerFragment;
+import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -38,8 +43,12 @@ private final Playlist playlist;
 private final MainActivity activity;
 private final ArrayList<Song> songs;
 private final Boolean isFavFragment;
-    private  DatabaseReference database_ref = FirebaseDatabase.getInstance().getReference();
-    private    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+private  DatabaseReference database_ref = FirebaseDatabase.getInstance().getReference();
+private    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+
+    private BottomSheetDialog bottomSheetDialog;
+    private BottomSheetDialog choosePlaylistDialog;
     public CurrentPlaylistAdapter(MainActivity activity, Playlist playlist, Boolean isFavFragment){
         this.playlist=playlist;
         songs =playlist.getSongs();
@@ -165,7 +174,9 @@ private final Boolean isFavFragment;
             }
         });
 
-        holder.currentSettings_btn.setOnClickListener(v -> Toast.makeText(holder.itemView.getContext(), "Settings btn of item is clicked!",Toast.LENGTH_SHORT).show());
+        holder.currentSettings_btn.setOnClickListener(v -> {
+            openSettingsDialog(position, holder);
+        });
 
         System.out.println("A: "+songs.get(position).getAuthor()+", AA: "+songs.get(position).getAlbum());
         holder.databaseReference.child("music").child("albums").child(songs.get(position).getAuthor()).child(songs.get(position).getAlbum()).addValueEventListener(new ValueEventListener() {
@@ -269,4 +280,116 @@ private final Boolean isFavFragment;
     }
 
 
+
+    private void openSettingsDialog(Integer position, MyViewHolder holder) {
+        bottomSheetDialog = new BottomSheetDialog(holder.itemView.getContext());
+        bottomSheetDialog.setContentView(R.layout.bottom_settings_layout);
+
+        LinearLayout showAlbum = bottomSheetDialog.findViewById(R.id.bottom_settings_album_box);
+        LinearLayout  addToPlaylist = bottomSheetDialog.findViewById(R.id.bottom_settings_playlists_box);
+        LinearLayout   shareOnFacebook = bottomSheetDialog.findViewById(R.id.bottom_settings_share_box);
+        LinearLayout  dismissDialog = bottomSheetDialog.findViewById(R.id.bottom_settings_dismiss_box);
+
+        showAlbum.setOnClickListener(v->{
+            //Shows album
+            //Download playlist
+            Playlist x = new Playlist();
+            if (mAuth.getCurrentUser() != null) {
+
+                database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if(snapshot!=null){
+                            x.setImage_id(snapshot.child("image_id").getValue().toString());
+                            x.setYear(snapshot.child("year").getValue().toString());
+                            x.setTitle(snapshot.child("title").getValue().toString());
+                            x.setDescription(snapshot.child("description").getValue().toString());
+                            x.setDir_title(playlist.getSongs().get(position).getAlbum());
+                            x.setDir_desc(playlist.getSongs().get(position).getAuthor());
+                            bottomSheetDialog.dismiss();
+                            activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(),playlist.getSongs().get(position).getAlbum(),x, 1)).addToBackStack("null").commit();
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        android.util.Log.d("Error: "+error.getMessage(),"FirebaseDatabase");
+                    }
+
+                });
+
+
+            }
+        });
+        addToPlaylist.setOnClickListener(v -> {
+            //Add to playlist
+            addToPlaylist(position,holder);
+            bottomSheetDialog.dismiss();
+        });
+        shareOnFacebook.setOnClickListener(v ->{
+            share(position);
+            bottomSheetDialog.dismiss();
+        });
+        dismissDialog.setOnClickListener(v -> bottomSheetDialog.dismiss());
+
+        bottomSheetDialog.show();
+    }
+
+    private void addToPlaylist(Integer position,MyViewHolder holder) {
+        choosePlaylistDialog= new BottomSheetDialog(holder.itemView.getContext());
+        choosePlaylistDialog.setContentView(R.layout.choose_playlist_dialog);
+
+        RecyclerView  chooseRecyclerView =  choosePlaylistDialog.findViewById(R.id.choose_playlist_recycler_view);
+        ArrayList<String> playlists_titles = new ArrayList<>();
+        ArrayList<String>  playlists_keys = new ArrayList<>();
+
+
+        database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                int x= 0;
+                for(DataSnapshot playlistSnapshot: snapshot.getChildren()){
+                    x++;
+                    playlists_titles.add(playlistSnapshot.child("title").getValue().toString());
+                    playlists_keys.add(playlistSnapshot.getKey());
+                }
+
+                if(x==snapshot.getChildrenCount()){
+                    for(int i=0; i<playlists_titles.size(); i++){
+                        System.out.println("Title: "+playlists_titles.get(i)+", Key: "+playlists_keys.get(i) );
+                    }
+
+
+                    ChoosePlaylistAdapter choosePlaylistAdapter = new ChoosePlaylistAdapter(activity,choosePlaylistDialog,playlist.getSongs().get(position),  playlists_titles, playlists_keys);
+                    chooseRecyclerView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext(), LinearLayoutManager.VERTICAL, false));
+                    choosePlaylistAdapter.notifyDataSetChanged();
+                    chooseRecyclerView.setAdapter(choosePlaylistAdapter);
+                }
+
+
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        choosePlaylistDialog.show();
+    }
+
+    private void share(Integer position) {
+
+        // The application exists
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(android.content.Intent.EXTRA_TITLE, "Altas Notas");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "My favorite Song is \""+ playlist.getSongs().get(position).getTitle() +"\" from \""+ playlist.getSongs().get(position).getAuthor() +"\".\nListen this on \"Altas Notas\".\nExternal Link: [ "+playlist.getSongs().get(position).getPath()+" ]");
+       activity.startActivity(Intent.createChooser(shareIntent,"Share using"));
+        activity.startActivity(shareIntent);
+
+    }
 }
