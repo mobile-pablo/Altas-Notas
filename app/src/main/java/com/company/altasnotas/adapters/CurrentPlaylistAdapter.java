@@ -232,7 +232,7 @@ private    FirebaseAuth mAuth = FirebaseAuth.getInstance();
                                     if(currentFragment instanceof FavoritesFragment){
                                         FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
                                         playlist.getSongs().remove(playlist.getSongs().get(position));
-
+                                        notifyDataSetChanged();
                                     //    activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();
                                         if(playlist.getSongs().size()==0){
                                             favoritesFragment.recyclerView.setVisibility(View.GONE);
@@ -375,7 +375,7 @@ private    FirebaseAuth mAuth = FirebaseAuth.getInstance();
                                             if(currentFragment instanceof CurrentPlaylistFragment){
                                                 CurrentPlaylistFragment currentPlaylistFragment = (CurrentPlaylistFragment) currentFragment;
                                                 playlist.getSongs().remove(playlist.getSongs().get(position));
-
+                                                notifyDataSetChanged();
                                                 if(playlist.getSongs().size()==0){
                                                     currentPlaylistFragment.recyclerView.setVisibility(View.GONE);
                                                     currentPlaylistFragment.recyclerViewState.setText("Empty Playlist");

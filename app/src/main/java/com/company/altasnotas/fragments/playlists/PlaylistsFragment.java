@@ -22,6 +22,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.company.altasnotas.MainActivity;
@@ -48,7 +49,8 @@ import java.util.Calendar;
 public class PlaylistsFragment extends Fragment {
 
 
-private RecyclerView recyclerView;
+public RecyclerView recyclerView;
+public TextView recyclerViewState;
 private FloatingActionButton fab;
     private FirebaseDatabase database;
     private DatabaseReference database_ref;
@@ -66,6 +68,7 @@ private PlaylistsFragmentAdapter adapter;
 
        recyclerView = view.findViewById(R.id.playlists_recycler_view);
        fab = view.findViewById(R.id.playlists_floating_btn);
+       recyclerViewState = view.findViewById(R.id.playlists_recycler_state);
 
        mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();

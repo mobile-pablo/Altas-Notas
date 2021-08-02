@@ -15,6 +15,18 @@
 
     </androidx.recyclerview.widget.RecyclerView>
 
+    <TextView
+        android:id="@+id/playlists_recycler_state"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fontFamily="@font/archivo_narrow"
+        android:gravity="center"
+        android:text="No Playlist's"
+        android:textColor="#3E3D3D"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/playlists_floating_btn"
         android:layout_width="wrap_content"
