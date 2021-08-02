@@ -15,8 +15,8 @@
 
         <ImageView
             android:id="@+id/playlists_recycler_row_photo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
             android:layout_margin="5dp"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/ic_launcher_background" />
@@ -44,6 +44,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_weight="1"
+                android:fontFamily="@font/lato"
                 android:text="TextView"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/playlists_recycler_row_title" />

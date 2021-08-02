@@ -58,7 +58,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-
+    holder.setIsRecyclable(false);
         //Load photo
         database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid().toString()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

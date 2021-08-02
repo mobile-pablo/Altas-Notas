@@ -1,5 +1,6 @@
 package com.company.altasnotas.fragments.player;
 
+import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.ComponentName;
@@ -7,11 +8,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -21,10 +26,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
+import com.company.altasnotas.adapters.ChoosePlaylistAdapter;
+import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
+import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
 import com.company.altasnotas.services.BackgroundService;
@@ -48,6 +59,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 
+import java.util.ArrayList;
+
 
 public class PlayerFragment extends Fragment {
     private ImageButton fav_btn;
@@ -67,6 +80,10 @@ public class PlayerFragment extends Fragment {
     private Intent intent;
 
     private Long seekedTo;
+
+
+    private Dialog dialog;
+    private RecyclerView dialog_recycler_view;
     private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -84,7 +101,7 @@ public class PlayerFragment extends Fragment {
 
 
     private BottomSheetDialog bottomSheetDialog;
-
+    private BottomSheetDialog choosePlaylistDialog;
 
 
     public PlayerFragment(Playlist playlist, int position, long seekedTo) {
@@ -219,21 +236,112 @@ public class PlayerFragment extends Fragment {
 
         showAlbum.setOnClickListener(v->{
             //Shows album
-            bottomSheetDialog.dismiss();
-        });
+            //Download playlist
+                Playlist x = new Playlist();
+                if (mAuth.getCurrentUser() != null) {
+
+                    database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if(snapshot!=null){
+                                x.setImage_id(snapshot.child("image_id").getValue().toString());
+                                x.setYear(snapshot.child("year").getValue().toString());
+                                x.setTitle(snapshot.child("title").getValue().toString());
+                                x.setDescription(snapshot.child("description").getValue().toString());
+                                x.setDir_title(playlist.getSongs().get(position).getAlbum());
+                                x.setDir_desc(playlist.getSongs().get(position).getAuthor());
+                                bottomSheetDialog.dismiss();
+                                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(),playlist.getSongs().get(position).getAlbum(),x, 1)).addToBackStack("null").commit();
+
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            android.util.Log.d("Error: "+error.getMessage(),"FirebaseDatabase");
+                        }
+
+                    });
+
+
+                }
+            });
 
         addToPlaylist.setOnClickListener(v -> {
             //Add to playlist
+            addToPlaylist();
             bottomSheetDialog.dismiss();
         });
 
         shareOnFacebook.setOnClickListener(v ->{
-            //Share
+            share();
             bottomSheetDialog.dismiss();
         });
        dismissDialog.setOnClickListener(v -> bottomSheetDialog.dismiss());
 
         bottomSheetDialog.show();
+    }
+
+    private void addToPlaylist() {
+        choosePlaylistDialog= new BottomSheetDialog(getContext());
+        choosePlaylistDialog.setContentView(R.layout.choose_playlist_dialog);
+
+        RecyclerView  chooseRecyclerView =  choosePlaylistDialog.findViewById(R.id.choose_playlist_recycler_view);
+        ArrayList<String> playlists_titles = new ArrayList<>();
+        ArrayList<String>  playlists_keys = new ArrayList<>();
+
+        database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                int x= 0;
+                for(DataSnapshot playlistSnapshot: snapshot.getChildren()){
+                    x++;
+
+                    playlists_titles.add(playlistSnapshot.child("title").getValue().toString());
+                    playlists_keys.add(playlistSnapshot.getKey());
+
+
+                }
+
+                if(x==snapshot.getChildrenCount()){
+
+
+                    for(int i=0; i<playlists_titles.size(); i++){
+                        System.out.println("Title: "+playlists_titles.get(i)+", Key: "+playlists_keys.get(i) );
+                    }
+
+                    System.out.println("ROZMIAR: "+playlists_titles.size());
+
+                    ChoosePlaylistAdapter choosePlaylistAdapter = new ChoosePlaylistAdapter((MainActivity) requireActivity(), playlists_titles, playlists_keys);
+                    chooseRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+                    choosePlaylistAdapter.notifyDataSetChanged();
+                    chooseRecyclerView.setAdapter(choosePlaylistAdapter);
+                }
+
+
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        choosePlaylistDialog.show();
+    }
+
+    private void share() {
+
+            // The application exists
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+            shareIntent.putExtra(android.content.Intent.EXTRA_TITLE, "Altas Notas");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "My favorite Song is : "+ playlist.getSongs().get(position).getTitle() +" from "+ playlist.getSongs().get(position).getAuthor() +".\nListen this on \"Altas Notas\".\nExternal Link: [ "+playlist.getSongs().get(position).getPath()+" ]");
+            startActivity(Intent.createChooser(shareIntent,"Share using"));
+           getContext().startActivity(shareIntent);
+
     }
 
 

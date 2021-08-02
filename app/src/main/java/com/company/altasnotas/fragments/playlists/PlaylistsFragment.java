@@ -139,6 +139,7 @@ private PlaylistsFragmentAdapter adapter;
 
         cancel.setOnClickListener(v -> dialog.dismiss());
 
+
         accept.setOnClickListener(v -> validInput(dialog_playlist_name.getText().toString(), dialog_playlist_desc.getText().toString()));
 
         dialog.show();
@@ -148,6 +149,9 @@ private PlaylistsFragmentAdapter adapter;
     private void validInput(String name ,String desc) {
         name = name.trim();
         desc = desc.trim();
+
+        name = name.substring(0,1).toUpperCase() + name.substring(1).toLowerCase();
+        desc = desc.substring(0,1).toUpperCase() + desc.substring(1).toLowerCase();
         if(name.isEmpty() && desc.isEmpty()){
             Toast.makeText(getContext(), "Both fields are empty.\nPlease fill data.",Toast.LENGTH_SHORT).show();
         }else{

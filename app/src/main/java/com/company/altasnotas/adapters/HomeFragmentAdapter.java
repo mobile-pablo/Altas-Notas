@@ -40,6 +40,7 @@ public class HomeFragmentAdapter extends RecyclerView.Adapter<HomeFragmentAdapte
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+        holder.setIsRecyclable(false);
     Glide.with(mainActivity.getApplicationContext()).load(playlists.get(position).getImage_id()).apply(RequestOptions.centerCropTransform()).into(holder.home_row_img);
     holder.home_row_year.setText(playlists.get(position).getYear());
     holder.home_row_title.setText(playlists.get(position).getTitle());

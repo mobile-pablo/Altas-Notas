@@ -167,6 +167,7 @@ private final Boolean isFavFragment;
 
         holder.currentSettings_btn.setOnClickListener(v -> Toast.makeText(holder.itemView.getContext(), "Settings btn of item is clicked!",Toast.LENGTH_SHORT).show());
 
+        System.out.println("A: "+songs.get(position).getAuthor()+", AA: "+songs.get(position).getAlbum());
         holder.databaseReference.child("music").child("albums").child(songs.get(position).getAuthor()).child(songs.get(position).getAlbum()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snap) {

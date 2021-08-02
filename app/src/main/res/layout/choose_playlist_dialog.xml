@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bottom_sheet"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/custom_player_fragment_bg_reversed"
+    android:gravity="bottom"
+    android:orientation="vertical"
+    android:paddingTop="30dp"
+    android:paddingBottom="30dp"
+    app:behavior_hideable="true"
+    app:behavior_peekHeight="0dp"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/oswald"
+        android:text="Choose Playlist"
+        android:textAlignment="center"
+        android:textColor="#FDFDFD"
+        android:textSize="18sp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/choose_playlist_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="240dp" />
+</LinearLayout>
