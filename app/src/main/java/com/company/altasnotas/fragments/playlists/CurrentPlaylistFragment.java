@@ -61,7 +61,7 @@ import static android.app.Activity.RESULT_OK;
 public class CurrentPlaylistFragment extends Fragment {
 
     private final Playlist playlist;
-    private RecyclerView recyclerView;
+    public RecyclerView recyclerView;
     private ImageView imageView;
     private TextView title, description;
     private DatabaseReference database_ref;
@@ -75,7 +75,7 @@ public class CurrentPlaylistFragment extends Fragment {
     private Uri returnUri;
     private StorageReference storageReference;
 
-    private TextView recyclerViewState;
+   public TextView recyclerViewState;
     private FloatingActionButton fab;
     @Override
 
@@ -126,8 +126,6 @@ public class CurrentPlaylistFragment extends Fragment {
         else
         {
             initializePlaylist(author);
-
-
         }
 
         return view;
@@ -202,7 +200,7 @@ public class CurrentPlaylistFragment extends Fragment {
                         }
                         if(x!=0){
                         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-                        adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist,false);
+                        adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist,-1);
                         adapter.notifyDataSetChanged();
                         recyclerView.setAdapter(adapter);
                         }
@@ -271,7 +269,7 @@ public class CurrentPlaylistFragment extends Fragment {
 
 
                                                   if(playlist.getSongs()!=null) {
-                                                      adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, true);
+                                                      adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, 0);
                                                       recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
                                                       recyclerView.setAdapter(adapter);
                                                   }
@@ -352,7 +350,7 @@ public class CurrentPlaylistFragment extends Fragment {
 
                               if(x!=0) {
                                   recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-                                  adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, false);
+                                  adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, 0);
                                   adapter.notifyDataSetChanged();
                                   recyclerView.setAdapter(adapter);
                               }

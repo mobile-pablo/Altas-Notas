@@ -1,40 +1,30 @@
 package com.company.altasnotas.fragments.player;
 
 import android.app.Dialog;
-import android.app.NotificationManager;
-import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.ChoosePlaylistAdapter;
-import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
@@ -49,7 +39,6 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -57,7 +46,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
 
@@ -84,6 +72,7 @@ public class PlayerFragment extends Fragment {
 
     private Dialog dialog;
     private RecyclerView dialog_recycler_view;
+
     private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -227,11 +216,11 @@ public class PlayerFragment extends Fragment {
 
     private void openSettingsDialog() {
       bottomSheetDialog = new BottomSheetDialog(getContext());
-        bottomSheetDialog.setContentView(R.layout.bottom_settings_layout);
+        bottomSheetDialog.setContentView(R.layout.bottom_song_settings_layout);
 
         LinearLayout  showAlbum = bottomSheetDialog.findViewById(R.id.bottom_settings_album_box);
         LinearLayout  addToPlaylist = bottomSheetDialog.findViewById(R.id.bottom_settings_playlists_box);
-        LinearLayout   shareOnFacebook = bottomSheetDialog.findViewById(R.id.bottom_settings_share_box);
+        LinearLayout   share= bottomSheetDialog.findViewById(R.id.bottom_settings_share_box);
         LinearLayout  dismissDialog = bottomSheetDialog.findViewById(R.id.bottom_settings_dismiss_box);
 
         showAlbum.setOnClickListener(v->{
@@ -251,7 +240,7 @@ public class PlayerFragment extends Fragment {
                                 x.setDir_title(playlist.getSongs().get(position).getAlbum());
                                 x.setDir_desc(playlist.getSongs().get(position).getAuthor());
                                 bottomSheetDialog.dismiss();
-                                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(),playlist.getSongs().get(position).getAlbum(),x, 1)).addToBackStack("null").commit();
+                                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(),playlist.getSongs().get(position).getAlbum(),x,1)).addToBackStack("null").commit();
 
                             }
                         }
@@ -273,7 +262,7 @@ public class PlayerFragment extends Fragment {
             bottomSheetDialog.dismiss();
         });
 
-        shareOnFacebook.setOnClickListener(v ->{
+        share.setOnClickListener(v ->{
             share();
             bottomSheetDialog.dismiss();
         });
@@ -412,11 +401,40 @@ public class PlayerFragment extends Fragment {
 
     private void addToFav() {
         String key = database_ref.push().getKey();
+
+        database_ref
+                .child("music")
+                .child("albums")
+                .child(playlist.getSongs().get(position).getAuthor())
+                .child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot dataSnapshot: snapshot.child("songs").getChildren()){
+                    if( dataSnapshot.child("title").getValue().equals(playlist.getSongs().get(position).getTitle())){
+                        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("numberInAlbum").setValue(dataSnapshot.child("order").getValue().toString());
+                        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("album").setValue(playlist.getSongs().get(position).getAlbum());
+                        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("author").setValue(playlist.getSongs().get(position).getAuthor());
+                        fav_btn.setImageResource(R.drawable.ic_heart_full);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+    }
+    /*
+    private void addToFav() {
+        String key = database_ref.push().getKey();
         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("numberInAlbum").setValue(position+1);
         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("album").setValue(playlist.getDir_title());
         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("author").setValue(playlist.getDir_desc());
         fav_btn.setImageResource(R.drawable.ic_heart_full);
     }
+     */
 
     public class ExoListener implements Player.Listener {
         SimpleExoPlayer player;

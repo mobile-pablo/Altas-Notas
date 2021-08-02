@@ -32,7 +32,7 @@ import java.util.Calendar;
 import java.util.concurrent.CountDownLatch;
 
 public class FavoritesFragment extends Fragment {
-    private RecyclerView recyclerView;
+    public RecyclerView recyclerView;
     private DatabaseReference database_ref;
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
@@ -42,7 +42,7 @@ public class FavoritesFragment extends Fragment {
     private ImageView imageView;
     private TextView title, description;
     private ImageView settings;
-    private TextView fav_state;
+   public TextView fav_state;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -141,7 +141,7 @@ public class FavoritesFragment extends Fragment {
                                                 playlist.setSongs(songs);
 
                                                 if (playlist.getSongs() != null) {
-                                                    adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, true);
+                                                    adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, 1);
                                                     recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
                                                     recyclerView.setAdapter(adapter);
                                                 }

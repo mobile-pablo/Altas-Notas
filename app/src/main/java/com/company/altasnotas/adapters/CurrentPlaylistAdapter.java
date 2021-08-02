@@ -10,7 +10,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -42,14 +41,14 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 private final Playlist playlist;
 private final MainActivity activity;
 private final ArrayList<Song> songs;
-private final Boolean isFavFragment;
+private final Integer isFavFragment;
 private  DatabaseReference database_ref = FirebaseDatabase.getInstance().getReference();
 private    FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
 
     private BottomSheetDialog bottomSheetDialog;
     private BottomSheetDialog choosePlaylistDialog;
-    public CurrentPlaylistAdapter(MainActivity activity, Playlist playlist, Boolean isFavFragment){
+    public CurrentPlaylistAdapter(MainActivity activity, Playlist playlist, Integer isFavFragment){
         this.playlist=playlist;
         songs =playlist.getSongs();
         this.activity =activity;
@@ -111,7 +110,7 @@ private    FirebaseAuth mAuth = FirebaseAuth.getInstance();
                     Song mySong = songs.get(position);
 
                     for(DataSnapshot ds: snapshot.getChildren()){
-                        System.out.println("Database fav song: "+ds.child("author").getValue().toString()+", Mysong: "+mySong.getAuthor()+"\n");
+//HERE
 
                         if(
                                 ds.child("album").getValue().equals(mySong.getAlbum())
@@ -175,10 +174,14 @@ private    FirebaseAuth mAuth = FirebaseAuth.getInstance();
         });
 
         holder.currentSettings_btn.setOnClickListener(v -> {
-            openSettingsDialog(position, holder);
+            if(isFavFragment!=0)
+            {
+            openSongSettingDialog(position, holder);
+            }else{
+                openPlaylistSongSettingsDialog(position,holder);
+            }
         });
 
-        System.out.println("A: "+songs.get(position).getAuthor()+", AA: "+songs.get(position).getAlbum());
         holder.databaseReference.child("music").child("albums").child(songs.get(position).getAuthor()).child(songs.get(position).getAlbum()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snap) {
@@ -212,8 +215,7 @@ private    FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
                 for(DataSnapshot firebaseFav: snapshot.getChildren()){
 
-                    System.out.println("ORDER: "+playlist.getSongs().get(position).getOrder()+", DB VALUE: "+firebaseFav.child("numberInAlbum").getValue().toString());
-                    if
+                     if
                     (
                        playlist.getSongs().get(position).getOrder().toString().trim().equals(firebaseFav.child("numberInAlbum").getValue().toString().trim())
                             &&
@@ -228,8 +230,15 @@ private    FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
                                     Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
                                     if(currentFragment instanceof FavoritesFragment){
+                                        FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
                                         playlist.getSongs().remove(playlist.getSongs().get(position));
-                                        activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();
+
+                                    //    activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();
+                                        if(playlist.getSongs().size()==0){
+                                            favoritesFragment.recyclerView.setVisibility(View.GONE);
+                                            favoritesFragment.fav_state.setText("Empty Playlist");
+                                            favoritesFragment.fav_state.setVisibility(View.VISIBLE);
+                                        }
 
                                     }
                                 }
@@ -279,15 +288,125 @@ private    FirebaseAuth mAuth = FirebaseAuth.getInstance();
         return playlist.getSongs().size();
     }
 
-
-
-    private void openSettingsDialog(Integer position, MyViewHolder holder) {
+    private void openPlaylistSongSettingsDialog(Integer position, MyViewHolder holder) {
         bottomSheetDialog = new BottomSheetDialog(holder.itemView.getContext());
-        bottomSheetDialog.setContentView(R.layout.bottom_settings_layout);
+        bottomSheetDialog.setContentView(R.layout.bottom_playlist_song_settings_layout);
+
+        LinearLayout showAlbum = bottomSheetDialog.findViewById(R.id.bottom_settings_album_box);
+        LinearLayout   share = bottomSheetDialog.findViewById(R.id.bottom_settings_share_box);
+        LinearLayout   delete = bottomSheetDialog.findViewById(R.id.bottom_settings_delete_box);
+        LinearLayout  dismissDialog = bottomSheetDialog.findViewById(R.id.bottom_settings_dismiss_box);
+
+
+
+        showAlbum.setOnClickListener(v->{
+            //Shows album
+            //Download playlist
+            Playlist x = new Playlist();
+            if (mAuth.getCurrentUser() != null) {
+
+                database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if(snapshot!=null){
+                            x.setImage_id(snapshot.child("image_id").getValue().toString());
+                            x.setYear(snapshot.child("year").getValue().toString());
+                            x.setTitle(snapshot.child("title").getValue().toString());
+                            x.setDescription(snapshot.child("description").getValue().toString());
+                            x.setDir_title(playlist.getSongs().get(position).getAlbum());
+                            x.setDir_desc(playlist.getSongs().get(position).getAuthor());
+                            bottomSheetDialog.dismiss();
+                            activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(),playlist.getSongs().get(position).getAlbum(),x, 1)).addToBackStack("null").commit();
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        android.util.Log.d("Error: "+error.getMessage(),"FirebaseDatabase");
+                    }
+
+                });
+
+
+            }
+        });
+
+        share.setOnClickListener(v ->{
+            share(position);
+            bottomSheetDialog.dismiss();
+        });
+
+        delete.setOnClickListener(v ->{
+           deleteSongFromPlaylist(position,holder);
+            bottomSheetDialog.dismiss();
+        });
+        dismissDialog.setOnClickListener(v -> bottomSheetDialog.dismiss());
+
+        bottomSheetDialog.show();
+    }
+
+    private void deleteSongFromPlaylist(Integer position, MyViewHolder holder) {
+        database_ref.child("music").child("playlists").child(mAuth.getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot ds : snapshot.getChildren()){
+                    if(
+                            playlist.getTitle().trim().equals(ds.child("title").getValue().toString().trim())
+                            &&
+                            playlist.getDescription().equals(ds.child("description").getValue().toString().trim())
+                    ){
+
+
+                        String playlist_key = ds.getKey();
+                        for(DataSnapshot da : ds.child("songs").getChildren()){
+                            if(playlist.getSongs().get(position).getOrder().toString().trim().equals(da.child("numberInAlbum").getValue().toString().trim())
+                                    &&
+                                    playlist.getSongs().get(position).getAuthor().toString().trim().equals(da.child("author").getValue().toString().trim())
+                                    &&
+                                    playlist.getSongs().get(position).getAlbum().toString().trim().equals(da.child("album").getValue().toString().trim())
+                            ){
+                                String song_key =da.getKey();
+                                 database_ref.child("music").child("playlists").child(mAuth.getUid()).child(playlist_key).child("songs").child(song_key).removeValue().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if(task.isSuccessful()){
+                                            Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                                            if(currentFragment instanceof CurrentPlaylistFragment){
+                                                CurrentPlaylistFragment currentPlaylistFragment = (CurrentPlaylistFragment) currentFragment;
+                                                playlist.getSongs().remove(playlist.getSongs().get(position));
+
+                                                if(playlist.getSongs().size()==0){
+                                                    currentPlaylistFragment.recyclerView.setVisibility(View.GONE);
+                                                    currentPlaylistFragment.recyclerViewState.setText("Empty Playlist");
+                                                    currentPlaylistFragment.recyclerViewState.setVisibility(View.VISIBLE);
+                                                }
+                                                }
+                                        }else{
+                                            System.out.println("COULDN'T DELETED SONG");
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void openSongSettingDialog(Integer position, MyViewHolder holder) {
+        bottomSheetDialog = new BottomSheetDialog(holder.itemView.getContext());
+        bottomSheetDialog.setContentView(R.layout.bottom_song_settings_layout);
 
         LinearLayout showAlbum = bottomSheetDialog.findViewById(R.id.bottom_settings_album_box);
         LinearLayout  addToPlaylist = bottomSheetDialog.findViewById(R.id.bottom_settings_playlists_box);
-        LinearLayout   shareOnFacebook = bottomSheetDialog.findViewById(R.id.bottom_settings_share_box);
+        LinearLayout   share = bottomSheetDialog.findViewById(R.id.bottom_settings_share_box);
         LinearLayout  dismissDialog = bottomSheetDialog.findViewById(R.id.bottom_settings_dismiss_box);
 
         showAlbum.setOnClickListener(v->{
@@ -327,7 +446,7 @@ private    FirebaseAuth mAuth = FirebaseAuth.getInstance();
             addToPlaylist(position,holder);
             bottomSheetDialog.dismiss();
         });
-        shareOnFacebook.setOnClickListener(v ->{
+        share.setOnClickListener(v ->{
             share(position);
             bottomSheetDialog.dismiss();
         });
@@ -357,10 +476,6 @@ private    FirebaseAuth mAuth = FirebaseAuth.getInstance();
                 }
 
                 if(x==snapshot.getChildrenCount()){
-                    for(int i=0; i<playlists_titles.size(); i++){
-                        System.out.println("Title: "+playlists_titles.get(i)+", Key: "+playlists_keys.get(i) );
-                    }
-
 
                     ChoosePlaylistAdapter choosePlaylistAdapter = new ChoosePlaylistAdapter(activity,choosePlaylistDialog,playlist.getSongs().get(position),  playlists_titles, playlists_keys);
                     chooseRecyclerView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext(), LinearLayoutManager.VERTICAL, false));

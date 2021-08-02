@@ -119,5 +119,5 @@
         android:textStyle="bold" />
 </LinearLayout>
     <include
-        layout="@layout/bottom_settings_layout"/>
+        layout="@layout/bottom_song_settings_layout"/>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
