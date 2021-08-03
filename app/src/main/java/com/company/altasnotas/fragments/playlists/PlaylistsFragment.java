@@ -153,8 +153,7 @@ private PlaylistsFragmentAdapter adapter;
         name = name.trim();
         desc = desc.trim();
 
-        name = name.substring(0,1).toUpperCase() + name.substring(1).toLowerCase();
-        desc = desc.substring(0,1).toUpperCase() + desc.substring(1).toLowerCase();
+
         if(name.isEmpty() && desc.isEmpty()){
             Toast.makeText(getContext(), "Both fields are empty.\nPlease fill data.",Toast.LENGTH_SHORT).show();
         }else{
@@ -167,6 +166,8 @@ private PlaylistsFragmentAdapter adapter;
                     Toast.makeText(getContext(), "Description is empty.\nPlease fill data.",Toast.LENGTH_SHORT).show();
                 }
             }else{
+                name = name.substring(0,1).toUpperCase() + name.substring(1).toLowerCase();
+                desc = desc.substring(0,1).toUpperCase() + desc.substring(1).toLowerCase();
                 String finalName = name;
                 String finalDesc = desc;
                 database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {

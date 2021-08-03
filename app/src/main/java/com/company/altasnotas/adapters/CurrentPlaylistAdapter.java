@@ -53,6 +53,20 @@ private    FirebaseAuth mAuth = FirebaseAuth.getInstance();
         songs =playlist.getSongs();
         this.activity =activity;
         this.isFavFragment=isFavFragment;
+
+        Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+        if(currentFragment instanceof FavoritesFragment){
+            FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
+            if(playlist.getSongs().size()==0){
+                favoritesFragment.recyclerView.setVisibility(View.GONE);
+                favoritesFragment.fav_state.setText("Empty Playlist");
+                favoritesFragment.fav_state.setVisibility(View.VISIBLE);
+            }else{
+                favoritesFragment.recyclerView.setVisibility(View.VISIBLE);
+                favoritesFragment.fav_state.setVisibility(View.GONE);
+            }
+
+        }
     }
 
 
@@ -110,7 +124,7 @@ private    FirebaseAuth mAuth = FirebaseAuth.getInstance();
                     Song mySong = songs.get(position);
 
                     for(DataSnapshot ds: snapshot.getChildren()){
-//HERE
+
 
                         if(
                                 ds.child("album").getValue().equals(mySong.getAlbum())

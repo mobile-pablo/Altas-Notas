@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -77,6 +78,8 @@ public class CurrentPlaylistFragment extends Fragment {
 
    public TextView recyclerViewState;
     private FloatingActionButton fab;
+
+    private ImageView settings_btn;
     @Override
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -89,6 +92,8 @@ public class CurrentPlaylistFragment extends Fragment {
         description = view.findViewById(R.id.current_playlist_description);
         fab = view.findViewById(R.id.current_playlist_photo_btn);
         recyclerViewState = view.findViewById(R.id.current_playlist_recycler_state);
+
+        settings_btn =view.findViewById(R.id.current_playlist_settings);
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         database_ref = database.getReference();
@@ -121,10 +126,11 @@ public class CurrentPlaylistFragment extends Fragment {
         });
         if(isAlbum!=0)
         {
+            settings_btn.setVisibility(View.INVISIBLE);
         initializeAlbum(author,album);
         }
         else
-        {
+        {  settings_btn.setVisibility(View.VISIBLE);
             initializePlaylist(author);
         }
 
