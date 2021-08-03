@@ -1,6 +1,5 @@
 package com.company.altasnotas.fragments.player;
 
-import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -69,17 +69,14 @@ public class PlayerFragment extends Fragment {
 
     private Long seekedTo;
 
-
-    private Dialog dialog;
-    private RecyclerView dialog_recycler_view;
-
-    private final ServiceConnection mConnection = new ServiceConnection() {
+    private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             BackgroundService.LocalBinder binder = (BackgroundService.LocalBinder) iBinder;
             mService = binder.getService();
             mBound = true;
             initializePlayer();
+
         }
 
         @Override
@@ -426,15 +423,6 @@ public class PlayerFragment extends Fragment {
         });
 
     }
-    /*
-    private void addToFav() {
-        String key = database_ref.push().getKey();
-        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("numberInAlbum").setValue(position+1);
-        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("album").setValue(playlist.getDir_title());
-        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("author").setValue(playlist.getDir_desc());
-        fav_btn.setImageResource(R.drawable.ic_heart_full);
-    }
-     */
 
     public class ExoListener implements Player.Listener {
         SimpleExoPlayer player;
@@ -556,5 +544,10 @@ public class PlayerFragment extends Fragment {
     }
 
 
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        initializePlayer();
+    }
 }
 

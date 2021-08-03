@@ -431,12 +431,9 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                                                                     storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).putBytes(byteArray).addOnCompleteListener(mainActivity, new OnCompleteListener<UploadTask.TaskSnapshot>() {
                                                                                         @Override
                                                                                         public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                                                                                            if (task.isSuccessful()) {
-                                                                                                mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
-                                                                                            } else {
+                                                                                            if (!task.isSuccessful()){
                                                                                                 System.out.println("Error while copying photo");
-                                                                                                mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
-                                                                                            }
+                                                                                                }
                                                                                         }
                                                                                     });
 
@@ -449,6 +446,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                                                         });
                                                                         thread.start();
 
+                                                                        mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
 
 
 

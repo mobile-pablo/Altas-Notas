@@ -14,23 +14,19 @@
     <LinearLayout
         android:id="@+id/current_playlist_info_box"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:layout_weight="2"
         android:orientation="horizontal">
 
         <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="2.5">
+            android:layout_width="155dp"
+            android:layout_height="155dp">
 
             <ImageView
                 android:id="@+id/current_playlist_img"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
                 android:layout_gravity="center"
-                android:layout_weight="2"
-                android:paddingRight="30dp"
                 android:src="@drawable/ic_launcher_background" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -38,13 +34,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|right"
-                android:layout_marginBottom="20dp"
-                android:layout_marginRight="10dp"
                 android:clickable="true"
+                android:foreground="@drawable/custom_fab_bg"
                 android:scaleX="0.6"
-                android:visibility="invisible"
                 android:scaleY="0.6"
-                android:foreground="@drawable/custom_fab_bg" />
+                android:visibility="invisible" />
         </FrameLayout>
 
         <LinearLayout
@@ -53,8 +47,8 @@
             android:layout_marginTop="30dp"
             android:layout_marginBottom="30dp"
             android:layout_weight="4"
-            android:paddingLeft="10dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingLeft="10dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -67,8 +61,8 @@
                     android:layout_height="match_parent"
                     android:layout_weight="5"
                     android:fontFamily="@font/oswald"
-                    android:text="Title"
                     android:gravity="center_vertical|left"
+                    android:text="Title"
                     android:textColor="#000000"
                     android:textSize="30sp" />
 
@@ -76,11 +70,11 @@
                     android:id="@+id/current_playlist_settings"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_three_dots_vertical"
-                    android:background="@android:color/transparent"
                     android:layout_gravity="center"
-                    app:tint="@color/black"/>
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_three_dots_vertical"
+                    app:tint="@color/black" />
 
             </LinearLayout>
 

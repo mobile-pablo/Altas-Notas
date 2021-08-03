@@ -67,7 +67,7 @@
             android:layout_weight="1"
             android:background="@android:color/transparent"
             app:srcCompat="@drawable/ic_three_dots_vertical"
-            android:tint="@color/black"/>
+            app:tint="@color/black"/>
     </LinearLayout>
 
 </RelativeLayout>

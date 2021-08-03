@@ -31,7 +31,8 @@
         android:background="@drawable/custom_edittext"
         android:ems="10"
         android:gravity="center"
-        android:inputType="textNoSuggestions"
+
+        android:inputType="textNoSuggestions|textCapSentences"
         android:paddingTop="20dp"
         android:paddingBottom="20dp"
         android:paddingLeft="5dp"
@@ -56,7 +57,7 @@
         android:background="@drawable/custom_edittext"
         android:ems="10"
         android:gravity="center"
-        android:inputType="textNoSuggestions"
+        android:inputType="textNoSuggestions|textCapSentences"
         android:paddingTop="20dp"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
