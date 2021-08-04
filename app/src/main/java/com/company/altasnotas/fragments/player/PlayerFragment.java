@@ -4,12 +4,17 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -17,11 +22,18 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.ChoosePlaylistAdapter;
@@ -69,6 +81,8 @@ public class PlayerFragment extends Fragment {
 
     private Long seekedTo;
 
+    private Palette palette;
+    LinearLayout player_full_box;
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -108,6 +122,7 @@ public class PlayerFragment extends Fragment {
         song_img = view.findViewById(R.id.player_song_img);
         playerView = view.findViewById(R.id.player_view);
         playerView.setBackgroundColor(Color.TRANSPARENT);
+        player_full_box =  view.findViewById(R.id.player_full_box);
         setUI();
 
 
@@ -331,7 +346,7 @@ public class PlayerFragment extends Fragment {
             SimpleExoPlayer player = mService.getPlayerInstance();
             exoListener = new ExoListener(player);
             player.addListener(exoListener);
-            playerView.setShutterBackgroundColor(Color.TRANSPARENT);
+
             playerView.setKeepContentOnPlayerReset(true);
             playerView.setPlayer(player);
             playerView.setUseController(true);
@@ -340,8 +355,9 @@ public class PlayerFragment extends Fragment {
             playerView.setCameraDistance(0);
             playerView.setControllerAutoShow(true);
             player.setPlayWhenReady(true);
+            playerView.setDrawingCacheBackgroundColor(Color.TRANSPARENT);
+            playerView.setShutterBackgroundColor(Color.TRANSPARENT);
             playerView.setControllerHideOnTouch(false);
-
         }
     }
 
@@ -352,6 +368,15 @@ public class PlayerFragment extends Fragment {
     }
 
     private void setUI() {
+        Glide.with(requireContext()).load(playlist.getSongs().get(position).getImage_url()).into(song_img);
+        song_img.setDrawingCacheEnabled(true);
+        Bitmap bitmap = song_img.getDrawingCache();
+        if (bitmap != null && !bitmap.isRecycled()) {
+            palette = Palette.from(bitmap).generate();
+        }
+
+
+        setUpInfoBackgroundColor(player_full_box, palette);
 
         database_ref = FirebaseDatabase.getInstance().getReference();
         database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -359,7 +384,10 @@ public class PlayerFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 title.setText(playlist.getSongs().get(position).getTitle());
                 author.setText(snapshot.child("description").getValue().toString());
-                Glide.with(requireContext()).load(playlist.getSongs().get(position).getImage_url()).into(song_img);
+
+
+
+
             }
 
             @Override
@@ -368,9 +396,51 @@ public class PlayerFragment extends Fragment {
             }
         });
 
-        Glide.with(requireContext()).load(playlist.getSongs().get(position).getImage_url()).into(song_img);
+
+
     }
 
+    //Background Pallete
+    Palette.Swatch getMostPopulousSwatch(Palette palette) {
+        Palette.Swatch mostPopulous = null;
+        if (palette != null) {
+            for (Palette.Swatch swatch : palette.getSwatches()) {
+                if (mostPopulous == null || swatch.getPopulation() > mostPopulous.getPopulation()) {
+                    mostPopulous = swatch;
+                }
+            }
+        }
+        return mostPopulous;
+    }
+    private void setUpInfoBackgroundColor(LinearLayout ll, Palette palette) {
+        Palette.Swatch swatch = getMostPopulousSwatch(palette);
+        if(swatch != null){
+            int endColor = ContextCompat.getColor(ll.getContext(), R.color.black);
+            int startColor = swatch.getRgb();
+            if(startColor ==endColor){
+                startColor = ContextCompat.getColor(ll.getContext(), R.color.white);
+            }
+
+            GradientDrawable gradientDrawable = new GradientDrawable(
+                    GradientDrawable.Orientation.TOP_BOTTOM,
+                    new int[]{startColor, endColor});
+
+            Glide.with(getContext())
+                    .load(gradientDrawable)
+                    .into(new CustomTarget<Drawable>() {
+                        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+                        @Override
+                        public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                            ll.setBackground(resource);
+                        }
+
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                        }
+                    });
+        }
+    }
     private void removeFromFav() {
         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
