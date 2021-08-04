@@ -52,19 +52,25 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:orientation="horizontal">
 
-                <TextView
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/current_playlist_title"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="5"
+                    android:textSize="30sp"
+                    android:autoSizeMaxTextSize="100sp"
+                    android:autoSizeMinTextSize="1sp"
+                    android:autoSizeStepGranularity="1sp"
                     android:fontFamily="@font/oswald"
                     android:gravity="center_vertical|left"
-                    android:text="Title"
+                    android:lines="1"
                     android:textColor="#000000"
-                    android:textSize="30sp" />
+
+                    app:autoSizeTextType="uniform" />
 
                 <ImageView
                     android:id="@+id/current_playlist_settings"
@@ -78,15 +84,24 @@
 
             </LinearLayout>
 
-            <TextView
+
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/current_playlist_description"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="2"
-                android:text="Description"
-                android:textAlignment="viewStart"
-                android:textColor="#1B1919"
-                android:textSize="18sp" />
+                android:layout_weight="1"
+
+                android:textSize="14sp"
+                android:autoSizeMaxTextSize="100sp"
+                android:autoSizeMinTextSize="1sp"
+                android:autoSizeStepGranularity="1sp"
+                android:fontFamily="@font/lato"
+                android:gravity="top|left"
+                android:textColor="#000000"
+
+                app:autoSizeTextType="uniform"
+
+                 />
         </LinearLayout>
     </LinearLayout>
     <View

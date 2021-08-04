@@ -350,6 +350,8 @@
             android:layout_marginTop="70dp"
             android:layout_weight="30"
             android:backgroundTint="@color/project_light_cyan"
+            app:tint="#FFFFFF"
+            app:backgroundTint="#00FFFFFF"
             android:clickable="true"
             android:src="@drawable/ic_camera"
             app:elevation="10dp"

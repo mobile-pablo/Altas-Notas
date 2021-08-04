@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -82,7 +83,7 @@ public class CurrentPlaylistFragment extends Fragment {
     private final Playlist playlist;
     public RecyclerView recyclerView;
     private ImageView imageView;
-    private TextView title, description;
+    private AppCompatTextView title, description;
     private DatabaseReference database_ref;
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
