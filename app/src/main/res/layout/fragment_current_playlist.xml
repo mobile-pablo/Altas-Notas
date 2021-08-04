@@ -89,12 +89,15 @@
                 android:textSize="18sp" />
         </LinearLayout>
     </LinearLayout>
-
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/project_dark_velvet"/>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/current_playlist_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_margin="10dp"
+        android:background="@drawable/custom_song_bg"
         android:layout_weight="5">
 
     </androidx.recyclerview.widget.RecyclerView>

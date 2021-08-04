@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="10dp"
+    android:padding="10dp"
+    android:background="@drawable/custom_playlists_fragment_bg"
     tools:context=".fragments.playlists.PlaylistsFragment">
-    <!-- TODO: Update blank fragment layout -->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/playlists_recycler_view"
@@ -36,6 +36,7 @@
         android:clickable="true"
         android:foreground="@drawable/custom_fab_bg"
         app:borderWidth="0dp"
+        app:backgroundTint="#00FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
