@@ -308,6 +308,8 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
         holder.dialog_playlist_name = holder.dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_name);
         holder.dialog_playlist_desc = holder.dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_desc);
 
+        holder.dialog_playlist_name.setText(playlist.getTitle());
+        holder.dialog_playlist_desc.setText(playlist.getDescription());
         cancel = holder.dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_cancel_btn);
         accept = holder.dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_accept_btn);
 

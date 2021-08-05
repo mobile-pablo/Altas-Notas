@@ -10,14 +10,17 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -249,6 +252,8 @@ public class CurrentPlaylistFragment extends Fragment {
                         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
                         adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist,-1);
                         adapter.notifyDataSetChanged();
+                        Drawable songBg = AppCompatResources.getDrawable(requireContext(), R.drawable.custom_song_bg);
+                        recyclerView.setBackground(songBg);
                         recyclerView.setAdapter(adapter);
                         }
                     }
@@ -319,6 +324,8 @@ public class CurrentPlaylistFragment extends Fragment {
                                                       adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, 0);
                                                       recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
                                                       recyclerView.setAdapter(adapter);
+                                                      Drawable songBg = AppCompatResources.getDrawable(requireContext(), R.drawable.custom_song_bg);
+                                                      recyclerView.setBackground(songBg);
                                                   }
 
                                               }
@@ -593,6 +600,10 @@ public class CurrentPlaylistFragment extends Fragment {
                                                         MainActivity mainActivity = (MainActivity) getActivity();
                                                       mainActivity.bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
 
+                                                        for (int i = 0; i < mainActivity.getSupportFragmentManager().getBackStackEntryCount() ; i++) {
+                                                            mainActivity.getSupportFragmentManager().popBackStack();
+                                                        }
+
                                                         getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment()).commit();
                                                         if (task.isSuccessful()) {
                                                             System.out.println("Photo deleted with playlist");
@@ -643,6 +654,9 @@ public class CurrentPlaylistFragment extends Fragment {
 
         dialog_playlist_name = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_name);
         dialog_playlist_desc = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_desc);
+
+        dialog_playlist_name.setText(playlist.getTitle());
+        dialog_playlist_desc.setText(playlist.getDescription());
 
         cancel = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_cancel_btn);
         accept = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_accept_btn);

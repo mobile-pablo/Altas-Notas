@@ -18,7 +18,7 @@
             android:id="@+id/current_playlist_row_img"
             android:layout_width="50dp"
             android:layout_height="match_parent"
-            app:srcCompat="@drawable/ic_launcher_background" />
+            app:srcCompat="@drawable/img_not_found" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/current_playlist_row_box"

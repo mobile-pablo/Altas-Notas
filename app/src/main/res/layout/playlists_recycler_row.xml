@@ -19,7 +19,7 @@
             android:layout_height="70dp"
             android:layout_margin="5dp"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_launcher_background" />
+            app:srcCompat="@drawable/img_not_found" />
 
         <LinearLayout
             android:layout_width="fill_parent"

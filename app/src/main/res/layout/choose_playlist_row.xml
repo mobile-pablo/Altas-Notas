@@ -13,9 +13,9 @@
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:padding="5dp"
-        android:visibility="invisible"
         android:scaleType="fitCenter"
-        app:srcCompat="@drawable/ic_launcher_background" />
+        android:visibility="invisible"
+        app:srcCompat="@drawable/img_not_found" />
 
     <TextView
         android:id="@+id/choose_playlist_row_title"
