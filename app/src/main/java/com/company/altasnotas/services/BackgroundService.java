@@ -74,8 +74,6 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     private Long seekedTo;
     private String externalPath, externalPlaylistTitle, externalDescription;
 
-    private Integer isAlbum;
-
     private  AudioAttributes audioAttributes = new AudioAttributes.Builder()
             .setUsage(C.USAGE_MEDIA)
             .setContentType(C.CONTENT_TYPE_MOVIE)
@@ -124,15 +122,12 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                            @Nullable
                            @Override
                            public PendingIntent createCurrentContentIntent(Player player) {
-
-
                                Intent intent = new Intent(context, MainActivity.class);
                                intent.putExtra("frag","PlayerFragment");
                                intent.putExtra("playlist", playlist);
                                intent.putExtra("pos", position);
                                intent.putParcelableArrayListExtra("songs", songs);
                                intent.putExtra("ms",player.getContentPosition());
-                               intent.putExtra("isAlbum",isAlbum);
                                return PendingIntent.getActivity(context, 0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
                            }
 

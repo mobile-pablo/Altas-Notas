@@ -1,5 +1,6 @@
 package com.company.altasnotas;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
     FirebaseAuth mAuth;
     public  String photoUrl;
+    public   BottomNavigationView bottomNavigationView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.main_nav_bottom);
+         bottomNavigationView = findViewById(R.id.main_nav_bottom);
         bottomNavigationView.setItemIconTintList(null);
         bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
 
@@ -69,7 +71,10 @@ public class MainActivity extends AppCompatActivity {
             if (frag.equals("PlayerFragment")) {
                 System.out.println(frag);
 
-
+                //May delete it later
+                for (int i = 0; i <  getSupportFragmentManager().getBackStackEntryCount(); i++) {
+                    getSupportFragmentManager().popBackStack();
+                }
 
                 Playlist playlist = getIntent().getParcelableExtra("playlist");
                Integer position = getIntent().getIntExtra("pos", 0);
@@ -90,6 +95,9 @@ public class MainActivity extends AppCompatActivity {
             //Selected fragment is in array becouse I wanted to use him in onDataChange in Listener.
             final Fragment[] selectedFragment = {null};
 
+            for (int i = 0; i <  getSupportFragmentManager().getBackStackEntryCount(); i++) {
+                getSupportFragmentManager().popBackStack();
+            }
             switch (item.getItemId()){
                 case R.id.nav_home_item:
                      selectedFragment[0] = new HomeFragment();
@@ -173,12 +181,4 @@ public class MainActivity extends AppCompatActivity {
         decorView.setSystemUiVisibility(uiOptions);
     }
 
-
-
-    @Override
-    protected void onDestroy() {
-     Intent intent = new Intent(this, BackgroundService.class);
-        stopService(intent);
-        super.onDestroy();
-    }
 }

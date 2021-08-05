@@ -34,7 +34,7 @@ HomeFragmentAdapter adapter;
     private FirebaseAuth mAuth;
     private final String[] album_array = new String[1];
     private final String[] author_array = new String[1];
-    private final ArrayList<Playlist> playlists = new ArrayList<>();
+    private  ArrayList<Playlist>  playlists;
     private ArrayList<String> authors;
     private ArrayList<String> albums;
 
@@ -48,10 +48,10 @@ HomeFragmentAdapter adapter;
         database_ref = database.getReference();
         albums= new ArrayList<>();
         authors = new ArrayList<>();
+        playlists = new ArrayList<>();
      initializePlaylist("Kult", "Spokojnie");
      initializePlaylist("Johnny Cash", "The Baron");
      initializePlaylist("Bad Bunny", "YHLQMDLG");
-
      initializePlaylist("Analogs", "Pełnoletnia Oi! Młodzież");
      
      recyclerView = view.findViewById(R.id.home_recycler_view);

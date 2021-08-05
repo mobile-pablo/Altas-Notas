@@ -54,19 +54,22 @@ private    FirebaseAuth mAuth = FirebaseAuth.getInstance();
         this.activity =activity;
         this.isFavFragment=isFavFragment;
 
-        Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-        if(currentFragment instanceof FavoritesFragment){
-            FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
-            if(playlist.getSongs().size()==0){
-                favoritesFragment.recyclerView.setVisibility(View.GONE);
-                favoritesFragment.fav_state.setText("Empty Playlist");
-                favoritesFragment.fav_state.setVisibility(View.VISIBLE);
-            }else{
-                favoritesFragment.recyclerView.setVisibility(View.VISIBLE);
-                favoritesFragment.fav_state.setVisibility(View.GONE);
-            }
+if(activity!=null){
 
+    Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+    if(currentFragment instanceof FavoritesFragment){
+        FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
+        if(playlist.getSongs().size()==0){
+            favoritesFragment.recyclerView.setVisibility(View.GONE);
+            favoritesFragment.fav_state.setText("Empty Playlist");
+            favoritesFragment.fav_state.setVisibility(View.VISIBLE);
+        }else{
+            favoritesFragment.recyclerView.setVisibility(View.VISIBLE);
+            favoritesFragment.fav_state.setVisibility(View.GONE);
         }
+
+    }
+}
     }
 
 
@@ -109,7 +112,7 @@ private    FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
         holder.currentBox.setOnClickListener(v -> {
             PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0);
-             activity.getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment).commit();
+             activity.getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment).addToBackStack(null).commit();
 
         });
 

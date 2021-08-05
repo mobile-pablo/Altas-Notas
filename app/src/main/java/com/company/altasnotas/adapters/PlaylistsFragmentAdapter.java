@@ -83,18 +83,20 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
         this.mainActivity=mainActivity;
         this.playlists=playlists;
 
-        Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-        if(currentFragment instanceof PlaylistsFragment){
-            PlaylistsFragment playlistsFragment = (PlaylistsFragment) currentFragment;
+       if(mainActivity!=null){
+           Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+           if(currentFragment instanceof PlaylistsFragment){
+               PlaylistsFragment playlistsFragment = (PlaylistsFragment) currentFragment;
 
-            if (playlists.size() == 0) {
-                playlistsFragment.recyclerView.setVisibility(View.GONE);
-                playlistsFragment.recyclerViewState.setVisibility(View.VISIBLE);
-            }else{
-                playlistsFragment.recyclerView.setVisibility(View.VISIBLE);
-                playlistsFragment.recyclerViewState.setVisibility(View.GONE);
-            }
-        }
+               if (playlists.size() == 0) {
+                   playlistsFragment.recyclerView.setVisibility(View.GONE);
+                   playlistsFragment.recyclerViewState.setVisibility(View.VISIBLE);
+               }else{
+                   playlistsFragment.recyclerView.setVisibility(View.VISIBLE);
+                   playlistsFragment.recyclerViewState.setVisibility(View.GONE);
+               }
+           }
+       }
     }
     @NonNull
     @Override
@@ -162,7 +164,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
         holder.linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(title,"",playlists.get(position), 0)).commit();
+               mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(title,"",playlists.get(position), 0)).addToBackStack(null).commit();
             }
         });
     }
@@ -433,7 +435,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                                                                         public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                                                                                             if (!task.isSuccessful()){
                                                                                                 System.out.println("Error while copying photo");
-                                                                                                }
+                                                                                            }
                                                                                         }
                                                                                     });
 
@@ -446,10 +448,15 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                                                         });
                                                                         thread.start();
 
+
+
+
+                                                                    }
+
+                                                                    Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                                                                    if(currentFragment instanceof PlaylistsFragment) {
+
                                                                         mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
-
-
-
                                                                     }
                                                                 }
                                                             });
@@ -460,16 +467,71 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                                     @Override
                                                     public void onFailure(@NonNull Exception e) {
                                                         System.out.println("Error while setting songs");
+
+
                                                     }
                                                 });
                                             }
+                                        }
+
+                                        if(snapshot.getChildrenCount()==0){
+                                            //Copy photo
+                                            storageReference = FirebaseStorage.getInstance().getReference();
+                                            storageReference.child("images/playlists/"+mAuth.getCurrentUser().getUid()+"/"+old_key).getDownloadUrl().addOnCompleteListener(mainActivity, new OnCompleteListener<Uri>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Uri> task) {
+                                                    if(task.isComplete() && task.isSuccessful()){
+                                                        System.out.println("URI HERE FOUND");
+
+                                                        Uri uri = task.getResult();
+
+
+                                                        Thread thread = new Thread(new Runnable(){
+                                                            @Override
+                                                            public void run() {
+                                                                try {
+                                                                    Bitmap bitmap = loadBitmap(uri.toString());
+                                                                    ByteArrayOutputStream bao = new ByteArrayOutputStream();
+                                                                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, bao);
+                                                                    byte[] byteArray = bao.toByteArray();
+
+                                                                    storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).putBytes(byteArray).addOnCompleteListener(mainActivity, new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                                                            if (!task.isSuccessful()){
+                                                                                System.out.println("Error while copying photo");
+                                                                            }
+                                                                        }
+                                                                    });
+
+
+
+                                                                } catch (Exception e) {
+                                                                    Log.e("Thread", e.getMessage());
+                                                                }
+                                                            }
+                                                        });
+                                                        thread.start();
+
+
+
+
+                                                    }
+
+                                                    Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                                                    if(currentFragment instanceof PlaylistsFragment) {
+
+                                                        mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
+                                                    }
+                                                }
+                                            });
+
                                         }
                                     }
 
                                     @Override
                                     public void onCancelled(@NonNull DatabaseError error) {
-
-                                    }
+                                      }
                                 });
                             }
                         });
