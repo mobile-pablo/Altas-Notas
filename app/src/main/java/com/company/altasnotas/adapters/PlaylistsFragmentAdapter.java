@@ -500,6 +500,13 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                                                         public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                                                                             if (!task.isSuccessful()){
                                                                                 System.out.println("Error while copying photo");
+
+                                                                                Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                                                                                if(currentFragment instanceof PlaylistsFragment) {
+
+                                                                                    mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
+                                                                                }
+
                                                                             }
                                                                         }
                                                                     });
@@ -518,6 +525,15 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
 
                                                     }
 
+                                                    Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                                                    if(currentFragment instanceof PlaylistsFragment) {
+
+                                                        mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
+                                                    }
+                                                }
+                                            }).addOnFailureListener(mainActivity, new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
                                                     Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
                                                     if(currentFragment instanceof PlaylistsFragment) {
 
