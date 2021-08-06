@@ -244,10 +244,10 @@ public class CurrentPlaylistFragment extends Fragment {
                         recyclerView.setVisibility(View.GONE);
                         recyclerViewState.setVisibility(View.VISIBLE);
                     }
-                        playlist.setAlbum((Boolean) snapshot.child("isAlbum").getValue());
-                        if(playlist.isAlbum()){
-                            fab.setVisibility(View.INVISIBLE);
-                        }
+                        playlist.setAlbum(true);
+
+                         fab.setVisibility(View.INVISIBLE);
+
                         if(x!=0){
                         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
                         adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist,-1);

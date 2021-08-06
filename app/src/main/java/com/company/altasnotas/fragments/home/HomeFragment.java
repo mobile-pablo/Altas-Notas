@@ -49,15 +49,19 @@ HomeFragmentAdapter adapter;
         albums= new ArrayList<>();
         authors = new ArrayList<>();
         playlists = new ArrayList<>();
-     initializePlaylist("Kult", "Spokojnie");
-     initializePlaylist("Johnny Cash", "The Baron");
-     initializePlaylist("Bad Bunny", "YHLQMDLG");
-     initializePlaylist("Analogs", "Pełnoletnia Oi! Młodzież");
-     
+
+
      recyclerView = view.findViewById(R.id.home_recycler_view);
      adapter = new HomeFragmentAdapter((MainActivity) getActivity(),authors,albums, playlists );
      recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
      recyclerView.setAdapter(adapter);
+
+
+        initializePlaylist("Kult", "Spokojnie");
+        initializePlaylist("Johnny Cash", "The Baron");
+        initializePlaylist("Bad Bunny", "YHLQMDLG");
+        initializePlaylist("Analogs", "Pełnoletnia Oi! Młodzież");
+        initializePlaylist("Problem", "Problem");
      return  view;
     }
 

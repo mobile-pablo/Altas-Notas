@@ -1,8 +1,10 @@
 package com.company.altasnotas.fragments.favorites;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -66,7 +68,7 @@ public class FavoritesFragment extends Fragment {
             initializeFavorites();
 
 
-//        addSongToFirebase("Bad Bunny", "YHLQMDLG",8);
+//        addSongToFavFirebase("Bad Bunny", "YHLQMDLG",8);
 
 
 
@@ -78,7 +80,7 @@ public class FavoritesFragment extends Fragment {
        return view;
     }
 
-    private void addSongToFirebase( String author, String album, Integer i) {
+    private void addSongToFavFirebase( String author, String album, Integer i) {
         String key = database_ref.push().getKey();
         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("album").setValue(album);
         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("author").setValue(author);
@@ -109,6 +111,7 @@ public class FavoritesFragment extends Fragment {
                     if(snapshot!=null){
 
                         int x = (int) snapshot.getChildrenCount();
+
                         if(x!=0) {
                             for (DataSnapshot ds : snapshot.getChildren()) {
                                 FavoriteFirebaseSong favoriteFirebaseSong = new FavoriteFirebaseSong();
@@ -117,6 +120,7 @@ public class FavoritesFragment extends Fragment {
                                 favoriteFirebaseSong.setAlbum(ds.child("album").getValue().toString());
                                 favoriteFirebaseSongs.add(favoriteFirebaseSong);
                             }
+
 
                             recyclerView.setVisibility(View.VISIBLE);
                             fav_state.setVisibility(View.GONE);
@@ -137,13 +141,22 @@ public class FavoritesFragment extends Fragment {
                                                 }
                                             }
 
-                                            if(finalI ==favoriteFirebaseSongs.size()-1) {
+                                            if(songs.size()==favoriteFirebaseSongs.size()) {
                                                 playlist.setSongs(songs);
 
                                                 if (playlist.getSongs() != null) {
                                                     adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, 1);
                                                     recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
                                                     recyclerView.setAdapter(adapter);
+                                                    adapter.notifyDataSetChanged();
+                                               if(getActivity()!=null){
+                                                   Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                                                   if(currentFragment instanceof FavoritesFragment){
+                                                       Drawable songBg = AppCompatResources.getDrawable(getContext(), R.drawable.custom_song_bg);
+                                                       recyclerView.setBackground(songBg);
+                                                   }
+                                               }
+
                                                 }
                                             }
                                         }
