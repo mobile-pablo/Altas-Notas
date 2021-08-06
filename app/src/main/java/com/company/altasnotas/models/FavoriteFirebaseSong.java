@@ -1,9 +1,12 @@
 package com.company.altasnotas.models;
 
+import java.util.Date;
+
 public class FavoriteFirebaseSong {
     private Integer numberInAlbum;
     private String author;
     private String album;
+
 
     public FavoriteFirebaseSong(){
 
@@ -34,4 +37,16 @@ public class FavoriteFirebaseSong {
     public String getAlbum() { return album; }
 
     public void setAlbum(String album) { this.album = album; }
+
+    private Long dateTime;
+
+    public Long getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(Long datetime) {
+        this.dateTime = datetime;
+    }
+
+
 }

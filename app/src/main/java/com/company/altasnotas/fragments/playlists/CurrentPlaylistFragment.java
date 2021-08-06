@@ -76,7 +76,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.concurrent.CountDownLatch;
@@ -296,7 +298,14 @@ public class CurrentPlaylistFragment extends Fragment {
                                       favoriteFirebaseSong.setNumberInAlbum(Integer.valueOf(ds.child("numberInAlbum").getValue().toString()));
                                       favoriteFirebaseSong.setAuthor(ds.child("author").getValue().toString());
                                       favoriteFirebaseSong.setAlbum(ds.child("album").getValue().toString());
+                                      favoriteFirebaseSong.setDateTime(Calendar.getInstance().getTimeInMillis());
                                       favoriteFirebaseSongs.add(favoriteFirebaseSong);
+
+                                      try {
+                                          Thread.sleep(1);
+                                      } catch (InterruptedException e) {
+                                          e.printStackTrace();
+                                      }
                                   }
 
                                   if (favoriteFirebaseSongs.size() == x) {
@@ -362,8 +371,6 @@ public class CurrentPlaylistFragment extends Fragment {
 
             FavoriteFirebaseSong song = favoriteFirebaseSongs.get(j);
 
-            System.out.println("BEFORE: " + song.getAuthor() + ", " + song.getAlbum() + ", " + song.getNumberInAlbum());
-
             database_ref.child("music").child("albums").child(song.getAuthor()).child(song.getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -371,15 +378,16 @@ public class CurrentPlaylistFragment extends Fragment {
                     if (snapshot != null) {
                         for (DataSnapshot ds: snapshot.child("songs").getChildren()) {
 
-                            //      System.out.println("N:"+song.getNumberInAlbum()+", "+ds.child("order").getValue().toString());
+
                             if (Integer.parseInt(ds.child("order").getValue().toString()) == song.getNumberInAlbum()) {
                                 Song local_song = new Song(song.getAuthor(), song.getAlbum(), ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString(), song.getNumberInAlbum());
+                                local_song.setDateTime(song.getDateTime());
                                 songs.add(local_song);
-                                //       System.out.println("AFTER: "+local_song.getAuthor()+", "+local_song.getAlbum()+", "+local_song.getOrder());
 
                             }
 
                             if (songs.size() == favoriteFirebaseSongs.size()) {
+                                Collections.sort(songs, (f1, f2) -> f1.getDateTime().compareTo(f2.getDateTime()));
                                 playlist.setSongs(songs);
 
                                 if (playlist.getSongs() != null) {

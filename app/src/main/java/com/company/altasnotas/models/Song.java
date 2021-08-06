@@ -3,6 +3,8 @@ package com.company.altasnotas.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Date;
+
 public class Song implements Parcelable {
     //Song isnt on their own objects.Its object connected to array of songs for playlist
 
@@ -104,4 +106,15 @@ public class Song implements Parcelable {
     dest.writeString(image_url);
     dest.writeInt(order);
     }
+
+    private Long dateTime;
+
+    public Long getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(Long datetime) {
+        this.dateTime = datetime;
+    }
+
 }
