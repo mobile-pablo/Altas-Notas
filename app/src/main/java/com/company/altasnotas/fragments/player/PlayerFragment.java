@@ -418,8 +418,9 @@ public class PlayerFragment extends Fragment {
         if(swatch != null){
             int endColor = ContextCompat.getColor(ll.getContext(), R.color.black);
             int startColor = swatch.getRgb();
-            if(startColor ==endColor){
-                startColor = ContextCompat.getColor(ll.getContext(), R.color.white);
+
+                if(startColor ==endColor){
+                startColor = Color.DKGRAY;
             }
 
             GradientDrawable gradientDrawable = new GradientDrawable(

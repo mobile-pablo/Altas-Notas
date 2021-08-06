@@ -62,6 +62,7 @@ HomeFragmentAdapter adapter;
         initializePlaylist("Bad Bunny", "YHLQMDLG");
         initializePlaylist("Analogs", "Pełnoletnia Oi! Młodzież");
         initializePlaylist("Problem", "Problem");
+        initializePlaylist("Problem", "Art Brut Dwa");
      return  view;
     }
 
