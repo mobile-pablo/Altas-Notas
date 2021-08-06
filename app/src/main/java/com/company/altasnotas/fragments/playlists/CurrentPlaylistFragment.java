@@ -277,7 +277,7 @@ public class CurrentPlaylistFragment extends Fragment {
     private void initializePlaylist(String title) {
 
         ArrayList<FavoriteFirebaseSong> favoriteFirebaseSongs = new ArrayList<>();
-        ArrayList<Song> songs = new ArrayList<>();
+
         if (mAuth.getCurrentUser() != null) {
             CountDownLatch conditionLatch = new CountDownLatch(1);
             database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
@@ -290,7 +290,6 @@ public class CurrentPlaylistFragment extends Fragment {
                               snapshot =da;
                               int x = (int) snapshot.child("songs").getChildrenCount();
                               if (x != 0 ){
-                                  songs.clear();
                                   for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
 
 
@@ -309,10 +308,9 @@ public class CurrentPlaylistFragment extends Fragment {
                                   }
 
                                   if (favoriteFirebaseSongs.size() == x) {
-                                      System.out.println("LAST TIME");
                                      initializePlaylistRecyclerView(favoriteFirebaseSongs);
 
-                                      playlist.setSongs(songs);
+                                      playlist.setSongs(new ArrayList<>());
                                       conditionLatch.countDown();
 
                                   }

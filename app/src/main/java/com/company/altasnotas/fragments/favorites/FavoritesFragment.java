@@ -31,6 +31,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 
 public class FavoritesFragment extends Fragment {
@@ -91,7 +92,6 @@ public class FavoritesFragment extends Fragment {
     private void initializeFavorites() {
         playlist = new Playlist();
         ArrayList<FavoriteFirebaseSong> favoriteFirebaseSongs = new ArrayList<>();
-        ArrayList<Song> songs = new ArrayList<>();
         playlist.setImage_id("");
         playlist.setAlbum(false);
         playlist.setTitle("Favorites");
@@ -104,7 +104,7 @@ public class FavoritesFragment extends Fragment {
 
 
         if (mAuth.getCurrentUser() != null) {
-            songs.clear();
+
             database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -118,7 +118,14 @@ public class FavoritesFragment extends Fragment {
                                 favoriteFirebaseSong.setNumberInAlbum(Integer.valueOf(ds.child("numberInAlbum").getValue().toString()));
                                 favoriteFirebaseSong.setAuthor(ds.child("author").getValue().toString());
                                 favoriteFirebaseSong.setAlbum(ds.child("album").getValue().toString());
+                                favoriteFirebaseSong.setDateTime(Calendar.getInstance().getTimeInMillis());
                                 favoriteFirebaseSongs.add(favoriteFirebaseSong);
+
+                                try {
+                                    Thread.sleep(1);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
                             }
 
 
@@ -126,51 +133,7 @@ public class FavoritesFragment extends Fragment {
                             fav_state.setVisibility(View.GONE);
 
                          if(favoriteFirebaseSongs.size()==x){
-                             for (int i =0; i<favoriteFirebaseSongs.size(); i++) {
-                                 FavoriteFirebaseSong song=favoriteFirebaseSongs.get(i);
-                                 int finalI = i;
-                                 database_ref.child("music").child("albums").child(song.getAuthor()).child(song.getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
-                                     @Override
-                                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                                         if(snapshot!=null) {
-                                             for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
-                                                 if(Integer.parseInt(ds.child("order").getValue().toString()) == song.getNumberInAlbum()){
-
-                                                     Song local_song = new Song(snapshot.child("dir_desc").getValue().toString(), snapshot.child("dir_title").getValue().toString(),  ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString(), song.getNumberInAlbum());
-                                                     songs.add(local_song);
-                                                 }
-                                             }
-
-                                             if(songs.size()==favoriteFirebaseSongs.size()) {
-                                                 playlist.setSongs(songs);
-
-                                                 if (playlist.getSongs() != null) {
-                                                     adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, 1);
-                                                     recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-                                                     recyclerView.setAdapter(adapter);
-                                                     adapter.notifyDataSetChanged();
-                                                     if(getActivity()!=null){
-                                                         Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-                                                         if(currentFragment instanceof FavoritesFragment){
-                                                             Drawable songBg = AppCompatResources.getDrawable(getContext(), R.drawable.custom_song_bg);
-                                                             recyclerView.setBackground(songBg);
-                                                         }
-                                                     }
-
-                                                 }
-                                             }
-                                         }
-                                     }
-
-
-
-                                     @Override
-                                     public void onCancelled(@NonNull DatabaseError error) {
-
-                                     }
-                                 });
-                             }
+                         initializeFavoritesRecyclerView(favoriteFirebaseSongs);
                          }
                         }else{
                             fav_state.setText("Empty Favorites");
@@ -190,6 +153,60 @@ public class FavoritesFragment extends Fragment {
                 }
 
 
+            });
+        }
+    }
+
+    private void initializeFavoritesRecyclerView(ArrayList<FavoriteFirebaseSong> favoriteFirebaseSongs) {
+        ArrayList<Song> songs = new ArrayList<>();
+        for (int i =0; i<favoriteFirebaseSongs.size(); i++) {
+            FavoriteFirebaseSong song=favoriteFirebaseSongs.get(i);
+            database_ref.child("music").child("albums").child(song.getAuthor()).child(song.getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                    if(snapshot!=null) {
+                        for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
+                            if(Integer.parseInt(ds.child("order").getValue().toString()) == song.getNumberInAlbum()){
+
+                                Song local_song = new Song(snapshot.child("dir_desc").getValue().toString(), snapshot.child("dir_title").getValue().toString(),  ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString(), song.getNumberInAlbum());
+                                local_song.setDateTime(song.getDateTime());
+                                songs.add(local_song);
+                            }
+                        }
+
+                        if(songs.size()==favoriteFirebaseSongs.size()) {
+                            Collections.sort(songs, (f1, f2) -> f1.getDateTime().compareTo(f2.getDateTime()));
+
+                            for(Song song1: songs){
+                                System.out.println(song1.getTitle()+", "+song1.getDateTime());
+                            }
+                            playlist.setSongs(songs);
+
+                            if (playlist.getSongs() != null) {
+                                adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, 1);
+                                recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+                                recyclerView.setAdapter(adapter);
+                                adapter.notifyDataSetChanged();
+                                if(getActivity()!=null){
+                                    Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                                    if(currentFragment instanceof FavoritesFragment){
+                                        Drawable songBg = AppCompatResources.getDrawable(getContext(), R.drawable.custom_song_bg);
+                                        recyclerView.setBackground(songBg);
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }
+
+
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
             });
         }
     }
