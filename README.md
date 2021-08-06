@@ -32,3 +32,7 @@ Export project from Zip and Import full folder
 <p align="center">
 <img src="gif_1.gif" width="270px">
 </p>
+
+<p align="center">
+<a href="https://api.codetabs.com/v1/loc?github=polonez-byte-112/Altas-Notas">Click here for code stats</a>
+</p>
