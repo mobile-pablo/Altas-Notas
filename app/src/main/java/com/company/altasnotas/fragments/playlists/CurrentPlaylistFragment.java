@@ -33,6 +33,7 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -48,6 +49,8 @@ import com.company.altasnotas.models.FavoriteFirebaseSong;
 import com.company.altasnotas.models.FirebaseSong;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
+import com.company.altasnotas.viewmodels.fragments.favorites.FavoritesFragmentViewModel;
+import com.company.altasnotas.viewmodels.fragments.playlists.CurrentPlaylistFragmentViewModel;
 import com.company.altasnotas.viewmodels.fragments.profile.ProfileFragmentViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -98,12 +101,10 @@ public class CurrentPlaylistFragment extends Fragment {
 
     public TextView recyclerViewState;
     private FloatingActionButton fab;
+    private CurrentPlaylistFragmentViewModel viewModel;
 
     private ImageView settings_btn;
-    private BottomSheetDialog bottomSheetDialog;
 
-    private Dialog dialog;
-    private TextView dialog_playlist_name, dialog_playlist_desc;
 
     @Override
 
@@ -123,14 +124,15 @@ public class CurrentPlaylistFragment extends Fragment {
         database = FirebaseDatabase.getInstance();
         database_ref = database.getReference();
         storageReference = FirebaseStorage.getInstance().getReference();
-
+        viewModel =  new ViewModelProvider(requireActivity()).get(CurrentPlaylistFragmentViewModel.class);
+        viewModel.init(playlist, (MainActivity) getActivity(), database_ref, mAuth,storageReference);
         title.setText(playlist.getTitle());
         description.setText(playlist.getDescription() + "\n(" + playlist.getYear() + ")");
 
 
         recyclerView = view.findViewById(R.id.current_playlist_recycler_view);
 
-        if (!playlist.getImage_id().isEmpty()) {
+        if (!  viewModel.getPlaylist().getImage_id().isEmpty()) {
             Glide.with(container)
                     .load(playlist.getImage_id())
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -164,7 +166,7 @@ public class CurrentPlaylistFragment extends Fragment {
 
 
         settings_btn.setOnClickListener(v -> {
-            openPlaylistSettings();
+           viewModel.openPlaylistSettings((MainActivity) getActivity());
         });
         return view;
 
@@ -415,9 +417,9 @@ public class CurrentPlaylistFragment extends Fragment {
                 try {
 
                     Bitmap compresedImg = ProfileFragmentViewModel.getBitmapFormUri(requireActivity(), returnUri);
-                    Bitmap compressImgRotated = rotateImageIfRequired(requireContext(), compresedImg, returnUri);
+                    Bitmap compressImgRotated =  viewModel.rotateImageIfRequired(requireContext(), compresedImg, returnUri);
                     ByteArrayOutputStream bao = new ByteArrayOutputStream();
-                    compressImgRotated = getResizedBitmap(compressImgRotated, 300);
+                    compressImgRotated =  viewModel.getResizedBitmap(compressImgRotated, 300);
                     compressImgRotated.compress(Bitmap.CompressFormat.PNG, 100, bao);
 
                     Glide.with(requireActivity()).load(compressImgRotated).apply(RequestOptions.centerCropTransform()).into(imageView);
@@ -484,464 +486,5 @@ public class CurrentPlaylistFragment extends Fragment {
         }
     }
 
-    private static Bitmap rotateImageIfRequired(Context context, Bitmap img, Uri selectedImage) throws IOException {
 
-        InputStream input = context.getContentResolver().openInputStream(selectedImage);
-        ExifInterface ei;
-        if (Build.VERSION.SDK_INT > 23)
-            ei = new ExifInterface(input);
-        else
-            ei = new ExifInterface(selectedImage.getPath());
-
-        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-
-        switch (orientation) {
-            case ExifInterface.ORIENTATION_ROTATE_90:
-                return rotateImage(img, 90);
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                return rotateImage(img, 180);
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                return rotateImage(img, 270);
-            default:
-                return img;
-        }
-    }
-
-    private static Bitmap rotateImage(Bitmap img, int degree) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(degree);
-        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
-        img.recycle();
-        return rotatedImg;
-    }
-
-    public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
-        int width = image.getWidth();
-        int height = image.getHeight();
-
-        float bitmapRatio = (float) width / (float) height;
-        if (bitmapRatio > 1) {
-            width = maxSize;
-            height = (int) (width / bitmapRatio);
-        } else {
-            height = maxSize;
-            width = (int) (height * bitmapRatio);
-        }
-        return Bitmap.createScaledBitmap(image, width, height, true);
-    }
-
-    private void openPlaylistSettings() {
-        bottomSheetDialog = new BottomSheetDialog(getContext());
-        bottomSheetDialog.setContentView(R.layout.bottom_playlist_settings);
-
-        LinearLayout copy = bottomSheetDialog.findViewById(R.id.bottom_settings_copy_box);
-        LinearLayout delete = bottomSheetDialog.findViewById(R.id.bottom_settings_delete_box);
-        LinearLayout dismissDialog = bottomSheetDialog.findViewById(R.id.bottom_settings_dismiss_box);
-
-        copy.setOnClickListener(v -> {
-            settingsCopy(playlist);
-            bottomSheetDialog.dismiss();
-        });
-
-        delete.setOnClickListener(v -> {
-            deletePlaylist(playlist);
-            bottomSheetDialog.dismiss();
-        });
-        dismissDialog.setOnClickListener(v -> bottomSheetDialog.dismiss());
-
-        bottomSheetDialog.show();
-    }
-
-    private void settingsCopy(Playlist playlist) {
-        database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot ds : snapshot.getChildren()) {
-                    if (
-                            ds.child("title").getValue().toString().trim().equals(playlist.getTitle())
-                                    &&
-                                    ds.child("description").getValue().toString().trim().equals(playlist.getDescription())
-                    ) {
-                        openDialog(ds.getKey(), playlist);
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
-    private void deletePlaylist(Playlist playlist) {
-        database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot ds : snapshot.getChildren()) {
-                    if (
-                            ds.child("title").getValue().toString().trim().equals(playlist.getTitle())
-                                    &&
-                                    ds.child("description").getValue().toString().trim().equals(playlist.getDescription())
-                    ) {
-
-                        String key = ds.getKey();
-
-                        database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).removeValue().addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    System.out.println("Playlist deleted");
-
-                                    storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).getDownloadUrl().addOnSuccessListener(getActivity(), new OnSuccessListener<Uri>() {
-                                        @Override
-                                        public void onSuccess(Uri uri) {
-                                            storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).delete().addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    MainActivity mainActivity = (MainActivity) getActivity();
-                                                    mainActivity.bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
-
-                                                    for (int i = 0; i < mainActivity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
-                                                        mainActivity.getSupportFragmentManager().popBackStack();
-                                                    }
-
-                                                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment()).commit();
-                                                    if (task.isSuccessful()) {
-                                                        System.out.println("Photo deleted with playlist");
-                                                    } else {
-                                                        Toast.makeText(getActivity(), "Error while deleting Photo", Toast.LENGTH_SHORT).show();
-                                                    }
-                                                }
-                                            });
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception exception) {
-                                            Log.d(MainActivity.FIREBASE, "Photo wasn't found");
-                                        }
-                                    });
-
-                                } else {
-                                    System.out.println("Error while  deleting Playlist");
-                                }
-                            }
-                        });
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                System.out.println("Error while  deleting Playlist");
-            }
-        });
-
-    }
-
-    private void openDialog(String key, Playlist playlist) {
-
-
-        dialog = new Dialog(getActivity(), R.style.Theme_AltasNotas);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCanceledOnTouchOutside(true);
-        dialog.setContentView(R.layout.add_playlists_dialog);
-        dialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
-        dialog.getWindow().setGravity(Gravity.CENTER);
-
-        ImageButton cancel, accept;
-
-        dialog_playlist_name = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_name);
-        dialog_playlist_desc = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_desc);
-
-        dialog_playlist_name.setText(playlist.getTitle());
-        dialog_playlist_desc.setText(playlist.getDescription());
-
-        cancel = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_cancel_btn);
-        accept = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_accept_btn);
-
-
-        cancel.setOnClickListener(v -> dialog.dismiss());
-
-
-        accept.setOnClickListener(v -> validInput(key, dialog_playlist_name.getText().toString(), dialog_playlist_desc.getText().toString(), playlist));
-
-        dialog.show();
-
-    }
-
-    private void validInput(String key, String name, String desc, Playlist playlist) {
-        name = name.trim();
-        desc = desc.trim();
-
-
-        if (name.isEmpty() && desc.isEmpty()) {
-            Toast.makeText(getActivity(), "Both fields are empty.\nPlease fill data.", Toast.LENGTH_SHORT).show();
-        } else {
-
-            if (name.isEmpty() || desc.isEmpty()) {
-                if (name.isEmpty()) {
-                    Toast.makeText(getActivity(), "Name is empty.\nPlease fill data.", Toast.LENGTH_SHORT).show();
-                }
-
-                if (desc.isEmpty()) {
-                    Toast.makeText(getActivity(), "Description is empty.\nPlease fill data.", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                name = name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
-                desc = desc.substring(0, 1).toUpperCase() + desc.substring(1).toLowerCase();
-                String finalName = name;
-                String finalDesc = desc;
-                database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot != null) {
-                            int x = (int) snapshot.getChildrenCount();
-                            for (DataSnapshot ds : snapshot.getChildren()) {
-                                if (ds.child("title").getValue().toString().trim().equals(finalName)) {
-                                    x--;
-                                    Toast.makeText(getActivity(), "Playlist exist with same title!", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-
-                            if (x == snapshot.getChildrenCount()) {
-                                dialog.dismiss();
-                                copyPlaylist(key, finalName, finalDesc, playlist);
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Log.d("Firebase DB error", "FirebaseDatabase");
-                    }
-                });
-
-            }
-        }
-    }
-
-    private void copyPlaylist(String old_key, String name, String desc, Playlist p) {
-
-        p.setTitle(name);
-        p.setDescription(desc);
-
-        String key = database_ref.push().getKey();
-
-        database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).setValue(p).addOnCompleteListener(requireActivity(), new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).child("isAlbum").setValue(p.isAlbum()).addOnCompleteListener(requireActivity(), new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-
-                                database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).child("album").removeValue().addOnCompleteListener(requireActivity(), new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        //Copy songs
-                                        int[] x = {0};
-                                        database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(old_key).child("songs").addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                ArrayList<FavoriteFirebaseSong> favoriteFirebaseSongs = new ArrayList<>();
-                                                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                                                    x[0]++;
-                                                    FavoriteFirebaseSong favoriteFirebaseSong = new FavoriteFirebaseSong();
-                                                    favoriteFirebaseSong.setAuthor(dataSnapshot.child("author").getValue().toString());
-                                                    favoriteFirebaseSong.setAlbum(dataSnapshot.child("album").getValue().toString());
-                                                    favoriteFirebaseSong.setNumberInAlbum(Integer.valueOf(dataSnapshot.child("numberInAlbum").getValue().toString()));
-                                                    favoriteFirebaseSongs.add(favoriteFirebaseSong);
-                                                    if (x[0] == snapshot.getChildrenCount()) {
-                                                        database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).child("songs").setValue(favoriteFirebaseSongs).addOnCompleteListener(requireActivity(), new OnCompleteListener<Void>() {
-                                                            @Override
-                                                            public void onComplete(@NonNull Task<Void> task) {
-                                                                if (task.isSuccessful()) {
-                                                                    //Copy photo
-                                                                    storageReference = FirebaseStorage.getInstance().getReference();
-                                                                    storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + old_key).getDownloadUrl().addOnCompleteListener(requireActivity(), new OnCompleteListener<Uri>() {
-                                                                        @Override
-                                                                        public void onComplete(@NonNull Task<Uri> task) {
-                                                                            if (task.isComplete() && task.isSuccessful()) {
-                                                                                System.out.println("URI HERE FOUND");
-
-                                                                                Uri uri = task.getResult();
-
-
-                                                                                Thread thread = new Thread(new Runnable() {
-                                                                                    @Override
-                                                                                    public void run() {
-                                                                                        try {
-                                                                                            Bitmap bitmap = loadBitmap(uri.toString());
-                                                                                            ByteArrayOutputStream bao = new ByteArrayOutputStream();
-                                                                                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, bao);
-                                                                                            byte[] byteArray = bao.toByteArray();
-
-                                                                                            storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).putBytes(byteArray).addOnCompleteListener(requireActivity(), new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                                                                                                @Override
-                                                                                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                                                                                                    if (!task.isSuccessful()) {
-                                                                                                        System.out.println("Error while copying photo");
-                                                                                                    } else {
-                                                                                                        storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).getDownloadUrl().addOnSuccessListener(requireActivity(), new OnSuccessListener<Uri>() {
-                                                                                                            @Override
-                                                                                                            public void onSuccess(Uri u) {
-                                                                                                                p.setImage_id(u.toString());
-                                                                                                                database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).child("image_id").setValue(u.toString());
-                                                                                                            }
-                                                                                                        });
-                                                                                                    }
-                                                                                                }
-                                                                                            });
-
-
-                                                                                        } catch (Exception e) {
-                                                                                            Log.e("Thread", e.getMessage());
-                                                                                        }
-                                                                                    }
-                                                                                });
-                                                                                thread.start();
-
-
-                                                                            }
-
-                                                                            Fragment currentFragment = requireActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-                                                                            if (currentFragment instanceof CurrentPlaylistFragment) {
-
-                                                                                requireActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
-                                                                            }
-                                                                        }
-                                                                    });
-                                                                }
-                                                            }
-
-                                                        }).addOnFailureListener(requireActivity(), new OnFailureListener() {
-                                                            @Override
-                                                            public void onFailure(@NonNull Exception e) {
-                                                                System.out.println("Error while setting songs");
-
-
-                                                            }
-                                                        });
-                                                    }
-                                                }
-
-                                                if (snapshot.getChildrenCount() == 0) {
-                                                    //Copy photo
-                                                    storageReference = FirebaseStorage.getInstance().getReference();
-                                                    storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + old_key).getDownloadUrl().addOnCompleteListener(requireActivity(), new OnCompleteListener<Uri>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<Uri> task) {
-                                                            if (task.isComplete() && task.isSuccessful()) {
-                                                                System.out.println("URI HERE FOUND");
-
-                                                                Uri uri = task.getResult();
-
-
-                                                                Thread thread = new Thread(new Runnable() {
-                                                                    @Override
-                                                                    public void run() {
-                                                                        try {
-                                                                            Bitmap bitmap = loadBitmap(uri.toString());
-                                                                            ByteArrayOutputStream bao = new ByteArrayOutputStream();
-                                                                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, bao);
-                                                                            byte[] byteArray = bao.toByteArray();
-
-                                                                            storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).putBytes(byteArray).addOnCompleteListener(requireActivity(), new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                                                                                @Override
-                                                                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                                                                                    if (!task.isSuccessful()) {
-                                                                                        System.out.println("Error while copying photo");
-                                                                                    } else {
-                                                                                        storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).getDownloadUrl().addOnSuccessListener(requireActivity(), new OnSuccessListener<Uri>() {
-                                                                                            @Override
-                                                                                            public void onSuccess(Uri u) {
-                                                                                                p.setImage_id(u.toString());
-                                                                                                database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).child("image_id").setValue(u.toString());
-                                                                                            }
-                                                                                        });
-                                                                                    }
-                                                                                }
-                                                                            });
-
-
-                                                                        } catch (Exception e) {
-                                                                            Log.e("Thread", e.getMessage());
-                                                                        }
-                                                                    }
-                                                                });
-                                                                thread.start();
-
-
-                                                            }
-
-                                                            Fragment currentFragment = requireActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-                                                            if (currentFragment instanceof CurrentPlaylistFragment) {
-
-                                                                requireActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
-                                                            }
-                                                        }
-                                                    }).addOnFailureListener(requireActivity(), new OnFailureListener() {
-                                                        @Override
-                                                        public void onFailure(@NonNull Exception e) {
-                                                            Fragment currentFragment = requireActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-                                                            if (currentFragment instanceof CurrentPlaylistFragment) {
-
-                                                                requireActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
-                                                            }
-                                                        }
-                                                    });
-
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onCancelled(@NonNull DatabaseError error) {
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        }
-                    });
-                } else {
-                    Toast.makeText(requireActivity(), "Error while adding Playlist.", Toast.LENGTH_SHORT).show();
-
-                }
-            }
-        });
-    }
-
-    public Bitmap loadBitmap(String url) {
-        Bitmap bm = null;
-        InputStream is = null;
-        BufferedInputStream bis = null;
-        try {
-            URLConnection conn = new URL(url).openConnection();
-            conn.connect();
-            is = conn.getInputStream();
-            bis = new BufferedInputStream(is, 8192);
-            bm = BitmapFactory.decodeStream(bis);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (bis != null) {
-                try {
-                    bis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return bm;
-    }
 }
