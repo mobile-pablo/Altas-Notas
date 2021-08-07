@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,6 +39,8 @@ import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
 import com.company.altasnotas.services.BackgroundService;
+import com.company.altasnotas.viewmodels.fragments.favorites.FavoritesFragmentViewModel;
+import com.company.altasnotas.viewmodels.fragments.player.PlayerFragmentViewModel;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -100,6 +103,7 @@ public class PlayerFragment extends Fragment {
     private BottomSheetDialog bottomSheetDialog;
     private BottomSheetDialog choosePlaylistDialog;
 
+    private PlayerFragmentViewModel viewModel;
 
     public PlayerFragment(Playlist playlist, int position, long seekedTo) {
         this.playlist = null;
@@ -120,8 +124,9 @@ public class PlayerFragment extends Fragment {
         playerView = view.findViewById(R.id.player_view);
         playerView.setBackgroundColor(Color.TRANSPARENT);
         player_full_box = view.findViewById(R.id.player_full_box);
-        setUI();
+        viewModel = new ViewModelProvider(requireActivity()).get(PlayerFragmentViewModel.class);
 
+        setUI();
 
         intent = new Intent(getActivity(), BackgroundService.class);
         intent.putExtra("playlist", playlist);
@@ -209,9 +214,10 @@ public class PlayerFragment extends Fragment {
         fav_btn.setOnClickListener(v -> {
 
             if (fav_btn.getDrawable().getConstantState().equals(fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
-                addToFav();
+
+                viewModel.addToFav(database_ref,mAuth,playlist,position,fav_btn);
             } else {
-                removeFromFav();
+                viewModel.removeFromFav( getActivity(), database_ref,mAuth,playlist,position,fav_btn);
             }
         });
 
@@ -372,7 +378,7 @@ public class PlayerFragment extends Fragment {
                 }
 
 
-                setUpInfoBackgroundColor(player_full_box, palette);
+                viewModel.setUpInfoBackgroundColor(getActivity(), player_full_box, palette);
 
                 database_ref = FirebaseDatabase.getInstance().getReference();
                 database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -394,105 +400,6 @@ public class PlayerFragment extends Fragment {
         }
     }
 
-    //Background Pallete
-    Palette.Swatch getMostPopulousSwatch(Palette palette) {
-        Palette.Swatch mostPopulous = null;
-        if (palette != null) {
-            for (Palette.Swatch swatch : palette.getSwatches()) {
-                if (mostPopulous == null || swatch.getPopulation() > mostPopulous.getPopulation()) {
-                    mostPopulous = swatch;
-                }
-            }
-        }
-        return mostPopulous;
-    }
-
-    private void setUpInfoBackgroundColor(LinearLayout ll, Palette palette) {
-        Palette.Swatch swatch = getMostPopulousSwatch(palette);
-        if (swatch != null) {
-            int endColor = ContextCompat.getColor(ll.getContext(), R.color.black);
-            int startColor = swatch.getRgb();
-
-            if (startColor == endColor) {
-                startColor = Color.DKGRAY;
-            }
-
-            GradientDrawable gradientDrawable = new GradientDrawable(
-                    GradientDrawable.Orientation.TOP_BOTTOM,
-                    new int[]{startColor, endColor});
-
-            Glide.with(getContext())
-                    .load(gradientDrawable)
-                    .into(new CustomTarget<Drawable>() {
-                        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-                        @Override
-                        public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                            ll.setBackground(resource);
-                        }
-
-                        @Override
-                        public void onLoadCleared(@Nullable Drawable placeholder) {
-
-                        }
-                    });
-        }
-    }
-
-    private void removeFromFav() {
-        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot firebaseFav : snapshot.getChildren()) {
-                    if (firebaseFav.child("album").getValue().toString().trim().equals(playlist.getSongs().get(position).getAlbum().trim())
-                            &&
-                            firebaseFav.child("numberInAlbum").getValue().toString().trim().equals(playlist.getSongs().get(position).getOrder().toString().trim())
-                    ) {
-                        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(firebaseFav.getKey()).removeValue().addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    fav_btn.setImageResource(R.drawable.ic_heart_empty);
-                                }
-                            }
-                        });
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
-    private void addToFav() {
-        String key = database_ref.push().getKey();
-
-        database_ref
-                .child("music")
-                .child("albums")
-                .child(playlist.getSongs().get(position).getAuthor())
-                .child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot dataSnapshot : snapshot.child("songs").getChildren()) {
-                    if (dataSnapshot.child("title").getValue().equals(playlist.getSongs().get(position).getTitle())) {
-                        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("numberInAlbum").setValue(dataSnapshot.child("order").getValue().toString());
-                        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("album").setValue(playlist.getSongs().get(position).getAlbum());
-                        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("author").setValue(playlist.getSongs().get(position).getAuthor());
-                        fav_btn.setImageResource(R.drawable.ic_heart_full);
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-    }
 
     public class ExoListener implements Player.Listener {
         SimpleExoPlayer player;
