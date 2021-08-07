@@ -2,6 +2,7 @@ package com.company.altasnotas.adapters;
 
 
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -332,7 +333,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        android.util.Log.d("Error: " + error.getMessage(), "FirebaseDatabase");
+                        android.util.Log.d(MainActivity.FIREBASE, "Error: " + error.getMessage());
                     }
 
                 });
@@ -392,7 +393,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                                 }
                                             }
                                         } else {
-                                            System.out.println("COULDN'T DELETED SONG");
+                                            Log.d(MainActivity.FIREBASE,"Couldn't delete song.");
                                         }
                                     }
                                 });
@@ -442,7 +443,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        android.util.Log.d("Error: " + error.getMessage(), "FirebaseDatabase");
+                        android.util.Log.d(MainActivity.FIREBASE, "Error: " + error.getMessage());
                     }
 
                 });

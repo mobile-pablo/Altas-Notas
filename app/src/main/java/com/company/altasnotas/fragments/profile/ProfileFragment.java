@@ -222,7 +222,7 @@ public class ProfileFragment extends Fragment {
 
 
         if(resultCode ==RESULT_CANCELED){
-           Log.d("RESULT HAVE BEEN CANCELED", "RESULT");
+           Log.d("RESULT","RESULT HAVE BEEN CANCELED");
         }
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
@@ -250,11 +250,8 @@ public class ProfileFragment extends Fragment {
                     storageReference.child("images/profiles/"+mAuth.getCurrentUser().getUid()).putBytes(byteArray).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                            if(task.isSuccessful()){
-                                System.out.println("Upload image is successful!");
-                            }else{
-                                System.out.println("Upload image failed!");
-
+                            if(!task.isSuccessful()){
+                                Log.d(MainActivity.FIREBASE, "Upload image failed");
                             }
                         }
                     });
@@ -263,7 +260,7 @@ public class ProfileFragment extends Fragment {
 
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Log.d("Error while compressing and uploading photo to Firebase", "FirebaseStorage");
+                    Log.d(MainActivity.FIREBASE,"Error while compressing and uploading photo to Firebase");
                 }
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {

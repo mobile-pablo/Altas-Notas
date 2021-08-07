@@ -2,6 +2,7 @@ package com.company.altasnotas.fragments.favorites;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -139,7 +140,8 @@ public class FavoritesFragment extends Fragment {
 
 
                     } else {
-                        System.out.println("This song doesnt exist in Album!");
+                        Log.d(MainActivity.FIREBASE,"This Song doesnt exist in Album");
+
                     }
                 }
 
@@ -174,9 +176,7 @@ public class FavoritesFragment extends Fragment {
                         if (songs.size() == favoriteFirebaseSongs.size()) {
                             Collections.sort(songs, (f1, f2) -> f1.getDateTime().compareTo(f2.getDateTime()));
 
-                            for (Song song1 : songs) {
-                                System.out.println(song1.getTitle() + ", " + song1.getDateTime());
-                            }
+
                             playlist.setSongs(songs);
 
                             if (playlist.getSongs() != null) {

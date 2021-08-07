@@ -73,7 +73,7 @@ public class ChoosePlaylistAdapter extends RecyclerView.Adapter<ChoosePlaylistAd
                 } else {
                     holder.image.setVisibility(View.VISIBLE);
                     Glide.with(mainActivity.getApplicationContext()).load(R.drawable.img_not_found).apply(RequestOptions.centerCropTransform()).override(holder.image.getWidth(), holder.image.getWidth()).into(holder.image);
-                    Log.d("Error while loading photo", "Firebase");
+                    Log.d(MainActivity.FIREBASE, "Error while loading photo");
                 }
             }
         });
@@ -116,7 +116,7 @@ public class ChoosePlaylistAdapter extends RecyclerView.Adapter<ChoosePlaylistAd
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (!task.isSuccessful()) {
-                                Log.d("Error while adding Song to Playlist", "FirebaseDatabase");
+                                Log.d(MainActivity.FIREBASE, "Error while adding Song to Playlist");
                             }
                         }
                     });

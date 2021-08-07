@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     public String photoUrl;
     public BottomNavigationView bottomNavigationView;
 
+    public static final String FIREBASE = "Firebase";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
 
         if (frag != null) {
             if (frag.equals("PlayerFragment")) {
-                System.out.println(frag);
 
                 //May delete it later
                 for (int i = 0; i < getSupportFragmentManager().getBackStackEntryCount(); i++) {
@@ -78,7 +78,6 @@ public class MainActivity extends AppCompatActivity {
                 ArrayList<Song> local_songs = getIntent().getParcelableArrayListExtra("songs");
                 playlist.setSongs(local_songs);
                 PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo);
-                System.out.println(local_songs.size());
                 getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment).commit();
             }
         }

@@ -96,7 +96,7 @@ public class HomeFragment extends Fragment {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Log.d("Error: " + error.getMessage(), "FirebaseDatabase");
+                    Log.d(MainActivity.FIREBASE, "Error: " + error.getMessage());
                 }
 
             });

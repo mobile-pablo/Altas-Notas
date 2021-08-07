@@ -124,7 +124,6 @@ public class PlayerFragment extends Fragment {
 
 
         intent = new Intent(getActivity(), BackgroundService.class);
-        System.out.println("Playlist name: " + playlist.getTitle());
         intent.putExtra("playlist", playlist);
         intent.putExtra("pos", position);
         intent.putExtra("path", playlist.getSongs().get(position).getPath());
@@ -255,7 +254,7 @@ public class PlayerFragment extends Fragment {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        android.util.Log.d("Error: " + error.getMessage(), "FirebaseDatabase");
+                        android.util.Log.d(MainActivity.FIREBASE,"Error: " + error.getMessage());
                     }
 
                 });
@@ -506,7 +505,7 @@ public class PlayerFragment extends Fragment {
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
 
 
-            Log.d("playbackState = " + playbackState + " playWhenReady = " + playWhenReady, "Exo");
+            Log.d("Exo","playbackState = " + playbackState + " playWhenReady = " + playWhenReady );
             switch (playbackState) {
                 case Player.STATE_IDLE:
                     // free
@@ -544,7 +543,6 @@ public class PlayerFragment extends Fragment {
         @Override
         public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
             position = player.getCurrentWindowIndex();
-            System.out.println("Gramy piosenke: " + playlist.getSongs().get(player.getCurrentWindowIndex()).getTitle());
             setUI();
             fav_btn.setImageResource(R.drawable.ic_heart_empty);
 

@@ -79,7 +79,7 @@ public class LoginFragment extends Fragment {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 AccessToken token = loginResult.getAccessToken();
-                Log.d("Dziala ", "Token: " + token.getUserId());
+                Log.d("Facebook", "Token: " + token.getUserId());
                 model.handleFacebookAccessToken((MainActivity) getActivity(), loginResult.getAccessToken());
             }
 

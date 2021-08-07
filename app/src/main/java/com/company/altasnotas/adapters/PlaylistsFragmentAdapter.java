@@ -113,8 +113,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception exception) {
-                                    System.out.println("Error: " + exception.getMessage());
-                                    Log.d("Firebase", "Photo wasn't found");
+                                    Log.d(MainActivity.FIREBASE, "Photo wasn't found"+".\nError: " + exception.getMessage());
                                     Glide.with(mainActivity.getApplicationContext()).load(R.drawable.img_not_found).apply(RequestOptions.centerCropTransform()).override(holder.photo.getWidth(), holder.photo.getWidth()).into(holder.photo);
 
                                 }
@@ -220,7 +219,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
-                                    System.out.println("Playlist deleted");
+
                                     playlists.remove(playlist);
                                     notifyDataSetChanged();
 
@@ -235,10 +234,9 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                                 storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).delete().addOnCompleteListener(mainActivity, new OnCompleteListener<Void>() {
                                                     @Override
                                                     public void onComplete(@NonNull Task<Void> task) {
-                                                        if (task.isSuccessful()) {
-                                                            System.out.println("Photo deleted with playlist");
-                                                        } else {
+                                                        if (!task.isSuccessful())  {
                                                             Toast.makeText(mainActivity, "Error while deleting Photo", Toast.LENGTH_SHORT).show();
+                                                            Log.d(MainActivity.FIREBASE, "Error while deleting Photo");
                                                         }
                                                     }
                                                 });
@@ -246,7 +244,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                         }).addOnFailureListener(new OnFailureListener() {
                                             @Override
                                             public void onFailure(@NonNull Exception exception) {
-                                                Log.d("Firebase", "Photo wasn't found");
+                                                Log.d(MainActivity.FIREBASE, "Photo wasn't found");
                                             }
                                         });
                                         ;
@@ -261,7 +259,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                     }
 
                                 } else {
-                                    System.out.println("Error while  deleting Playlist");
+                                    Log.d(MainActivity.FIREBASE, "Error while  deleting Playlist");
                                 }
                             }
                         });
@@ -271,7 +269,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                System.out.println("Error while  deleting Playlist");
+                Log.d(MainActivity.FIREBASE, "Error while  deleting Playlist");
             }
         });
 
@@ -351,7 +349,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        Log.d("Firebase DB error", "FirebaseDatabase");
+                        Log.d(MainActivity.FIREBASE, "Firebase DB error");
                     }
                 });
 
@@ -402,7 +400,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                                                         @Override
                                                                         public void onComplete(@NonNull Task<Uri> task) {
                                                                             if (task.isComplete() && task.isSuccessful()) {
-                                                                                System.out.println("URI HERE FOUND");
+
 
                                                                                 Uri uri = task.getResult();
 
@@ -420,7 +418,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                                                                                 @Override
                                                                                                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                                                                                                     if (!task.isSuccessful()) {
-                                                                                                        System.out.println("Error while copying photo");
+                                                                                                        Log.d(MainActivity.FIREBASE, "Error while  copying photo");
                                                                                                     }
                                                                                                 }
                                                                                             });
@@ -449,8 +447,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                                         }).addOnFailureListener(mainActivity, new OnFailureListener() {
                                                             @Override
                                                             public void onFailure(@NonNull Exception e) {
-                                                                System.out.println("Error while setting songs");
-
+                                                                Log.d(MainActivity.FIREBASE, "Error while  setting songs");
 
                                                             }
                                                         });
@@ -464,7 +461,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                                         @Override
                                                         public void onComplete(@NonNull Task<Uri> task) {
                                                             if (task.isComplete() && task.isSuccessful()) {
-                                                                System.out.println("URI HERE FOUND");
+
 
                                                                 Uri uri = task.getResult();
 
@@ -482,8 +479,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                                                                 @Override
                                                                                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                                                                                     if (!task.isSuccessful()) {
-                                                                                        System.out.println("Error while copying photo");
-
+                                                                                        Log.d(MainActivity.FIREBASE, "Error while  copying photo");
                                                                                         Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
                                                                                         if (currentFragment instanceof PlaylistsFragment) {
 

@@ -77,7 +77,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         externalPlaylistTitle = intent.getStringExtra("playlistTitle");
         externalDescription = intent.getStringExtra("desc");
         seekedTo = intent.getLongExtra("ms", 0);
-        System.out.println("seekedTo: " + seekedTo);
+
 
         if (playlist != null) {
             if (!(playlist.getSongs().get(position).getPath().equals(externalPath) && playlist.getTitle().equals(externalPlaylistTitle) && playlist.getDescription().equals(externalDescription))) {

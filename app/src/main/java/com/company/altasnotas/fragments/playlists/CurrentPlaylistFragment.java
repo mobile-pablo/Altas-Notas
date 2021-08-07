@@ -339,7 +339,7 @@ public class CurrentPlaylistFragment extends Fragment {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Log.d("Firebase DB Error: " + error.getMessage(), "FirebaseDatabase");
+                    Log.d(MainActivity.FIREBASE,"Firebase DB Error: " + error.getMessage());
                     conditionLatch.countDown();
                 }
 
@@ -618,7 +618,7 @@ public class CurrentPlaylistFragment extends Fragment {
                                     }).addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception exception) {
-                                            Log.d("Firebase", "Photo wasn't found");
+                                            Log.d(MainActivity.FIREBASE, "Photo wasn't found");
                                         }
                                     });
 

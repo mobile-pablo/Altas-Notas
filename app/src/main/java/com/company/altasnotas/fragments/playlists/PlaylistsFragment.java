@@ -181,7 +181,7 @@ public class PlaylistsFragment extends Fragment {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        Log.d("Firebase DB error", "FirebaseDatabase");
+                        Log.d(MainActivity.FIREBASE,"Firebase DB error");
                     }
                 });
 
