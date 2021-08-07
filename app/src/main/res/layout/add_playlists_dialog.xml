@@ -15,7 +15,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/lato"
+        android:fontFamily="@font/oswald"
         android:gravity="bottom|center_horizontal"
         android:paddingTop="20dp"
         android:paddingBottom="10dp"
@@ -42,6 +42,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/oswald"
         android:gravity="bottom|center_horizontal"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"

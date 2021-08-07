@@ -209,8 +209,9 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
         });
 
         if (playlist.isAlbum()) {
-            holder.photo.setVisibility(View.INVISIBLE);
+            holder.photo.setVisibility(View.GONE);
         } else {
+            holder.photo.setVisibility(View.VISIBLE);
             Glide.with(activity.getApplicationContext()).load(songs.get(position).getImage_url()).into(holder.photo);
         }
 

@@ -48,14 +48,14 @@
         <TextView
             android:id="@+id/profile_full_name"
             android:layout_width="wrap_content"
-            android:layout_height="30dp"
+            android:layout_height="35dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="0dp"
             android:layout_marginTop="80dp"
             android:layout_marginEnd="0dp"
-            android:fontFamily="sans-serif"
+            android:fontFamily="@font/oswald"
             android:text="Username"
             android:textAlignment="center"
             android:textColor="#000000"
@@ -67,14 +67,15 @@
 
         <ImageButton
             android:id="@+id/profile_name_edit_btn"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_alignTop="@+id/profile_full_name"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="0dp"
             android:layout_marginEnd="30dp"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_edit" />
+            android:src="@drawable/ic_edit"
+            app:tint="@color/black" />
 
         <TextView
             android:id="@+id/profile_email"
@@ -87,6 +88,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginEnd="5dp"
             android:background="@drawable/project_grey_bottom_line"
+            android:fontFamily="@font/lato_light_italic"
             android:paddingBottom="10dp"
             android:text="test@gmail.com"
             android:textAlignment="center"
@@ -124,18 +126,18 @@
                     android:textSize="18sp" />
 
                 <EditText
-                    android:padding="5dp"
                     android:id="@+id/profile_age_number"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="3"
-                    android:enabled="false"
                     android:background="@android:color/transparent"
-                    android:textColor="@drawable/custom_edittext_text_color"
-                    android:fontFamily="@font/oswald"
+                    android:enabled="false"
+                    android:fontFamily="@font/oswald_light"
                     android:gravity="right|center_vertical"
-                    android:inputType="number|textNoSuggestions"
                     android:hint="20"
+                    android:inputType="number|textNoSuggestions"
+                    android:padding="5dp"
+                    android:textColor="@drawable/custom_edittext_text_color"
                     android:textSize="18sp" />
 
                 <LinearLayout
@@ -151,6 +153,7 @@
                         android:layout_weight="1"
                         android:background="@android:color/transparent"
                         android:gravity="center"
+                        app:tint="@color/black"
                         android:src="@drawable/ic_edit" />
 
                     <ImageButton
@@ -193,18 +196,18 @@
                     android:textSize="18sp" />
 
                 <EditText
-                    android:padding="5dp"
                     android:id="@+id/profile_phone_number"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="3"
-                    android:enabled="false"
                     android:background="@android:color/transparent"
-                    android:textColor="@drawable/custom_edittext_text_color"
-                    android:fontFamily="@font/oswald"
-                    android:inputType="textNoSuggestions"
+                    android:enabled="false"
+                    android:fontFamily="@font/oswald_light"
                     android:gravity="right|center_vertical"
                     android:hint="+48 633 973 627"
+                    android:inputType="textNoSuggestions"
+                    android:padding="5dp"
+                    android:textColor="@drawable/custom_edittext_text_color"
 
                     android:textSize="18sp" />
 
@@ -221,7 +224,8 @@
                         android:layout_weight="1"
                         android:background="@android:color/transparent"
                         android:gravity="center"
-                        android:src="@drawable/ic_edit" />
+                        android:src="@drawable/ic_edit"
+                        app:tint="@color/black"/>
 
                     <ImageButton
                         android:id="@+id/profile_phone_cancel_btn"
@@ -267,14 +271,14 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="3"
-                    android:enabled="false"
                     android:background="@android:color/transparent"
-                    android:textColor="@drawable/custom_edittext_text_color"
-                    android:fontFamily="@font/oswald"
+                    android:enabled="false"
+                    android:fontFamily="@font/oswald_light"
                     android:gravity="right|center_vertical"
                     android:hint="East Ave 7,NY"
-                    android:padding="5dp"
                     android:inputType="textNoSuggestions"
+                    android:padding="5dp"
+                    android:textColor="@drawable/custom_edittext_text_color"
                     android:textSize="18sp" />
 
                 <LinearLayout
@@ -290,7 +294,8 @@
                         android:layout_weight="1"
                         android:background="@android:color/transparent"
                         android:gravity="center"
-                        android:src="@drawable/ic_edit" />
+                        android:src="@drawable/ic_edit"
+                        app:tint="@color/black"/>
 
                     <ImageButton
                         android:id="@+id/profile_address_cancel_btn"

@@ -91,17 +91,17 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
 
-                android:textSize="14sp"
                 android:autoSizeMaxTextSize="100sp"
                 android:autoSizeMinTextSize="1sp"
                 android:autoSizeStepGranularity="1sp"
-                android:fontFamily="@font/lato"
+                android:fontFamily="@font/lato_light_italic"
                 android:gravity="top|left"
                 android:textColor="#000000"
+                android:textSize="14sp"
 
                 app:autoSizeTextType="uniform"
 
-                 />
+                />
         </LinearLayout>
     </LinearLayout>
     <View

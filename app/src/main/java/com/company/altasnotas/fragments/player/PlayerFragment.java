@@ -362,36 +362,37 @@ public class PlayerFragment extends Fragment {
     }
 
     private void setUI() {
-        Fragment currentFragment = requireActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-        if (currentFragment instanceof PlayerFragment) {
-            Glide.with(requireContext()).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(song_img);
-            song_img.setDrawingCacheEnabled(true);
-            Bitmap bitmap = song_img.getDrawingCache();
-            if (bitmap != null && !bitmap.isRecycled()) {
-                palette = Palette.from(bitmap).generate();
+        if(getActivity()!=null) {
+            Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+            if (currentFragment instanceof PlayerFragment) {
+                Glide.with(requireContext()).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(song_img);
+                song_img.setDrawingCacheEnabled(true);
+                Bitmap bitmap = song_img.getDrawingCache();
+                if (bitmap != null && !bitmap.isRecycled()) {
+                    palette = Palette.from(bitmap).generate();
+                }
+
+
+                setUpInfoBackgroundColor(player_full_box, palette);
+
+                database_ref = FirebaseDatabase.getInstance().getReference();
+                database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        title.setText(playlist.getSongs().get(position).getTitle());
+                        author.setText(snapshot.child("description").getValue().toString());
+
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
             }
-
-
-            setUpInfoBackgroundColor(player_full_box, palette);
-
-            database_ref = FirebaseDatabase.getInstance().getReference();
-            database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    title.setText(playlist.getSongs().get(position).getTitle());
-                    author.setText(snapshot.child("description").getValue().toString());
-
-
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-
         }
-
     }
 
     //Background Pallete
