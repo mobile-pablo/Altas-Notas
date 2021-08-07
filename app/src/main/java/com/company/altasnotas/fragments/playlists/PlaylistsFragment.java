@@ -1,17 +1,9 @@
 package com.company.altasnotas.fragments.playlists;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -21,17 +13,18 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
-import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
 import com.company.altasnotas.adapters.PlaylistsFragmentAdapter;
-import com.company.altasnotas.models.FirebaseSong;
 import com.company.altasnotas.models.Playlist;
-import com.company.altasnotas.models.Song;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -41,7 +34,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -49,43 +41,42 @@ import java.util.Calendar;
 public class PlaylistsFragment extends Fragment {
 
 
-public RecyclerView recyclerView;
-public TextView recyclerViewState;
-private FloatingActionButton fab;
+    public RecyclerView recyclerView;
+    public TextView recyclerViewState;
+    private FloatingActionButton fab;
     private FirebaseDatabase database;
     private DatabaseReference database_ref;
     private FirebaseAuth mAuth;
-private Dialog dialog;
-private EditText dialog_playlist_name,dialog_playlist_desc;
-private ArrayList<Playlist> playlists;
-private PlaylistsFragmentAdapter adapter;
+    private Dialog dialog;
+    private EditText dialog_playlist_name, dialog_playlist_desc;
+    private ArrayList<Playlist> playlists;
+    private PlaylistsFragmentAdapter adapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-       View view=  inflater.inflate(R.layout.fragment_playlists, container, false);
+        View view = inflater.inflate(R.layout.fragment_playlists, container, false);
 
-       recyclerView = view.findViewById(R.id.playlists_recycler_view);
-       fab = view.findViewById(R.id.playlists_floating_btn);
-       recyclerViewState = view.findViewById(R.id.playlists_recycler_state);
+        recyclerView = view.findViewById(R.id.playlists_recycler_view);
+        fab = view.findViewById(R.id.playlists_floating_btn);
+        recyclerViewState = view.findViewById(R.id.playlists_recycler_state);
 
-       mAuth = FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         database_ref = database.getReference();
 
-       fab.setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View v) {
-               openDialog();
-           }
-       });
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openDialog();
+            }
+        });
 
-       initalizeList();
+        initalizeList();
 
 
-
-       return view;
+        return view;
     }
 
     private void initalizeList() {
@@ -94,7 +85,7 @@ private PlaylistsFragmentAdapter adapter;
         database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot dataSnapshot: snapshot.getChildren()){
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Playlist playlist = new Playlist();
                     playlist.setTitle(dataSnapshot.child("title").getValue().toString());
                     playlist.setDescription(dataSnapshot.child("description").getValue().toString());
@@ -122,7 +113,7 @@ private PlaylistsFragmentAdapter adapter;
     private void openDialog() {
 
 
-       dialog = new Dialog(getContext(), R.style.Theme_AltasNotas);
+        dialog = new Dialog(getContext(), R.style.Theme_AltasNotas);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCanceledOnTouchOutside(true);
@@ -139,7 +130,6 @@ private PlaylistsFragmentAdapter adapter;
         accept = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_accept_btn);
 
 
-
         cancel.setOnClickListener(v -> dialog.dismiss());
 
 
@@ -149,40 +139,40 @@ private PlaylistsFragmentAdapter adapter;
 
     }
 
-    private void validInput(String name ,String desc) {
+    private void validInput(String name, String desc) {
         name = name.trim();
         desc = desc.trim();
 
 
-        if(name.isEmpty() && desc.isEmpty()){
-            Toast.makeText(getContext(), "Both fields are empty.\nPlease fill data.",Toast.LENGTH_SHORT).show();
-        }else{
-            if(name.isEmpty() || desc.isEmpty()){
-                if(name.isEmpty()){
-                    Toast.makeText(getContext(), "Name is empty.\nPlease fill data.",Toast.LENGTH_SHORT).show();
+        if (name.isEmpty() && desc.isEmpty()) {
+            Toast.makeText(getContext(), "Both fields are empty.\nPlease fill data.", Toast.LENGTH_SHORT).show();
+        } else {
+            if (name.isEmpty() || desc.isEmpty()) {
+                if (name.isEmpty()) {
+                    Toast.makeText(getContext(), "Name is empty.\nPlease fill data.", Toast.LENGTH_SHORT).show();
                 }
 
-                if(desc.isEmpty()){
-                    Toast.makeText(getContext(), "Description is empty.\nPlease fill data.",Toast.LENGTH_SHORT).show();
+                if (desc.isEmpty()) {
+                    Toast.makeText(getContext(), "Description is empty.\nPlease fill data.", Toast.LENGTH_SHORT).show();
                 }
-            }else{
-                name = name.substring(0,1).toUpperCase() + name.substring(1).toLowerCase();
-                desc = desc.substring(0,1).toUpperCase() + desc.substring(1).toLowerCase();
+            } else {
+                name = name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
+                desc = desc.substring(0, 1).toUpperCase() + desc.substring(1).toLowerCase();
                 String finalName = name;
                 String finalDesc = desc;
                 database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if(snapshot!=null){
-                            int x= (int) snapshot.getChildrenCount();
-                            for(DataSnapshot ds: snapshot.getChildren()){
-                                if(ds.child("title").getValue().toString().trim().equals(finalName)){
+                        if (snapshot != null) {
+                            int x = (int) snapshot.getChildrenCount();
+                            for (DataSnapshot ds : snapshot.getChildren()) {
+                                if (ds.child("title").getValue().toString().trim().equals(finalName)) {
                                     x--;
-                                    Toast.makeText(requireContext(), "Playlist exist with same title!",Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(requireContext(), "Playlist exist with same title!", Toast.LENGTH_SHORT).show();
                                 }
                             }
 
-                            if(x ==snapshot.getChildrenCount()){
+                            if (x == snapshot.getChildrenCount()) {
                                 dialog.dismiss();
                                 createPlaylist(finalName, finalDesc);
                             }
@@ -199,9 +189,9 @@ private PlaylistsFragmentAdapter adapter;
         }
     }
 
-    private void createPlaylist(String name ,String desc) {
+    private void createPlaylist(String name, String desc) {
 
-          Playlist playlist = new Playlist();
+        Playlist playlist = new Playlist();
 
         playlist.setTitle(name);
         playlist.setAlbum(false);
@@ -213,19 +203,19 @@ private PlaylistsFragmentAdapter adapter;
         database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).setValue(playlist).addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                if(!task.isSuccessful()){
-                  Toast.makeText(getContext(), "Error while adding Playlist.",Toast.LENGTH_SHORT).show();
-                }else{
+                if (!task.isSuccessful()) {
+                    Toast.makeText(getContext(), "Error while adding Playlist.", Toast.LENGTH_SHORT).show();
+                } else {
                     database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).child("isAlbum").setValue(playlist.isAlbum()).addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            if(task.isSuccessful()){
+                            if (task.isSuccessful()) {
                                 database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).child("album").removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
-                                        if(task.isSuccessful()){
+                                        if (task.isSuccessful()) {
                                             adapter.notifyDataSetChanged();
-                                            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment( name,"",playlist, 0)).commit();
+                                            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(name, "", playlist, 0)).commit();
                                         }
                                     }
                                 });
@@ -236,5 +226,5 @@ private PlaylistsFragmentAdapter adapter;
                 }
             }
         });
-          }
+    }
 }

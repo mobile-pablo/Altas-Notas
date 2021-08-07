@@ -37,24 +37,24 @@ public class ChoosePlaylistAdapter extends RecyclerView.Adapter<ChoosePlaylistAd
     private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
     private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    ArrayList<String> titles,keys;
+    ArrayList<String> titles, keys;
     private MainActivity mainActivity;
     private BottomSheetDialog choosePlaylistDialog;
     private Song song;
-    public ChoosePlaylistAdapter(MainActivity mainActivity,BottomSheetDialog choosePlaylistDialog,Song song,  ArrayList<String> titles, ArrayList<String> keys) {
-        this.mainActivity =mainActivity;
-        this.choosePlaylistDialog=choosePlaylistDialog;
-        this.song=song;
+
+    public ChoosePlaylistAdapter(MainActivity mainActivity, BottomSheetDialog choosePlaylistDialog, Song song, ArrayList<String> titles, ArrayList<String> keys) {
+        this.mainActivity = mainActivity;
+        this.choosePlaylistDialog = choosePlaylistDialog;
+        this.song = song;
         this.titles = titles;
         this.keys = keys;
     }
 
 
-
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ChoosePlaylistAdapter.MyViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.choose_playlist_row, parent,false));
+        return new ChoosePlaylistAdapter.MyViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.choose_playlist_row, parent, false));
     }
 
     @Override
@@ -67,19 +67,19 @@ public class ChoosePlaylistAdapter extends RecyclerView.Adapter<ChoosePlaylistAd
         storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + keys.get(position)).getDownloadUrl().addOnCompleteListener(mainActivity, new OnCompleteListener<Uri>() {
             @Override
             public void onComplete(@NonNull Task<Uri> task) {
-                if(task.isSuccessful()){
+                if (task.isSuccessful()) {
                     holder.image.setVisibility(View.VISIBLE);
-                    Glide.with(mainActivity).load(task.getResult()).apply(RequestOptions.centerCropTransform()).override(holder.image.getWidth(),holder.image.getWidth()).into(holder.image);
-                }else{
+                    Glide.with(mainActivity).load(task.getResult()).apply(RequestOptions.centerCropTransform()).override(holder.image.getWidth(), holder.image.getWidth()).into(holder.image);
+                } else {
                     holder.image.setVisibility(View.VISIBLE);
-                    Glide.with(mainActivity.getApplicationContext()).load(R.drawable.img_not_found).apply(RequestOptions.centerCropTransform()).override(holder.image.getWidth(),holder.image.getWidth()).into(holder.image);
+                    Glide.with(mainActivity.getApplicationContext()).load(R.drawable.img_not_found).apply(RequestOptions.centerCropTransform()).override(holder.image.getWidth(), holder.image.getWidth()).into(holder.image);
                     Log.d("Error while loading photo", "Firebase");
                 }
             }
         });
 
 
-        holder.linearLayout.setOnClickListener(v->{
+        holder.linearLayout.setOnClickListener(v -> {
             addToPlaylist(song, keys.get(position));
             choosePlaylistDialog.dismiss();
         });
@@ -96,29 +96,27 @@ public class ChoosePlaylistAdapter extends RecyclerView.Adapter<ChoosePlaylistAd
         databaseReference.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                int x= (int) snapshot.getChildrenCount();
-                    for (DataSnapshot ds: snapshot.child("songs").getChildren()){
-                        if(ds.child("numberInAlbum").getValue().toString().trim().equals(favoriteFirebaseSong.getNumberInAlbum().toString().trim())
-                                &&
-                                ds.child("album").getValue().toString().trim().equals(favoriteFirebaseSong.getAlbum().trim())
-                                &&
-                                ds.child("author").getValue().toString().trim().equals(favoriteFirebaseSong.getAuthor().trim())
-                        ){
-                            x--;
-                        }
+                int x = (int) snapshot.getChildrenCount();
+                for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
+                    if (ds.child("numberInAlbum").getValue().toString().trim().equals(favoriteFirebaseSong.getNumberInAlbum().toString().trim())
+                            &&
+                            ds.child("album").getValue().toString().trim().equals(favoriteFirebaseSong.getAlbum().trim())
+                            &&
+                            ds.child("author").getValue().toString().trim().equals(favoriteFirebaseSong.getAuthor().trim())
+                    ) {
+                        x--;
                     }
+                }
 
 
-
-
-                if(x!=snapshot.getChildrenCount()){
+                if (x != snapshot.getChildrenCount()) {
                     Toast.makeText(mainActivity, "This song already exist in this Playlist", Toast.LENGTH_SHORT).show();
-                }else{
+                } else {
                     databaseReference.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).child("songs").child(push_key).setValue(favoriteFirebaseSong).addOnCompleteListener(mainActivity, new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            if(!task.isSuccessful()){
-                             Log.d("Error while adding Song to Playlist", "FirebaseDatabase");
+                            if (!task.isSuccessful()) {
+                                Log.d("Error while adding Song to Playlist", "FirebaseDatabase");
                             }
                         }
                     });
@@ -130,7 +128,7 @@ public class ChoosePlaylistAdapter extends RecyclerView.Adapter<ChoosePlaylistAd
 
             }
         });
-      }
+    }
 
     @Override
     public int getItemCount() {
@@ -151,7 +149,6 @@ public class ChoosePlaylistAdapter extends RecyclerView.Adapter<ChoosePlaylistAd
             linearLayout = itemView.findViewById(R.id.choose_playlist_row_box);
         }
     }
-
 
 
 }

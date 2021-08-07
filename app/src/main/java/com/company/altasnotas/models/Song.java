@@ -3,8 +3,6 @@ package com.company.altasnotas.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.Date;
-
 public class Song implements Parcelable {
     //Song isnt on their own objects.Its object connected to array of songs for playlist
 
@@ -17,11 +15,11 @@ public class Song implements Parcelable {
 
     private Integer order;
 
-    public Song(String author, String album, String title, String path, String image_url, Integer order){
-        this.author=author;
-        this.album=album;
-        this.title=title;
-        this.path=path;
+    public Song(String author, String album, String title, String path, String image_url, Integer order) {
+        this.author = author;
+        this.album = album;
+        this.title = title;
+        this.path = path;
         this.image_url = image_url;
         this.order = order;
     }
@@ -89,9 +87,14 @@ public class Song implements Parcelable {
     }
 
 
-    public Integer getOrder() { return order; }
+    public Integer getOrder() {
+        return order;
+    }
 
-    public void setOrder(Integer order) { this.order = order; }
+    public void setOrder(Integer order) {
+        this.order = order;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -99,12 +102,12 @@ public class Song implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-    dest.writeString(author);
-    dest.writeString(album);
-    dest.writeString(title);
-    dest.writeString(path);
-    dest.writeString(image_url);
-    dest.writeInt(order);
+        dest.writeString(author);
+        dest.writeString(album);
+        dest.writeString(title);
+        dest.writeString(path);
+        dest.writeString(image_url);
+        dest.writeInt(order);
     }
 
     private Long dateTime;

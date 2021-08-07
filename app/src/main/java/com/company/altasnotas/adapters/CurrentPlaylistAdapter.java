@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -38,61 +37,62 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylistAdapter.MyViewHolder> {
-private final Playlist playlist;
-private final MainActivity activity;
-private final ArrayList<Song> songs;
-private final Integer isFavFragment;
-private  DatabaseReference database_ref = FirebaseDatabase.getInstance().getReference();
-private    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private final Playlist playlist;
+    private final MainActivity activity;
+    private final ArrayList<Song> songs;
+    private final Integer isFavFragment;
+    private DatabaseReference database_ref = FirebaseDatabase.getInstance().getReference();
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
 
     private BottomSheetDialog bottomSheetDialog;
     private BottomSheetDialog choosePlaylistDialog;
-    public CurrentPlaylistAdapter(MainActivity activity, Playlist playlist, Integer isFavFragment){
-        this.playlist=playlist;
-        songs =playlist.getSongs();
-        this.activity =activity;
-        this.isFavFragment=isFavFragment;
 
-if(activity!=null){
+    public CurrentPlaylistAdapter(MainActivity activity, Playlist playlist, Integer isFavFragment) {
+        this.playlist = playlist;
+        songs = playlist.getSongs();
+        this.activity = activity;
+        this.isFavFragment = isFavFragment;
 
-    Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-    if(currentFragment instanceof FavoritesFragment){
-        FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
-        if(playlist.getSongs().size()==0){
-            favoritesFragment.recyclerView.setVisibility(View.GONE);
-            favoritesFragment.fav_state.setText("Empty Playlist");
-            favoritesFragment.fav_state.setVisibility(View.VISIBLE);
-        }else{
-            favoritesFragment.recyclerView.setVisibility(View.VISIBLE);
-            favoritesFragment.fav_state.setVisibility(View.GONE);
+        if (activity != null) {
+
+            Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+            if (currentFragment instanceof FavoritesFragment) {
+                FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
+                if (playlist.getSongs().size() == 0) {
+                    favoritesFragment.recyclerView.setVisibility(View.GONE);
+                    favoritesFragment.fav_state.setText("Empty Playlist");
+                    favoritesFragment.fav_state.setVisibility(View.VISIBLE);
+                } else {
+                    favoritesFragment.recyclerView.setVisibility(View.VISIBLE);
+                    favoritesFragment.fav_state.setVisibility(View.GONE);
+                }
+
+            }
         }
-
-    }
-}
     }
 
 
-
-    public class MyViewHolder extends RecyclerView.ViewHolder{
-        TextView currentTitle,currentAuthor;
+    public class MyViewHolder extends RecyclerView.ViewHolder {
+        TextView currentTitle, currentAuthor;
         ImageButton currentFav_btn, currentSettings_btn;
         ImageView photo;
         ConstraintLayout currentBox;
         DatabaseReference databaseReference;
         FirebaseAuth mAuth;
+
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
-           currentTitle = itemView.findViewById(R.id.current_playlist_row_title);
-           currentAuthor = itemView.findViewById(R.id.current_playlist_row_author);
-           currentFav_btn = itemView.findViewById(R.id.current_playlist_row_fav);
-           currentSettings_btn = itemView.findViewById(R.id.current_playlist_row_settings);
+            currentTitle = itemView.findViewById(R.id.current_playlist_row_title);
+            currentAuthor = itemView.findViewById(R.id.current_playlist_row_author);
+            currentFav_btn = itemView.findViewById(R.id.current_playlist_row_fav);
+            currentSettings_btn = itemView.findViewById(R.id.current_playlist_row_settings);
 
-           photo = itemView.findViewById(R.id.current_playlist_row_img);
-           currentBox = itemView.findViewById(R.id.current_playlist_row_box);
+            photo = itemView.findViewById(R.id.current_playlist_row_img);
+            currentBox = itemView.findViewById(R.id.current_playlist_row_box);
 
-           databaseReference = FirebaseDatabase.getInstance().getReference();
-           mAuth=FirebaseAuth.getInstance();
+            databaseReference = FirebaseDatabase.getInstance().getReference();
+            mAuth = FirebaseAuth.getInstance();
         }
     }
 
@@ -100,7 +100,7 @@ if(activity!=null){
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new MyViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.current_playlist_row, parent,false));
+        return new MyViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.current_playlist_row, parent, false));
     }
 
     @Override
@@ -112,7 +112,7 @@ if(activity!=null){
 
         holder.currentBox.setOnClickListener(v -> {
             PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0);
-             activity.getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment).addToBackStack(null).commit();
+            activity.getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment).addToBackStack(null).commit();
 
         });
 
@@ -121,81 +121,78 @@ if(activity!=null){
                 .child(holder.mAuth.getCurrentUser().getUid())
                 .orderByKey()
                 .addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot!=null){
-                    Song mySong = songs.get(position);
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot != null) {
+                            Song mySong = songs.get(position);
 
-                    for(DataSnapshot ds: snapshot.getChildren()){
-
-
-                        if(
-                                ds.child("album").getValue().equals(mySong.getAlbum())
-                                &&
-                                ds.child("author").getValue().equals(mySong.getAuthor())
-                        )
-                        {
-                              //Same album and Author now we check song title
-                            holder.databaseReference
-                                    .child("music")
-                                    .child("albums")
-                                    .child(mySong.getAuthor())
-                                    .child(mySong.getAlbum())
-                                    .addListenerForSingleValueEvent(new ValueEventListener() {
-
-                                            @Override
-                                            public void onDataChange(@NonNull DataSnapshot snap) {
-
-                                           //    holder.currentAuthor.setText(snap.child("description").getValue().toString());
-                                                  for(DataSnapshot s: snap.child("songs").getChildren()){
-
-                                                       if(
-                                                               s.child("order").getValue().toString().trim().equals(ds.child("numberInAlbum").getValue().toString().trim())
-                                                               &&
-                                                               s.child("title").getValue().equals(mySong.getTitle())
-                                                       ){
-                                                     //We found a song in Album and We need to set icon
-                                                    holder.currentFav_btn.setImageResource(R.drawable.ic_heart_full);
+                            for (DataSnapshot ds : snapshot.getChildren()) {
 
 
+                                if (
+                                        ds.child("album").getValue().equals(mySong.getAlbum())
+                                                &&
+                                                ds.child("author").getValue().equals(mySong.getAuthor())
+                                ) {
+                                    //Same album and Author now we check song title
+                                    holder.databaseReference
+                                            .child("music")
+                                            .child("albums")
+                                            .child(mySong.getAuthor())
+                                            .child(mySong.getAlbum())
+                                            .addListenerForSingleValueEvent(new ValueEventListener() {
 
-                                                 }
-                                             }
+                                                @Override
+                                                public void onDataChange(@NonNull DataSnapshot snap) {
 
-                                            }
+                                                    //    holder.currentAuthor.setText(snap.child("description").getValue().toString());
+                                                    for (DataSnapshot s : snap.child("songs").getChildren()) {
 
-                                            @Override
-                                            public void onCancelled(@NonNull DatabaseError error) {
+                                                        if (
+                                                                s.child("order").getValue().toString().trim().equals(ds.child("numberInAlbum").getValue().toString().trim())
+                                                                        &&
+                                                                        s.child("title").getValue().equals(mySong.getTitle())
+                                                        ) {
+                                                            //We found a song in Album and We need to set icon
+                                                            holder.currentFav_btn.setImageResource(R.drawable.ic_heart_full);
 
-                                            }
-                            });
+
+                                                        }
+                                                    }
+
+                                                }
+
+                                                @Override
+                                                public void onCancelled(@NonNull DatabaseError error) {
+
+                                                }
+                                            });
+                                }
+                            }
+
                         }
                     }
 
-                }
-            }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+                    }
+                });
 
 
         holder.currentFav_btn.setOnClickListener(v -> {
             if (holder.currentFav_btn.getDrawable().getConstantState().equals(holder.currentFav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
-                addToFav(position,holder.currentFav_btn);
+                addToFav(position, holder.currentFav_btn);
             } else {
-                removeFromFav(position,holder.currentFav_btn);
+                removeFromFav(position, holder.currentFav_btn);
             }
         });
 
         holder.currentSettings_btn.setOnClickListener(v -> {
-            if(isFavFragment!=0)
-            {
-            openSongSettingDialog(position, holder);
-            }else{
-                openPlaylistSongSettingsDialog(position,holder);
+            if (isFavFragment != 0) {
+                openSongSettingDialog(position, holder);
+            } else {
+                openPlaylistSongSettingsDialog(position, holder);
             }
         });
 
@@ -211,15 +208,11 @@ if(activity!=null){
             }
         });
 
-        if(playlist.isAlbum()){
+        if (playlist.isAlbum()) {
             holder.photo.setVisibility(View.INVISIBLE);
-        }else{
+        } else {
             Glide.with(activity.getApplicationContext()).load(songs.get(position).getImage_url()).into(holder.photo);
         }
-
-
-
-
 
 
     }
@@ -230,28 +223,27 @@ if(activity!=null){
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                for(DataSnapshot firebaseFav: snapshot.getChildren()){
+                for (DataSnapshot firebaseFav : snapshot.getChildren()) {
 
-                     if
+                    if
                     (
-                       playlist.getSongs().get(position).getOrder().toString().trim().equals(firebaseFav.child("numberInAlbum").getValue().toString().trim())
-                            &&
-                       firebaseFav.child("album").getValue().toString().trim().equals(playlist.getSongs().get(position).getAlbum().trim())
-                    )
-                    {
+                            playlist.getSongs().get(position).getOrder().toString().trim().equals(firebaseFav.child("numberInAlbum").getValue().toString().trim())
+                                    &&
+                                    firebaseFav.child("album").getValue().toString().trim().equals(playlist.getSongs().get(position).getAlbum().trim())
+                    ) {
                         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(firebaseFav.getKey()).removeValue().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
-                                if(task.isSuccessful()){
+                                if (task.isSuccessful()) {
                                     fav_btn.setImageResource(R.drawable.ic_heart_empty);
 
                                     Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-                                    if(currentFragment instanceof FavoritesFragment){
+                                    if (currentFragment instanceof FavoritesFragment) {
                                         FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
                                         playlist.getSongs().remove(playlist.getSongs().get(position));
                                         notifyDataSetChanged();
-                                    //    activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();
-                                        if(playlist.getSongs().size()==0){
+                                        //    activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();
+                                        if (playlist.getSongs().size() == 0) {
                                             favoritesFragment.recyclerView.setVisibility(View.GONE);
                                             favoritesFragment.fav_state.setText("Empty Playlist");
                                             favoritesFragment.fav_state.setVisibility(View.VISIBLE);
@@ -282,13 +274,13 @@ if(activity!=null){
                 .child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot dataSnapshot: snapshot.child("songs").getChildren()){
-                   if( dataSnapshot.child("title").getValue().equals(playlist.getSongs().get(position).getTitle())){
-                       database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("numberInAlbum").setValue(dataSnapshot.child("order").getValue().toString());
-                       database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("album").setValue(playlist.getSongs().get(position).getAlbum());
-                       database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("author").setValue(playlist.getSongs().get(position).getAuthor());
-                       fav_btn.setImageResource(R.drawable.ic_heart_full);
-                   }
+                for (DataSnapshot dataSnapshot : snapshot.child("songs").getChildren()) {
+                    if (dataSnapshot.child("title").getValue().equals(playlist.getSongs().get(position).getTitle())) {
+                        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("numberInAlbum").setValue(dataSnapshot.child("order").getValue().toString());
+                        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("album").setValue(playlist.getSongs().get(position).getAlbum());
+                        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("author").setValue(playlist.getSongs().get(position).getAuthor());
+                        fav_btn.setImageResource(R.drawable.ic_heart_full);
+                    }
                 }
             }
 
@@ -310,13 +302,12 @@ if(activity!=null){
         bottomSheetDialog.setContentView(R.layout.bottom_playlist_song_settings_layout);
 
         LinearLayout showAlbum = bottomSheetDialog.findViewById(R.id.bottom_settings_album_box);
-        LinearLayout   share = bottomSheetDialog.findViewById(R.id.bottom_settings_share_box);
-        LinearLayout   delete = bottomSheetDialog.findViewById(R.id.bottom_settings_delete_box);
-        LinearLayout  dismissDialog = bottomSheetDialog.findViewById(R.id.bottom_settings_dismiss_box);
+        LinearLayout share = bottomSheetDialog.findViewById(R.id.bottom_settings_share_box);
+        LinearLayout delete = bottomSheetDialog.findViewById(R.id.bottom_settings_delete_box);
+        LinearLayout dismissDialog = bottomSheetDialog.findViewById(R.id.bottom_settings_dismiss_box);
 
 
-
-        showAlbum.setOnClickListener(v->{
+        showAlbum.setOnClickListener(v -> {
             //Shows album
             //Download playlist
             Playlist x = new Playlist();
@@ -325,7 +316,7 @@ if(activity!=null){
                 database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if(snapshot!=null){
+                        if (snapshot != null) {
                             x.setImage_id(snapshot.child("image_id").getValue().toString());
                             x.setYear(snapshot.child("year").getValue().toString());
                             x.setTitle(snapshot.child("title").getValue().toString());
@@ -333,14 +324,14 @@ if(activity!=null){
                             x.setDir_title(playlist.getSongs().get(position).getAlbum());
                             x.setDir_desc(playlist.getSongs().get(position).getAuthor());
                             bottomSheetDialog.dismiss();
-                            activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(),playlist.getSongs().get(position).getAlbum(),x, 1)).addToBackStack("null").commit();
+                            activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
 
                         }
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        android.util.Log.d("Error: "+error.getMessage(),"FirebaseDatabase");
+                        android.util.Log.d("Error: " + error.getMessage(), "FirebaseDatabase");
                     }
 
                 });
@@ -349,13 +340,13 @@ if(activity!=null){
             }
         });
 
-        share.setOnClickListener(v ->{
+        share.setOnClickListener(v -> {
             share(position);
             bottomSheetDialog.dismiss();
         });
 
-        delete.setOnClickListener(v ->{
-           deleteSongFromPlaylist(position,holder);
+        delete.setOnClickListener(v -> {
+            deleteSongFromPlaylist(position, holder);
             bottomSheetDialog.dismiss();
         });
         dismissDialog.setOnClickListener(v -> bottomSheetDialog.dismiss());
@@ -367,39 +358,39 @@ if(activity!=null){
         database_ref.child("music").child("playlists").child(mAuth.getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot ds : snapshot.getChildren()){
-                    if(
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    if (
                             playlist.getTitle().trim().equals(ds.child("title").getValue().toString().trim())
-                            &&
-                            playlist.getDescription().equals(ds.child("description").getValue().toString().trim())
-                    ){
+                                    &&
+                                    playlist.getDescription().equals(ds.child("description").getValue().toString().trim())
+                    ) {
 
 
                         String playlist_key = ds.getKey();
-                        for(DataSnapshot da : ds.child("songs").getChildren()){
-                            if(playlist.getSongs().get(position).getOrder().toString().trim().equals(da.child("numberInAlbum").getValue().toString().trim())
+                        for (DataSnapshot da : ds.child("songs").getChildren()) {
+                            if (playlist.getSongs().get(position).getOrder().toString().trim().equals(da.child("numberInAlbum").getValue().toString().trim())
                                     &&
                                     playlist.getSongs().get(position).getAuthor().toString().trim().equals(da.child("author").getValue().toString().trim())
                                     &&
                                     playlist.getSongs().get(position).getAlbum().toString().trim().equals(da.child("album").getValue().toString().trim())
-                            ){
-                                String song_key =da.getKey();
-                                 database_ref.child("music").child("playlists").child(mAuth.getUid()).child(playlist_key).child("songs").child(song_key).removeValue().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+                            ) {
+                                String song_key = da.getKey();
+                                database_ref.child("music").child("playlists").child(mAuth.getUid()).child(playlist_key).child("songs").child(song_key).removeValue().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
-                                        if(task.isSuccessful()){
+                                        if (task.isSuccessful()) {
                                             Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-                                            if(currentFragment instanceof CurrentPlaylistFragment){
+                                            if (currentFragment instanceof CurrentPlaylistFragment) {
                                                 CurrentPlaylistFragment currentPlaylistFragment = (CurrentPlaylistFragment) currentFragment;
                                                 playlist.getSongs().remove(playlist.getSongs().get(position));
                                                 notifyDataSetChanged();
-                                                if(playlist.getSongs().size()==0){
+                                                if (playlist.getSongs().size() == 0) {
                                                     currentPlaylistFragment.recyclerView.setVisibility(View.GONE);
                                                     currentPlaylistFragment.recyclerViewState.setText("Empty Playlist");
                                                     currentPlaylistFragment.recyclerViewState.setVisibility(View.VISIBLE);
                                                 }
-                                                }
-                                        }else{
+                                            }
+                                        } else {
                                             System.out.println("COULDN'T DELETED SONG");
                                         }
                                     }
@@ -422,11 +413,11 @@ if(activity!=null){
         bottomSheetDialog.setContentView(R.layout.bottom_song_settings_layout);
 
         LinearLayout showAlbum = bottomSheetDialog.findViewById(R.id.bottom_settings_album_box);
-        LinearLayout  addToPlaylist = bottomSheetDialog.findViewById(R.id.bottom_settings_playlists_box);
-        LinearLayout   share = bottomSheetDialog.findViewById(R.id.bottom_settings_share_box);
-        LinearLayout  dismissDialog = bottomSheetDialog.findViewById(R.id.bottom_settings_dismiss_box);
+        LinearLayout addToPlaylist = bottomSheetDialog.findViewById(R.id.bottom_settings_playlists_box);
+        LinearLayout share = bottomSheetDialog.findViewById(R.id.bottom_settings_share_box);
+        LinearLayout dismissDialog = bottomSheetDialog.findViewById(R.id.bottom_settings_dismiss_box);
 
-        showAlbum.setOnClickListener(v->{
+        showAlbum.setOnClickListener(v -> {
             //Shows album
             //Download playlist
             Playlist x = new Playlist();
@@ -435,7 +426,7 @@ if(activity!=null){
                 database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if(snapshot!=null){
+                        if (snapshot != null) {
                             x.setImage_id(snapshot.child("image_id").getValue().toString());
                             x.setYear(snapshot.child("year").getValue().toString());
                             x.setTitle(snapshot.child("title").getValue().toString());
@@ -443,14 +434,14 @@ if(activity!=null){
                             x.setDir_title(playlist.getSongs().get(position).getAlbum());
                             x.setDir_desc(playlist.getSongs().get(position).getAuthor());
                             bottomSheetDialog.dismiss();
-                            activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(),playlist.getSongs().get(position).getAlbum(),x, 1)).addToBackStack("null").commit();
+                            activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
 
                         }
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        android.util.Log.d("Error: "+error.getMessage(),"FirebaseDatabase");
+                        android.util.Log.d("Error: " + error.getMessage(), "FirebaseDatabase");
                     }
 
                 });
@@ -460,10 +451,10 @@ if(activity!=null){
         });
         addToPlaylist.setOnClickListener(v -> {
             //Add to playlist
-            addToPlaylist(position,holder);
+            addToPlaylist(position, holder);
             bottomSheetDialog.dismiss();
         });
-        share.setOnClickListener(v ->{
+        share.setOnClickListener(v -> {
             share(position);
             bottomSheetDialog.dismiss();
         });
@@ -472,34 +463,33 @@ if(activity!=null){
         bottomSheetDialog.show();
     }
 
-    private void addToPlaylist(Integer position,MyViewHolder holder) {
-        choosePlaylistDialog= new BottomSheetDialog(holder.itemView.getContext());
+    private void addToPlaylist(Integer position, MyViewHolder holder) {
+        choosePlaylistDialog = new BottomSheetDialog(holder.itemView.getContext());
         choosePlaylistDialog.setContentView(R.layout.choose_playlist_dialog);
 
-        RecyclerView  chooseRecyclerView =  choosePlaylistDialog.findViewById(R.id.choose_playlist_recycler_view);
+        RecyclerView chooseRecyclerView = choosePlaylistDialog.findViewById(R.id.choose_playlist_recycler_view);
         ArrayList<String> playlists_titles = new ArrayList<>();
-        ArrayList<String>  playlists_keys = new ArrayList<>();
+        ArrayList<String> playlists_keys = new ArrayList<>();
 
 
         database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                int x= 0;
-                for(DataSnapshot playlistSnapshot: snapshot.getChildren()){
+                int x = 0;
+                for (DataSnapshot playlistSnapshot : snapshot.getChildren()) {
                     x++;
                     playlists_titles.add(playlistSnapshot.child("title").getValue().toString());
                     playlists_keys.add(playlistSnapshot.getKey());
                 }
 
-                if(x==snapshot.getChildrenCount()){
+                if (x == snapshot.getChildrenCount()) {
 
-                    ChoosePlaylistAdapter choosePlaylistAdapter = new ChoosePlaylistAdapter(activity,choosePlaylistDialog,playlist.getSongs().get(position),  playlists_titles, playlists_keys);
+                    ChoosePlaylistAdapter choosePlaylistAdapter = new ChoosePlaylistAdapter(activity, choosePlaylistDialog, playlist.getSongs().get(position), playlists_titles, playlists_keys);
                     chooseRecyclerView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext(), LinearLayoutManager.VERTICAL, false));
                     choosePlaylistAdapter.notifyDataSetChanged();
                     chooseRecyclerView.setAdapter(choosePlaylistAdapter);
                 }
-
 
 
             }
@@ -519,8 +509,8 @@ if(activity!=null){
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
         shareIntent.putExtra(android.content.Intent.EXTRA_TITLE, "Altas Notas");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, "My favorite Song is \""+ playlist.getSongs().get(position).getTitle() +"\" from \""+ playlist.getSongs().get(position).getAuthor() +"\".\nListen this on \"Altas Notas\".\nExternal Link: [ "+playlist.getSongs().get(position).getPath()+" ]");
-       activity.startActivity(Intent.createChooser(shareIntent,"Share using"));
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "My favorite Song is \"" + playlist.getSongs().get(position).getTitle() + "\" from \"" + playlist.getSongs().get(position).getAuthor() + "\".\nListen this on \"Altas Notas\".\nExternal Link: [ " + playlist.getSongs().get(position).getPath() + " ]");
+        activity.startActivity(Intent.createChooser(shareIntent, "Share using"));
         activity.startActivity(shareIntent);
 
     }

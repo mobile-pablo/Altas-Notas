@@ -1,17 +1,13 @@
 package com.company.altasnotas.fragments.profile;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -22,7 +18,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,7 +25,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 import com.bumptech.glide.Glide;
@@ -38,41 +32,29 @@ import com.bumptech.glide.request.RequestOptions;
 import com.canhub.cropper.CropImage;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
-import com.company.altasnotas.models.User;
-import com.company.altasnotas.viewmodels.LoginFragmentViewModel;
 import com.company.altasnotas.viewmodels.ProfileFragmentViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
-import static com.company.altasnotas.viewmodels.ProfileFragmentViewModel.compressImage;
 
 
 public class ProfileFragment extends Fragment {
     private DatabaseReference database_ref;
-    final int PIC_CROP = 1;
     private final FirebaseStorage storage = FirebaseStorage.getInstance("gs://altas-notas.appspot.com");
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
@@ -235,7 +217,6 @@ public class ProfileFragment extends Fragment {
       return view;
     }
 
-
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -257,7 +238,7 @@ public class ProfileFragment extends Fragment {
                     compressImgRotated = getResizedBitmap(compressImgRotated,300);
                     compressImgRotated.compress(Bitmap.CompressFormat.PNG, 100, bao);
 
-                    Glide.with(requireActivity()).load(compressImgRotated).apply(RequestOptions.centerCropTransform()).into(profile_img);
+                    Glide.with(requireActivity()).load(compressImgRotated).apply(RequestOptions.centerCropTransform()).error(R.drawable.img_not_found).into(profile_img);
 
                     byte[] byteArray = bao.toByteArray();
 
@@ -290,7 +271,8 @@ public class ProfileFragment extends Fragment {
             }
         }
     }
-        private static Bitmap rotateImageIfRequired(Context context, Bitmap img, Uri selectedImage) throws IOException {
+
+    private static Bitmap rotateImageIfRequired(Context context, Bitmap img, Uri selectedImage) throws IOException {
 
             InputStream input = context.getContentResolver().openInputStream(selectedImage);
             ExifInterface ei;
@@ -312,15 +294,13 @@ public class ProfileFragment extends Fragment {
                     return img;
             }
         }
-
-        private static Bitmap rotateImage(Bitmap img, int degree) {
+    private static Bitmap rotateImage(Bitmap img, int degree) {
             Matrix matrix = new Matrix();
             matrix.postRotate(degree);
             Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
             img.recycle();
             return rotatedImg;
         }
-
     public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
         int width = image.getWidth();
         int height = image.getHeight();

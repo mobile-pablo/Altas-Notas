@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.bumptech.glide.Glide;
 import com.company.altasnotas.MainActivity;
+import com.company.altasnotas.R;
 import com.company.altasnotas.models.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -32,7 +33,6 @@ import java.io.InputStream;
 
 public class ProfileFragmentViewModel extends ViewModel {
     /**
-     *
      * Two functions below are copied from : https://programming.vip/docs/android-uri-to-bitmap-image-and-compress.html
      * It helps me compress the photo to 5 times worse quality than the original (5MB -> 1MB)
      */
@@ -71,6 +71,7 @@ public class ProfileFragmentViewModel extends ViewModel {
 
         return compressImage(bitmap);//Mass compression again
     }
+
     public static Bitmap compressImage(Bitmap image) {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -80,9 +81,9 @@ public class ProfileFragmentViewModel extends ViewModel {
             baos.reset();//Reset the BIOS to clear it
             //First parameter: picture format, second parameter: picture quality, 100 is the highest, 0 is the worst, third parameter: save the compressed data stream
             image.compress(Bitmap.CompressFormat.JPEG, options, baos);//Here, the compression options are used to store the compressed data in the BIOS
-            if(options>=30){
-            options -= 10;//10 less each time
-                }else{
+            if (options >= 30) {
+                options -= 10;//10 less each time
+            } else {
                 ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//Store the compressed data in ByteArrayInputStream
                 Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);//Generate image from ByteArrayInputStream data
                 return bitmap;
@@ -96,12 +97,12 @@ public class ProfileFragmentViewModel extends ViewModel {
 
     public void downloadProfile(MainActivity mainActivity, FirebaseAuth mAuth, DatabaseReference database_ref, FirebaseStorage storage, TextView profile_name, TextView profile_email, EditText age_edit_t, EditText phone_edit_t, EditText address_edit_t, ShapeableImageView profile_img) {
 
-        User localUser = new User("Username","","","","","",0,0,0);
-        if(mAuth.getCurrentUser()!=null){
+        User localUser = new User("Username", "", "", "", "", "", 0, 0, 0);
+        if (mAuth.getCurrentUser() != null) {
             database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if(snapshot.exists()){
+                    if (snapshot.exists()) {
                         localUser.name = snapshot.child("name").getValue().toString();
                         localUser.mail = mAuth.getCurrentUser().getEmail();
                         localUser.age = snapshot.child("age").getValue().toString();
@@ -110,13 +111,13 @@ public class ProfileFragmentViewModel extends ViewModel {
                         localUser.address = snapshot.child("address").getValue().toString();
 
                         profile_email.setText(localUser.mail);
-                        profile_name.setText( localUser.name);
+                        profile_name.setText(localUser.name);
                         age_edit_t.setText(localUser.age);
                         phone_edit_t.setText(localUser.phone);
                         address_edit_t.setText(localUser.address);
 
                         //  Image download
-                      StorageReference storageReference = storage.getReference();
+                        StorageReference storageReference = storage.getReference();
 
                         database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
@@ -124,18 +125,18 @@ public class ProfileFragmentViewModel extends ViewModel {
                                 storageReference.child("images/profiles/" + mAuth.getCurrentUser().getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                     @Override
                                     public void onSuccess(Uri uri) {
-                                        if(mainActivity!=null)
+                                        if (mainActivity != null)
 
-                                            Glide.with(mainActivity.getApplicationContext()).load(uri).into(profile_img);
+                                            Glide.with(mainActivity.getApplicationContext()).load(uri).error(R.drawable.img_not_found).into(profile_img);
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception exception) {
-                                        if((Integer.parseInt(snapshot.child("login_method").getValue().toString()))!=1) {
+                                        if ((Integer.parseInt(snapshot.child("login_method").getValue().toString())) != 1) {
                                             String url = snapshot.child("photoUrl").getValue().toString();
 
-                                            if(mainActivity!=null)
-                                                Glide.with(mainActivity.getApplicationContext()).load(url).into(profile_img);
+                                            if (mainActivity != null)
+                                                Glide.with(mainActivity.getApplicationContext()).load(url).error(R.drawable.img_not_found).into(profile_img);
 
                                             Log.d("Storage exception: " + exception.getLocalizedMessage() + "\nLoad from Page URL instead", "FirebaseStorage");
 
@@ -146,7 +147,7 @@ public class ProfileFragmentViewModel extends ViewModel {
 
                             @Override
                             public void onCancelled(@NonNull DatabaseError error) {
-                                Log.d("DatabaseError: "+error.getMessage(),"FirebaseDatabase");
+                                Log.d("DatabaseError: " + error.getMessage(), "FirebaseDatabase");
                             }
                         });
 
@@ -155,7 +156,7 @@ public class ProfileFragmentViewModel extends ViewModel {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Log.d("FirebaseDatabase error: "+error.getMessage(), "FirebaseDatabase");
+                    Log.d("FirebaseDatabase error: " + error.getMessage(), "FirebaseDatabase");
                 }
             });
 
@@ -165,13 +166,12 @@ public class ProfileFragmentViewModel extends ViewModel {
     public void updateProfile(FirebaseAuth mAuth, DatabaseReference database_ref, TextView profile_name, EditText age_edit_t, EditText phone_edit_t, EditText address_edit_t) {
 
 
-
-        User localUser = new User("Username","","","","","",0,0,0);
-        if(mAuth.getCurrentUser()!=null){
+        User localUser = new User("Username", "", "", "", "", "", 0, 0, 0);
+        if (mAuth.getCurrentUser() != null) {
             database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if(snapshot.exists()){
+                    if (snapshot.exists()) {
                         localUser.name = snapshot.child("name").getValue().toString();
                         localUser.mail = mAuth.getCurrentUser().getEmail();
                         localUser.age = snapshot.child("age").getValue().toString();

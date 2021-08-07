@@ -1,11 +1,11 @@
 package com.company.altasnotas.models;
 
-public class FirebaseSong{
+public class FirebaseSong {
     private Integer order;
     private String path;
     private String title;
 
-    public FirebaseSong(){
+    public FirebaseSong() {
 
     }
 

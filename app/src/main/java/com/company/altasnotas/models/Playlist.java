@@ -14,9 +14,9 @@ public class Playlist implements Parcelable {
     private String dir_title;
     private String dir_desc;
     private boolean isAlbum;
-    private ArrayList <Song> songs;
+    private ArrayList<Song> songs;
 
-    public Playlist(){
+    public Playlist() {
 
     }
 
@@ -83,7 +83,7 @@ public class Playlist implements Parcelable {
     }
 
     public void setAlbum(boolean isAlbum) {
-        this.isAlbum=isAlbum;
+        this.isAlbum = isAlbum;
     }
 
     public String getYear() {
@@ -95,13 +95,21 @@ public class Playlist implements Parcelable {
     }
 
 
-    public String getDir_title() { return dir_title; }
+    public String getDir_title() {
+        return dir_title;
+    }
 
-    public void setDir_title(String dir_title) { this.dir_title = dir_title; }
+    public void setDir_title(String dir_title) {
+        this.dir_title = dir_title;
+    }
 
-    public String getDir_desc() { return dir_desc; }
+    public String getDir_desc() {
+        return dir_desc;
+    }
 
-    public void setDir_desc(String dir_desc) { this.dir_desc = dir_desc; }
+    public void setDir_desc(String dir_desc) {
+        this.dir_desc = dir_desc;
+    }
 
     @Override
     public int describeContents() {

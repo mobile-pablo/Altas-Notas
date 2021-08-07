@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModel;
 
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
-
 import com.company.altasnotas.fragments.home.HomeFragment;
 import com.company.altasnotas.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -26,7 +25,7 @@ public class RegisterFragmentViewModel extends ViewModel {
     DatabaseReference database;
     FirebaseAuth mAuth;
 
-    public void  register(MainActivity activity, String mail, String pass_one, String pass_two) {
+    public void register(MainActivity activity, String mail, String pass_one, String pass_two) {
         if (checkData(activity.getApplicationContext(), mail, pass_one, pass_two)) {
             mAuth = FirebaseAuth.getInstance();
             database = FirebaseDatabase.getInstance().getReference();
@@ -36,7 +35,7 @@ public class RegisterFragmentViewModel extends ViewModel {
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
 
-                        User user = new User("Username", mail, "", "","","",1, 0, 0);
+                        User user = new User("Username", mail, "", "", "", "", 1, 0, 0);
                         /**
                          * Login methods :
                          *  1 - Mail
@@ -52,18 +51,18 @@ public class RegisterFragmentViewModel extends ViewModel {
                                     activity.getSupportFragmentManager().popBackStack();
                                 }
                                 activity.updateUI(mAuth.getCurrentUser());
-                              BottomNavigationView bottomNavigationView =  activity.findViewById(R.id.main_nav_bottom);
-                              bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
-                                Toast.makeText(activity, "Register success",Toast.LENGTH_SHORT).show();
+                                BottomNavigationView bottomNavigationView = activity.findViewById(R.id.main_nav_bottom);
+                                bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
+                                Toast.makeText(activity, "Register success", Toast.LENGTH_SHORT).show();
 
-                                activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new HomeFragment()).commit();
+                                activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment()).commit();
                                 //Walkthrough will be here
                             }
                         });
 
 
-                    }else{
-                        Toast.makeText(activity, "Register error.\nTry another mail",Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(activity, "Register error.\nTry another mail", Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -73,31 +72,29 @@ public class RegisterFragmentViewModel extends ViewModel {
     }
 
 
+    private boolean checkData(Context context, String email, String password, String passwordTwo) {
+        if ((!email.isEmpty()) && (!password.isEmpty()) && (!passwordTwo.isEmpty())) {
 
-    private boolean checkData(Context context,String email, String password, String passwordTwo) {
-        if((!email.isEmpty()) && (!password.isEmpty()) && (!passwordTwo.isEmpty())){
-
-            if(email.length()>10 && password.length()>4 && passwordTwo.length() > 4){
-                if(!password.equals(passwordTwo)){
+            if (email.length() > 10 && password.length() > 4 && passwordTwo.length() > 4) {
+                if (!password.equals(passwordTwo)) {
                     Toast.makeText(context, "Wrong passwords", Toast.LENGTH_SHORT).show();
                     return false;
-                }else{
+                } else {
 
                     Boolean isValidEmail = !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches();
 
-                    if(!isValidEmail){
+                    if (!isValidEmail) {
                         Toast.makeText(context, "Wrong email", Toast.LENGTH_SHORT).show();
                     }
 
                     return isValidEmail;
 
                 }
-            }
-            else {
+            } else {
                 Toast.makeText(context, "Required Length : \nEmail 10+\nPassword 4+", Toast.LENGTH_SHORT).show();
                 return false;
             }
-        }else{
+        } else {
             Toast.makeText(context, "Fill all forms", Toast.LENGTH_SHORT).show();
             return false;
         }

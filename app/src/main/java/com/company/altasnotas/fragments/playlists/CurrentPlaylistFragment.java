@@ -15,17 +15,6 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.appcompat.widget.AppCompatTextView;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.os.StrictMode;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -39,6 +28,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
@@ -46,7 +43,6 @@ import com.canhub.cropper.CropImage;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
-import com.company.altasnotas.adapters.PlaylistsFragmentAdapter;
 import com.company.altasnotas.fragments.home.HomeFragment;
 import com.company.altasnotas.models.FavoriteFirebaseSong;
 import com.company.altasnotas.models.FirebaseSong;
@@ -57,7 +53,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -76,11 +71,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.concurrent.CountDownLatch;
 
 import static android.app.Activity.RESULT_CANCELED;
@@ -103,20 +96,21 @@ public class CurrentPlaylistFragment extends Fragment {
     private Uri returnUri;
     private StorageReference storageReference;
 
-   public TextView recyclerViewState;
+    public TextView recyclerViewState;
     private FloatingActionButton fab;
 
     private ImageView settings_btn;
     private BottomSheetDialog bottomSheetDialog;
 
     private Dialog dialog;
-    private TextView dialog_playlist_name,dialog_playlist_desc;
+    private TextView dialog_playlist_name, dialog_playlist_desc;
+
     @Override
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        
-        View view =  inflater.inflate(R.layout.fragment_current_playlist, container, false);
+
+        View view = inflater.inflate(R.layout.fragment_current_playlist, container, false);
 
         imageView = view.findViewById(R.id.current_playlist_img);
         title = view.findViewById(R.id.current_playlist_title);
@@ -124,59 +118,52 @@ public class CurrentPlaylistFragment extends Fragment {
         fab = view.findViewById(R.id.current_playlist_photo_btn);
         recyclerViewState = view.findViewById(R.id.current_playlist_recycler_state);
 
-        settings_btn =view.findViewById(R.id.current_playlist_settings);
+        settings_btn = view.findViewById(R.id.current_playlist_settings);
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         database_ref = database.getReference();
         storageReference = FirebaseStorage.getInstance().getReference();
 
         title.setText(playlist.getTitle());
-        description.setText(playlist.getDescription()+"\n("+playlist.getYear()+")");
+        description.setText(playlist.getDescription() + "\n(" + playlist.getYear() + ")");
 
 
+        recyclerView = view.findViewById(R.id.current_playlist_recycler_view);
 
-
-
-        recyclerView =  view.findViewById(R.id.current_playlist_recycler_view);
-
-        if(!playlist.getImage_id().isEmpty()) {
+        if (!playlist.getImage_id().isEmpty()) {
             Glide.with(container)
                     .load(playlist.getImage_id())
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .skipMemoryCache(true)
                     .apply(RequestOptions.centerCropTransform())
                     .error(R.drawable.img_not_found).into(imageView);
-        }else{
+        } else {
             Glide.with(container).load(R.drawable.img_not_found).apply(RequestOptions.centerCropTransform()).into(imageView);
         }
 
         fab.setOnClickListener(v ->
         {
-            if(ActivityCompat.checkSelfPermission(getActivity(),
-                    Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-            {
+            if (ActivityCompat.checkSelfPermission(getActivity(),
+                    Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                         2000);
-            }
-            else {
+            } else {
                 CropImage.activity()
                         .start(getContext(), this);
             }
         });
-        if(isAlbum!=0)
-        {
+        if (isAlbum != 0) {
             settings_btn.setVisibility(View.INVISIBLE);
-        initializeAlbum(author,album);
-        }
-        else
-        {  settings_btn.setVisibility(View.VISIBLE);
+            initializeAlbum(author, album);
+        } else {
+            settings_btn.setVisibility(View.VISIBLE);
 
             initializePlaylist(author);
         }
 
 
-        settings_btn.setOnClickListener(v->{
+        settings_btn.setOnClickListener(v -> {
             openPlaylistSettings();
         });
         return view;
@@ -184,11 +171,11 @@ public class CurrentPlaylistFragment extends Fragment {
     }
 
 
-    public CurrentPlaylistFragment(String author, String album, Playlist playlist, Integer isAlbum){
-        this.playlist=playlist;
-        this.author=author;
-        this.album=album;
-        this.isAlbum=isAlbum;
+    public CurrentPlaylistFragment(String author, String album, Playlist playlist, Integer isAlbum) {
+        this.playlist = playlist;
+        this.author = author;
+        this.album = album;
+        this.isAlbum = isAlbum;
     }
 
 
@@ -202,61 +189,61 @@ public class CurrentPlaylistFragment extends Fragment {
 
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if(snapshot!=null){
+                    if (snapshot != null) {
                         int x = (int) snapshot.child("songs").getChildrenCount();
-                    if(x!=0) {
-                        int i = 0;
-                        songs.clear();
-                        for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
-                            i++;
+                        if (x != 0) {
+                            int i = 0;
+                            songs.clear();
+                            for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
+                                i++;
 
-                            FirebaseSong firebaseSong = new FirebaseSong();
-                            firebaseSong.setOrder(Integer.valueOf(ds.child("order").getValue().toString()));
-                            firebaseSong.setPath(ds.child("path").getValue().toString());
-                            firebaseSong.setTitle(ds.child("title").getValue().toString());
-                            firebaseSongs.add(firebaseSong);
+                                FirebaseSong firebaseSong = new FirebaseSong();
+                                firebaseSong.setOrder(Integer.valueOf(ds.child("order").getValue().toString()));
+                                firebaseSong.setPath(ds.child("path").getValue().toString());
+                                firebaseSong.setTitle(ds.child("title").getValue().toString());
+                                firebaseSongs.add(firebaseSong);
+                            }
+
+
+                            Collections.sort(firebaseSongs, (f1, f2) -> f1.getOrder().compareTo(f2.getOrder()));
+
+
+                            for (FirebaseSong song : firebaseSongs) {
+
+                                Song local_song = new Song(playlist.getDir_desc(), playlist.getDir_title(), song.getTitle(), song.getPath(), playlist.getImage_id(), song.getOrder());
+                                songs.add(local_song);
+                            }
+
+                            if (i == x) {
+                                playlist.setSongs(songs);
+                                conditionLatch.countDown();
+
+                            }
+
+                            try {
+                                conditionLatch.await();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                                System.out.println("ConditionLatch error");
+                            }
+                            recyclerView.setVisibility(View.VISIBLE);
+                            recyclerViewState.setVisibility(View.GONE);
+                        } else {
+                            recyclerViewState.setText("Empty Album");
+                            recyclerView.setVisibility(View.GONE);
+                            recyclerViewState.setVisibility(View.VISIBLE);
                         }
-
-
-                        Collections.sort(firebaseSongs, (f1, f2) -> f1.getOrder().compareTo(f2.getOrder()));
-
-
-                        for (FirebaseSong song : firebaseSongs) {
-
-                            Song local_song = new Song(playlist.getDir_desc(), playlist.getDir_title(), song.getTitle(), song.getPath(), playlist.getImage_id(), song.getOrder());
-                            songs.add(local_song);
-                        }
-
-                        if (i == x) {
-                            playlist.setSongs(songs);
-                            conditionLatch.countDown();
-
-                        }
-
-                        try {
-                            conditionLatch.await();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            System.out.println("ConditionLatch error");
-                        }
-                        recyclerView.setVisibility(View.VISIBLE);
-                        recyclerViewState.setVisibility(View.GONE);
-                    }else{
-                        recyclerViewState.setText("Empty Album");
-                        recyclerView.setVisibility(View.GONE);
-                        recyclerViewState.setVisibility(View.VISIBLE);
-                    }
                         playlist.setAlbum(true);
 
-                         fab.setVisibility(View.INVISIBLE);
+                        fab.setVisibility(View.INVISIBLE);
 
-                        if(x!=0){
-                        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-                        adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist,-1);
-                        adapter.notifyDataSetChanged();
-                        Drawable songBg = AppCompatResources.getDrawable(requireContext(), R.drawable.custom_song_bg);
-                        recyclerView.setBackground(songBg);
-                        recyclerView.setAdapter(adapter);
+                        if (x != 0) {
+                            recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+                            adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, -1);
+                            adapter.notifyDataSetChanged();
+                            Drawable songBg = AppCompatResources.getDrawable(requireContext(), R.drawable.custom_song_bg);
+                            recyclerView.setBackground(songBg);
+                            recyclerView.setAdapter(adapter);
                         }
                     }
 
@@ -284,68 +271,67 @@ public class CurrentPlaylistFragment extends Fragment {
 
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if(snapshot!=null) {
-                      for(DataSnapshot da : snapshot.getChildren()){
-                          if(da.child("title").getValue().equals(title)){
-                              snapshot =da;
-                              int x = (int) snapshot.child("songs").getChildrenCount();
-                              if (x != 0 ){
-                                  for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
+                    if (snapshot != null) {
+                        for (DataSnapshot da : snapshot.getChildren()) {
+                            if (da.child("title").getValue().equals(title)) {
+                                snapshot = da;
+                                int x = (int) snapshot.child("songs").getChildrenCount();
+                                if (x != 0) {
+                                    for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
 
 
-                                      FavoriteFirebaseSong favoriteFirebaseSong = new FavoriteFirebaseSong();
-                                      favoriteFirebaseSong.setNumberInAlbum(Integer.valueOf(ds.child("numberInAlbum").getValue().toString()));
-                                      favoriteFirebaseSong.setAuthor(ds.child("author").getValue().toString());
-                                      favoriteFirebaseSong.setAlbum(ds.child("album").getValue().toString());
-                                      favoriteFirebaseSong.setDateTime(Calendar.getInstance().getTimeInMillis());
-                                      favoriteFirebaseSongs.add(favoriteFirebaseSong);
+                                        FavoriteFirebaseSong favoriteFirebaseSong = new FavoriteFirebaseSong();
+                                        favoriteFirebaseSong.setNumberInAlbum(Integer.valueOf(ds.child("numberInAlbum").getValue().toString()));
+                                        favoriteFirebaseSong.setAuthor(ds.child("author").getValue().toString());
+                                        favoriteFirebaseSong.setAlbum(ds.child("album").getValue().toString());
+                                        favoriteFirebaseSong.setDateTime(Calendar.getInstance().getTimeInMillis());
+                                        favoriteFirebaseSongs.add(favoriteFirebaseSong);
 
-                                      try {
-                                          Thread.sleep(1);
-                                      } catch (InterruptedException e) {
-                                          e.printStackTrace();
-                                      }
-                                  }
+                                        try {
+                                            Thread.sleep(1);
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
 
-                                  if (favoriteFirebaseSongs.size() == x) {
-                                     initializePlaylistRecyclerView(favoriteFirebaseSongs);
+                                    if (favoriteFirebaseSongs.size() == x) {
+                                        initializePlaylistRecyclerView(favoriteFirebaseSongs);
 
-                                      playlist.setSongs(new ArrayList<>());
-                                      conditionLatch.countDown();
+                                        playlist.setSongs(new ArrayList<>());
+                                        conditionLatch.countDown();
 
-                                  }
+                                    }
 
-                                  try {
-                                      conditionLatch.await();
-                                  } catch (InterruptedException e) {
-                                      e.printStackTrace();
-                                      System.out.println("ConditionLatch error");
-                                  }
+                                    try {
+                                        conditionLatch.await();
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                        System.out.println("ConditionLatch error");
+                                    }
 
-                                  recyclerView.setVisibility(View.VISIBLE);
-                                  recyclerViewState.setVisibility(View.GONE);
-                              }else{
-                                  recyclerViewState.setText("Empty Playlist");
-                                  recyclerViewState.setVisibility(View.VISIBLE);
-                                  recyclerView.setVisibility(View.GONE);
-                              }
-
-
-
-                              playlist.setAlbum((Boolean) snapshot.child("isAlbum").getValue());
-                              if(!playlist.isAlbum()){
-                                  fab.setVisibility(View.VISIBLE);
-                              }
+                                    recyclerView.setVisibility(View.VISIBLE);
+                                    recyclerViewState.setVisibility(View.GONE);
+                                } else {
+                                    recyclerViewState.setText("Empty Playlist");
+                                    recyclerViewState.setVisibility(View.VISIBLE);
+                                    recyclerView.setVisibility(View.GONE);
+                                }
 
 
-                              if(x!=0) {
-                                  recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-                                  adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, 0);
-                                  adapter.notifyDataSetChanged();
-                                  recyclerView.setAdapter(adapter);
-                              }
-                          }
-                      }
+                                playlist.setAlbum((Boolean) snapshot.child("isAlbum").getValue());
+                                if (!playlist.isAlbum()) {
+                                    fab.setVisibility(View.VISIBLE);
+                                }
+
+
+                                if (x != 0) {
+                                    recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+                                    adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, 0);
+                                    adapter.notifyDataSetChanged();
+                                    recyclerView.setAdapter(adapter);
+                                }
+                            }
+                        }
                     }
 
 
@@ -353,7 +339,7 @@ public class CurrentPlaylistFragment extends Fragment {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Log.d("Firebase DB Error: "+error.getMessage(),"FirebaseDatabase");
+                    Log.d("Firebase DB Error: " + error.getMessage(), "FirebaseDatabase");
                     conditionLatch.countDown();
                 }
 
@@ -374,7 +360,7 @@ public class CurrentPlaylistFragment extends Fragment {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
 
                     if (snapshot != null) {
-                        for (DataSnapshot ds: snapshot.child("songs").getChildren()) {
+                        for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
 
 
                             if (Integer.parseInt(ds.child("order").getValue().toString()) == song.getNumberInAlbum()) {
@@ -404,7 +390,6 @@ public class CurrentPlaylistFragment extends Fragment {
                 }
 
 
-
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
 
@@ -418,7 +403,7 @@ public class CurrentPlaylistFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
 
-        if(resultCode ==RESULT_CANCELED){
+        if (resultCode == RESULT_CANCELED) {
             Log.d("RESULT HAVE BEEN CANCELED", "RESULT");
         }
 
@@ -429,10 +414,10 @@ public class CurrentPlaylistFragment extends Fragment {
 
                 try {
 
-                    Bitmap compresedImg =  ProfileFragmentViewModel.getBitmapFormUri(requireActivity(), returnUri);
-                    Bitmap compressImgRotated = rotateImageIfRequired(requireContext(), compresedImg,returnUri);
+                    Bitmap compresedImg = ProfileFragmentViewModel.getBitmapFormUri(requireActivity(), returnUri);
+                    Bitmap compressImgRotated = rotateImageIfRequired(requireContext(), compresedImg, returnUri);
                     ByteArrayOutputStream bao = new ByteArrayOutputStream();
-                    compressImgRotated = getResizedBitmap(compressImgRotated,300);
+                    compressImgRotated = getResizedBitmap(compressImgRotated, 300);
                     compressImgRotated.compress(Bitmap.CompressFormat.PNG, 100, bao);
 
                     Glide.with(requireActivity()).load(compressImgRotated).apply(RequestOptions.centerCropTransform()).into(imageView);
@@ -447,38 +432,38 @@ public class CurrentPlaylistFragment extends Fragment {
                     database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid().toString()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if(snapshot!=null) {
-                            for (DataSnapshot ds : snapshot.getChildren()) {
-                                if (ds.child("title").getValue().toString().equals(playlist.getTitle())) {
-                                    storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + ds.getKey()).putBytes(byteArray).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                                            if (task.isSuccessful()) {
-                                                System.out.println("Upload image is successful!");
-                                                if(getActivity()!=null){
-                                                    Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-                                                    if(currentFragment instanceof CurrentPlaylistFragment){
-                                                        storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + ds.getKey()).getDownloadUrl().addOnSuccessListener(requireActivity(), new OnSuccessListener<Uri>() {
-                                                            @Override
-                                                            public void onSuccess(Uri u) {
-                                                                database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(ds.getKey()).child("image_id").setValue(u.toString());
-                                                                playlist.setImage_id(u.toString());
-                                                            }
-                                                        });
+                            if (snapshot != null) {
+                                for (DataSnapshot ds : snapshot.getChildren()) {
+                                    if (ds.child("title").getValue().toString().equals(playlist.getTitle())) {
+                                        storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + ds.getKey()).putBytes(byteArray).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                                if (task.isSuccessful()) {
+                                                    System.out.println("Upload image is successful!");
+                                                    if (getActivity() != null) {
+                                                        Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                                                        if (currentFragment instanceof CurrentPlaylistFragment) {
+                                                            storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + ds.getKey()).getDownloadUrl().addOnSuccessListener(requireActivity(), new OnSuccessListener<Uri>() {
+                                                                @Override
+                                                                public void onSuccess(Uri u) {
+                                                                    database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(ds.getKey()).child("image_id").setValue(u.toString());
+                                                                    playlist.setImage_id(u.toString());
+                                                                }
+                                                            });
 
+                                                        }
                                                     }
+
+                                                } else {
+                                                    System.out.println("Upload image failed!");
+
                                                 }
-
-                                            } else {
-                                                System.out.println("Upload image failed!");
-
                                             }
-                                        }
-                                    });
+                                        });
 
+                                    }
                                 }
                             }
-                        }
                         }
 
                         @Override
@@ -486,7 +471,6 @@ public class CurrentPlaylistFragment extends Fragment {
 
                         }
                     });
-
 
 
                 } catch (IOException e) {
@@ -499,6 +483,7 @@ public class CurrentPlaylistFragment extends Fragment {
             }
         }
     }
+
     private static Bitmap rotateImageIfRequired(Context context, Bitmap img, Uri selectedImage) throws IOException {
 
         InputStream input = context.getContentResolver().openInputStream(selectedImage);
@@ -521,6 +506,7 @@ public class CurrentPlaylistFragment extends Fragment {
                 return img;
         }
     }
+
     private static Bitmap rotateImage(Bitmap img, int degree) {
         Matrix matrix = new Matrix();
         matrix.postRotate(degree);
@@ -528,11 +514,12 @@ public class CurrentPlaylistFragment extends Fragment {
         img.recycle();
         return rotatedImg;
     }
+
     public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
         int width = image.getWidth();
         int height = image.getHeight();
 
-        float bitmapRatio = (float)width / (float) height;
+        float bitmapRatio = (float) width / (float) height;
         if (bitmapRatio > 1) {
             width = maxSize;
             height = (int) (width / bitmapRatio);
@@ -548,15 +535,15 @@ public class CurrentPlaylistFragment extends Fragment {
         bottomSheetDialog.setContentView(R.layout.bottom_playlist_settings);
 
         LinearLayout copy = bottomSheetDialog.findViewById(R.id.bottom_settings_copy_box);
-        LinearLayout   delete = bottomSheetDialog.findViewById(R.id.bottom_settings_delete_box);
-        LinearLayout  dismissDialog = bottomSheetDialog.findViewById(R.id.bottom_settings_dismiss_box);
+        LinearLayout delete = bottomSheetDialog.findViewById(R.id.bottom_settings_delete_box);
+        LinearLayout dismissDialog = bottomSheetDialog.findViewById(R.id.bottom_settings_dismiss_box);
 
-        copy.setOnClickListener(v->{
+        copy.setOnClickListener(v -> {
             settingsCopy(playlist);
             bottomSheetDialog.dismiss();
         });
 
-        delete.setOnClickListener(v ->{
+        delete.setOnClickListener(v -> {
             deletePlaylist(playlist);
             bottomSheetDialog.dismiss();
         });
@@ -569,13 +556,13 @@ public class CurrentPlaylistFragment extends Fragment {
         database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot ds: snapshot.getChildren()){
-                    if(
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    if (
                             ds.child("title").getValue().toString().trim().equals(playlist.getTitle())
                                     &&
                                     ds.child("description").getValue().toString().trim().equals(playlist.getDescription())
-                    ){
-                        openDialog(ds.getKey(),playlist);
+                    ) {
+                        openDialog(ds.getKey(), playlist);
                     }
                 }
             }
@@ -591,51 +578,51 @@ public class CurrentPlaylistFragment extends Fragment {
         database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot ds: snapshot.getChildren()){
-                    if(
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    if (
                             ds.child("title").getValue().toString().trim().equals(playlist.getTitle())
                                     &&
                                     ds.child("description").getValue().toString().trim().equals(playlist.getDescription())
-                    ){
+                    ) {
 
                         String key = ds.getKey();
 
                         database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).removeValue().addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
-                                if(task.isSuccessful()){
+                                if (task.isSuccessful()) {
                                     System.out.println("Playlist deleted");
 
-                                        storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).getDownloadUrl().addOnSuccessListener(getActivity(), new OnSuccessListener<Uri>() {
-                                            @Override
-                                            public void onSuccess(Uri uri) {
-                                                storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).delete().addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                        MainActivity mainActivity = (MainActivity) getActivity();
-                                                      mainActivity.bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
+                                    storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).getDownloadUrl().addOnSuccessListener(getActivity(), new OnSuccessListener<Uri>() {
+                                        @Override
+                                        public void onSuccess(Uri uri) {
+                                            storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).delete().addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    MainActivity mainActivity = (MainActivity) getActivity();
+                                                    mainActivity.bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
 
-                                                        for (int i = 0; i < mainActivity.getSupportFragmentManager().getBackStackEntryCount() ; i++) {
-                                                            mainActivity.getSupportFragmentManager().popBackStack();
-                                                        }
-
-                                                        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment()).commit();
-                                                        if (task.isSuccessful()) {
-                                                            System.out.println("Photo deleted with playlist");
-                                                        } else {
-                                                            Toast.makeText(getActivity(), "Error while deleting Photo", Toast.LENGTH_SHORT).show();
-                                                        }
+                                                    for (int i = 0; i < mainActivity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
+                                                        mainActivity.getSupportFragmentManager().popBackStack();
                                                     }
-                                                });
-                                            }
-                                        }).addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception exception) {
-                                                Log.d("Firebase", "Photo wasn't found");
-                                            }
-                                        });
 
-                                }else{
+                                                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment()).commit();
+                                                    if (task.isSuccessful()) {
+                                                        System.out.println("Photo deleted with playlist");
+                                                    } else {
+                                                        Toast.makeText(getActivity(), "Error while deleting Photo", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception exception) {
+                                            Log.d("Firebase", "Photo wasn't found");
+                                        }
+                                    });
+
+                                } else {
                                     System.out.println("Error while  deleting Playlist");
                                 }
                             }
@@ -653,8 +640,6 @@ public class CurrentPlaylistFragment extends Fragment {
     }
 
     private void openDialog(String key, Playlist playlist) {
-
-
 
 
         dialog = new Dialog(getActivity(), R.style.Theme_AltasNotas);
@@ -677,53 +662,52 @@ public class CurrentPlaylistFragment extends Fragment {
         accept = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_accept_btn);
 
 
-
         cancel.setOnClickListener(v -> dialog.dismiss());
 
 
-        accept.setOnClickListener(v -> validInput(key,dialog_playlist_name.getText().toString(), dialog_playlist_desc.getText().toString(),  playlist));
+        accept.setOnClickListener(v -> validInput(key, dialog_playlist_name.getText().toString(), dialog_playlist_desc.getText().toString(), playlist));
 
         dialog.show();
 
     }
 
-    private void validInput(String key, String name , String desc, Playlist playlist) {
+    private void validInput(String key, String name, String desc, Playlist playlist) {
         name = name.trim();
         desc = desc.trim();
 
 
-        if(name.isEmpty() && desc.isEmpty()){
-            Toast.makeText(getActivity(), "Both fields are empty.\nPlease fill data.",Toast.LENGTH_SHORT).show();
-        }else{
+        if (name.isEmpty() && desc.isEmpty()) {
+            Toast.makeText(getActivity(), "Both fields are empty.\nPlease fill data.", Toast.LENGTH_SHORT).show();
+        } else {
 
-            if(name.isEmpty() || desc.isEmpty()){
-                if(name.isEmpty()){
-                    Toast.makeText(getActivity(), "Name is empty.\nPlease fill data.",Toast.LENGTH_SHORT).show();
+            if (name.isEmpty() || desc.isEmpty()) {
+                if (name.isEmpty()) {
+                    Toast.makeText(getActivity(), "Name is empty.\nPlease fill data.", Toast.LENGTH_SHORT).show();
                 }
 
-                if(desc.isEmpty()){
-                    Toast.makeText(getActivity(), "Description is empty.\nPlease fill data.",Toast.LENGTH_SHORT).show();
+                if (desc.isEmpty()) {
+                    Toast.makeText(getActivity(), "Description is empty.\nPlease fill data.", Toast.LENGTH_SHORT).show();
                 }
-            }else{
-                name = name.substring(0,1).toUpperCase() + name.substring(1).toLowerCase();
-                desc = desc.substring(0,1).toUpperCase() + desc.substring(1).toLowerCase();
+            } else {
+                name = name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
+                desc = desc.substring(0, 1).toUpperCase() + desc.substring(1).toLowerCase();
                 String finalName = name;
                 String finalDesc = desc;
                 database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if(snapshot!=null){
-                            int x= (int) snapshot.getChildrenCount();
-                            for(DataSnapshot ds: snapshot.getChildren()){
-                                if(ds.child("title").getValue().toString().trim().equals(finalName)){
+                        if (snapshot != null) {
+                            int x = (int) snapshot.getChildrenCount();
+                            for (DataSnapshot ds : snapshot.getChildren()) {
+                                if (ds.child("title").getValue().toString().trim().equals(finalName)) {
                                     x--;
-                                    Toast.makeText(getActivity(), "Playlist exist with same title!",Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getActivity(), "Playlist exist with same title!", Toast.LENGTH_SHORT).show();
                                 }
                             }
 
-                            if(x ==snapshot.getChildrenCount()){
+                            if (x == snapshot.getChildrenCount()) {
                                 dialog.dismiss();
-                                copyPlaylist(key,finalName, finalDesc, playlist);
+                                copyPlaylist(key, finalName, finalDesc, playlist);
                             }
                         }
                     }
@@ -738,7 +722,7 @@ public class CurrentPlaylistFragment extends Fragment {
         }
     }
 
-    private void copyPlaylist(String old_key, String name ,String desc, Playlist p) {
+    private void copyPlaylist(String old_key, String name, String desc, Playlist p) {
 
         p.setTitle(name);
         p.setDescription(desc);
@@ -748,11 +732,11 @@ public class CurrentPlaylistFragment extends Fragment {
         database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).setValue(p).addOnCompleteListener(requireActivity(), new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
+                if (task.isSuccessful()) {
                     database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).child("isAlbum").setValue(p.isAlbum()).addOnCompleteListener(requireActivity(), new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            if(task.isSuccessful()){
+                            if (task.isSuccessful()) {
 
                                 database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).child("album").removeValue().addOnCompleteListener(requireActivity(), new OnCompleteListener<Void>() {
                                     @Override
@@ -762,31 +746,31 @@ public class CurrentPlaylistFragment extends Fragment {
                                         database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(old_key).child("songs").addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                ArrayList<FavoriteFirebaseSong> favoriteFirebaseSongs= new ArrayList<>();
-                                                for(DataSnapshot dataSnapshot: snapshot.getChildren()){
+                                                ArrayList<FavoriteFirebaseSong> favoriteFirebaseSongs = new ArrayList<>();
+                                                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                                                     x[0]++;
                                                     FavoriteFirebaseSong favoriteFirebaseSong = new FavoriteFirebaseSong();
                                                     favoriteFirebaseSong.setAuthor(dataSnapshot.child("author").getValue().toString());
                                                     favoriteFirebaseSong.setAlbum(dataSnapshot.child("album").getValue().toString());
                                                     favoriteFirebaseSong.setNumberInAlbum(Integer.valueOf(dataSnapshot.child("numberInAlbum").getValue().toString()));
                                                     favoriteFirebaseSongs.add(favoriteFirebaseSong);
-                                                    if(x[0]==snapshot.getChildrenCount()){
+                                                    if (x[0] == snapshot.getChildrenCount()) {
                                                         database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).child("songs").setValue(favoriteFirebaseSongs).addOnCompleteListener(requireActivity(), new OnCompleteListener<Void>() {
                                                             @Override
                                                             public void onComplete(@NonNull Task<Void> task) {
-                                                                if(task.isSuccessful()){
+                                                                if (task.isSuccessful()) {
                                                                     //Copy photo
                                                                     storageReference = FirebaseStorage.getInstance().getReference();
-                                                                    storageReference.child("images/playlists/"+mAuth.getCurrentUser().getUid()+"/"+old_key).getDownloadUrl().addOnCompleteListener(requireActivity(), new OnCompleteListener<Uri>() {
+                                                                    storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + old_key).getDownloadUrl().addOnCompleteListener(requireActivity(), new OnCompleteListener<Uri>() {
                                                                         @Override
                                                                         public void onComplete(@NonNull Task<Uri> task) {
-                                                                            if(task.isComplete() && task.isSuccessful()){
+                                                                            if (task.isComplete() && task.isSuccessful()) {
                                                                                 System.out.println("URI HERE FOUND");
 
                                                                                 Uri uri = task.getResult();
 
 
-                                                                                Thread thread = new Thread(new Runnable(){
+                                                                                Thread thread = new Thread(new Runnable() {
                                                                                     @Override
                                                                                     public void run() {
                                                                                         try {
@@ -798,20 +782,19 @@ public class CurrentPlaylistFragment extends Fragment {
                                                                                             storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).putBytes(byteArray).addOnCompleteListener(requireActivity(), new OnCompleteListener<UploadTask.TaskSnapshot>() {
                                                                                                 @Override
                                                                                                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                                                                                                    if (!task.isSuccessful()){
+                                                                                                    if (!task.isSuccessful()) {
                                                                                                         System.out.println("Error while copying photo");
-                                                                                                    }else{
+                                                                                                    } else {
                                                                                                         storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).getDownloadUrl().addOnSuccessListener(requireActivity(), new OnSuccessListener<Uri>() {
                                                                                                             @Override
                                                                                                             public void onSuccess(Uri u) {
                                                                                                                 p.setImage_id(u.toString());
-                                                                                                                database_ref.child("music").child("playlists").child( mAuth.getCurrentUser().getUid()).child(key).child("image_id").setValue(u.toString());
+                                                                                                                database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).child("image_id").setValue(u.toString());
                                                                                                             }
                                                                                                         });
                                                                                                     }
                                                                                                 }
                                                                                             });
-
 
 
                                                                                         } catch (Exception e) {
@@ -822,12 +805,10 @@ public class CurrentPlaylistFragment extends Fragment {
                                                                                 thread.start();
 
 
-
-
                                                                             }
 
                                                                             Fragment currentFragment = requireActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-                                                                            if(currentFragment instanceof CurrentPlaylistFragment) {
+                                                                            if (currentFragment instanceof CurrentPlaylistFragment) {
 
                                                                                 requireActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
                                                                             }
@@ -847,19 +828,19 @@ public class CurrentPlaylistFragment extends Fragment {
                                                     }
                                                 }
 
-                                                if(snapshot.getChildrenCount()==0){
+                                                if (snapshot.getChildrenCount() == 0) {
                                                     //Copy photo
                                                     storageReference = FirebaseStorage.getInstance().getReference();
-                                                    storageReference.child("images/playlists/"+mAuth.getCurrentUser().getUid()+"/"+old_key).getDownloadUrl().addOnCompleteListener(requireActivity(), new OnCompleteListener<Uri>() {
+                                                    storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + old_key).getDownloadUrl().addOnCompleteListener(requireActivity(), new OnCompleteListener<Uri>() {
                                                         @Override
                                                         public void onComplete(@NonNull Task<Uri> task) {
-                                                            if(task.isComplete() && task.isSuccessful()){
+                                                            if (task.isComplete() && task.isSuccessful()) {
                                                                 System.out.println("URI HERE FOUND");
 
                                                                 Uri uri = task.getResult();
 
 
-                                                                Thread thread = new Thread(new Runnable(){
+                                                                Thread thread = new Thread(new Runnable() {
                                                                     @Override
                                                                     public void run() {
                                                                         try {
@@ -871,20 +852,19 @@ public class CurrentPlaylistFragment extends Fragment {
                                                                             storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).putBytes(byteArray).addOnCompleteListener(requireActivity(), new OnCompleteListener<UploadTask.TaskSnapshot>() {
                                                                                 @Override
                                                                                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                                                                                    if (!task.isSuccessful()){
+                                                                                    if (!task.isSuccessful()) {
                                                                                         System.out.println("Error while copying photo");
-                                                                                    }else{
+                                                                                    } else {
                                                                                         storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).getDownloadUrl().addOnSuccessListener(requireActivity(), new OnSuccessListener<Uri>() {
                                                                                             @Override
                                                                                             public void onSuccess(Uri u) {
                                                                                                 p.setImage_id(u.toString());
-                                                                                                database_ref.child("music").child("playlists").child( mAuth.getCurrentUser().getUid()).child(key).child("image_id").setValue(u.toString());
+                                                                                                database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).child("image_id").setValue(u.toString());
                                                                                             }
                                                                                         });
                                                                                     }
                                                                                 }
                                                                             });
-
 
 
                                                                         } catch (Exception e) {
@@ -895,12 +875,10 @@ public class CurrentPlaylistFragment extends Fragment {
                                                                 thread.start();
 
 
-
-
                                                             }
 
                                                             Fragment currentFragment = requireActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-                                                            if(currentFragment instanceof CurrentPlaylistFragment) {
+                                                            if (currentFragment instanceof CurrentPlaylistFragment) {
 
                                                                 requireActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
                                                             }
@@ -909,7 +887,7 @@ public class CurrentPlaylistFragment extends Fragment {
                                                         @Override
                                                         public void onFailure(@NonNull Exception e) {
                                                             Fragment currentFragment = requireActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-                                                            if(currentFragment instanceof CurrentPlaylistFragment) {
+                                                            if (currentFragment instanceof CurrentPlaylistFragment) {
 
                                                                 requireActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
                                                             }
@@ -928,8 +906,8 @@ public class CurrentPlaylistFragment extends Fragment {
                             }
                         }
                     });
-                }else{
-                    Toast.makeText(requireActivity(), "Error while adding Playlist.",Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(requireActivity(), "Error while adding Playlist.", Toast.LENGTH_SHORT).show();
 
                 }
             }
@@ -940,38 +918,26 @@ public class CurrentPlaylistFragment extends Fragment {
         Bitmap bm = null;
         InputStream is = null;
         BufferedInputStream bis = null;
-        try
-        {
+        try {
             URLConnection conn = new URL(url).openConnection();
             conn.connect();
             is = conn.getInputStream();
             bis = new BufferedInputStream(is, 8192);
             bm = BitmapFactory.decodeStream(bis);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
-        }
-        finally {
-            if (bis != null)
-            {
-                try
-                {
+        } finally {
+            if (bis != null) {
+                try {
                     bis.close();
-                }
-                catch (IOException e)
-                {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            if (is != null)
-            {
-                try
-                {
+            if (is != null) {
+                try {
                     is.close();
-                }
-                catch (IOException e)
-                {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }

@@ -14,7 +14,6 @@ import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -30,14 +29,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
-import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.ChoosePlaylistAdapter;
-import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
@@ -106,10 +102,10 @@ public class PlayerFragment extends Fragment {
 
 
     public PlayerFragment(Playlist playlist, int position, long seekedTo) {
-        this.playlist=null;
+        this.playlist = null;
         this.playlist = playlist;
         this.position = position;
-        this.seekedTo=seekedTo;
+        this.seekedTo = seekedTo;
         //We are sending playlist to this player and let it play all of it
     }
 
@@ -123,23 +119,23 @@ public class PlayerFragment extends Fragment {
         song_img = view.findViewById(R.id.player_song_img);
         playerView = view.findViewById(R.id.player_view);
         playerView.setBackgroundColor(Color.TRANSPARENT);
-        player_full_box =  view.findViewById(R.id.player_full_box);
+        player_full_box = view.findViewById(R.id.player_full_box);
         setUI();
 
 
         intent = new Intent(getActivity(), BackgroundService.class);
-        System.out.println("Playlist name: "+playlist.getTitle());
+        System.out.println("Playlist name: " + playlist.getTitle());
         intent.putExtra("playlist", playlist);
         intent.putExtra("pos", position);
         intent.putExtra("path", playlist.getSongs().get(position).getPath());
         intent.putExtra("playlistTitle", playlist.getTitle());
         intent.putExtra("desc", playlist.getDescription());
-        intent.putExtra("ms",seekedTo);
+        intent.putExtra("ms", seekedTo);
         intent.putParcelableArrayListExtra("songs", playlist.getSongs());
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             Util.startForegroundService(getActivity(), intent);
-        }else{
+        } else {
             getActivity().startService(intent);
         }
 
@@ -148,7 +144,7 @@ public class PlayerFragment extends Fragment {
 
 
         database_ref = FirebaseDatabase.getInstance().getReference();
-        mAuth= FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance();
 
         //Loading fav btn state
         database_ref.child("fav_music")
@@ -157,17 +153,16 @@ public class PlayerFragment extends Fragment {
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if(snapshot!=null){
+                        if (snapshot != null) {
                             Song mySong = playlist.getSongs().get(position);
 
-                            for(DataSnapshot ds: snapshot.getChildren()){
+                            for (DataSnapshot ds : snapshot.getChildren()) {
 
-                                if(
+                                if (
                                         ds.child("album").getValue().equals(mySong.getAlbum())
                                                 &&
                                                 ds.child("author").getValue().equals(mySong.getAuthor())
-                                )
-                                {
+                                ) {
                                     //Same album and Author now we check song title
                                     database_ref
                                             .child("music")
@@ -179,15 +174,15 @@ public class PlayerFragment extends Fragment {
                                                 @Override
                                                 public void onDataChange(@NonNull DataSnapshot snap) {
 
-                                                    for(DataSnapshot s: snap.child("songs").getChildren()){
+                                                    for (DataSnapshot s : snap.child("songs").getChildren()) {
 
-                                                        if(
+                                                        if (
                                                                 s.child("order").getValue().toString().trim().equals(ds.child("numberInAlbum").getValue().toString().trim())
                                                                         &&
                                                                         s.child("title").getValue().equals(mySong.getTitle())
-                                                        ){
+                                                        ) {
                                                             //We found a song in Album and We need to set icon
-                                                          fav_btn.setImageResource(R.drawable.ic_heart_full);
+                                                            fav_btn.setImageResource(R.drawable.ic_heart_full);
 
                                                         }
                                                     }
@@ -221,53 +216,53 @@ public class PlayerFragment extends Fragment {
             }
         });
 
-        settings_btn.setOnClickListener(v->{
+        settings_btn.setOnClickListener(v -> {
             openSettingsDialog();
         });
         return view;
     }
 
     private void openSettingsDialog() {
-      bottomSheetDialog = new BottomSheetDialog(getContext());
+        bottomSheetDialog = new BottomSheetDialog(getContext());
         bottomSheetDialog.setContentView(R.layout.bottom_song_settings_layout);
 
-        LinearLayout  showAlbum = bottomSheetDialog.findViewById(R.id.bottom_settings_album_box);
-        LinearLayout  addToPlaylist = bottomSheetDialog.findViewById(R.id.bottom_settings_playlists_box);
-        LinearLayout   share= bottomSheetDialog.findViewById(R.id.bottom_settings_share_box);
-        LinearLayout  dismissDialog = bottomSheetDialog.findViewById(R.id.bottom_settings_dismiss_box);
+        LinearLayout showAlbum = bottomSheetDialog.findViewById(R.id.bottom_settings_album_box);
+        LinearLayout addToPlaylist = bottomSheetDialog.findViewById(R.id.bottom_settings_playlists_box);
+        LinearLayout share = bottomSheetDialog.findViewById(R.id.bottom_settings_share_box);
+        LinearLayout dismissDialog = bottomSheetDialog.findViewById(R.id.bottom_settings_dismiss_box);
 
-        showAlbum.setOnClickListener(v->{
+        showAlbum.setOnClickListener(v -> {
             //Shows album
             //Download playlist
-                Playlist x = new Playlist();
-                if (mAuth.getCurrentUser() != null) {
+            Playlist x = new Playlist();
+            if (mAuth.getCurrentUser() != null) {
 
-                    database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if(snapshot!=null){
-                                x.setImage_id(snapshot.child("image_id").getValue().toString());
-                                x.setYear(snapshot.child("year").getValue().toString());
-                                x.setTitle(snapshot.child("title").getValue().toString());
-                                x.setDescription(snapshot.child("description").getValue().toString());
-                                x.setDir_title(playlist.getSongs().get(position).getAlbum());
-                                x.setDir_desc(playlist.getSongs().get(position).getAuthor());
-                                bottomSheetDialog.dismiss();
-                                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(),playlist.getSongs().get(position).getAlbum(),x,1)).addToBackStack("null").commit();
+                database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot != null) {
+                            x.setImage_id(snapshot.child("image_id").getValue().toString());
+                            x.setYear(snapshot.child("year").getValue().toString());
+                            x.setTitle(snapshot.child("title").getValue().toString());
+                            x.setDescription(snapshot.child("description").getValue().toString());
+                            x.setDir_title(playlist.getSongs().get(position).getAlbum());
+                            x.setDir_desc(playlist.getSongs().get(position).getAuthor());
+                            bottomSheetDialog.dismiss();
+                            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
 
-                            }
                         }
+                    }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-                            android.util.Log.d("Error: "+error.getMessage(),"FirebaseDatabase");
-                        }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        android.util.Log.d("Error: " + error.getMessage(), "FirebaseDatabase");
+                    }
 
-                    });
+                });
 
 
-                }
-            });
+            }
+        });
 
         addToPlaylist.setOnClickListener(v -> {
             //Add to playlist
@@ -275,29 +270,29 @@ public class PlayerFragment extends Fragment {
             bottomSheetDialog.dismiss();
         });
 
-        share.setOnClickListener(v ->{
+        share.setOnClickListener(v -> {
             share();
             bottomSheetDialog.dismiss();
         });
-       dismissDialog.setOnClickListener(v -> bottomSheetDialog.dismiss());
+        dismissDialog.setOnClickListener(v -> bottomSheetDialog.dismiss());
 
         bottomSheetDialog.show();
     }
 
     private void addToPlaylist() {
-        choosePlaylistDialog= new BottomSheetDialog(getContext());
+        choosePlaylistDialog = new BottomSheetDialog(getContext());
         choosePlaylistDialog.setContentView(R.layout.choose_playlist_dialog);
 
-        RecyclerView  chooseRecyclerView =  choosePlaylistDialog.findViewById(R.id.choose_playlist_recycler_view);
+        RecyclerView chooseRecyclerView = choosePlaylistDialog.findViewById(R.id.choose_playlist_recycler_view);
         ArrayList<String> playlists_titles = new ArrayList<>();
-        ArrayList<String>  playlists_keys = new ArrayList<>();
+        ArrayList<String> playlists_keys = new ArrayList<>();
 
         database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                int x= 0;
-                for(DataSnapshot playlistSnapshot: snapshot.getChildren()){
+                int x = 0;
+                for (DataSnapshot playlistSnapshot : snapshot.getChildren()) {
                     x++;
 
                     playlists_titles.add(playlistSnapshot.child("title").getValue().toString());
@@ -306,16 +301,14 @@ public class PlayerFragment extends Fragment {
 
                 }
 
-                if(x==snapshot.getChildrenCount()){
+                if (x == snapshot.getChildrenCount()) {
 
 
-
-                    ChoosePlaylistAdapter choosePlaylistAdapter = new ChoosePlaylistAdapter((MainActivity) requireActivity(),choosePlaylistDialog,playlist.getSongs().get(position),  playlists_titles, playlists_keys);
+                    ChoosePlaylistAdapter choosePlaylistAdapter = new ChoosePlaylistAdapter((MainActivity) requireActivity(), choosePlaylistDialog, playlist.getSongs().get(position), playlists_titles, playlists_keys);
                     chooseRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
                     choosePlaylistAdapter.notifyDataSetChanged();
                     chooseRecyclerView.setAdapter(choosePlaylistAdapter);
                 }
-
 
 
             }
@@ -331,13 +324,13 @@ public class PlayerFragment extends Fragment {
 
     private void share() {
 
-            // The application exists
+        // The application exists
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
-            shareIntent.putExtra(android.content.Intent.EXTRA_TITLE, "Altas Notas");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "My favorite Song is \""+ playlist.getSongs().get(position).getTitle() +"\" from \""+ playlist.getSongs().get(position).getAuthor() +"\".\nListen this on \"Altas Notas\".\nExternal Link: [ "+playlist.getSongs().get(position).getPath()+" ]");
-            startActivity(Intent.createChooser(shareIntent,"Share using"));
-           getContext().startActivity(shareIntent);
+        shareIntent.putExtra(android.content.Intent.EXTRA_TITLE, "Altas Notas");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "My favorite Song is \"" + playlist.getSongs().get(position).getTitle() + "\" from \"" + playlist.getSongs().get(position).getAuthor() + "\".\nListen this on \"Altas Notas\".\nExternal Link: [ " + playlist.getSongs().get(position).getPath() + " ]");
+        startActivity(Intent.createChooser(shareIntent, "Share using"));
+        getContext().startActivity(shareIntent);
 
     }
 
@@ -370,8 +363,8 @@ public class PlayerFragment extends Fragment {
 
     private void setUI() {
         Fragment currentFragment = requireActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-        if(currentFragment instanceof PlayerFragment) {
-            Glide.with(requireContext()).load(playlist.getSongs().get(position).getImage_url()).into(song_img);
+        if (currentFragment instanceof PlayerFragment) {
+            Glide.with(requireContext()).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(song_img);
             song_img.setDrawingCacheEnabled(true);
             Bitmap bitmap = song_img.getDrawingCache();
             if (bitmap != null && !bitmap.isRecycled()) {
@@ -413,13 +406,14 @@ public class PlayerFragment extends Fragment {
         }
         return mostPopulous;
     }
+
     private void setUpInfoBackgroundColor(LinearLayout ll, Palette palette) {
         Palette.Swatch swatch = getMostPopulousSwatch(palette);
-        if(swatch != null){
+        if (swatch != null) {
             int endColor = ContextCompat.getColor(ll.getContext(), R.color.black);
             int startColor = swatch.getRgb();
 
-                if(startColor ==endColor){
+            if (startColor == endColor) {
                 startColor = Color.DKGRAY;
             }
 
@@ -443,24 +437,25 @@ public class PlayerFragment extends Fragment {
                     });
         }
     }
+
     private void removeFromFav() {
         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot firebaseFav: snapshot.getChildren()){
-                    if( firebaseFav.child("album").getValue().toString().trim().equals(playlist.getSongs().get(position).getAlbum().trim())
-                     &&
-                      firebaseFav.child("numberInAlbum").getValue().toString().trim().equals(playlist.getSongs().get(position).getOrder().toString().trim())
-                    ){
-                           database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(firebaseFav.getKey()).removeValue().addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
+                for (DataSnapshot firebaseFav : snapshot.getChildren()) {
+                    if (firebaseFav.child("album").getValue().toString().trim().equals(playlist.getSongs().get(position).getAlbum().trim())
+                            &&
+                            firebaseFav.child("numberInAlbum").getValue().toString().trim().equals(playlist.getSongs().get(position).getOrder().toString().trim())
+                    ) {
+                        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(firebaseFav.getKey()).removeValue().addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
-                                if(task.isSuccessful()){
+                                if (task.isSuccessful()) {
                                     fav_btn.setImageResource(R.drawable.ic_heart_empty);
                                 }
                             }
                         });
-                        }
+                    }
                 }
             }
 
@@ -481,8 +476,8 @@ public class PlayerFragment extends Fragment {
                 .child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot dataSnapshot: snapshot.child("songs").getChildren()){
-                    if( dataSnapshot.child("title").getValue().equals(playlist.getSongs().get(position).getTitle())){
+                for (DataSnapshot dataSnapshot : snapshot.child("songs").getChildren()) {
+                    if (dataSnapshot.child("title").getValue().equals(playlist.getSongs().get(position).getTitle())) {
                         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("numberInAlbum").setValue(dataSnapshot.child("order").getValue().toString());
                         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("album").setValue(playlist.getSongs().get(position).getAlbum());
                         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("author").setValue(playlist.getSongs().get(position).getAuthor());
@@ -508,7 +503,6 @@ public class PlayerFragment extends Fragment {
 
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-
 
 
             Log.d("playbackState = " + playbackState + " playWhenReady = " + playWhenReady, "Exo");
@@ -550,7 +544,7 @@ public class PlayerFragment extends Fragment {
         public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
             position = player.getCurrentWindowIndex();
             System.out.println("Gramy piosenke: " + playlist.getSongs().get(player.getCurrentWindowIndex()).getTitle());
-          setUI();
+            setUI();
             fav_btn.setImageResource(R.drawable.ic_heart_empty);
 
             //Loading fav btn state
@@ -560,17 +554,16 @@ public class PlayerFragment extends Fragment {
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if(snapshot!=null){
+                            if (snapshot != null) {
                                 Song mySong = playlist.getSongs().get(position);
 
-                                for(DataSnapshot ds: snapshot.getChildren()){
+                                for (DataSnapshot ds : snapshot.getChildren()) {
 
-                                    if(
+                                    if (
                                             ds.child("album").getValue().equals(mySong.getAlbum())
                                                     &&
                                                     ds.child("author").getValue().equals(mySong.getAuthor())
-                                    )
-                                    {
+                                    ) {
                                         //Same album and Author now we check song title
                                         database_ref
                                                 .child("music")
@@ -582,13 +575,13 @@ public class PlayerFragment extends Fragment {
                                                     @Override
                                                     public void onDataChange(@NonNull DataSnapshot snap) {
 
-                                                        for(DataSnapshot s: snap.child("songs").getChildren()){
+                                                        for (DataSnapshot s : snap.child("songs").getChildren()) {
 
-                                                            if(
+                                                            if (
                                                                     s.child("order").getValue().toString().trim().equals(ds.child("numberInAlbum").getValue().toString().trim())
                                                                             &&
                                                                             s.child("title").getValue().equals(mySong.getTitle())
-                                                            ){
+                                                            ) {
                                                                 //We found a song in Album and We need to set icon
                                                                 fav_btn.setImageResource(R.drawable.ic_heart_full);
 

@@ -1,21 +1,19 @@
 package com.company.altasnotas.models;
 
-import java.util.Date;
-
 public class FavoriteFirebaseSong {
     private Integer numberInAlbum;
     private String author;
     private String album;
 
 
-    public FavoriteFirebaseSong(){
+    public FavoriteFirebaseSong() {
 
     }
 
-    public FavoriteFirebaseSong(Integer numberInAlbum, String author,String album) {
+    public FavoriteFirebaseSong(Integer numberInAlbum, String author, String album) {
         this.numberInAlbum = numberInAlbum;
         this.author = author;
-        this.album=album;
+        this.album = album;
     }
 
     public Integer getNumberInAlbum() {
@@ -34,9 +32,13 @@ public class FavoriteFirebaseSong {
         this.author = author;
     }
 
-    public String getAlbum() { return album; }
+    public String getAlbum() {
+        return album;
+    }
 
-    public void setAlbum(String album) { this.album = album; }
+    public void setAlbum(String album) {
+        this.album = album;
+    }
 
     private Long dateTime;
 
