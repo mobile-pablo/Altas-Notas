@@ -14,7 +14,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
-import com.company.altasnotas.viewmodels.LoginFragmentViewModel;
+import com.company.altasnotas.viewmodels.fragments.login_and_register.LoginFragmentViewModel;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;

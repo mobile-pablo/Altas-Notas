@@ -1,4 +1,4 @@
-package com.company.altasnotas.viewmodels;
+package com.company.altasnotas.viewmodels.fragments.profile;
 
 import android.app.Activity;
 import android.graphics.Bitmap;

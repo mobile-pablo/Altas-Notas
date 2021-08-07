@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
-import com.company.altasnotas.viewmodels.RegisterFragmentViewModel;
+import com.company.altasnotas.viewmodels.fragments.login_and_register.RegisterFragmentViewModel;
 
 
 public class RegisterFragment extends Fragment {

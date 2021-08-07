@@ -1,4 +1,4 @@
-package com.company.altasnotas.viewmodels;
+package com.company.altasnotas.viewmodels.fragments.login_and_register;
 
 import android.content.Context;
 import android.text.TextUtils;

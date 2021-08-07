@@ -48,7 +48,7 @@ import com.company.altasnotas.models.FavoriteFirebaseSong;
 import com.company.altasnotas.models.FirebaseSong;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
-import com.company.altasnotas.viewmodels.ProfileFragmentViewModel;
+import com.company.altasnotas.viewmodels.fragments.profile.ProfileFragmentViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;

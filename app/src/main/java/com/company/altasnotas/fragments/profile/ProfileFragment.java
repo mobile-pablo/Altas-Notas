@@ -32,7 +32,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.canhub.cropper.CropImage;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
-import com.company.altasnotas.viewmodels.ProfileFragmentViewModel;
+import com.company.altasnotas.viewmodels.fragments.profile.ProfileFragmentViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.imageview.ShapeableImageView;
