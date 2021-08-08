@@ -269,6 +269,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
         stopSelf();
+        NotificationManager nManager = ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE));
+        nManager.cancelAll();
         if (mediaSession != null) {
             mediaSession.setActive(false);
         }
