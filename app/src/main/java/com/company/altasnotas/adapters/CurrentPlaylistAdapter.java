@@ -116,6 +116,8 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                     MainActivity.currentSongAuthor.equals( playlist.getDescription())
                     ){
         holder.currentTitle.setTextColor(activity.getColor(R.color.project_light_velvet));
+    }else{
+        holder.currentTitle.setTextColor(activity.getColor(R.color.black));
     }
         holder.currentBox.setOnClickListener(v -> {
             MainActivity.currentSongTitle = songs.get(position).getTitle();

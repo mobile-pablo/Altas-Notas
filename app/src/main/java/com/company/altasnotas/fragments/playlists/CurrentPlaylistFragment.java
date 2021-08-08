@@ -91,7 +91,7 @@ public class CurrentPlaylistFragment extends Fragment {
     private DatabaseReference database_ref;
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
-    CurrentPlaylistAdapter adapter;
+    public static CurrentPlaylistAdapter adapter;
     private final String author;
     private final String album;
     private final Integer isAlbum;

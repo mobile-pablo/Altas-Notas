@@ -1,15 +1,18 @@
 package com.company.altasnotas.fragments.player;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -59,6 +63,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 
@@ -78,7 +84,7 @@ public class PlayerFragment extends Fragment {
     private BackgroundService mService;
     private boolean mBound = false;
     private Intent intent;
-
+    private Bitmap bgBitmap;
     private Long seekedTo;
 
     private Palette palette;
@@ -125,7 +131,6 @@ public class PlayerFragment extends Fragment {
         playerView.setBackgroundColor(Color.TRANSPARENT);
         player_full_box = view.findViewById(R.id.player_full_box);
         viewModel = new ViewModelProvider(requireActivity()).get(PlayerFragmentViewModel.class);
-
         setUI();
 
         intent = new Intent(getActivity(), BackgroundService.class);
@@ -224,6 +229,8 @@ public class PlayerFragment extends Fragment {
         settings_btn.setOnClickListener(v -> {
             openSettingsDialog();
         });
+
+
         return view;
     }
 
@@ -366,15 +373,22 @@ public class PlayerFragment extends Fragment {
         requireActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
+
     private void setUI() {
+        if (bgBitmap != null && !bgBitmap.isRecycled()) {
+            bgBitmap.recycle();
+        }
+
+
         if(getActivity()!=null) {
             Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
             if (currentFragment instanceof PlayerFragment) {
                 Glide.with(requireContext()).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(song_img);
                 song_img.setDrawingCacheEnabled(true);
-                Bitmap bitmap = song_img.getDrawingCache();
-                if (bitmap != null && !bitmap.isRecycled()) {
-                    palette = Palette.from(bitmap).generate();
+                bgBitmap = song_img.getDrawingCache();
+                if (bgBitmap != null && !bgBitmap.isRecycled()) {
+                    palette = Palette.from(bgBitmap).generate();
+                    song_img.setDrawingCacheEnabled(false);
                 }
 
 
@@ -400,7 +414,6 @@ public class PlayerFragment extends Fragment {
         }
     }
 
-
     public class ExoListener implements Player.Listener {
         SimpleExoPlayer player;
 
@@ -410,7 +423,10 @@ public class PlayerFragment extends Fragment {
 
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-
+            MainActivity.currentSongTitle = playlist.getSongs().get(position).getTitle();
+            MainActivity.currentSongAlbum=playlist.getTitle();
+            MainActivity.currentSongAuthor=playlist.getDescription();
+            CurrentPlaylistFragment.adapter.notifyDataSetChanged();
 
             Log.d("Exo","playbackState = " + playbackState + " playWhenReady = " + playWhenReady );
             switch (playbackState) {
@@ -450,6 +466,10 @@ public class PlayerFragment extends Fragment {
         @Override
         public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
             position = player.getCurrentWindowIndex();
+            MainActivity.currentSongTitle = playlist.getSongs().get(position).getTitle();
+            MainActivity.currentSongAlbum=playlist.getTitle();
+            MainActivity.currentSongAuthor=playlist.getDescription();
+            CurrentPlaylistFragment.adapter.notifyDataSetChanged();
             setUI();
             fav_btn.setImageResource(R.drawable.ic_heart_empty);
 
