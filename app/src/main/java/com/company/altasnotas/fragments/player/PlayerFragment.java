@@ -90,7 +90,7 @@ public class PlayerFragment extends Fragment {
     private Intent intent;
     private Bitmap bgBitmap;
     private Long seekedTo;
-
+    private Boolean isReOpen;
     private Palette palette;
     LinearLayout player_full_box;
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -115,11 +115,12 @@ public class PlayerFragment extends Fragment {
 
     private PlayerFragmentViewModel viewModel;
 
-    public PlayerFragment(Playlist playlist, int position, long seekedTo) {
+    public PlayerFragment(Playlist playlist, int position, long seekedTo, Boolean isReOpen) {
         this.playlist = null;
         this.playlist = playlist;
         this.position = position;
         this.seekedTo = seekedTo;
+        this.isReOpen=isReOpen;
         //We are sending playlist to this player and let it play all of it
     }
 
@@ -364,7 +365,19 @@ public class PlayerFragment extends Fragment {
             playerView.setControllerShowTimeoutMs(0);
             playerView.setCameraDistance(0);
             playerView.setControllerAutoShow(true);
+            if(isReOpen)
+            {
+                //By this When Notification is Open and ExoPlayer is Paused. It remain that way.
+                if( player.getPlayWhenReady() && player.getPlaybackState() == Player.STATE_READY ){
+                        player.setPlayWhenReady(true);
+                }else {
+                    player.setPlayWhenReady(false);
+                }
+            }
+            else
+            {
             player.setPlayWhenReady(true);
+            }
             playerView.setDrawingCacheBackgroundColor(Color.TRANSPARENT);
             playerView.setShutterBackgroundColor(Color.TRANSPARENT);
             playerView.setControllerHideOnTouch(false);
@@ -403,22 +416,16 @@ public class PlayerFragment extends Fragment {
                     }
                 });
 
-
-
-
                 database_ref = FirebaseDatabase.getInstance().getReference();
                 database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         title.setText(playlist.getSongs().get(position).getTitle());
                         author.setText(snapshot.child("description").getValue().toString());
-
-
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-
                     }
                 });
 

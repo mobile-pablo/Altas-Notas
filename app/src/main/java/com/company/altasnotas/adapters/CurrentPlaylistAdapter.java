@@ -123,7 +123,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
             MainActivity.currentSongTitle = songs.get(position).getTitle();
             MainActivity.currentSongAlbum=playlist.getTitle();
             MainActivity.currentSongAuthor=playlist.getDescription();
-            PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0);
+            PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0,false);
             activity.getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment).addToBackStack(null).commit();
 
         });

@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
                 long seekedTo = getIntent().getLongExtra("ms", 0);
                 ArrayList<Song> local_songs = getIntent().getParcelableArrayListExtra("songs");
                 playlist.setSongs(local_songs);
-                PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo);
+                PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo,true);
                 getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment).commit();
             }
         }
