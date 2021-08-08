@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -34,7 +35,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.Request;
 import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.target.SizeReadyCallback;
+import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
@@ -383,16 +387,24 @@ public class PlayerFragment extends Fragment {
         if(getActivity()!=null) {
             Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
             if (currentFragment instanceof PlayerFragment) {
-                Glide.with(requireContext()).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(song_img);
-                song_img.setDrawingCacheEnabled(true);
-                bgBitmap = song_img.getDrawingCache();
-                if (bgBitmap != null && !bgBitmap.isRecycled()) {
-                    palette = Palette.from(bgBitmap).generate();
-                    song_img.setDrawingCacheEnabled(false);
-                }
+                Glide.with(requireContext()).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(new CustomTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                        song_img.setImageDrawable(resource);
+                        Bitmap b =drawableToBitmap(resource);
+                        palette = Palette.from(b).generate();
+                        viewModel.setUpInfoBackgroundColor(getActivity(), player_full_box, palette);
+
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
 
 
-                viewModel.setUpInfoBackgroundColor(getActivity(), player_full_box, palette);
+
 
                 database_ref = FirebaseDatabase.getInstance().getReference();
                 database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -413,7 +425,27 @@ public class PlayerFragment extends Fragment {
             }
         }
     }
+    public static Bitmap drawableToBitmap (Drawable drawable) {
+        Bitmap bitmap = null;
 
+        if (drawable instanceof BitmapDrawable) {
+            BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
+            if(bitmapDrawable.getBitmap() != null) {
+                return bitmapDrawable.getBitmap();
+            }
+        }
+
+        if(drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
+            bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Single color bitmap will be created of 1x1 pixel
+        } else {
+            bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        }
+
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+        return bitmap;
+    }
     public class ExoListener implements Player.Listener {
         SimpleExoPlayer player;
 
