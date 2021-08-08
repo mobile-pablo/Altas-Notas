@@ -74,7 +74,7 @@ public class PlayerFragment extends Fragment {
     private DatabaseReference database_ref;
     private FirebaseAuth mAuth;
 
-    private PlayerView playerView;
+    public static PlayerView playerView;
     private BackgroundService mService;
     private boolean mBound = false;
     private Intent intent;

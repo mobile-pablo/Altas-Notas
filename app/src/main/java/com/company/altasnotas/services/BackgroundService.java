@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
@@ -54,6 +55,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     private Long seekedTo;
     private String externalPath, externalPlaylistTitle, externalDescription;
 
+    private   MediaSessionCompat mediaSession;
+    private  MediaSessionConnector mediaSessionConnector;
     private AudioAttributes audioAttributes = new AudioAttributes.Builder()
             .setUsage(C.USAGE_MEDIA)
             .setContentType(C.CONTENT_TYPE_MOVIE)
@@ -266,6 +269,9 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
         stopSelf();
+        if (mediaSession != null) {
+            mediaSession.setActive(false);
+        }
     }
 
     @Override
@@ -274,17 +280,24 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         super.onDestroy();
     }
 
+
+
     private void releasePlayer() {
         if (player != null) {
             playerNotificationManager.setPlayer(null);
             player.release();
             player = null;
         }
+
+
+        if (mediaSession != null) {
+            mediaSession.release();
+        }
     }
 
     public SimpleExoPlayer startPlayer() {
 
-        player = new SimpleExoPlayer.Builder(this).build();
+        player = new SimpleExoPlayer.Builder(this).setHandleAudioBecomingNoisy(true).build();
 
         DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "app"));
         ArrayList<MediaSource> mediaSources = new ArrayList<>();
@@ -307,7 +320,13 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         player.setAudioAttributes(audioAttributes, true);
 
         player.prepare(concatenatingMediaSource, false, false);
+      mediaSession = new MediaSessionCompat(context, "sample");
+      mediaSessionConnector = new MediaSessionConnector(mediaSession);
+      mediaSessionConnector.setPlayer(player);
 
+        if (mediaSession != null) {
+            mediaSession.setActive(true);
+        }
 
         return player;
     }
@@ -417,6 +436,9 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
             return BackgroundService.this;
         }
     }
+
+
+
 
 
 }
