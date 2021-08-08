@@ -111,7 +111,16 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
         holder.currentTitle.setText(songs.get(position).getTitle());
         holder.currentAuthor.setText(songs.get(position).getAuthor());
 
+    if(MainActivity.currentSongTitle.equals(songs.get(position).getTitle()) &&
+            MainActivity.currentSongAlbum.equals(playlist.getTitle()) &&
+                    MainActivity.currentSongAuthor.equals( playlist.getDescription())
+                    ){
+        holder.currentTitle.setTextColor(activity.getColor(R.color.project_light_velvet));
+    }
         holder.currentBox.setOnClickListener(v -> {
+            MainActivity.currentSongTitle = songs.get(position).getTitle();
+            MainActivity.currentSongAlbum=playlist.getTitle();
+            MainActivity.currentSongAuthor=playlist.getDescription();
             PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0);
             activity.getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment).addToBackStack(null).commit();
 

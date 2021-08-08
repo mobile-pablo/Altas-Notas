@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     public String photoUrl;
     public BottomNavigationView bottomNavigationView;
+    public static String currentSongTitle="", currentSongAlbum ="",currentSongAuthor="";
 
     public static final String FIREBASE = "Firebase";
     @Override
