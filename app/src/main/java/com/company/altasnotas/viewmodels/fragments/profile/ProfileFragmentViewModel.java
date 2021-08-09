@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.util.Log;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -15,9 +16,13 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
+import com.company.altasnotas.fragments.home.HomeFragment;
+import com.company.altasnotas.fragments.login_and_register.LoginFragment;
 import com.company.altasnotas.models.User;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -31,6 +36,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.concurrent.CountDownLatch;
 
 public class ProfileFragmentViewModel extends ViewModel {
     /**
@@ -95,8 +104,70 @@ public class ProfileFragmentViewModel extends ViewModel {
         return bitmap;
     }
 
+    public void deleteProfile(MainActivity activity ,FirebaseAuth mAuth, DatabaseReference database_ref){
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
 
-    public void downloadProfile(MainActivity mainActivity, FirebaseAuth mAuth, DatabaseReference database_ref, FirebaseStorage storage, TextView profile_name, TextView profile_email, EditText age_edit_t, EditText phone_edit_t, EditText address_edit_t, ShapeableImageView profile_img) {
+        /*
+        We need to delete
+        - Playlists data   + img
+        - Profile data +img
+        - Fav music
+         */
+
+        storageReference.child("images").child("profiles").child(mAuth.getCurrentUser().getUid()).delete().addOnFailureListener(activity, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(MainActivity.FIREBASE, "Image not found");
+            }
+        });
+
+        final CountDownLatch[] countDownLatch = new CountDownLatch[1];
+        database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                countDownLatch[0] = new CountDownLatch((int) snapshot.getChildrenCount());
+                for(DataSnapshot ds: snapshot.getChildren()){
+
+                    storageReference.child("images").child("playlists").child(mAuth.getCurrentUser().getUid()).child(ds.getKey()).delete().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            countDownLatch[0].countDown();
+                        }
+                    });
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        try {
+            if(countDownLatch[0]!=null)
+            {
+            countDownLatch[0].await();
+            }
+            database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).removeValue();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).removeValue();
+
+        database_ref.child("users").child(mAuth.getCurrentUser().getUid()).removeValue().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                mAuth.getCurrentUser().delete();
+                for (int i = 0; i <    activity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
+                    activity.getSupportFragmentManager().popBackStack();
+                }
+                activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new LoginFragment()).commit();
+            }
+        });
+    }
+
+    public void downloadProfile(MainActivity mainActivity, FirebaseAuth mAuth, DatabaseReference database_ref, FirebaseStorage storage, TextView profile_name, TextView profile_email,  ShapeableImageView profile_img, TextView creationText, TextView creationDate) {
 
         User localUser = new User("Username", "", "", "", "", "", 0, 0, 0);
         if (mAuth.getCurrentUser() != null) {
@@ -113,9 +184,13 @@ public class ProfileFragmentViewModel extends ViewModel {
 
                         profile_email.setText(localUser.mail);
                         profile_name.setText(localUser.name);
-                        age_edit_t.setText(localUser.age);
-                        phone_edit_t.setText(localUser.phone);
-                        address_edit_t.setText(localUser.address);
+
+                        creationText.setVisibility(View.VISIBLE);
+                        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy ");
+                        Long creationDateLong =mAuth.getCurrentUser().getMetadata().getCreationTimestamp();
+                        Date date = new Date( creationDateLong);
+                        creationDate.setVisibility(View.VISIBLE);
+                        creationDate.setText(formatter.format(date));
 
                         //  Image download
                         StorageReference storageReference = storage.getReference();
@@ -167,7 +242,7 @@ public class ProfileFragmentViewModel extends ViewModel {
         }
     }
 
-    public void updateProfile(FirebaseAuth mAuth, DatabaseReference database_ref, TextView profile_name, EditText age_edit_t, EditText phone_edit_t, EditText address_edit_t) {
+    public void updateProfile(FirebaseAuth mAuth, DatabaseReference database_ref, TextView profile_name) {
 
 
         User localUser = new User("Username", "", "", "", "", "", 0, 0, 0);
@@ -190,10 +265,6 @@ public class ProfileFragmentViewModel extends ViewModel {
 
 
                         localUser.name = profile_name.getText().toString();
-                        localUser.age = age_edit_t.getText().toString();
-                        localUser.phone = phone_edit_t.getText().toString();
-                        localUser.address = address_edit_t.getText().toString();
-
                         database_ref.child("users").child(mAuth.getCurrentUser().getUid()).setValue(localUser);
                     }
                 }

@@ -139,6 +139,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (isLoggedIn == true || mAuth.getCurrentUser() == null) {
 
+            for (int i = 0; i <   getSupportFragmentManager().getBackStackEntryCount(); i++) {
+                getSupportFragmentManager().popBackStack();
+            }
             getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new LoginFragment()).commit();
         }
     }

@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
@@ -63,11 +64,9 @@ public class ProfileFragment extends Fragment {
     private StorageReference storageReference;
     private ShapeableImageView profile_img;
     private TextView profile_name, profile_email;
-    private ImageButton age_edit_btn, phone_edit_btn, address_edit_btn, profile_img_edit_btn, profile_name_edit_btn;
-    private ImageButton age_cancel_btn, phone_cancel_btn, address_cancel_btn;
-    private ImageButton age_accept_btn, phone_accept_btn, address_accept_btn;
-    private String backup_age, backup_phone, backup_address;
-    private EditText   age_edit_t, phone_edit_t, address_edit_t;
+    private ImageButton profile_img_edit_btn, profile_name_edit_btn;
+    private TextView creationTextView, creationDateTextView;
+    private LinearLayout delete_box;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -78,103 +77,21 @@ public class ProfileFragment extends Fragment {
           mAuth = FirebaseAuth.getInstance();
           database = FirebaseDatabase.getInstance();
           database_ref = database.getReference();
-          age_edit_t = view.findViewById(R.id.profile_age_number);
-          phone_edit_t = view.findViewById(R.id.profile_phone_number);
-          address_edit_t = view.findViewById(R.id.profile_address_number);
+
 
           profile_name = view.findViewById(R.id.profile_full_name);
           profile_email = view.findViewById(R.id.profile_email);
           profile_img = view.findViewById(R.id.profile_user_img);
+          creationTextView = view.findViewById(R.id.profile_details_creation_text);
+          creationDateTextView= view.findViewById(R.id.profile_details_creation_date);
+          delete_box = view.findViewById(R.id.profile_details_delete_box);
 
           model =  new ViewModelProvider(requireActivity()).get(ProfileFragmentViewModel.class);
-          model.downloadProfile((MainActivity) getActivity(), mAuth,  database_ref,  storage, profile_name, profile_email,  age_edit_t,phone_edit_t, address_edit_t, profile_img);
-
-          age_edit_btn = view.findViewById(R.id.profile_age_edit_btn);
-          phone_edit_btn = view.findViewById(R.id.profile_phone_edit_btn);
-          address_edit_btn = view.findViewById(R.id.profile_address_edit_btn);
-
-          age_cancel_btn = view.findViewById(R.id.profile_age_cancel_btn);
-          phone_cancel_btn = view.findViewById(R.id.profile_phone_cancel_btn);
-          address_cancel_btn = view.findViewById(R.id.profile_address_cancel_btn);
+          model.downloadProfile((MainActivity) getActivity(), mAuth,  database_ref,  storage, profile_name, profile_email, profile_img,creationTextView, creationDateTextView);
 
 
-          age_accept_btn = view.findViewById(R.id.profile_age_accept_btn);
-          phone_accept_btn = view.findViewById(R.id.profile_phone_accept_btn);
-          address_accept_btn = view.findViewById(R.id.profile_address_accept_btn);
 
 
-          age_edit_btn.setOnClickListener(v -> {
-              backup_age = age_edit_t.getText().toString();
-              age_edit_t.setEnabled(true);
-              age_edit_btn.setVisibility(View.GONE);
-              age_accept_btn.setVisibility(View.VISIBLE);
-              age_cancel_btn.setVisibility(View.VISIBLE);
-          });
-          phone_edit_btn.setOnClickListener(v->{
-              backup_phone= phone_edit_t.getText().toString();
-              phone_edit_t.setEnabled(true);
-              phone_edit_btn.setVisibility(View.GONE);
-              phone_accept_btn.setVisibility(View.VISIBLE);
-              phone_cancel_btn.setVisibility(View.VISIBLE);
-          });
-          address_edit_btn.setOnClickListener(v->{
-              backup_address= address_edit_t.getText().toString();
-              address_edit_t.setEnabled(true);
-              address_edit_btn.setVisibility(View.GONE);
-              address_accept_btn.setVisibility(View.VISIBLE);
-              address_cancel_btn.setVisibility(View.VISIBLE);
-          });
-
-
-          //Cancel
-          age_cancel_btn.setOnClickListener(v->{
-                age_edit_t.setEnabled(false);
-                age_edit_t.setText(backup_age);
-                age_cancel_btn.setVisibility(View.GONE);
-                age_accept_btn.setVisibility(View.GONE);
-                age_edit_btn.setVisibility(View.VISIBLE);
-            });
-          phone_cancel_btn.setOnClickListener(v->{
-                phone_edit_t.setEnabled(false);
-                phone_edit_t.setText(backup_phone);
-                phone_cancel_btn.setVisibility(View.GONE);
-                phone_accept_btn.setVisibility(View.GONE);
-                phone_edit_btn.setVisibility(View.VISIBLE);
-            });
-          address_cancel_btn.setOnClickListener(v->{
-                address_edit_t.setEnabled(false);
-                address_edit_t.setText(backup_address);
-                address_cancel_btn.setVisibility(View.GONE);
-                address_accept_btn.setVisibility(View.GONE);
-                address_edit_btn.setVisibility(View.VISIBLE);
-            });
-
-
-          //Accept
-          age_accept_btn.setOnClickListener(v->{
-                age_edit_t.setEnabled(false);
-                backup_age= age_edit_t.getText().toString();
-                age_cancel_btn.setVisibility(View.GONE);
-                age_accept_btn.setVisibility(View.GONE);
-                age_edit_btn.setVisibility(View.VISIBLE);
-                model.updateProfile(mAuth,database_ref ,profile_name, age_edit_t, phone_edit_t, address_edit_t);
-            });
-          phone_accept_btn.setOnClickListener(v->{
-                phone_edit_t.setEnabled(false);
-                backup_phone= phone_edit_t.getText().toString();
-                phone_cancel_btn.setVisibility(View.GONE);
-                phone_accept_btn.setVisibility(View.GONE);
-                phone_edit_btn.setVisibility(View.VISIBLE);
-                model.updateProfile(mAuth,database_ref ,profile_name, age_edit_t, phone_edit_t, address_edit_t);
-            });
-          address_accept_btn.setOnClickListener(v->{
-                address_edit_t.setEnabled(false);
-                backup_address=address_edit_t.getText().toString();
-                address_cancel_btn.setVisibility(View.GONE);
-                address_accept_btn.setVisibility(View.GONE);
-                address_edit_btn.setVisibility(View.VISIBLE);
-                model.updateProfile(mAuth,database_ref ,profile_name, age_edit_t, phone_edit_t, address_edit_t);
-            });
 
           profile_img_edit_btn = view.findViewById(R.id.profile_user_img_btn);
           profile_name_edit_btn = view.findViewById(R.id.profile_name_edit_btn);
@@ -201,7 +118,7 @@ public class ProfileFragment extends Fragment {
                           @Override
                           public void onClick(DialogInterface dialog, int which) {
                               profile_name.setText(String.valueOf(taskEditText.getText()));
-                              model.updateProfile(mAuth,database_ref ,profile_name, age_edit_t, phone_edit_t, address_edit_t);
+                              model.updateProfile(mAuth,database_ref ,profile_name);
                           }
                       })
                       .setNegativeButton("Cancel", null)
@@ -213,6 +130,20 @@ public class ProfileFragment extends Fragment {
               taskEditText.setText(profile_name.getText());
           });
 
+          delete_box.setOnClickListener(v->{
+              AlertDialog dialog = new AlertDialog.Builder(v.getContext())
+                      .setTitle("Delete Profile?")
+                      .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                          @Override
+                          public void onClick(DialogInterface dialog, int which) {
+                              model.deleteProfile((MainActivity) getActivity(), mAuth,database_ref);
+                          }
+                      })
+                      .setNegativeButton("Cancel", null)
+                      .create();
+
+              dialog.show();
+          });
 
       return view;
     }

@@ -46,7 +46,7 @@ public class HomeFragment extends Fragment {
     private ArrayList<Playlist> playlists;
     private ArrayList<String> authors;
     private ArrayList<String> albums;
-    MainActivity mainActivity = (MainActivity) getActivity();
+    MainActivity mainActivity;
     private ImageView profile_img, logout_img;
 
     @Override
@@ -61,7 +61,7 @@ public class HomeFragment extends Fragment {
         authors = new ArrayList<>();
         playlists = new ArrayList<>();
 
-
+        mainActivity= (MainActivity) getActivity();
         recyclerView = view.findViewById(R.id.home_recycler_view);
         logout_img = view.findViewById(R.id.home_logout_btn);
         profile_img=  view.findViewById(R.id.home_profile_btn);
@@ -98,7 +98,6 @@ public class HomeFragment extends Fragment {
                 storageReference.child("images/profiles/" + mAuth.getCurrentUser().getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
-                        System.out.println("IMG FOUND");
                         if(mainActivity!=null)
                             Glide.with(mainActivity).load(uri).error(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
                     }
