@@ -15,19 +15,43 @@
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
         android:orientation="vertical">
-        <!-- Search will be available in version 2.0
-        <SearchView
-            android:id="@+id/home_search_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="30dp">
 
-        </SearchView>
--->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/home_recycler_view"
+        <RelativeLayout
+            android:id="@+id/home_top_box"
             android:layout_width="match_parent"
-            android:layout_height="fill_parent" />
-    </LinearLayout>
-</RelativeLayout>
+            android:layout_height="50dp">
+
+            <ImageView
+                android:id="@+id/home_profile_btn"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentLeft="true"
+                android:padding="10dp" />
+
+            <!-- Search will be available in version 2.0
+                    <SearchView
+                        android:id="@+id/home_search_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_toLeftOf="@+id/home_logout_btn"
+                        android:layout_toRightOf="@id/home_profile_btn"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp" />
+                                -->
+                    <ImageView
+                        android:id="@+id/home_logout_btn"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_alignParentRight="true"
+                        android:padding="10dp"
+                        android:src="@drawable/custom_nav_right_arrow_icon"
+                        app:tint="@color/black"/>
+                </RelativeLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/home_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="fill_parent"
+                    />
+            </LinearLayout>
+        </RelativeLayout>

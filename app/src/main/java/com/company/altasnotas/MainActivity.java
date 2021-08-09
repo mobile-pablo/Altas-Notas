@@ -61,8 +61,8 @@ public class MainActivity extends AppCompatActivity {
                 bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
             } else {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new LoginFragment()).commit();
-                bottomNavigationView.setSelectedItemId(R.id.nav_profile_or_login_item);
-                bottomNavigationView.getMenu().findItem(R.id.nav_profile_or_login_item).setTitle("Login");
+                bottomNavigationView.setSelectedItemId(R.id.nav_login_item);
+                bottomNavigationView.getMenu().findItem(R.id.nav_login_item).setTitle("Login");
             }
         }
 
@@ -109,35 +109,9 @@ public class MainActivity extends AppCompatActivity {
                     selectedFragment[0] = new PlaylistsFragment();
                     break;
 
-                case R.id.nav_logout_item:
-                    //Logout
-                    photoUrl = null;
-                    AccessToken accessToken = AccessToken.getCurrentAccessToken();
-                    boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
-                    if (isLoggedIn == true) {
 
-                        LoginManager.getInstance().logOut();
-                    }
-
-                    if (mAuth.getCurrentUser() != null) {
-                        mAuth.signOut();
-                        updateUI(null);
-                        FacebookSdk.sdkInitialize(getApplicationContext());
-                    }
-
-                    if (isLoggedIn == true || mAuth.getCurrentUser() == null) {
-
-                        getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new LoginFragment()).commit();
-                    }
-                    break;
-
-
-                case R.id.nav_profile_or_login_item:
-                    if (mAuth.getCurrentUser() == null) {
+                case R.id.nav_login_item:
                         selectedFragment[0] = new LoginFragment();
-                    } else {
-                        selectedFragment[0] = new ProfileFragment();
-                    }
                     break;
             }
 
@@ -147,6 +121,28 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    public void logoutUser() {
+        //Logout
+        photoUrl = null;
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
+        if (isLoggedIn == true) {
+
+            LoginManager.getInstance().logOut();
+        }
+
+        if (mAuth.getCurrentUser() != null) {
+            mAuth.signOut();
+            updateUI(null);
+            FacebookSdk.sdkInitialize(getApplicationContext());
+        }
+
+        if (isLoggedIn == true || mAuth.getCurrentUser() == null) {
+
+            getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new LoginFragment()).commit();
+        }
+    }
+
 
     public void updateUI(FirebaseUser user) {
 
@@ -154,19 +150,15 @@ public class MainActivity extends AppCompatActivity {
         Menu menu = bottomNavigationView.getMenu();
 
         if (user != null) {
-
-            menu.findItem(R.id.nav_logout_item).setVisible(true);
             menu.findItem(R.id.nav_fav_item).setVisible(true);
             menu.findItem(R.id.nav_home_item).setVisible(true);
             menu.findItem(R.id.nav_playlist_item).setVisible(true);
-            menu.findItem(R.id.nav_profile_or_login_item).setTitle("Profile");
+            menu.findItem(R.id.nav_login_item).setVisible(false);
         } else {
-            menu.findItem(R.id.nav_logout_item).setVisible(false);
             menu.findItem(R.id.nav_fav_item).setVisible(false);
             menu.findItem(R.id.nav_home_item).setVisible(false);
             menu.findItem(R.id.nav_playlist_item).setVisible(false);
-            menu.findItem(R.id.nav_profile_or_login_item).setTitle("Login");
-
+            menu.findItem(R.id.nav_login_item).setVisible(true);
         }
     }
 

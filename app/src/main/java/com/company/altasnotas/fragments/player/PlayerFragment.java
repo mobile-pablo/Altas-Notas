@@ -367,7 +367,7 @@ public class PlayerFragment extends Fragment {
             playerView.setControllerAutoShow(true);
             if(isReOpen)
             {
-                //By this When Notification is Open and ExoPlayer is Paused. It remain that way.
+                //By this When Notification is Open and ExoPlayer is Paused. It remains that way.
                 if( player.getPlayWhenReady() && player.getPlaybackState() == Player.STATE_READY ){
                         player.setPlayWhenReady(true);
                 }else {

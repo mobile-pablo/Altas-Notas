@@ -2,9 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/nav_profile_or_login_item"
+        android:id="@+id/nav_login_item"
         android:icon="@drawable/custom_nav_person_icon"
-        android:title="Profile" />
+        android:title="Login" />
 
     <item
         android:id="@+id/nav_fav_item"
@@ -22,10 +22,5 @@
         android:icon="@drawable/custom_nav_playlist_icon"
         android:title="Playlists" />
 
-
-    <item
-        android:id="@+id/nav_logout_item"
-        android:icon="@drawable/custom_nav_right_arrow_icon"
-        android:title="Logout" />
 
 </menu>

@@ -339,7 +339,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         Uri uri = Uri.parse("https://media1.vocaroo.com/mp3/1nS8YXb35PBj");
 
 
-        player = new SimpleExoPlayer.Builder(this).build();
+
+        player = new SimpleExoPlayer.Builder(this).setHandleAudioBecomingNoisy(true).build();
 
         DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "app"));
         ArrayList<MediaSource> mediaSources = new ArrayList<>();
@@ -361,6 +362,13 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
 
         player.prepare(concatenatingMediaSource, false, false);
 
+        mediaSession = new MediaSessionCompat(context, "sample");
+        mediaSessionConnector = new MediaSessionConnector(mediaSession);
+        mediaSessionConnector.setPlayer(player);
+
+        if (mediaSession != null) {
+            mediaSession.setActive(true);
+        }
 
         return player;
     }
