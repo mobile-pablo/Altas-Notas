@@ -1,6 +1,5 @@
 package com.company.altasnotas;
 
-import android.app.Activity;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -132,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (selectedFragment[0] != null)
+                //.setCustomAnimations(R.anim.slide_in_up, R.anim.slide_out_up)
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, selectedFragment[0]).commit();
             return true;
         }
@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i <   getSupportFragmentManager().getBackStackEntryCount(); i++) {
                 getSupportFragmentManager().popBackStack();
             }
-            getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new LoginFragment()).commit();
+            getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new LoginFragment()).commit();
         }
     }
 

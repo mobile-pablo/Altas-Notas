@@ -398,7 +398,7 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
                                                                             Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
                                                                             if (currentFragment instanceof CurrentPlaylistFragment) {
 
-                                                                                mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
+                                                                                mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
                                                                             }
                                                                         }
                                                                     });
@@ -468,7 +468,7 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
                                                             Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
                                                             if (currentFragment instanceof CurrentPlaylistFragment) {
 
-                                                                mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
+                                                                mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
                                                             }
                                                         }
                                                     }).addOnFailureListener(mainActivity, new OnFailureListener() {
@@ -477,7 +477,7 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
                                                             Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
                                                             if (currentFragment instanceof CurrentPlaylistFragment) {
 
-                                                                mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
+                                                                mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
                                                             }
                                                         }
                                                     });

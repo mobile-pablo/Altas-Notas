@@ -59,7 +59,7 @@ public class LoginFragmentViewModel extends ViewModel {
                             mainActivity.getSupportFragmentManager().popBackStack();
                         }
 
-                        mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
+                        mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
                     } else {
                         Toast.makeText(context, "Wrong email or password", Toast.LENGTH_SHORT).show();
                     }
@@ -118,7 +118,7 @@ public class LoginFragmentViewModel extends ViewModel {
                     for (int i = 0; i < count; i++) {
                         mainActivity.getSupportFragmentManager().popBackStack();
                     }
-                    mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
+                    mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
 
                 } else {
                     // If sign in fails, display a message to the user.
@@ -167,7 +167,7 @@ public class LoginFragmentViewModel extends ViewModel {
 
                     BottomNavigationView bottomNavigationView = mainActivity.findViewById(R.id.main_nav_bottom);
                     bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
-                    mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
+                    mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
                 } else {
                     AccessToken accessToken = AccessToken.getCurrentAccessToken();
                     boolean isLoggedIn = accessToken != null && !accessToken.isExpired();

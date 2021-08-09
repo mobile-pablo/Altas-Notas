@@ -400,13 +400,15 @@ public class PlayerFragment extends Fragment {
         if(getActivity()!=null) {
             Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
             if (currentFragment instanceof PlayerFragment) {
-                Glide.with(requireContext()).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(new CustomTarget<Drawable>() {
+                Glide.with(getContext()).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(new CustomTarget<Drawable>() {
                     @Override
                     public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                        song_img.setImageDrawable(resource);
-                        Bitmap b =drawableToBitmap(resource);
-                        palette = Palette.from(b).generate();
-                        viewModel.setUpInfoBackgroundColor(getActivity(), player_full_box, palette, settings_btn);
+                        if(resource!=null) {
+                            song_img.setImageDrawable(resource);
+                            Bitmap b = drawableToBitmap(resource);
+                            palette = Palette.from(b).generate();
+                            viewModel.setUpInfoBackgroundColor(getActivity(), player_full_box, palette, settings_btn);
+                        }
                     }
 
                     @Override

@@ -148,7 +148,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
         holder.linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(title, "", playlists.get(position), 0)).addToBackStack(null).commit();
+                mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(title, "", playlists.get(position), 0)).addToBackStack(null).commit();
             }
         });
     }
@@ -437,7 +437,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                                                             Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
                                                                             if (currentFragment instanceof PlaylistsFragment) {
 
-                                                                                mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
+                                                                                mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
                                                                             }
                                                                         }
                                                                     });
@@ -483,7 +483,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                                                                         Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
                                                                                         if (currentFragment instanceof PlaylistsFragment) {
 
-                                                                                            mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
+                                                                                            mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
                                                                                         }
 
                                                                                     }
@@ -504,7 +504,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                                             Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
                                                             if (currentFragment instanceof PlaylistsFragment) {
 
-                                                                mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
+                                                                mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
                                                             }
                                                         }
                                                     }).addOnFailureListener(mainActivity, new OnFailureListener() {
@@ -513,7 +513,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                                             Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
                                                             if (currentFragment instanceof PlaylistsFragment) {
 
-                                                                mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
+                                                                mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
                                                             }
                                                         }
                                                     });

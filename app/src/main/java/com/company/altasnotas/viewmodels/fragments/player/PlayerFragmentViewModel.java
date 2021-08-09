@@ -53,8 +53,10 @@ public class PlayerFragmentViewModel extends ViewModel {
             if (startColor == endColor) {
                 startColor = Color.DKGRAY;
             }
-            setting_btn.getDrawable().setTint(swatch.getTitleTextColor());
 
+            if(setting_btn!=null) {
+                setting_btn.getDrawable().setTint(swatch.getTitleTextColor());
+            }
             GradientDrawable gradientDrawable = new GradientDrawable(
                     GradientDrawable.Orientation.TOP_BOTTOM,
                     new int[]{startColor, endColor});

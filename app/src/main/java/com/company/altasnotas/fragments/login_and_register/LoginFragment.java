@@ -61,7 +61,7 @@ public class LoginFragment extends Fragment {
         view.findViewById(R.id.jump_to_register_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                requireActivity().getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.main_fragment_container, new RegisterFragment()).commit();
+                requireActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).addToBackStack(null).replace(R.id.main_fragment_container, new RegisterFragment()).commit();
             }
         });
 

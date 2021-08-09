@@ -192,7 +192,7 @@ public class ProfileFragmentViewModel extends ViewModel {
         });
     }
 
-    public void downloadProfile(MainActivity mainActivity, FirebaseAuth mAuth, DatabaseReference database_ref, FirebaseStorage storage, TextView profile_name, TextView profile_email, CircleImageView profile_img, TextView creationText, TextView creationDate) {
+    public void downloadProfile(MainActivity mainActivity, FirebaseAuth mAuth, DatabaseReference database_ref,  TextView profile_name, TextView profile_email, CircleImageView profile_img, TextView creationText, TextView creationDate) {
 
         User localUser = new User();
         if (mAuth.getCurrentUser() != null) {
@@ -202,10 +202,7 @@ public class ProfileFragmentViewModel extends ViewModel {
                     if (snapshot.exists()) {
                         localUser.name = snapshot.child("name").getValue().toString();
                         localUser.mail = mAuth.getCurrentUser().getEmail();
-
                         localUser.photoUrl = snapshot.child("photoUrl").getValue().toString();
-
-
                         profile_email.setText(localUser.mail);
                         profile_name.setText(localUser.name);
 

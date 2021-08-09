@@ -153,7 +153,7 @@ public class PlaylistsFragmentViewModel extends ViewModel {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
-                                            mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(name, "", playlist, 0)).commit();
+                                            mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(name, "", playlist, 0)).commit();
                                         }
                                     }
                                 });

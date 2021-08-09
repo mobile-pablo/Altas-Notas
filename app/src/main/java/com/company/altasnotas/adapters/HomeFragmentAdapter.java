@@ -50,7 +50,7 @@ public class HomeFragmentAdapter extends RecyclerView.Adapter<HomeFragmentAdapte
         holder.home_row_img.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(authors.get(position), albums.get(position), playlists.get(position), 1)).addToBackStack(null).commit();
+                mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(authors.get(position), albums.get(position), playlists.get(position), 1)).addToBackStack(null).commit();
 
             }
         });

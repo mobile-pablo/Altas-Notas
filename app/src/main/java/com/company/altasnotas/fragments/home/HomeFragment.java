@@ -105,11 +105,11 @@ public class HomeFragment extends Fragment {
 
 
         profile_img.setOnClickListener(v -> {
-        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new ProfileFragment()).commit();
+        getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new ProfileFragment()).addToBackStack(null).commit();
         });
 
         if(mAuth.getCurrentUser()==null){
-            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new LoginFragment()).commit();
+            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new LoginFragment()).commit();
         }
         return view;
     }

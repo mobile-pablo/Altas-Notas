@@ -28,6 +28,7 @@ import com.company.altasnotas.models.Song;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -46,8 +47,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
 
-    private BottomSheetDialog bottomSheetDialog;
-    private BottomSheetDialog choosePlaylistDialog;
+
 
     public CurrentPlaylistAdapter(MainActivity activity, Playlist playlist, Integer isFavFragment) {
         this.playlist = playlist;
@@ -124,7 +124,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
             MainActivity.currentSongAlbum=playlist.getTitle();
             MainActivity.currentSongAuthor=playlist.getDescription();
             PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0,false);
-            activity.getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment).addToBackStack(null).commit();
+            activity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, playerFragment).addToBackStack(null).commit();
 
         });
 
@@ -311,7 +311,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
     }
 
     private void openPlaylistSongSettingsDialog(Integer position, MyViewHolder holder) {
-        bottomSheetDialog = new BottomSheetDialog(holder.itemView.getContext());
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(holder.itemView.getContext());
         bottomSheetDialog.setContentView(R.layout.bottom_playlist_song_settings_layout);
 
         LinearLayout showAlbum = bottomSheetDialog.findViewById(R.id.bottom_settings_album_box);
@@ -337,7 +337,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                             x.setDir_title(playlist.getSongs().get(position).getAlbum());
                             x.setDir_desc(playlist.getSongs().get(position).getAuthor());
                             bottomSheetDialog.dismiss();
-                            activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
+                            activity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
 
                         }
                     }
@@ -422,7 +422,8 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
     }
 
     private void openSongSettingDialog(Integer position, MyViewHolder holder) {
-        bottomSheetDialog = new BottomSheetDialog(holder.itemView.getContext());
+
+    BottomSheetDialog    bottomSheetDialog = new BottomSheetDialog(activity);
         bottomSheetDialog.setContentView(R.layout.bottom_song_settings_layout);
 
         LinearLayout showAlbum = bottomSheetDialog.findViewById(R.id.bottom_settings_album_box);
@@ -447,7 +448,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                             x.setDir_title(playlist.getSongs().get(position).getAlbum());
                             x.setDir_desc(playlist.getSongs().get(position).getAuthor());
                             bottomSheetDialog.dismiss();
-                            activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
+                            activity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
 
                         }
                     }
@@ -477,7 +478,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
     }
 
     private void addToPlaylist(Integer position, MyViewHolder holder) {
-        choosePlaylistDialog = new BottomSheetDialog(holder.itemView.getContext());
+        BottomSheetDialog  choosePlaylistDialog = new BottomSheetDialog(holder.itemView.getContext());
         choosePlaylistDialog.setContentView(R.layout.choose_playlist_dialog);
 
         RecyclerView chooseRecyclerView = choosePlaylistDialog.findViewById(R.id.choose_playlist_recycler_view);

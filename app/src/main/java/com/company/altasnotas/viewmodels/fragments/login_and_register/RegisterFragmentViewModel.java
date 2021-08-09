@@ -55,7 +55,7 @@ public class RegisterFragmentViewModel extends ViewModel {
                                 bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
                                 Toast.makeText(activity, "Register success", Toast.LENGTH_SHORT).show();
 
-                                activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
+                                activity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
                                 //Walkthrough will be here
                             }
                         });

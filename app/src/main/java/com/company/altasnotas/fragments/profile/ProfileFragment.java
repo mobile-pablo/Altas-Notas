@@ -59,7 +59,6 @@ import static android.app.Activity.RESULT_OK;
 
 public class ProfileFragment extends Fragment {
     private DatabaseReference database_ref;
-    private final FirebaseStorage storage = FirebaseStorage.getInstance("gs://altas-notas.appspot.com");
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
     private Uri returnUri=null;
@@ -90,7 +89,7 @@ public class ProfileFragment extends Fragment {
           delete_box = view.findViewById(R.id.profile_details_delete_box);
 
           model =  new ViewModelProvider(requireActivity()).get(ProfileFragmentViewModel.class);
-          model.downloadProfile((MainActivity) getActivity(), mAuth,  database_ref,  storage, profile_name, profile_email, profile_img,creationTextView, creationDateTextView);
+          model.downloadProfile((MainActivity) getActivity(), mAuth,  database_ref, profile_name, profile_email, profile_img,creationTextView, creationDateTextView);
 
 
 

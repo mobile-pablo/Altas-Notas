@@ -129,6 +129,6 @@
         android:textSize="24sp"
         android:textStyle="bold" />
 </LinearLayout>
-    <include
-        layout="@layout/bottom_song_settings_layout"/>
+    <include layout="@layout/bottom_song_settings_layout"/>
+    <include layout="@layout/bottom_playlist_song_settings_layout"/>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
