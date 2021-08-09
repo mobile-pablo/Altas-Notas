@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 
@@ -107,8 +108,10 @@ public class ProfileFragmentViewModel extends ViewModel {
     }
 
     public void deleteProfile(MainActivity activity ,FirebaseAuth mAuth, DatabaseReference database_ref){
+        String uid = mAuth.getCurrentUser().getUid();
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-
+        ArrayList<String> keys = new ArrayList<>();
+        final Integer[] x = {0};
         /*
         We need to delete
         - Playlists data   + img
@@ -123,19 +126,32 @@ public class ProfileFragmentViewModel extends ViewModel {
             }
         });
 
-        final CountDownLatch[] countDownLatch = new CountDownLatch[1];
-        database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+
+        database_ref.child("music").child("playlists").child(uid).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                countDownLatch[0] = new CountDownLatch((int) snapshot.getChildrenCount());
-                for(DataSnapshot ds: snapshot.getChildren()){
 
-                    storageReference.child("images").child("playlists").child(mAuth.getCurrentUser().getUid()).child(ds.getKey()).delete().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            countDownLatch[0].countDown();
-                        }
-                    });
+                for(DataSnapshot ds: snapshot.getChildren()){
+                    keys.add(ds.getKey());
+                }
+
+                if(keys.size() == snapshot.getChildrenCount()){
+                    for(String key: keys){
+                        storageReference.child("images/playlists/"+uid+"/"+ key).delete().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                x[0]++;
+                                System.out.println("Playlist img deleted, X: "+x[0]+", "+keys.size());
+
+                                if(x[0]==keys.size()){
+                                    database_ref.child("music").child("playlists").child(uid).removeValue();
+                                }
+                            }
+                        });
+
+
+
+                    }
 
                 }
             }
@@ -146,26 +162,25 @@ public class ProfileFragmentViewModel extends ViewModel {
             }
         });
 
-        try {
-            if(countDownLatch[0]!=null)
-            {
-            countDownLatch[0].await();
-            }
-            database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).removeValue();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).removeValue();
 
-        database_ref.child("users").child(mAuth.getCurrentUser().getUid()).removeValue().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+        database_ref.child("fav_music").child(uid).removeValue();
+
+        database_ref.child("users").child(uid).removeValue().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                mAuth.getCurrentUser().delete();
-                for (int i = 0; i <    activity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
-                    activity.getSupportFragmentManager().popBackStack();
-                }
-                activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new LoginFragment()).commit();
-            }
+                mAuth.getCurrentUser().delete().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        for (int i = 0; i <    activity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
+                            mAuth.signOut();
+                            activity.getSupportFragmentManager().popBackStack();
+                        }
+                        activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new LoginFragment()).commit();
+
+                    }
+                });
+
+              }
         });
     }
 

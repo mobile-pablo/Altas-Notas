@@ -19,6 +19,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.HomeFragmentAdapter;
+import com.company.altasnotas.fragments.login_and_register.LoginFragment;
 import com.company.altasnotas.fragments.profile.ProfileFragment;
 import com.company.altasnotas.models.Playlist;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -93,48 +94,52 @@ public class HomeFragment extends Fragment {
         profile_img.setOnClickListener(v -> {
         getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new ProfileFragment()).commit();
         });
+
+        if(mAuth.getCurrentUser()==null){
+            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new LoginFragment()).commit();
+        }
         return view;
     }
 
     private void downloadPhoto(ImageView profile_img, Activity mainActivity) {
 
         //  Image download
-
-        database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                storageReference.child("images/profiles/" + mAuth.getCurrentUser().getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        System.out.println("IMG FOUND");
-                        if(mainActivity!=null)
-                            Glide.with(mainActivity).load(uri).error(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-
-                        if ((Integer.parseInt(snapshot.child("login_method").getValue().toString())) != 1) {
-                            String url = snapshot.child("photoUrl").getValue().toString();
-                            if(url!=null) {
-                                if (mainActivity != null)
-                                    Glide.with(mainActivity).load(url).error(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
-
-                            }else{
-                                Glide.with(mainActivity).load(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
-                            }
-                            Log.d("Storage exception: " + exception.getLocalizedMessage() + "\nLoad from Page URL instead", "FirebaseStorage");
-
+        if(mAuth.getCurrentUser()!=null) {
+            database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    storageReference.child("images/profiles/" + mAuth.getCurrentUser().getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            if (mainActivity != null)
+                                Glide.with(mainActivity).load(uri).error(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
                         }
-                    }
-                });
-            }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.d("DatabaseError: " + error.getMessage(), "FirebaseDatabase");
-            }
-        });
+                            if ((Integer.parseInt(snapshot.child("login_method").getValue().toString())) != 1) {
+                                String url = snapshot.child("photoUrl").getValue().toString();
+                                if (url != null) {
+                                    if (mainActivity != null)
+                                        Glide.with(mainActivity).load(url).error(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
+
+                                } else {
+                                    Glide.with(mainActivity).load(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
+                                }
+                                Log.d("Storage exception: " + exception.getLocalizedMessage() + "\nLoad from Page URL instead", "FirebaseStorage");
+
+                            }
+                        }
+                    });
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.d("DatabaseError: " + error.getMessage(), "FirebaseDatabase");
+                }
+            });
+        }
     }
 
     private void initializePlaylist(String author, String album) {

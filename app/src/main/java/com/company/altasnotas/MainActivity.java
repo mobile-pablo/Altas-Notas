@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new LoginFragment()).commit();
                 bottomNavigationView.setSelectedItemId(R.id.nav_login_item);
-                bottomNavigationView.getMenu().findItem(R.id.nav_login_item).setTitle("Login");
             }
         }
 
