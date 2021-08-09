@@ -2,6 +2,7 @@ package com.company.altasnotas.fragments.profile;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -162,7 +163,11 @@ public class ProfileFragment extends Fragment {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
                returnUri = result.getUriContent();
-
+                ProgressDialog progress = new ProgressDialog(getContext());
+                progress.setTitle("Loading Photo");
+                progress.setMessage("Please wait...");
+                progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
+                progress.show();
                 try {
 
                     Bitmap compresedImg =  ProfileFragmentViewModel.getBitmapFormUri(getActivity(), returnUri);
@@ -170,9 +175,6 @@ public class ProfileFragment extends Fragment {
                     ByteArrayOutputStream bao = new ByteArrayOutputStream();
                     compressImgRotated = getResizedBitmap(compressImgRotated,300);
                     compressImgRotated.compress(Bitmap.CompressFormat.PNG, 100, bao);
-
-                    Glide.with(requireActivity()).load(compressImgRotated).apply(RequestOptions.centerCropTransform()).error(R.drawable.img_not_found).into(profile_img);
-
                     byte[] byteArray = bao.toByteArray();
 
                     compresedImg.recycle();
@@ -193,8 +195,12 @@ public class ProfileFragment extends Fragment {
                                             if (task.isSuccessful()) {
                                                 MainActivity mainActivity = (MainActivity) getActivity();
                                                 if(task.getResult()!=null && mainActivity!=null) {
+                                                    progress.dismiss();
+                                                    Glide.with(requireActivity()).load(task.getResult()).apply(RequestOptions.centerCropTransform()).error(R.drawable.img_not_found).into(profile_img);
                                                     mainActivity.photoUrl.setValue( task.getResult().toString());
                                                 }
+                                            }else if(task.getResult()==null){
+                                                progress.dismiss();
                                             }
                                         }
                                     });
