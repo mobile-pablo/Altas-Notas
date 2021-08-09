@@ -481,6 +481,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
         choosePlaylistDialog.setContentView(R.layout.choose_playlist_dialog);
 
         RecyclerView chooseRecyclerView = choosePlaylistDialog.findViewById(R.id.choose_playlist_recycler_view);
+        TextView chooseState = choosePlaylistDialog.findViewById(R.id.choose_playlist_recycler_view_state);
         ArrayList<String> playlists_titles = new ArrayList<>();
         ArrayList<String> playlists_keys = new ArrayList<>();
 
@@ -490,19 +491,26 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
                 int x = 0;
+
                 for (DataSnapshot playlistSnapshot : snapshot.getChildren()) {
                     x++;
                     playlists_titles.add(playlistSnapshot.child("title").getValue().toString());
                     playlists_keys.add(playlistSnapshot.getKey());
                 }
 
-                if (x == snapshot.getChildrenCount()) {
+                if (snapshot.getChildrenCount()!=0) {
+                    if (x == snapshot.getChildrenCount()) {
 
-                    ChoosePlaylistAdapter choosePlaylistAdapter = new ChoosePlaylistAdapter(activity, choosePlaylistDialog, playlist.getSongs().get(position), playlists_titles, playlists_keys);
-                    chooseRecyclerView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext(), LinearLayoutManager.VERTICAL, false));
-                    choosePlaylistAdapter.notifyDataSetChanged();
-                    chooseRecyclerView.setAdapter(choosePlaylistAdapter);
+                        ChoosePlaylistAdapter choosePlaylistAdapter = new ChoosePlaylistAdapter(activity, choosePlaylistDialog, playlist.getSongs().get(position), playlists_titles, playlists_keys);
+                        chooseRecyclerView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext(), LinearLayoutManager.VERTICAL, false));
+                        choosePlaylistAdapter.notifyDataSetChanged();
+                        chooseRecyclerView.setAdapter(choosePlaylistAdapter);
+                    }
+                }else{
+                    chooseState.setVisibility(View.VISIBLE);
+                    chooseRecyclerView.setVisibility(View.GONE);
                 }
+
 
 
             }

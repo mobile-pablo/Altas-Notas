@@ -1,6 +1,7 @@
 package com.company.altasnotas.viewmodels.fragments.profile;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -18,7 +19,9 @@ import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.fragments.home.HomeFragment;
 import com.company.altasnotas.fragments.login_and_register.LoginFragment;
+import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.models.User;
+import com.company.altasnotas.services.BackgroundService;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -175,6 +178,12 @@ public class ProfileFragmentViewModel extends ViewModel {
                             mAuth.signOut();
                             activity.getSupportFragmentManager().popBackStack();
                         }
+                        PlayerFragment.playerView.getPlayer().stop();
+                        Intent bgService = new Intent(activity, BackgroundService.class);
+                        activity.stopService(bgService);
+                        MainActivity.currentSongAuthor="";
+                        MainActivity.currentSongAlbum="";
+                        MainActivity.currentSongTitle="";
                         activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new LoginFragment()).commit();
 
                     }
@@ -209,7 +218,9 @@ public class ProfileFragmentViewModel extends ViewModel {
                         creationDate.setVisibility(View.VISIBLE);
                         creationDate.setText(formatter.format(date));
 
-                        //  Image download
+                    Glide.with(mainActivity).load(mainActivity.photoUrl.getValue()).error(R.drawable.img_not_found).into(profile_img);
+                    /*
+                           //  Image download
                         StorageReference storageReference = storage.getReference();
                         database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
@@ -218,8 +229,10 @@ public class ProfileFragmentViewModel extends ViewModel {
                                     @Override
                                     public void onSuccess(Uri uri) {
                                         System.out.println("IMG FOUND");
-                                        if(mainActivity!=null)
+                                        if(mainActivity!=null) {
                                             Glide.with(mainActivity).load(uri).error(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
+                                            mainActivity.photoUrl=uri.toString();
+                                        }
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override
@@ -228,10 +241,12 @@ public class ProfileFragmentViewModel extends ViewModel {
                                         if ((Integer.parseInt(snapshot.child("login_method").getValue().toString())) != 1) {
                                             String url = snapshot.child("photoUrl").getValue().toString();
                                             if(url!=null) {
-                                                if (mainActivity != null)
+                                                if (mainActivity != null) {
                                                     Glide.with(mainActivity).load(url).error(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
-
+                                                    mainActivity.photoUrl=url;
+                                                }
                                             }else{
+                                                mainActivity.photoUrl="";
                                                 Glide.with(mainActivity).load(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
                                             }
                                             Log.d("Storage exception: " + exception.getLocalizedMessage() + "\nLoad from Page URL instead", "FirebaseStorage");
@@ -247,6 +262,7 @@ public class ProfileFragmentViewModel extends ViewModel {
                             }
                         });
 
+                     */
                     }
                 }
 

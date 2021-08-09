@@ -133,6 +133,7 @@ public class CurrentPlaylistFragment extends Fragment {
         recyclerView = view.findViewById(R.id.current_playlist_recycler_view);
 
         if (!  viewModel.getPlaylist().getImage_id().isEmpty()) {
+
             Glide.with(container)
                     .load(playlist.getImage_id())
                     .apply(RequestOptions.centerCropTransform())

@@ -101,7 +101,7 @@ public class LoginFragmentViewModel extends ViewModel {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    mainActivity.photoUrl = task.getResult().getUser().getPhotoUrl().toString();
+                    mainActivity.photoUrl.setValue(task.getResult().getUser().getPhotoUrl().toString());
                     addUser(mainActivity, 2, task.getResult().getAdditionalUserInfo().isNewUser());
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInWithCredential:success");
@@ -132,7 +132,7 @@ public class LoginFragmentViewModel extends ViewModel {
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
         User user;
         if (newUser) {
-            user = new User(mAuth.getCurrentUser().getDisplayName(), mAuth.getCurrentUser().getEmail(), "", "", "", mainActivity.photoUrl, i, 0, 0);
+            user = new User(mAuth.getCurrentUser().getDisplayName(), mAuth.getCurrentUser().getEmail(), "", "", "", mainActivity.photoUrl.getValue(), i, 0, 0);
             database.child("users").child(mAuth.getCurrentUser().getUid()).setValue(user);
         } else {
             database.child("users").child(mAuth.getCurrentUser().getUid()).child("login_method").setValue(i);
@@ -150,7 +150,7 @@ public class LoginFragmentViewModel extends ViewModel {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    mainActivity.photoUrl = mAuth.getCurrentUser().getPhotoUrl() + "/picture?height=1000&access_token=" + token.getToken();
+                    mainActivity.photoUrl.setValue(mAuth.getCurrentUser().getPhotoUrl() + "/picture?height=1000&access_token=" + token.getToken());
 
                     addUser(mainActivity, 3, task.getResult().getAdditionalUserInfo().isNewUser());
 

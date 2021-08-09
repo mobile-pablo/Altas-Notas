@@ -11,6 +11,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -83,7 +84,19 @@ public class HomeFragment extends Fragment {
         });
 
         Activity parentActivity=(Activity) view.getContext();
-        downloadPhoto(profile_img,parentActivity);
+
+        mainActivity.photoUrl.observe(mainActivity, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                if(mainActivity.photoUrl!=null){
+                    Glide.with(parentActivity).load(mainActivity.photoUrl.getValue()).error(R.drawable.img_not_found).into(profile_img);
+                }
+            }
+        });
+
+
+
+
 
         profile_img.setOnClickListener(v -> {
         getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new ProfileFragment()).commit();
@@ -95,46 +108,7 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
-    private void downloadPhoto(ImageView profile_img, Activity mainActivity) {
 
-        //  Image download
-        if(mAuth.getCurrentUser()!=null) {
-            database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    storageReference.child("images/profiles/" + mAuth.getCurrentUser().getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            if (mainActivity != null)
-                                Glide.with(mainActivity).load(uri).error(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-
-                            if ((Integer.parseInt(snapshot.child("login_method").getValue().toString())) != 1) {
-                                String url = snapshot.child("photoUrl").getValue().toString();
-                                if (url != null) {
-                                    if (mainActivity != null)
-                                        Glide.with(mainActivity).load(url).error(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
-
-                                } else {
-                                    Glide.with(mainActivity).load(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
-                                }
-                                Log.d("Storage exception: " + exception.getLocalizedMessage() + "\nLoad from Page URL instead", "FirebaseStorage");
-
-                            }
-                        }
-                    });
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Log.d("DatabaseError: " + error.getMessage(), "FirebaseDatabase");
-                }
-            });
-        }
-    }
 
     private void initializePlaylists() {
 
