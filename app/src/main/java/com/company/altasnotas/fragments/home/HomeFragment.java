@@ -76,13 +76,7 @@ public class HomeFragment extends Fragment {
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         recyclerView.setAdapter(adapter);
 
-
-        initializePlaylist("Kult", "Spokojnie");
-        initializePlaylist("Johnny Cash", "The Baron");
-        initializePlaylist("Bad Bunny", "YHLQMDLG");
-        initializePlaylist("Analogs", "Pełnoletnia Oi! Młodzież");
-        initializePlaylist("Problem", "Problem");
-        initializePlaylist("Problem", "Art Brut Dwa");
+        initializePlaylists();
 
         logout_img.setOnClickListener(v -> {
             mainActivity.logoutUser();
@@ -142,33 +136,41 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void initializePlaylist(String author, String album) {
-        Playlist x = new Playlist();
+    private void initializePlaylists() {
+
         if (mAuth.getCurrentUser() != null) {
 
-            database_ref.child("music").child("albums").child(author).child(album).addListenerForSingleValueEvent(new ValueEventListener() {
+            database_ref.child("music").child("albums").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot != null) {
 
-                        album_array[0] = snapshot.child("title").getValue().toString();
-                        author_array[0] = snapshot.child("description").getValue().toString();
+                    for(DataSnapshot ds_author: snapshot.getChildren()){
+                        for(DataSnapshot ds_album: ds_author.getChildren() ){
+                            if (ds_album != null) {
+                                Playlist x = new Playlist();
+                                String author = ds_author.getKey();
+                                String album = ds_album.getKey();
+                                album_array[0] = ds_album.child("title").getValue().toString();
+                                author_array[0] = ds_album.child("description").getValue().toString();
 
 
-                        albums.add(album);
-                        authors.add(author);
+                                albums.add(album);
+                                authors.add(author);
 
-                        x.setImage_id(snapshot.child("image_id").getValue().toString());
-                        x.setYear(snapshot.child("year").getValue().toString());
-                        x.setTitle(album_array[0]);
-                        x.setDescription(author_array[0]);
-                        x.setDir_title(album);
-                        x.setDir_desc(author);
+                                x.setImage_id(ds_album.child("image_id").getValue().toString());
+                                x.setYear(ds_album.child("year").getValue().toString());
+                                x.setTitle(album_array[0]);
+                                x.setDescription(author_array[0]);
+                                x.setDir_title(album);
+                                x.setDir_desc(author);
 
-                        playlists.add(x);
-                        adapter.notifyDataSetChanged();
+                                playlists.add(x);
+                                adapter.notifyDataSetChanged();
 
+                            }
+                        }
                     }
+
                 }
 
                 @Override

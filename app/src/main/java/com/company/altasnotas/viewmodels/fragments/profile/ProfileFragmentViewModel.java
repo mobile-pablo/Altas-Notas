@@ -117,7 +117,7 @@ public class ProfileFragmentViewModel extends ViewModel {
         - Playlists data   + img
         - Profile data +img
         - Fav music
-         */
+        */
 
         storageReference.child("images").child("profiles").child(mAuth.getCurrentUser().getUid()).delete().addOnFailureListener(activity, new OnFailureListener() {
             @Override

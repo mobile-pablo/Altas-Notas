@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -62,7 +63,8 @@ public class HomeFragmentAdapter extends RecyclerView.Adapter<HomeFragmentAdapte
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
         ImageView home_row_img;
-        TextView home_row_year, home_row_title, home_row_author;
+        TextView home_row_year, home_row_author;
+        AppCompatTextView home_row_title;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);

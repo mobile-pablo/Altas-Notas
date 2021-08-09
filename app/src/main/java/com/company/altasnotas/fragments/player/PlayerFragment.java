@@ -31,6 +31,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.palette.graphics.Palette;
+import androidx.palette.graphics.Target;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -38,7 +39,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.Request;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.target.SizeReadyCallback;
-import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
@@ -406,8 +406,7 @@ public class PlayerFragment extends Fragment {
                         song_img.setImageDrawable(resource);
                         Bitmap b =drawableToBitmap(resource);
                         palette = Palette.from(b).generate();
-                        viewModel.setUpInfoBackgroundColor(getActivity(), player_full_box, palette);
-
+                        viewModel.setUpInfoBackgroundColor(getActivity(), player_full_box, palette, settings_btn);
                     }
 
                     @Override

@@ -135,8 +135,6 @@ public class CurrentPlaylistFragment extends Fragment {
         if (!  viewModel.getPlaylist().getImage_id().isEmpty()) {
             Glide.with(container)
                     .load(playlist.getImage_id())
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .skipMemoryCache(true)
                     .apply(RequestOptions.centerCropTransform())
                     .error(R.drawable.img_not_found).into(imageView);
         } else {

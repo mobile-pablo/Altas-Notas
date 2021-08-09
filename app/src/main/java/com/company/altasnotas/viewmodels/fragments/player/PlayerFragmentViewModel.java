@@ -44,7 +44,7 @@ public class PlayerFragmentViewModel extends ViewModel {
         return mostPopulous;
     }
 
-    public void setUpInfoBackgroundColor(FragmentActivity activity, LinearLayout ll, Palette palette) {
+    public void setUpInfoBackgroundColor(FragmentActivity activity, LinearLayout ll, Palette palette, ImageButton setting_btn) {
         Palette.Swatch swatch = getMostPopulousSwatch(palette);
         if (swatch != null) {
             int endColor = ContextCompat.getColor(ll.getContext(), R.color.black);
@@ -53,6 +53,7 @@ public class PlayerFragmentViewModel extends ViewModel {
             if (startColor == endColor) {
                 startColor = Color.DKGRAY;
             }
+            setting_btn.getDrawable().setTint(swatch.getTitleTextColor());
 
             GradientDrawable gradientDrawable = new GradientDrawable(
                     GradientDrawable.Orientation.TOP_BOTTOM,
