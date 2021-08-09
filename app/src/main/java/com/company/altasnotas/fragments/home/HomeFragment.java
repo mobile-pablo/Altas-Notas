@@ -56,6 +56,7 @@ public class HomeFragment extends Fragment {
     private ImageView  logout_img;
     private CircleImageView profile_img;
     StorageReference storageReference;
+    Boolean isOpenByLogin;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -85,14 +86,19 @@ public class HomeFragment extends Fragment {
 
         Activity parentActivity=(Activity) view.getContext();
 
-        mainActivity.photoUrl.observe(mainActivity, new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                if(mainActivity.photoUrl!=null){
-                    Glide.with(parentActivity).load(mainActivity.photoUrl.getValue()).error(R.drawable.img_not_found).into(profile_img);
-                }
-            }
-        });
+        if(isOpenByLogin){
+            mainActivity.downloadPhoto();
+        }
+
+         mainActivity.photoUrl.observe(mainActivity, new Observer<String>() {
+             @Override
+             public void onChanged(String s) {
+                 if(mainActivity.photoUrl!=null){
+                     Glide.with(parentActivity).load(mainActivity.photoUrl.getValue()).error(R.drawable.img_not_found).into(profile_img);
+                 }
+             }
+         });
+
 
 
 
@@ -108,6 +114,9 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
+    public HomeFragment(Boolean isOpenByLogin){
+        this.isOpenByLogin=isOpenByLogin;
+    }
 
 
     private void initializePlaylists() {

@@ -194,7 +194,7 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
                                                         mainActivity.getSupportFragmentManager().popBackStack();
                                                     }
 
-                                                    mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment()).commit();
+                                                    mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(false)).commit();
                                                     if (task.isSuccessful()) {
                                                         System.out.println("Photo deleted with playlist");
                                                     } else {

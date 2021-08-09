@@ -178,7 +178,6 @@ public class ProfileFragmentViewModel extends ViewModel {
                             mAuth.signOut();
                             activity.getSupportFragmentManager().popBackStack();
                         }
-                        PlayerFragment.playerView.getPlayer().stop();
                         Intent bgService = new Intent(activity, BackgroundService.class);
                         activity.stopService(bgService);
                         MainActivity.currentSongAuthor="";
@@ -195,7 +194,7 @@ public class ProfileFragmentViewModel extends ViewModel {
 
     public void downloadProfile(MainActivity mainActivity, FirebaseAuth mAuth, DatabaseReference database_ref, FirebaseStorage storage, TextView profile_name, TextView profile_email, CircleImageView profile_img, TextView creationText, TextView creationDate) {
 
-        User localUser = new User("Username", "", "", "", "", "", 0, 0, 0);
+        User localUser = new User();
         if (mAuth.getCurrentUser() != null) {
             database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -203,10 +202,9 @@ public class ProfileFragmentViewModel extends ViewModel {
                     if (snapshot.exists()) {
                         localUser.name = snapshot.child("name").getValue().toString();
                         localUser.mail = mAuth.getCurrentUser().getEmail();
-                        localUser.age = snapshot.child("age").getValue().toString();
-                        localUser.phone = snapshot.child("phone").getValue().toString();
+
                         localUser.photoUrl = snapshot.child("photoUrl").getValue().toString();
-                        localUser.address = snapshot.child("address").getValue().toString();
+
 
                         profile_email.setText(localUser.mail);
                         profile_name.setText(localUser.name);
@@ -278,7 +276,7 @@ public class ProfileFragmentViewModel extends ViewModel {
     public void updateProfile(FirebaseAuth mAuth, DatabaseReference database_ref, TextView profile_name) {
 
 
-        User localUser = new User("Username", "", "", "", "", "", 0, 0, 0);
+        User localUser = new User();
         if (mAuth.getCurrentUser() != null) {
             database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -286,13 +284,9 @@ public class ProfileFragmentViewModel extends ViewModel {
                     if (snapshot.exists()) {
                         localUser.name = snapshot.child("name").getValue().toString();
                         localUser.mail = mAuth.getCurrentUser().getEmail();
-                        localUser.age = snapshot.child("age").getValue().toString();
-                        localUser.phone = snapshot.child("phone").getValue().toString();
-                        localUser.address = snapshot.child("address").getValue().toString();
                         localUser.photoUrl = snapshot.child("photoUrl").getValue().toString();
                         localUser.login_method = Integer.parseInt(snapshot.child("login_method").getValue().toString());
-                        localUser.playlist_amount = Integer.parseInt(snapshot.child("playlist_amount").getValue().toString());
-                        localUser.fav_song_amount = Integer.parseInt(snapshot.child("fav_song_amount").getValue().toString());
+
 
                         //After we download data from db, We update its according to Inputed Data
 

@@ -187,6 +187,7 @@ public class ProfileFragment extends Fragment {
                         public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                             if(!task.isSuccessful()){
                                 Log.d(MainActivity.FIREBASE, "Upload image failed");
+                                progress.dismiss();
                             }else{
                                 if(getActivity()!=null) {
                                     storageReference.child("images/profiles/" + mAuth.getCurrentUser().getUid()).getDownloadUrl().addOnCompleteListener(getActivity(), new OnCompleteListener<Uri>() {

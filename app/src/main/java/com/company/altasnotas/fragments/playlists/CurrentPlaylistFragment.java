@@ -2,6 +2,7 @@ package com.company.altasnotas.fragments.playlists;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -421,7 +422,12 @@ public class CurrentPlaylistFragment extends Fragment {
                     compressImgRotated =  viewModel.getResizedBitmap(compressImgRotated, 300);
                     compressImgRotated.compress(Bitmap.CompressFormat.PNG, 100, bao);
 
-                    Glide.with(requireActivity()).load(compressImgRotated).apply(RequestOptions.centerCropTransform()).into(imageView);
+                    ProgressDialog progress = new ProgressDialog(getContext());
+                    progress.setTitle("Loading Photo");
+                    progress.setMessage("Please wait...");
+                    progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
+                    progress.show();
+
 
                     byte[] byteArray = bao.toByteArray();
 
@@ -430,6 +436,7 @@ public class CurrentPlaylistFragment extends Fragment {
                     //Upload image
                     storageReference = FirebaseStorage.getInstance().getReference();
 
+                    Bitmap finalCompressImgRotated = compressImgRotated;
                     database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid().toString()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -447,8 +454,16 @@ public class CurrentPlaylistFragment extends Fragment {
                                                             storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + ds.getKey()).getDownloadUrl().addOnSuccessListener(requireActivity(), new OnSuccessListener<Uri>() {
                                                                 @Override
                                                                 public void onSuccess(Uri u) {
+                                                                    progress.dismiss();
                                                                     database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(ds.getKey()).child("image_id").setValue(u.toString());
                                                                     playlist.setImage_id(u.toString());
+                                                                    Glide.with(requireActivity()).load(finalCompressImgRotated).apply(RequestOptions.centerCropTransform()).into(imageView);
+
+                                                                }
+                                                            }).addOnFailureListener(getActivity(), new OnFailureListener() {
+                                                                @Override
+                                                                public void onFailure(@NonNull Exception e) {
+                                                                    progress.dismiss();
                                                                 }
                                                             });
 
@@ -457,7 +472,7 @@ public class CurrentPlaylistFragment extends Fragment {
 
                                                 } else {
                                                     System.out.println("Upload image failed!");
-
+                                                    progress.dismiss();
                                                 }
                                             }
                                         });

@@ -35,7 +35,7 @@ public class RegisterFragmentViewModel extends ViewModel {
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
 
-                        User user = new User("Username", mail, "", "", "", "", 1, 0, 0);
+                        User user = new User("Username", mail,"",1);
                         /**
                          * Login methods :
                          *  1 - Mail
@@ -55,7 +55,7 @@ public class RegisterFragmentViewModel extends ViewModel {
                                 bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
                                 Toast.makeText(activity, "Register success", Toast.LENGTH_SHORT).show();
 
-                                activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment()).commit();
+                                activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
                                 //Walkthrough will be here
                             }
                         });

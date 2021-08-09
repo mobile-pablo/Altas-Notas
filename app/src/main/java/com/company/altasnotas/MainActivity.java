@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             if (mAuth.getCurrentUser() != null) {
-                getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment()).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(false)).commit();
                 bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
             } else {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new LoginFragment()).commit();
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
             }
             switch (item.getItemId()) {
                 case R.id.nav_home_item:
-                    selectedFragment[0] = new HomeFragment();
+                    selectedFragment[0] = new HomeFragment(false);
                     break;
 
                 case R.id.nav_fav_item:
@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void logoutUser() {
         //Logout
-        photoUrl = null;
+        photoUrl.setValue("");
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
         if (isLoggedIn == true) {

@@ -58,7 +58,8 @@ public class LoginFragmentViewModel extends ViewModel {
                         for (int i = 0; i < count; i++) {
                             mainActivity.getSupportFragmentManager().popBackStack();
                         }
-                        mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment()).commit();
+
+                        mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
                     } else {
                         Toast.makeText(context, "Wrong email or password", Toast.LENGTH_SHORT).show();
                     }
@@ -101,8 +102,9 @@ public class LoginFragmentViewModel extends ViewModel {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    mainActivity.photoUrl.setValue(task.getResult().getUser().getPhotoUrl().toString());
-                    addUser(mainActivity, 2, task.getResult().getAdditionalUserInfo().isNewUser());
+
+
+                    addUser(mainActivity, 2, task.getResult().getAdditionalUserInfo().isNewUser(),task.getResult().getUser().getPhotoUrl().toString());
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInWithCredential:success");
                     FirebaseUser user = mAuth.getCurrentUser();
@@ -116,7 +118,7 @@ public class LoginFragmentViewModel extends ViewModel {
                     for (int i = 0; i < count; i++) {
                         mainActivity.getSupportFragmentManager().popBackStack();
                     }
-                    mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment()).commit();
+                    mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
 
                 } else {
                     // If sign in fails, display a message to the user.
@@ -128,11 +130,12 @@ public class LoginFragmentViewModel extends ViewModel {
         });
     }
 
-    private void addUser(MainActivity mainActivity, int i, boolean newUser) {
+    private void addUser(MainActivity mainActivity, int i, boolean newUser, String photo) {
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
         User user;
         if (newUser) {
-            user = new User(mAuth.getCurrentUser().getDisplayName(), mAuth.getCurrentUser().getEmail(), "", "", "", mainActivity.photoUrl.getValue(), i, 0, 0);
+            mainActivity.photoUrl.setValue(photo);
+            user = new User(mAuth.getCurrentUser().getDisplayName(), mAuth.getCurrentUser().getEmail(),  mainActivity.photoUrl.getValue(), i);
             database.child("users").child(mAuth.getCurrentUser().getUid()).setValue(user);
         } else {
             database.child("users").child(mAuth.getCurrentUser().getUid()).child("login_method").setValue(i);
@@ -150,9 +153,9 @@ public class LoginFragmentViewModel extends ViewModel {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    mainActivity.photoUrl.setValue(mAuth.getCurrentUser().getPhotoUrl() + "/picture?height=1000&access_token=" + token.getToken());
 
-                    addUser(mainActivity, 3, task.getResult().getAdditionalUserInfo().isNewUser());
+
+                    addUser(mainActivity, 3, task.getResult().getAdditionalUserInfo().isNewUser(),mAuth.getCurrentUser().getPhotoUrl() + "/picture?height=1000&access_token=" + token.getToken());
 
                     FirebaseUser user = mAuth.getCurrentUser();
                     mainActivity.updateUI(user);
@@ -164,7 +167,7 @@ public class LoginFragmentViewModel extends ViewModel {
 
                     BottomNavigationView bottomNavigationView = mainActivity.findViewById(R.id.main_nav_bottom);
                     bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
-                    mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment()).commit();
+                    mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
                 } else {
                     AccessToken accessToken = AccessToken.getCurrentAccessToken();
                     boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
