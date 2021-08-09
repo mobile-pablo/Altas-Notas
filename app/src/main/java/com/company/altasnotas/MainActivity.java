@@ -1,5 +1,8 @@
 package com.company.altasnotas;
 
+import android.app.NotificationManager;
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,6 +28,7 @@ import com.company.altasnotas.fragments.playlists.PlaylistsFragment;
 import com.company.altasnotas.fragments.profile.ProfileFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
+import com.company.altasnotas.services.BackgroundService;
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
@@ -140,6 +144,11 @@ public class MainActivity extends AppCompatActivity {
     public void logoutUser() {
         //Logout
         photoUrl.setValue("");
+        if(PlayerFragment.playerView!=null){
+            PlayerFragment.playerView.getPlayer().stop();
+            PlayerFragment.playerView.setPlayer(null);
+        }
+
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
         if (isLoggedIn == true) {

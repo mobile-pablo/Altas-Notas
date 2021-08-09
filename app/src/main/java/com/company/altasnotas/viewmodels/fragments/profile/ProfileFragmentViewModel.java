@@ -1,6 +1,8 @@
 package com.company.altasnotas.viewmodels.fragments.profile;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -178,6 +180,11 @@ public class ProfileFragmentViewModel extends ViewModel {
                             mAuth.signOut();
                             activity.getSupportFragmentManager().popBackStack();
                         }
+
+                        if(PlayerFragment.playerView!=null){
+                            PlayerFragment.playerView.getPlayer().stop();
+                        }
+
                         Intent bgService = new Intent(activity, BackgroundService.class);
                         activity.stopService(bgService);
                         MainActivity.currentSongAuthor="";
