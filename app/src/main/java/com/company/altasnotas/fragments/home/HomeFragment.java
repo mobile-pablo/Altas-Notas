@@ -23,6 +23,8 @@ import com.company.altasnotas.fragments.profile.ProfileFragment;
 import com.company.altasnotas.models.Playlist;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -33,6 +35,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HomeFragment extends Fragment {
 
@@ -47,8 +51,9 @@ public class HomeFragment extends Fragment {
     private ArrayList<String> authors;
     private ArrayList<String> albums;
     MainActivity mainActivity;
-    private ImageView profile_img, logout_img;
-
+    private ImageView  logout_img;
+    private CircleImageView profile_img;
+    StorageReference storageReference;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -57,6 +62,7 @@ public class HomeFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         database_ref = database.getReference();
+        storageReference = FirebaseStorage.getInstance().getReference();
         albums = new ArrayList<>();
         authors = new ArrayList<>();
         playlists = new ArrayList<>();
@@ -91,13 +97,16 @@ public class HomeFragment extends Fragment {
     }
 
     private void downloadPhoto(ImageView profile_img, Activity mainActivity) {
-        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+
+        //  Image download
+
         database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 storageReference.child("images/profiles/" + mAuth.getCurrentUser().getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
+                        System.out.println("IMG FOUND");
                         if(mainActivity!=null)
                             Glide.with(mainActivity).load(uri).error(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
                     }
@@ -107,13 +116,13 @@ public class HomeFragment extends Fragment {
 
                         if ((Integer.parseInt(snapshot.child("login_method").getValue().toString())) != 1) {
                             String url = snapshot.child("photoUrl").getValue().toString();
-                        if(url!=null) {
-                            if (mainActivity != null)
-                                Glide.with(mainActivity).load(url).error(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
+                            if(url!=null) {
+                                if (mainActivity != null)
+                                    Glide.with(mainActivity).load(url).error(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
 
                             }else{
-                            Glide.with(mainActivity).load(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
-                                 }
+                                Glide.with(mainActivity).load(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
+                            }
                             Log.d("Storage exception: " + exception.getLocalizedMessage() + "\nLoad from Page URL instead", "FirebaseStorage");
 
                         }

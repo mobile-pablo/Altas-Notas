@@ -19,14 +19,23 @@
         <RelativeLayout
             android:id="@+id/home_top_box"
             android:layout_width="match_parent"
-            android:layout_height="50dp">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp">
 
-            <ImageView
+            <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/home_profile_btn"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:layout_alignParentLeft="true"
-                android:padding="10dp" />
+                android:elevation="4dp"
+                android:padding="5dp"
+                android:scaleType="centerCrop"
+               android:clickable="true"
+                app:maxImageSize="56dp"
+                android:src="@drawable/img_not_found"
+                app:civ_border_width="0dp"
+                app:civ_border_color="#00FFFFFF"
+ />
 
             <!-- Search will be available in version 2.0
                     <SearchView
@@ -38,15 +47,15 @@
                         android:paddingLeft="10dp"
                         android:paddingRight="10dp" />
                                 -->
-                    <ImageView
-                        android:id="@+id/home_logout_btn"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_alignParentRight="true"
-                        android:padding="10dp"
-                        android:src="@drawable/ic_logout"
-                        app:tint="@color/black"/>
-                </RelativeLayout>
+            <ImageView
+                android:id="@+id/home_logout_btn"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_alignParentRight="true"
+                android:padding="10dp"
+                android:src="@drawable/ic_logout"
+                app:tint="@color/black" />
+        </RelativeLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/home_recycler_view"

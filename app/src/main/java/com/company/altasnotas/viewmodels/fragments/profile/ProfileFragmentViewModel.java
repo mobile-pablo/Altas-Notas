@@ -41,6 +41,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class ProfileFragmentViewModel extends ViewModel {
     /**
      * Two functions below are copied from : https://programming.vip/docs/android-uri-to-bitmap-image-and-compress.html
@@ -167,7 +169,7 @@ public class ProfileFragmentViewModel extends ViewModel {
         });
     }
 
-    public void downloadProfile(MainActivity mainActivity, FirebaseAuth mAuth, DatabaseReference database_ref, FirebaseStorage storage, TextView profile_name, TextView profile_email,  ShapeableImageView profile_img, TextView creationText, TextView creationDate) {
+    public void downloadProfile(MainActivity mainActivity, FirebaseAuth mAuth, DatabaseReference database_ref, FirebaseStorage storage, TextView profile_name, TextView profile_email, CircleImageView profile_img, TextView creationText, TextView creationDate) {
 
         User localUser = new User("Username", "", "", "", "", "", 0, 0, 0);
         if (mAuth.getCurrentUser() != null) {

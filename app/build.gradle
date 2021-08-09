@@ -101,6 +101,8 @@ dependencies {
     implementation 'com.android.support:palette-v7:30.0.0'
 
 
+    //Round pic
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
 
 
 }

@@ -50,6 +50,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 
@@ -62,7 +64,7 @@ public class ProfileFragment extends Fragment {
     private Uri returnUri=null;
     private ProfileFragmentViewModel model;
     private StorageReference storageReference;
-    private ShapeableImageView profile_img;
+    private CircleImageView profile_img;
     private TextView profile_name, profile_email;
     private ImageButton profile_img_edit_btn, profile_name_edit_btn;
     private TextView creationTextView, creationDateTextView;

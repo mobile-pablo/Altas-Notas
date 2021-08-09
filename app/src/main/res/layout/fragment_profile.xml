@@ -189,7 +189,7 @@
         android:elevation="25dp"
         app:layout_constraintTop_toBottomOf="@+id/profile_half_circle_box">
 
-        <com.google.android.material.imageview.ShapeableImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profile_user_img"
             android:layout_width="130dp"
             android:layout_height="130dp"
@@ -201,8 +201,10 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
-            app:strokeWidth="1dp" />
+            android:src="@drawable/img_not_found"
+            app:civ_border_width="0dp"
+            app:civ_border_color="#00FFFFFF"
+             />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/profile_user_img_btn"
