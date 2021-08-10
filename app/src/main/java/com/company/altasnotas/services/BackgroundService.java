@@ -13,6 +13,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -41,6 +42,7 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
 
 import java.util.ArrayList;
@@ -52,8 +54,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     private Context context;
     private PlayerNotificationManager playerNotificationManager;
     private final IBinder mBinder = new LocalBinder();
-    private final String CHANNEL_ID = "6";
-    private final String NOTIFICATION_ID = "8";
+    private final String CHANNEL_ID = "5423";
+    private final String NOTIFICATION_ID = "2421";
     private Integer position;
     private Long seekedTo;
     private String externalPath, externalPlaylistTitle, externalDescription;
@@ -68,6 +70,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     public void onCreate() {
         super.onCreate();
         context = this;
+
     }
 
     @Nullable
@@ -95,6 +98,56 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                 releasePlayer();
                startPlayer();
               //   testingPlayer();
+
+                playerNotificationManager = PlayerNotificationManager
+                        .createWithNotificationChannel(context,CHANNEL_ID,R.string.app_name, Integer.parseInt(NOTIFICATION_ID), new PlayerNotificationManager.MediaDescriptionAdapter() {
+                            @Override
+                            public CharSequence getCurrentContentTitle(Player player) {
+                                return playlist.getSongs().get(position).getTitle();
+                            }
+
+                            @Nullable
+                            @Override
+                            public PendingIntent createCurrentContentIntent(Player player) {
+                                Intent intent = new Intent(context, MainActivity.class);
+                                intent.putExtra("frag", "PlayerFragment");
+                                intent.putExtra("playlist", playlist);
+                                intent.putExtra("pos", position);
+                                intent.putParcelableArrayListExtra("songs", songs);
+                                intent.putExtra("ms", player.getContentPosition());
+                                return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                            }
+
+                            @Nullable
+                            @Override
+                            public CharSequence getCurrentContentText(Player player) {
+                                return playlist.getSongs().get(position).getAuthor();
+                            }
+
+                            @Nullable
+                            @Override
+                            public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
+
+
+                                Uri uri = Uri.parse(playlist.getSongs().get(position).getImage_url());
+                                Glide.with(getApplicationContext())
+                                        .load(uri).into(new CustomTarget<Drawable>() {
+                                    @Override
+                                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                                        callback.onBitmap(drawableToBitmap(resource));
+                                    }
+
+                                    @Override
+                                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                                    }
+                                });
+                                return null;
+
+                            }
+                        });
+
+
                 playerNotificationManager = new PlayerNotificationManager.Builder(context,
                         Integer.parseInt(NOTIFICATION_ID),
                         CHANNEL_ID,
@@ -150,6 +203,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                                     public void onNotificationPosted(int notificationId, Notification notification, boolean ongoing) {
                                         if (ongoing) {
                                             // Make sure the service will not get destroyed while playing media.
+                                            createNotificationChannel(notification.getChannelId());
                                             startForeground(notificationId, notification);
                                         } else {
                                             // Make notification cancellable.
@@ -164,6 +218,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                                     }
                                 })
                         .build();
+
 
 
                 MediaSessionCompat mediaSession = new MediaSessionCompat(context, context.getString(R.string.app_name));
@@ -182,6 +237,56 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
             playlist.setSongs(songs);
            startPlayer();
            //  testingPlayer();
+
+
+            playerNotificationManager = PlayerNotificationManager
+                    .createWithNotificationChannel(context,CHANNEL_ID,R.string.app_name, Integer.parseInt(NOTIFICATION_ID), new PlayerNotificationManager.MediaDescriptionAdapter() {
+                        @Override
+                        public CharSequence getCurrentContentTitle(Player player) {
+                            return playlist.getSongs().get(position).getTitle();
+                        }
+
+                        @Nullable
+                        @Override
+                        public PendingIntent createCurrentContentIntent(Player player) {
+                            Intent intent = new Intent(context, MainActivity.class);
+                            intent.putExtra("frag", "PlayerFragment");
+                            intent.putExtra("playlist", playlist);
+                            intent.putExtra("pos", position);
+                            intent.putParcelableArrayListExtra("songs", songs);
+                            intent.putExtra("ms", player.getContentPosition());
+                            return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        }
+
+                        @Nullable
+                        @Override
+                        public CharSequence getCurrentContentText(Player player) {
+                            return playlist.getSongs().get(position).getAuthor();
+                        }
+
+                        @Nullable
+                        @Override
+                        public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
+
+                            Uri uri = Uri.parse(playlist.getSongs().get(position).getImage_url());
+                            Glide.with(getApplicationContext())
+                                    .load(uri).into(new CustomTarget<Drawable>() {
+                                @Override
+                                public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                                    callback.onBitmap(drawableToBitmap(resource));
+                                }
+
+                                @Override
+                                public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                                }
+                            });
+                            return null;
+
+                        }
+
+
+                    });
             playerNotificationManager = new PlayerNotificationManager.Builder(context,
                     Integer.parseInt(NOTIFICATION_ID),
                     CHANNEL_ID,
@@ -238,6 +343,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                                 public void onNotificationPosted(int notificationId, Notification notification, boolean ongoing) {
                                     if (ongoing) {
                                         // Make sure the service will not get destroyed while playing media.
+                                        createNotificationChannel(notification.getChannelId());
                                         startForeground(notificationId, notification);
                                     } else {
                                         // Make notification cancellable.
@@ -253,6 +359,9 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                             })
                     .build();
 
+
+
+
             MediaSessionCompat mediaSession = new MediaSessionCompat(context, context.getString(R.string.app_name));
             mediaSession.setActive(true);
             playerNotificationManager.setMediaSessionToken(mediaSession.getSessionToken());
@@ -266,7 +375,14 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
 
         return START_STICKY;
     }
-
+    private void createNotificationChannel(String channelId) {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            int importance = NotificationUtil.IMPORTANCE_DEFAULT;
+            NotificationUtil.createNotificationChannel(context,channelId,R.string.app_name, R.string.app_name, importance);
+        }
+    }
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);

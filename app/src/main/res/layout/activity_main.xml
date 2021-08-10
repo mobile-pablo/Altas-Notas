@@ -21,7 +21,8 @@
         android:layout_height="50dp"
         android:paddingBottom="5dp"
         android:paddingTop="5dp"
-        app:menu="@menu/main_bottom_nav_menu" />
+        app:menu="@menu/main_bottom_nav_menu"
+        android:background="@color/white"/>
 
 
 </LinearLayout>
