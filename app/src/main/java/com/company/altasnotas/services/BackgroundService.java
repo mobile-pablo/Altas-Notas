@@ -334,7 +334,6 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
 
               if (event.getAction() == KeyEvent.ACTION_UP)
               {
-                  System.out.println("EVENT KEYCODE:"+x);
                switch (x){
                    case    KeyEvent.KEYCODE_MEDIA_NEXT:
                        player.next();
