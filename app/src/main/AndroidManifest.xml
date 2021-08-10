@@ -61,6 +61,7 @@
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
+            android:theme="@style/Theme.AltasNotas.NoActionBar"
             android:windowSoftInputMode="adjustResize"
             android:screenOrientation="portrait">
         </activity>

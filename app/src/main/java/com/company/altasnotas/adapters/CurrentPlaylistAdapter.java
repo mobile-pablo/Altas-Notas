@@ -2,6 +2,7 @@ package com.company.altasnotas.adapters;
 
 
 import android.content.Intent;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,7 @@ import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -312,7 +314,14 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
     private void openPlaylistSongSettingsDialog(Integer position, MyViewHolder holder) {
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(holder.itemView.getContext());
+
         bottomSheetDialog.setContentView(R.layout.bottom_playlist_song_settings_layout);
+
+      bottomSheetDialog.getBehavior().setPeekHeight(MainActivity.dialogHeight);
+
+
+
+
 
         LinearLayout showAlbum = bottomSheetDialog.findViewById(R.id.bottom_settings_album_box);
         LinearLayout share = bottomSheetDialog.findViewById(R.id.bottom_settings_share_box);
@@ -425,7 +434,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
     BottomSheetDialog    bottomSheetDialog = new BottomSheetDialog(activity);
         bottomSheetDialog.setContentView(R.layout.bottom_song_settings_layout);
-
+        bottomSheetDialog.getBehavior().setPeekHeight(MainActivity.dialogHeight);
         LinearLayout showAlbum = bottomSheetDialog.findViewById(R.id.bottom_settings_album_box);
         LinearLayout addToPlaylist = bottomSheetDialog.findViewById(R.id.bottom_settings_playlists_box);
         LinearLayout share = bottomSheetDialog.findViewById(R.id.bottom_settings_share_box);
@@ -480,7 +489,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
     private void addToPlaylist(Integer position, MyViewHolder holder) {
         BottomSheetDialog  choosePlaylistDialog = new BottomSheetDialog(holder.itemView.getContext());
         choosePlaylistDialog.setContentView(R.layout.choose_playlist_dialog);
-
+        choosePlaylistDialog.getBehavior().setPeekHeight(MainActivity.dialogHeight);
         RecyclerView chooseRecyclerView = choosePlaylistDialog.findViewById(R.id.choose_playlist_recycler_view);
         TextView chooseState = choosePlaylistDialog.findViewById(R.id.choose_playlist_recycler_view_state);
         ArrayList<String> playlists_titles = new ArrayList<>();

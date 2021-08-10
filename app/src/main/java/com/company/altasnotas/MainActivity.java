@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -53,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     public MutableLiveData<String> photoUrl;
     public BottomNavigationView bottomNavigationView;
     public static String currentSongTitle="", currentSongAlbum ="",currentSongAuthor="";
-
+    public static Integer dialogHeight;
     public static final String FIREBASE = "Firebase";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +63,11 @@ public class MainActivity extends AppCompatActivity {
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+       getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int height = displayMetrics.heightPixels;
+        dialogHeight= (int) (height* 0.4);
 
         bottomNavigationView = findViewById(R.id.main_nav_bottom);
         bottomNavigationView.setItemIconTintList(null);

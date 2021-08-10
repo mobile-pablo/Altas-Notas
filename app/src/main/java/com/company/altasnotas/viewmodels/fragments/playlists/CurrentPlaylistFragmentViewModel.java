@@ -121,7 +121,7 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
     public void openPlaylistSettings(MainActivity mainActivity) {
         bottomSheetDialog = new BottomSheetDialog(mainActivity);
         bottomSheetDialog.setContentView(R.layout.bottom_playlist_settings);
-
+        bottomSheetDialog.getBehavior().setPeekHeight(MainActivity.dialogHeight);
         LinearLayout copy = bottomSheetDialog.findViewById(R.id.bottom_settings_copy_box);
         LinearLayout delete = bottomSheetDialog.findViewById(R.id.bottom_settings_delete_box);
         LinearLayout dismissDialog = bottomSheetDialog.findViewById(R.id.bottom_settings_dismiss_box);
