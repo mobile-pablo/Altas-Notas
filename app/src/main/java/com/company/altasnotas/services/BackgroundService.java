@@ -15,6 +15,8 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,6 +30,7 @@ import com.company.altasnotas.R;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -54,7 +57,6 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     private Integer position;
     private Long seekedTo;
     private String externalPath, externalPlaylistTitle, externalDescription;
-
     private   MediaSessionCompat mediaSession;
     private  MediaSessionConnector mediaSessionConnector;
     private AudioAttributes audioAttributes = new AudioAttributes.Builder()
@@ -324,6 +326,27 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         player.prepare(concatenatingMediaSource, false, false);
       mediaSession = new MediaSessionCompat(context, "sample");
       mediaSessionConnector = new MediaSessionConnector(mediaSession);
+      mediaSessionConnector.setMediaButtonEventHandler(new MediaSessionConnector.MediaButtonEventHandler() {
+          @Override
+          public boolean onMediaButtonEvent(Player player, ControlDispatcher controlDispatcher, Intent mediaButtonEvent) {
+             KeyEvent event = mediaButtonEvent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+            Integer x=  event.getKeyCode();
+
+              if (event.getAction() == KeyEvent.ACTION_UP)
+              {
+                  System.out.println("EVENT KEYCODE:"+x);
+               switch (x){
+                   case    KeyEvent.KEYCODE_MEDIA_NEXT:
+                       player.next();
+                       break;
+                   case    KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+                       player.previous();
+                       break;
+               }
+           }
+              return false;
+          }
+      });
       mediaSessionConnector.setPlayer(player);
 
         if (mediaSession != null) {

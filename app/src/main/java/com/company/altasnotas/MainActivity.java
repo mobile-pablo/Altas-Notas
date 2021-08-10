@@ -202,21 +202,7 @@ public class MainActivity extends AppCompatActivity {
         decorView.setSystemUiVisibility(uiOptions);
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return super.onKeyDown(keyCode, event);
-        }
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_MEDIA_PLAY:
 
-                   PlayerFragment.playerView.dispatchMediaKeyEvent(event);
-
-
-                return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
 
 
     public void downloadPhoto() {
