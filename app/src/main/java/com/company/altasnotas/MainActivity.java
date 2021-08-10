@@ -147,6 +147,9 @@ public class MainActivity extends AppCompatActivity {
         if(PlayerFragment.playerView!=null){
             PlayerFragment.playerView.getPlayer().stop();
             PlayerFragment.playerView.setPlayer(null);
+            PlayerFragment.mService.onDestroy();
+            Intent bgS = new Intent(MainActivity.this, BackgroundService.class);
+            stopService(bgS);
         }
 
         AccessToken accessToken = AccessToken.getCurrentAccessToken();

@@ -183,10 +183,12 @@ public class ProfileFragmentViewModel extends ViewModel {
 
                         if(PlayerFragment.playerView!=null){
                             PlayerFragment.playerView.getPlayer().stop();
+                            PlayerFragment.playerView.setPlayer(null);
+                            PlayerFragment.mService.onDestroy();
+                            Intent bgS = new Intent(activity, BackgroundService.class);
+                             activity.stopService(bgS);
                         }
 
-                        Intent bgService = new Intent(activity, BackgroundService.class);
-                        activity.stopService(bgService);
                         MainActivity.currentSongAuthor="";
                         MainActivity.currentSongAlbum="";
                         MainActivity.currentSongTitle="";

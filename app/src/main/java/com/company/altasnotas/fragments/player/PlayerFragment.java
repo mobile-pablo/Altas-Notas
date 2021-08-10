@@ -85,7 +85,7 @@ public class PlayerFragment extends Fragment {
     private FirebaseAuth mAuth;
 
     public static PlayerView playerView;
-    private BackgroundService mService;
+    public static BackgroundService mService;
     private boolean mBound = false;
     private Intent intent;
     private Bitmap bgBitmap;
