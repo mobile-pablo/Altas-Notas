@@ -115,6 +115,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                                 intent.putExtra("pos", position);
                                 intent.putParcelableArrayListExtra("songs", songs);
                                 intent.putExtra("ms", player.getContentPosition());
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                        | Intent.FLAG_ACTIVITY_SINGLE_TOP );
                                 return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                             }
 
@@ -166,6 +168,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                                 intent.putExtra("pos", position);
                                 intent.putParcelableArrayListExtra("songs", songs);
                                 intent.putExtra("ms", player.getContentPosition());
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                        | Intent.FLAG_ACTIVITY_SINGLE_TOP );
                                 return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                             }
 
@@ -203,7 +207,6 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                                     public void onNotificationPosted(int notificationId, Notification notification, boolean ongoing) {
                                         if (ongoing) {
                                             // Make sure the service will not get destroyed while playing media.
-                                            createNotificationChannel(notification.getChannelId());
                                             startForeground(notificationId, notification);
                                         } else {
                                             // Make notification cancellable.
@@ -255,6 +258,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                             intent.putExtra("pos", position);
                             intent.putParcelableArrayListExtra("songs", songs);
                             intent.putExtra("ms", player.getContentPosition());
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                    | Intent.FLAG_ACTIVITY_SINGLE_TOP );
                             return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                         }
 
@@ -305,6 +310,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                             intent.putExtra("pos", position);
                             intent.putParcelableArrayListExtra("songs", songs);
                             intent.putExtra("ms", player.getContentPosition());
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                    | Intent.FLAG_ACTIVITY_SINGLE_TOP );
                             return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                         }
 
@@ -343,7 +350,6 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                                 public void onNotificationPosted(int notificationId, Notification notification, boolean ongoing) {
                                     if (ongoing) {
                                         // Make sure the service will not get destroyed while playing media.
-                                        createNotificationChannel(notification.getChannelId());
                                         startForeground(notificationId, notification);
                                     } else {
                                         // Make notification cancellable.
@@ -387,8 +393,6 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
         stopSelf();
-        NotificationManager nManager = ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE));
-        nManager.cancelAll();
         if (mediaSession != null) {
             mediaSession.setActive(false);
         }

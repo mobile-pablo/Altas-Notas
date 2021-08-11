@@ -56,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
     public static String currentSongTitle="", currentSongAlbum ="",currentSongAuthor="";
     public static Integer dialogHeight;
     public static final String FIREBASE = "Firebase";
+
+    private String frag;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
         updateUI(mAuth.getCurrentUser());
         downloadPhoto();
-        String frag = getIntent().getStringExtra("frag");
+
 
 
         if (savedInstanceState == null) {
@@ -92,23 +94,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        if (frag != null) {
-            if (frag.equals("PlayerFragment")) {
-
-                //May delete it later
-                for (int i = 0; i < getSupportFragmentManager().getBackStackEntryCount(); i++) {
-                    getSupportFragmentManager().popBackStack();
-                }
-
-                Playlist playlist = getIntent().getParcelableExtra("playlist");
-                Integer position = getIntent().getIntExtra("pos", 0);
-                long seekedTo = getIntent().getLongExtra("ms", 0);
-                ArrayList<Song> local_songs = getIntent().getParcelableArrayListExtra("songs");
-                playlist.setSongs(local_songs);
-                PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo,true);
-                getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment).commit();
-            }
-        }
     }
 
 
@@ -206,10 +191,38 @@ public class MainActivity extends AppCompatActivity {
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
+
+
     }
 
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
 
+        System.out.println("Resumed!");
+        frag = intent.getStringExtra("frag");
+        if (frag != null) {
+            System.out.println("Frag: "+ frag);
+            if (frag.equals("PlayerFragment")) {
+
+                //May delete it later
+                for (int i = 0; i < getSupportFragmentManager().getBackStackEntryCount(); i++) {
+                    getSupportFragmentManager().popBackStack();
+                }
+
+                Playlist playlist = intent.getParcelableExtra("playlist");
+                Integer position = intent.getIntExtra("pos", 0);
+                long seekedTo = intent.getLongExtra("ms", 0);
+                ArrayList<Song> local_songs = intent.getParcelableArrayListExtra("songs");
+                playlist.setSongs(local_songs);
+                PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo,true);
+                getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment).commit();
+            }
+        }else{
+            System.out.println("Frag is null");
+        }
+    }
 
     public void downloadPhoto() {
 

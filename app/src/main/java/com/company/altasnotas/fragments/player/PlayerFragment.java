@@ -90,7 +90,6 @@ public class PlayerFragment extends Fragment {
     public static BackgroundService mService;
     private boolean mBound = false;
     private Intent intent;
-    private Bitmap bgBitmap;
     private Long seekedTo;
     private Boolean isReOpen;
     private Palette palette;
@@ -394,11 +393,6 @@ public class PlayerFragment extends Fragment {
 
 
     private void setUI() {
-        if (bgBitmap != null && !bgBitmap.isRecycled()) {
-            bgBitmap.recycle();
-        }
-
-
         if(getActivity()!=null) {
             Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
             if (currentFragment instanceof PlayerFragment) {
