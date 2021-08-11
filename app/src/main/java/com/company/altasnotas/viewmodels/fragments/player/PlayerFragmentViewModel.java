@@ -4,12 +4,14 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModel;
@@ -44,7 +46,7 @@ public class PlayerFragmentViewModel extends ViewModel {
         return mostPopulous;
     }
 
-    public void setUpInfoBackgroundColor(FragmentActivity activity, LinearLayout ll, Palette palette, ImageButton setting_btn) {
+    public void setUpInfoBackgroundColor(FragmentActivity activity, ConstraintLayout ll, Palette palette, Button setting_btn) {
         Palette.Swatch swatch = getMostPopulousSwatch(palette);
         if (swatch != null) {
             int endColor = ContextCompat.getColor(ll.getContext(), R.color.black);
@@ -55,7 +57,7 @@ public class PlayerFragmentViewModel extends ViewModel {
             }
 
             if(setting_btn!=null) {
-                setting_btn.getDrawable().setTint(swatch.getTitleTextColor());
+                setting_btn.getCompoundDrawables()[2].setTint(swatch.getTitleTextColor());
             }
             GradientDrawable gradientDrawable = new GradientDrawable(
                     GradientDrawable.Orientation.TOP_BOTTOM,

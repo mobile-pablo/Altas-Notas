@@ -62,16 +62,16 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="5"
-                    android:textSize="30sp"
-                    android:autoSizeMaxTextSize="100sp"
-                    android:autoSizeMinTextSize="1sp"
-                    android:autoSizeStepGranularity="1sp"
                     android:fontFamily="@font/oswald"
                     android:gravity="center_vertical|left"
-                    android:lines="1"
                     android:textColor="#000000"
 
-                    app:autoSizeTextType="uniform" />
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="1sp"
+                    app:autoSizeMaxTextSize="30sp"
+                    app:autoSizeStepGranularity="1sp"
+                    android:lines="1"
+                    />
 
                 <ImageView
                     android:id="@+id/current_playlist_settings"
@@ -91,16 +91,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-
-                android:autoSizeMaxTextSize="100sp"
-                android:autoSizeMinTextSize="1sp"
-                android:autoSizeStepGranularity="1sp"
                 android:fontFamily="@font/lato_light_italic"
                 android:gravity="top|left"
                 android:textColor="#000000"
-                android:textSize="14sp"
 
                 app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="1sp"
+                app:autoSizeMaxTextSize="14sp"
+                app:autoSizeStepGranularity="1sp"
+
+
 
                 />
         </LinearLayout>

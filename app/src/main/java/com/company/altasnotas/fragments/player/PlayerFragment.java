@@ -18,6 +18,7 @@ import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -74,7 +76,7 @@ import java.util.ArrayList;
 
 public class PlayerFragment extends Fragment {
     private ImageButton fav_btn;
-    private ImageButton settings_btn;
+    private Button settings_btn;
     private Playlist playlist;
     int position;
     private ImageView song_img;
@@ -92,7 +94,7 @@ public class PlayerFragment extends Fragment {
     private Long seekedTo;
     private Boolean isReOpen;
     private Palette palette;
-    LinearLayout player_full_box;
+    ConstraintLayout player_full_box;
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {

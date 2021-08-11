@@ -15,17 +15,20 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
@@ -70,6 +73,10 @@ public class ProfileFragment extends Fragment {
     private TextView creationTextView, creationDateTextView;
     private LinearLayout delete_box;
 
+    private LinearLayout  profile_details_box;
+    private RelativeLayout profile_box;
+    private LinearLayout profile_half_circle_box;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -87,6 +94,10 @@ public class ProfileFragment extends Fragment {
           creationTextView = view.findViewById(R.id.profile_details_creation_text);
           creationDateTextView= view.findViewById(R.id.profile_details_creation_date);
           delete_box = view.findViewById(R.id.profile_details_delete_box);
+
+          profile_box = view.findViewById(R.id.profile_box);
+          profile_details_box=view.findViewById(R.id.profile_details_box);
+          profile_half_circle_box = view.findViewById(R.id.profile_half_circle_box);
 
           model =  new ViewModelProvider(requireActivity()).get(ProfileFragmentViewModel.class);
           model.downloadProfile((MainActivity) getActivity(), mAuth,  database_ref, profile_name, profile_email, profile_img,creationTextView, creationDateTextView);
@@ -221,7 +232,13 @@ public class ProfileFragment extends Fragment {
             }
         }
     }
-
+    public static void setMargins (View v, int l, int t, int r, int b) {
+        if (v.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+            ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+            p.setMargins(l, t, r, b);
+            v.requestLayout();
+        }
+    }
     private static Bitmap rotateImageIfRequired(Context context, Bitmap img, Uri selectedImage) throws IOException {
 
             InputStream input = context.getContentResolver().openInputStream(selectedImage);

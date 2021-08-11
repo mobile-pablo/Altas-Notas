@@ -37,9 +37,9 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="30dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
         android:layout_marginTop="80dp"
-        android:layout_marginEnd="30dp"
         android:layout_marginBottom="70dp"
         android:background="@drawable/round_white_bg"
         android:elevation="20dp"
@@ -96,6 +96,7 @@
             android:textSize="15sp"
             app:layout_constraintEnd_toEndOf="@id/profile_full_name" />
 
+
         <LinearLayout
             android:id="@+id/profile_details_box"
             android:layout_width="match_parent"
@@ -110,13 +111,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="vertical"></LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
                 android:layout_weight="2"
+
                 android:orientation="vertical">
 
                 <TextView
@@ -128,8 +124,14 @@
                     android:gravity="bottom|center_horizontal"
                     android:text="Account created at :"
                     android:textColor="#000000"
-                    android:textSize="24sp"
-                    android:visibility="invisible" />
+                    android:visibility="invisible"
+
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="1sp"
+                    app:autoSizeMaxTextSize="24sp"
+                    app:autoSizeStepGranularity="1sp"
+                    android:lines="1"
+                    />
 
                 <TextView
                     android:id="@+id/profile_details_creation_date"
@@ -140,44 +142,54 @@
                     android:text="09-09-2021"
                     android:textAlignment="center"
                     android:textColor="#000000"
-                    android:textSize="18sp"
-                    android:visibility="invisible" />
+                    android:visibility="invisible"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="1sp"
+                    app:autoSizeMaxTextSize="18sp"
+                    app:autoSizeStepGranularity="1sp"
+                    android:lines="1"
+                    />
             </LinearLayout>
 
-         <LinearLayout
-             android:layout_width="match_parent"
-             android:layout_height="0dp" android:layout_weight="1">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_alignBottom="@+id/profile_details_box"
+                android:layout_marginBottom="0dp"
+                android:layout_weight="1">
 
-             <FrameLayout
-                 android:layout_width="match_parent"
-                 android:layout_height="match_parent">
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
 
-                 <LinearLayout
-                     android:layout_gravity="center"
-                     android:id="@+id/profile_details_delete_box"
-                     android:layout_width="wrap_content"
-                     android:layout_height="40dp"
-                     android:layout_weight="1">
+                    <LinearLayout
+                        android:id="@+id/profile_details_delete_box"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:layout_weight="1">
 
-                     <ImageView
-                         android:layout_width="60dp"
-                         android:layout_height="match_parent"
-                         android:background="@color/fui_transparent"
-                         android:src="@drawable/cross" />
+                        <ImageView
+                            android:layout_width="60dp"
+                            android:layout_height="match_parent"
+                            android:background="@color/fui_transparent"
+                            android:src="@drawable/cross" />
 
-                     <TextView
-                         android:layout_width="wrap_content"
-                         android:layout_height="match_parent"
-                         android:fontFamily="@font/oswald"
-                         android:gravity="center_vertical|left"
-                         android:text="Delete Account"
-                         android:textColor="#000000"
-                         android:paddingRight="20dp"
-                         android:textSize="14sp" />
-                 </LinearLayout>
-             </FrameLayout>
-         </LinearLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:fontFamily="@font/oswald"
+                            android:gravity="center_vertical|left"
+                            android:paddingRight="20dp"
+                            android:text="Delete Account"
+                            android:textColor="#000000"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </FrameLayout>
+            </LinearLayout>
+
         </LinearLayout>
+
 
     </RelativeLayout>
 
