@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fitsSystemWindows="true"
+    android:windowSoftInputMode="adjustResize"
     tools:context=".fragments.login_and_register.RegisterFragment">
     <pl.droidsonroids.gif.GifImageView
         android:layout_width="match_parent"

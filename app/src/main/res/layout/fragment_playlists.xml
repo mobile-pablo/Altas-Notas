@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="10dp"
+    android:windowSoftInputMode="adjustResize"
     android:background="@drawable/custom_playlists_fragment_bg"
     tools:context=".fragments.playlists.PlaylistsFragment">
 
