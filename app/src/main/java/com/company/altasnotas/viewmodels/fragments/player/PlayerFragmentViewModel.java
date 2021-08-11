@@ -47,7 +47,7 @@ public class PlayerFragmentViewModel extends ViewModel {
         return mostPopulous;
     }
 
-    public void setUpInfoBackgroundColor(Activity activity, ConstraintLayout ll, Palette palette, Button setting_btn) {
+    public void setUpInfoBackgroundColor(Activity activity, ConstraintLayout ll, Palette palette,Button settings_btn) {
         Palette.Swatch swatch = getMostPopulousSwatch(palette);
         if (swatch != null) {
             int endColor = ContextCompat.getColor(ll.getContext(), R.color.black);
@@ -57,29 +57,35 @@ public class PlayerFragmentViewModel extends ViewModel {
                 startColor = Color.DKGRAY;
             }
 
-            if(setting_btn!=null) {
-                setting_btn.getCompoundDrawables()[2].setTint(swatch.getTitleTextColor());
+            if(settings_btn!=null){
+                settings_btn.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        settings_btn.getCompoundDrawables()[2].setTint(swatch.getTitleTextColor());
+                    }
+                });
             }
+
             GradientDrawable gradientDrawable = new GradientDrawable(
                     GradientDrawable.Orientation.TOP_BOTTOM,
                     new int[]{startColor, endColor});
 
-      if(activity!=null){
+            if(activity!=null){
                 Glide.with(activity)
-                    .load(gradientDrawable)
-                    .into(new CustomTarget<Drawable>() {
-                        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-                        @Override
-                        public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                            ll.setBackground(resource);
-                        }
+                        .load(gradientDrawable)
+                        .into(new CustomTarget<Drawable>() {
+                            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+                            @Override
+                            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                                ll.setBackground(resource);
+                            }
 
-                        @Override
-                        public void onLoadCleared(@Nullable Drawable placeholder) {
+                            @Override
+                            public void onLoadCleared(@Nullable Drawable placeholder) {
 
-                        }
-                    });
-      }
+                            }
+                        });
+            }
         }
     }
 

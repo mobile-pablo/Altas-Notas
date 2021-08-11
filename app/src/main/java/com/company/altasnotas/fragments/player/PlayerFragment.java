@@ -137,6 +137,11 @@ public class PlayerFragment extends Fragment {
         playerView.setBackgroundColor(Color.TRANSPARENT);
         player_full_box = view.findViewById(R.id.player_full_box);
         viewModel = new ViewModelProvider(requireActivity()).get(PlayerFragmentViewModel.class);
+
+        fav_btn = view.findViewById(R.id.player_song_fav_btn);
+        settings_btn = view.findViewById(R.id.player_song_options_btn);
+
+
         setUI();
 
         intent = new Intent(getActivity(), BackgroundService.class);
@@ -154,8 +159,7 @@ public class PlayerFragment extends Fragment {
             getActivity().startService(intent);
         }
 
-        fav_btn = view.findViewById(R.id.player_song_fav_btn);
-        settings_btn = view.findViewById(R.id.player_song_options_btn);
+
 
 
         database_ref = FirebaseDatabase.getInstance().getReference();
@@ -403,7 +407,7 @@ public class PlayerFragment extends Fragment {
                             song_img.setImageDrawable(resource);
                             Bitmap b = drawableToBitmap(resource);
                             palette = Palette.from(b).generate();
-                            viewModel.setUpInfoBackgroundColor(getActivity(), player_full_box, palette, settings_btn);
+                          viewModel.setUpInfoBackgroundColor(getActivity(), player_full_box, palette,settings_btn);
                         }
                     }
 
