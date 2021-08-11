@@ -56,7 +56,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     private final IBinder mBinder = new LocalBinder();
     private final String CHANNEL_ID = "5423";
     private final String NOTIFICATION_ID = "2421";
-    private Integer position;
+    public Integer position;
     private Long seekedTo;
     private String externalPath, externalPlaylistTitle, externalDescription;
     private   MediaSessionCompat mediaSession;

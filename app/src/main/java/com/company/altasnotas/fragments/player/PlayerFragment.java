@@ -396,7 +396,7 @@ public class PlayerFragment extends Fragment {
         if(getActivity()!=null) {
             Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
             if (currentFragment instanceof PlayerFragment) {
-                Glide.with(getContext()).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(new CustomTarget<Drawable>() {
+                Glide.with(getActivity()).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(new CustomTarget<Drawable>() {
                     @Override
                     public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
                         if(resource!=null) {
@@ -462,6 +462,8 @@ public class PlayerFragment extends Fragment {
             MainActivity.currentSongTitle = playlist.getSongs().get(position).getTitle();
             MainActivity.currentSongAlbum=playlist.getTitle();
             MainActivity.currentSongAuthor=playlist.getDescription();
+            mService.setPosition(player.getCurrentWindowIndex());
+            position = player.getCurrentWindowIndex();
             CurrentPlaylistFragment.adapter.notifyDataSetChanged();
 
             Log.d("Exo","playbackState = " + playbackState + " playWhenReady = " + playWhenReady );

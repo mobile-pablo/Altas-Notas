@@ -1,5 +1,6 @@
 package com.company.altasnotas.viewmodels.fragments.player;
 
+import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -46,7 +47,7 @@ public class PlayerFragmentViewModel extends ViewModel {
         return mostPopulous;
     }
 
-    public void setUpInfoBackgroundColor(FragmentActivity activity, ConstraintLayout ll, Palette palette, Button setting_btn) {
+    public void setUpInfoBackgroundColor(Activity activity, ConstraintLayout ll, Palette palette, Button setting_btn) {
         Palette.Swatch swatch = getMostPopulousSwatch(palette);
         if (swatch != null) {
             int endColor = ContextCompat.getColor(ll.getContext(), R.color.black);
@@ -63,7 +64,8 @@ public class PlayerFragmentViewModel extends ViewModel {
                     GradientDrawable.Orientation.TOP_BOTTOM,
                     new int[]{startColor, endColor});
 
-            Glide.with(activity.getApplicationContext())
+      if(activity!=null){
+                Glide.with(activity)
                     .load(gradientDrawable)
                     .into(new CustomTarget<Drawable>() {
                         @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
@@ -77,6 +79,7 @@ public class PlayerFragmentViewModel extends ViewModel {
 
                         }
                     });
+      }
         }
     }
 
