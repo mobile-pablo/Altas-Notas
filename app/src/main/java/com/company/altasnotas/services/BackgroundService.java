@@ -21,6 +21,7 @@ import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import com.bumptech.glide.Glide;
@@ -538,6 +539,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     }
 
     //Notificion for older version of player
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void createNotification() {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), "notify_001");
         Intent ii = new Intent(getApplicationContext(), MainActivity.class);

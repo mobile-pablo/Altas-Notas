@@ -2,6 +2,7 @@ package com.company.altasnotas.viewmodels.fragments.profile;
 
 import android.app.Activity;
 import android.app.NotificationManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -113,6 +114,12 @@ public class ProfileFragmentViewModel extends ViewModel {
     }
 
     public void deleteProfile(MainActivity activity ,FirebaseAuth mAuth, DatabaseReference database_ref){
+        ProgressDialog progress = new ProgressDialog(activity);
+        progress.setTitle("Deleting Account");
+        progress.setMessage("Please wait...");
+        progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
+        progress.show();
+
         String uid = mAuth.getCurrentUser().getUid();
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
         ArrayList<String> keys = new ArrayList<>();
@@ -177,9 +184,10 @@ public class ProfileFragmentViewModel extends ViewModel {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         for (int i = 0; i <    activity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
-                            mAuth.signOut();
                             activity.getSupportFragmentManager().popBackStack();
                         }
+
+                        mAuth.signOut();
 
                         if(PlayerFragment.playerView!=null){
                             PlayerFragment.playerView.getPlayer().stop();
@@ -192,6 +200,7 @@ public class ProfileFragmentViewModel extends ViewModel {
                         MainActivity.currentSongAuthor="";
                         MainActivity.currentSongAlbum="";
                         MainActivity.currentSongTitle="";
+                        progress.dismiss();
                         activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new LoginFragment()).commit();
 
                     }
@@ -272,7 +281,7 @@ public class ProfileFragmentViewModel extends ViewModel {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Log.d("FirebaseDatabase error: " + error.getMessage(), "FirebaseDatabase");
+                    Log.d(MainActivity.FIREBASE + error.getMessage(), "Firebase error: "+error.getMessage());
                 }
             });
 
