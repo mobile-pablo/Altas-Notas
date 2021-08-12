@@ -1,6 +1,5 @@
 package com.company.altasnotas.fragments.player;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -10,10 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,21 +22,15 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.palette.graphics.Palette;
-import androidx.palette.graphics.Target;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.Request;
 import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.target.SizeReadyCallback;
 import com.bumptech.glide.request.transition.Transition;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
@@ -49,7 +39,6 @@ import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
 import com.company.altasnotas.services.BackgroundService;
-import com.company.altasnotas.viewmodels.fragments.favorites.FavoritesFragmentViewModel;
 import com.company.altasnotas.viewmodels.fragments.player.PlayerFragmentViewModel;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -59,8 +48,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -69,8 +56,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 
@@ -109,7 +94,7 @@ public class PlayerFragment extends Fragment {
             mBound = false;
         }
     };
-
+    private Boolean shouldPlay=null;
 
     private BottomSheetDialog bottomSheetDialog;
     private BottomSheetDialog choosePlaylistDialog;
@@ -130,6 +115,7 @@ public class PlayerFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_player, container, false);
+        MainActivity.mini_player.setVisibility(View.GONE);
         title = view.findViewById(R.id.player_song_title);
         author = view.findViewById(R.id.player_song_author);
         song_img = view.findViewById(R.id.player_song_img);
@@ -140,7 +126,8 @@ public class PlayerFragment extends Fragment {
 
         fav_btn = view.findViewById(R.id.player_song_fav_btn);
         settings_btn = view.findViewById(R.id.player_song_options_btn);
-
+        database_ref = FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
 
         setUI();
 
@@ -162,8 +149,7 @@ public class PlayerFragment extends Fragment {
 
 
 
-        database_ref = FirebaseDatabase.getInstance().getReference();
-        mAuth = FirebaseAuth.getInstance();
+
 
         //Loading fav btn state
         database_ref.child("fav_music")
@@ -230,9 +216,9 @@ public class PlayerFragment extends Fragment {
 
             if (fav_btn.getDrawable().getConstantState().equals(fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
 
-                viewModel.addToFav(database_ref,mAuth,playlist,position,fav_btn);
+                viewModel.addToFav( getActivity(),database_ref,mAuth,playlist,position,fav_btn, CurrentPlaylistFragment.adapter);
             } else {
-                viewModel.removeFromFav( getActivity(), database_ref,mAuth,playlist,position,fav_btn);
+                viewModel.removeFromFav( getActivity(), database_ref,mAuth,playlist,position,fav_btn, CurrentPlaylistFragment.adapter);
             }
         });
 
@@ -388,6 +374,12 @@ public class PlayerFragment extends Fragment {
             {
             player.setPlayWhenReady(true);
             }
+
+            if(shouldPlay!=null){
+                if(!shouldPlay){
+                  player.setPlayWhenReady(false);
+                }
+            }
             playerView.setDrawingCacheBackgroundColor(Color.TRANSPARENT);
             playerView.setShutterBackgroundColor(Color.TRANSPARENT);
             playerView.setControllerHideOnTouch(false);
@@ -459,7 +451,12 @@ public class PlayerFragment extends Fragment {
         drawable.draw(canvas);
         return bitmap;
     }
-    public class ExoListener implements Player.Listener {
+
+    public void setSongState(boolean b) {
+        shouldPlay =b;
+    }
+
+    public  class ExoListener implements Player.Listener {
         SimpleExoPlayer player;
 
         public ExoListener(SimpleExoPlayer player) {
@@ -473,6 +470,7 @@ public class PlayerFragment extends Fragment {
             MainActivity.currentSongAuthor=playlist.getDescription();
             mService.setPosition(player.getCurrentWindowIndex());
             position = player.getCurrentWindowIndex();
+            playerView.setPlayer(player);
             CurrentPlaylistFragment.adapter.notifyDataSetChanged();
 
             Log.d("Exo","playbackState = " + playbackState + " playWhenReady = " + playWhenReady );
@@ -585,10 +583,10 @@ public class PlayerFragment extends Fragment {
     }
 
 
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-        initializePlayer();
-    }
+        @Override
+        public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+            super.onViewStateRestored(savedInstanceState);
+            initializePlayer();
+        }
 }
 

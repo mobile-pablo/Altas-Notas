@@ -46,6 +46,7 @@ import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
 import com.company.altasnotas.fragments.home.HomeFragment;
+import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
 import com.company.altasnotas.models.FavoriteFirebaseSong;
 import com.company.altasnotas.models.FirebaseSong;
 import com.company.altasnotas.models.Playlist;
@@ -130,6 +131,13 @@ public class CurrentPlaylistFragment extends Fragment {
         title.setText(playlist.getTitle());
         description.setText(playlist.getDescription() + "\n(" + playlist.getYear() + ")");
 
+        if(MiniPlayerFragment.playerView!=null){
+            if(MiniPlayerFragment.playerView.getPlayer()!=null){
+                MainActivity.mini_player.setVisibility(View.VISIBLE);
+            }else{
+                MainActivity.mini_player.setVisibility(View.GONE);
+            }
+        }
 
         recyclerView = view.findViewById(R.id.current_playlist_recycler_view);
 

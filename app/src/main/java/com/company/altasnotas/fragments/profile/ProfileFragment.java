@@ -37,6 +37,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.canhub.cropper.CropImage;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
+import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
 import com.company.altasnotas.viewmodels.fragments.profile.ProfileFragmentViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -102,7 +103,11 @@ public class ProfileFragment extends Fragment {
           model =  new ViewModelProvider(requireActivity()).get(ProfileFragmentViewModel.class);
           model.downloadProfile((MainActivity) getActivity(), mAuth,  database_ref, profile_name, profile_email, profile_img,creationTextView, creationDateTextView);
 
-
+        if(MiniPlayerFragment.playerView!=null){
+            if(MiniPlayerFragment.playerView.getPlayer()!=null){
+                MainActivity.mini_player.setVisibility(View.VISIBLE);
+            }
+        }
 
 
 

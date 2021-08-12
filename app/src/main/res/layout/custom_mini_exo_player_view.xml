@@ -1,0 +1,51 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="140dp"
+    android:layout_height="70dp"
+    android:layout_gravity="bottom"
+    android:background="@drawable/custom_mini_player_view_bg"
+    android:layoutDirection="ltr"
+    android:orientation="horizontal"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    tools:targetApi="21">
+
+
+    <ImageButton
+        android:id="@id/exo_prev"
+        style="@style/ExoMediaButton.Previous"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        app:tint="@color/project_light_velvet" />
+
+    <ImageButton
+        android:id="@id/exo_play"
+        style="@style/ExoMediaButton.Play"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:layout_weight="1"
+        app:tint="@color/project_dark_velvet" />
+
+    <ImageButton
+        android:id="@id/exo_pause"
+        style="@style/ExoMediaButton.Pause"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:layout_weight="1"
+        app:tint="@color/project_dark_velvet" />
+
+    <ImageButton
+        android:id="@id/exo_next"
+        style="@style/ExoMediaButton.Next"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:layout_weight="1"
+        app:tint="@color/project_light_velvet" />
+
+
+</LinearLayout>

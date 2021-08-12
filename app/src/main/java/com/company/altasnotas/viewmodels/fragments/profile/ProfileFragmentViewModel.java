@@ -22,6 +22,7 @@ import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.fragments.home.HomeFragment;
 import com.company.altasnotas.fragments.login_and_register.LoginFragment;
+import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
 import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.models.User;
 import com.company.altasnotas.services.BackgroundService;
@@ -130,7 +131,13 @@ public class ProfileFragmentViewModel extends ViewModel {
         ArrayList<String> keys = new ArrayList<>();
         final Integer[] x = {0};
 
+        MainActivity.mini_player.setVisibility(View.GONE);
 
+        if(MiniPlayerFragment.playerView!=null) {
+            if (MiniPlayerFragment.playerView.getPlayer() != null) {
+                MiniPlayerFragment.playerView.getPlayer().stop();
+            }
+        }
         /*
         We need to delete
         - Playlists data   + img

@@ -20,6 +20,7 @@ import com.bumptech.glide.Glide;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
+import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
 import com.company.altasnotas.models.FavoriteFirebaseSong;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
@@ -68,6 +69,13 @@ public class FavoritesFragment extends Fragment {
 
         viewModel.initializeFavorites();
 
+        if(MiniPlayerFragment.playerView!=null){
+            if(MiniPlayerFragment.playerView.getPlayer()!=null){
+                MainActivity.mini_player.setVisibility(View.VISIBLE);
+            }else{
+                MainActivity.mini_player.setVisibility(View.GONE);
+            }
+        }
 
         return view;
     }

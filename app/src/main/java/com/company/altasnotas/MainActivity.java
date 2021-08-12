@@ -1,12 +1,16 @@
 package com.company.altasnotas;
 
 import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -17,6 +21,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 
@@ -25,6 +30,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.fragments.home.HomeFragment;
 import com.company.altasnotas.fragments.login_and_register.LoginFragment;
+import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
 import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.fragments.playlists.PlaylistsFragment;
 import com.company.altasnotas.fragments.profile.ProfileFragment;
@@ -51,7 +57,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -63,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
     public static String currentSongTitle="", currentSongAlbum ="",currentSongAuthor="";
     public static Integer dialogHeight;
     public static final String FIREBASE = "Firebase";
+    public  static View  mini_player;
 
     private String frag;
     @Override
@@ -101,6 +107,11 @@ public class MainActivity extends AppCompatActivity {
                 bottomNavigationView.setSelectedItemId(R.id.nav_login_item);
             }
         }
+
+
+
+        mini_player = findViewById(R.id.main_mini_player_container);
+        mini_player.setVisibility(View.GONE);
 
 
     }
@@ -143,6 +154,15 @@ public class MainActivity extends AppCompatActivity {
 
     public void logoutUser() {
         //Logout
+
+        MainActivity.mini_player.setVisibility(View.GONE);
+
+        if(MiniPlayerFragment.playerView!=null) {
+            if (MiniPlayerFragment.playerView.getPlayer() != null) {
+                MiniPlayerFragment.playerView.getPlayer().stop();
+            }
+        }
+
         photoUrl.setValue("");
         if(PlayerFragment.playerView!=null){
             if(PlayerFragment.playerView.getPlayer()!=null) {
@@ -227,15 +247,10 @@ public class MainActivity extends AppCompatActivity {
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
-
-
-        System.out.println("Resumed!");
         frag = intent.getStringExtra("frag");
         if (frag != null) {
-            System.out.println("Frag: "+ frag);
             if (frag.equals("PlayerFragment")) {
 
-                //May delete it later
                 for (int i = 0; i < getSupportFragmentManager().getBackStackEntryCount(); i++) {
                     getSupportFragmentManager().popBackStack();
                 }
@@ -245,8 +260,14 @@ public class MainActivity extends AppCompatActivity {
                 long seekedTo = intent.getLongExtra("ms", 0);
                 ArrayList<Song> local_songs = intent.getParcelableArrayListExtra("songs");
                 playlist.setSongs(local_songs);
+
+                Fragment fragment = getSupportFragmentManager().findFragmentByTag("Player");
+                if(fragment != null)
+                {
+                    getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+                }
                 PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo,true);
-                getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment).commit();
+                getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment, "Player").commit();
             }
         }else{
             System.out.println("Frag is null");

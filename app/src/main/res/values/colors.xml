@@ -19,4 +19,7 @@
 
     <color name="project_light_green">#55BD9D</color>
     <color name="project_dark_green">#0DA173</color>
+
+    <color name="project_light_gray">#808080</color>
+    <color name="project_dark_gray">#666666</color>
 </resources>

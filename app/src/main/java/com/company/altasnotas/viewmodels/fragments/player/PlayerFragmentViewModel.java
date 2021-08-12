@@ -7,13 +7,13 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModel;
 import androidx.palette.graphics.Palette;
@@ -23,6 +23,8 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
+import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
+import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.Playlist;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -89,7 +91,7 @@ public class PlayerFragmentViewModel extends ViewModel {
         }
     }
 
-    public void removeFromFav(FragmentActivity activity, DatabaseReference database_ref, FirebaseAuth mAuth, Playlist playlist, Integer position, ImageButton fav_btn) {
+    public void removeFromFav(FragmentActivity activity, DatabaseReference database_ref, FirebaseAuth mAuth, Playlist playlist, Integer position, ImageButton fav_btn, CurrentPlaylistAdapter adapter) {
         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -103,6 +105,13 @@ public class PlayerFragmentViewModel extends ViewModel {
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
                                     fav_btn.setImageResource(R.drawable.ic_heart_empty);
+
+                                    if(activity!=null){
+                                        Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                                        if (currentFragment instanceof CurrentPlaylistFragment) {
+                                            adapter.notifyDataSetChanged();
+                                        }
+                                    }
                                 }
                             }
                         });
@@ -117,7 +126,7 @@ public class PlayerFragmentViewModel extends ViewModel {
         });
     }
 
-    public void addToFav(DatabaseReference database_ref, FirebaseAuth mAuth, Playlist playlist, Integer position, ImageButton fav_btn) {
+    public void addToFav(FragmentActivity activity, DatabaseReference database_ref, FirebaseAuth mAuth, Playlist playlist, Integer position, ImageButton fav_btn, CurrentPlaylistAdapter adapter) {
         String key = database_ref.push().getKey();
 
         database_ref
@@ -133,6 +142,13 @@ public class PlayerFragmentViewModel extends ViewModel {
                         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("album").setValue(playlist.getSongs().get(position).getAlbum());
                         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("author").setValue(playlist.getSongs().get(position).getAuthor());
                         fav_btn.setImageResource(R.drawable.ic_heart_full);
+
+                        if(activity!=null){
+                            Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                            if (currentFragment instanceof CurrentPlaylistFragment) {
+                                adapter.notifyDataSetChanged();
+                            }
+                        }
                     }
                 }
             }

@@ -21,6 +21,7 @@ import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.HomeFragmentAdapter;
 import com.company.altasnotas.fragments.login_and_register.LoginFragment;
+import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
 import com.company.altasnotas.fragments.profile.ProfileFragment;
 import com.company.altasnotas.models.Playlist;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -99,7 +100,13 @@ public class HomeFragment extends Fragment {
              }
          });
 
-
+        if(MiniPlayerFragment.playerView!=null){
+      if(MiniPlayerFragment.playerView.getPlayer()!=null){
+          MainActivity.mini_player.setVisibility(View.VISIBLE);
+      }else{
+          MainActivity.mini_player.setVisibility(View.GONE);
+      }
+        }
 
 
 

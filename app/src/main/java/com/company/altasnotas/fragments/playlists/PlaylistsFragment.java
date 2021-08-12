@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.PlaylistsFragmentAdapter;
+import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.viewmodels.fragments.favorites.FavoritesFragmentViewModel;
 import com.company.altasnotas.viewmodels.fragments.playlists.PlaylistsFragmentViewModel;
@@ -67,7 +68,13 @@ public class PlaylistsFragment extends Fragment {
         database = FirebaseDatabase.getInstance();
         database_ref = database.getReference();
 
-
+        if(MiniPlayerFragment.playerView!=null){
+            if(MiniPlayerFragment.playerView.getPlayer()!=null){
+                MainActivity.mini_player.setVisibility(View.VISIBLE);
+            }else{
+                MainActivity.mini_player.setVisibility(View.GONE);
+            }
+        }
 
         initalizeList();
 

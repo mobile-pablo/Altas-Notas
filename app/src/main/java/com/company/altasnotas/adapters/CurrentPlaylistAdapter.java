@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,6 +25,7 @@ import com.bumptech.glide.Glide;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.fragments.favorites.FavoritesFragment;
+import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
 import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.Playlist;
@@ -136,10 +138,11 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
             MainActivity.currentSongAlbum=playlist.getTitle();
             MainActivity.currentSongAuthor=playlist.getDescription();
             PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0,false);
-            activity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, playerFragment).addToBackStack(null).commit();
+            MiniPlayerFragment miniPlayerFragment = new MiniPlayerFragment(playlist, position, 0,false,playerFragment);
+           activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_mini_player_container, miniPlayerFragment).commit();
+           MainActivity.mini_player.setVisibility(View.VISIBLE);
 
         });
-
         //Loading fav btn
         holder.databaseReference.child("fav_music")
                 .child(holder.mAuth.getCurrentUser().getUid())

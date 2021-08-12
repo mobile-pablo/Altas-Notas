@@ -14,7 +14,12 @@
         android:layout_weight="9">
 
     </FrameLayout>
-
+    <FrameLayout
+        android:id="@+id/main_mini_player_container"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:animateLayoutChanges="true"
+        android:background="@android:color/transparent"/>
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/main_nav_bottom"
         android:layout_width="match_parent"

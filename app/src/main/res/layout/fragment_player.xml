@@ -5,6 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".fragments.player.PlayerFragment"
+    android:id="@+id/player_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -84,7 +85,13 @@
                 android:gravity="bottom|center_horizontal"
                 android:textAlignment="center"
                 android:textColor="#FFFFFF"
-                android:textSize="24sp" />
+                android:textSize="24sp"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="1sp"
+                app:autoSizeMaxTextSize="24sp"
+                app:autoSizeStepGranularity="1sp"
+                android:lines="1"
+                />
 
             <TextView
                 android:id="@+id/player_song_author"
@@ -94,7 +101,14 @@
                 android:gravity="top|center_horizontal"
                 android:paddingBottom="20dp"
                 android:textColor="#F3F1F1"
-                android:textSize="18sp" />
+
+                android:textSize="18sp"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="1sp"
+                app:autoSizeMaxTextSize="18sp"
+                app:autoSizeStepGranularity="1sp"
+                android:lines="1"
+                />
 
         </LinearLayout>
 
