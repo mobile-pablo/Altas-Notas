@@ -27,6 +27,9 @@ import com.company.altasnotas.models.User;
 import com.company.altasnotas.services.BackgroundService;
 import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -198,7 +201,19 @@ public class ProfileFragmentViewModel extends ViewModel {
                                 activity.getSupportFragmentManager().popBackStack();
                             }
 
+                            mAuth.signOut();
+                            if(LoginFragment.mGoogleApiClient!=null){
+                                if (LoginFragment.mGoogleApiClient.isConnected()) {
+                                    Auth.GoogleSignInApi.signOut(LoginFragment.mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
+                                        @Override
+                                        public void onResult(@NonNull Status status) {
 
+                                        }
+                                    });
+                                }
+                                LoginFragment.mGoogleApiClient.stopAutoManage(activity);
+                                LoginFragment.mGoogleApiClient.disconnect();
+                            }
 
                             if(PlayerFragment.playerView!=null){
                                 if(PlayerFragment.playerView.getPlayer()!=null)
@@ -227,6 +242,18 @@ public class ProfileFragmentViewModel extends ViewModel {
                             }
 
                             mAuth.signOut();
+                            if(LoginFragment.mGoogleApiClient!=null){
+                                if (LoginFragment.mGoogleApiClient.isConnected()) {
+                                    Auth.GoogleSignInApi.signOut(LoginFragment.mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
+                                        @Override
+                                        public void onResult(@NonNull Status status) {
+
+                                        }
+                                    });
+                                }
+                                LoginFragment.mGoogleApiClient.stopAutoManage(activity);
+                                LoginFragment.mGoogleApiClient.disconnect();
+                            }
 
                             if(PlayerFragment.playerView!=null){
                                 if(PlayerFragment.playerView.getPlayer()!=null)

@@ -116,18 +116,34 @@ public class LoginFragment extends Fragment {
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(getContext(), gso);
-        mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
-                .enableAutoManage(getActivity(), new GoogleApiClient.OnConnectionFailedListener() {
-                    @Override
-                    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
-                    }
-                })
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
         google_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if(mGoogleApiClient==null){
+                    mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                            .enableAutoManage(getActivity(), new GoogleApiClient.OnConnectionFailedListener() {
+                                @Override
+                                public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+                                }
+                            })
+                            .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                            .build();
+                }else{
+                    mGoogleApiClient.disconnect();
+                    mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                            .enableAutoManage(getActivity(), new GoogleApiClient.OnConnectionFailedListener() {
+                                @Override
+                                public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+                                }
+                            })
+                            .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                            .build();
+                }
+
                 signIn();
             }
         });

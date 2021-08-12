@@ -1,5 +1,6 @@
 package com.company.altasnotas;
 
+import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +34,7 @@ import com.company.altasnotas.services.BackgroundService;
 import com.company.altasnotas.viewmodels.fragments.login_and_register.LoginFragmentViewModel;
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
+import com.facebook.login.Login;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.api.ResultCallback;
@@ -70,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
+
+
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -241,6 +245,16 @@ public class MainActivity extends AppCompatActivity {
             }
         }else{
             System.out.println("Frag is null");
+        }
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (  LoginFragment.mGoogleApiClient != null &&   LoginFragment.mGoogleApiClient.isConnected()) {
+            LoginFragment.mGoogleApiClient.stopAutoManage(this);
+            LoginFragment.mGoogleApiClient.disconnect();
         }
     }
 
