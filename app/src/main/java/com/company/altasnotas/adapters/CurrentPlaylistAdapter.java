@@ -82,7 +82,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
         TextView currentTitle, currentAuthor;
         ImageButton currentFav_btn, currentSettings_btn;
         ImageView photo;
-        ConstraintLayout currentBox;
+        LinearLayout currentBox;
         DatabaseReference databaseReference;
         FirebaseAuth mAuth;
 
