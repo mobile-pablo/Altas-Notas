@@ -130,15 +130,17 @@ public class CurrentPlaylistFragment extends Fragment {
         viewModel.init(playlist, (MainActivity) getActivity(), database_ref, mAuth,storageReference);
         title.setText(playlist.getTitle());
         description.setText(playlist.getDescription() + "\n(" + playlist.getYear() + ")");
-
-        if(MiniPlayerFragment.playerView!=null){
-            if(MiniPlayerFragment.playerView.getPlayer()!=null){
-                MainActivity.mini_player.setVisibility(View.VISIBLE);
-            }else{
-                MainActivity.mini_player.setVisibility(View.GONE);
+        Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
+        if (currentFragment instanceof MiniPlayerFragment) {
+            MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) currentFragment;
+            if (miniPlayerFragment.playerView != null) {
+                if (miniPlayerFragment.playerView.getPlayer() != null) {
+                    MainActivity.mini_player.setVisibility(View.VISIBLE);
+                } else {
+                    MainActivity.mini_player.setVisibility(View.GONE);
+                }
             }
         }
-
         recyclerView = view.findViewById(R.id.current_playlist_recycler_view);
 
         if (!  viewModel.getPlaylist().getImage_id().isEmpty()) {

@@ -67,14 +67,16 @@ public class PlaylistsFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         database_ref = database.getReference();
-
-        if(MiniPlayerFragment.playerView!=null){
-            if(MiniPlayerFragment.playerView.getPlayer()!=null){
+        Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
+        if (currentFragment instanceof MiniPlayerFragment) {
+            MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) currentFragment;
+        if(miniPlayerFragment.playerView!=null){
+            if(miniPlayerFragment.playerView.getPlayer()!=null){
                 MainActivity.mini_player.setVisibility(View.VISIBLE);
             }else{
                 MainActivity.mini_player.setVisibility(View.GONE);
             }
-        }
+        }}
 
         initalizeList();
 

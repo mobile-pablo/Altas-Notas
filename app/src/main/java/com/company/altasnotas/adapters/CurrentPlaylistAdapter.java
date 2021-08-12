@@ -45,7 +45,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylistAdapter.MyViewHolder> {
-    private final Playlist playlist;
+    public static  Playlist playlist;
     private final MainActivity activity;
     private final ArrayList<Song> songs;
     private final Integer isFavFragment;
@@ -137,9 +137,17 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
             MainActivity.currentSongTitle = songs.get(position).getTitle();
             MainActivity.currentSongAlbum=playlist.getTitle();
             MainActivity.currentSongAuthor=playlist.getDescription();
+            notifyDataSetChanged();
             PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0,false);
             MiniPlayerFragment miniPlayerFragment = new MiniPlayerFragment(playlist, position, 0,false,playerFragment);
-           activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_mini_player_container, miniPlayerFragment).commit();
+
+            Fragment fragment =  activity.getSupportFragmentManager().findFragmentByTag("Mini");
+            if(fragment != null)
+            {
+                activity.getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+            }
+
+           activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_mini_player_container, miniPlayerFragment, "Mini").commit();
            MainActivity.mini_player.setVisibility(View.VISIBLE);
 
         });

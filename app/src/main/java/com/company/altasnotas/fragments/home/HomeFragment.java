@@ -82,6 +82,9 @@ public class HomeFragment extends Fragment {
         initializePlaylists();
 
         logout_img.setOnClickListener(v -> {
+            MainActivity.currentSongTitle=" ";
+            MainActivity.currentSongAlbum=" ";
+            MainActivity.currentSongAuthor=" ";
             mainActivity.logoutUser();
         });
 
@@ -99,14 +102,17 @@ public class HomeFragment extends Fragment {
                  }
              }
          });
-
-        if(MiniPlayerFragment.playerView!=null){
-      if(MiniPlayerFragment.playerView.getPlayer()!=null){
+        Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
+        if (currentFragment instanceof MiniPlayerFragment) {
+            MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) currentFragment;
+        if(miniPlayerFragment.playerView!=null){
+      if(miniPlayerFragment.playerView.getPlayer()!=null){
+          miniPlayerFragment.setUI();
           MainActivity.mini_player.setVisibility(View.VISIBLE);
       }else{
           MainActivity.mini_player.setVisibility(View.GONE);
       }
-        }
+        }}
 
 
 

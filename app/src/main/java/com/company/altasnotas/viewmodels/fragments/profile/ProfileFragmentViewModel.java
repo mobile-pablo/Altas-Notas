@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModel;
 
 import com.bumptech.glide.Glide;
@@ -132,12 +133,15 @@ public class ProfileFragmentViewModel extends ViewModel {
         final Integer[] x = {0};
 
         MainActivity.mini_player.setVisibility(View.GONE);
+        Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
+        if (currentFragment instanceof MiniPlayerFragment) {
+            MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) currentFragment;
+            if(miniPlayerFragment.playerView!=null) {
+                if (miniPlayerFragment.playerView.getPlayer() != null) {
+                    miniPlayerFragment.playerView.getPlayer().stop();
+                }
+            }}
 
-        if(MiniPlayerFragment.playerView!=null) {
-            if (MiniPlayerFragment.playerView.getPlayer() != null) {
-                MiniPlayerFragment.playerView.getPlayer().stop();
-            }
-        }
         /*
         We need to delete
         - Playlists data   + img
@@ -231,6 +235,15 @@ public class ProfileFragmentViewModel extends ViewModel {
                                 Intent bgS = new Intent(activity, BackgroundService.class);
                                 activity.stopService(bgS);
                             }
+                            Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
+                            if (currentFragment instanceof MiniPlayerFragment) {
+                                MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) currentFragment;
+                                if(miniPlayerFragment.playerView!=null) {
+                                    if (miniPlayerFragment.playerView.getPlayer() != null) {
+                                        miniPlayerFragment.playerView.getPlayer().stop();
+                                        miniPlayerFragment.mService.onDestroy();
+                                    }
+                                }}
 
                             MainActivity.currentSongAuthor="";
                             MainActivity.currentSongAlbum="";

@@ -27,11 +27,13 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
 import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.fragments.home.HomeFragment;
 import com.company.altasnotas.fragments.login_and_register.LoginFragment;
 import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
 import com.company.altasnotas.fragments.player.PlayerFragment;
+import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.fragments.playlists.PlaylistsFragment;
 import com.company.altasnotas.fragments.profile.ProfileFragment;
 import com.company.altasnotas.models.Playlist;
@@ -69,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
     public static Integer dialogHeight;
     public static final String FIREBASE = "Firebase";
     public  static View  mini_player;
+    public  MiniPlayerFragment miniPlayerFragment;
 
     private String frag;
     @Override
@@ -156,11 +159,31 @@ public class MainActivity extends AppCompatActivity {
         //Logout
 
         MainActivity.mini_player.setVisibility(View.GONE);
+       currentSongTitle="";
+       currentSongAlbum="";
+       currentSongAuthor="";
+      if(CurrentPlaylistFragment.adapter!=null){
+          CurrentPlaylistFragment.adapter.notifyDataSetChanged();
+      }
 
-        if(MiniPlayerFragment.playerView!=null) {
-            if (MiniPlayerFragment.playerView.getPlayer() != null) {
-                MiniPlayerFragment.playerView.getPlayer().stop();
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
+        if (currentFragment instanceof MiniPlayerFragment) {
+        MiniPlayerFragment miniPlayerFragment= (MiniPlayerFragment) currentFragment;
+            if(miniPlayerFragment.playerView!=null) {
+                if (miniPlayerFragment.playerView.getPlayer() != null) {
+                    miniPlayerFragment.playerView.getPlayer().stop();
+                    miniPlayerFragment.mService.onDestroy();
+                    miniPlayerFragment.playerView.setPlayer(null);
+                }
             }
+        }
+
+
+
+        Fragment fragment =  getSupportFragmentManager().findFragmentByTag("Mini");
+        if(fragment != null)
+        {
+            getSupportFragmentManager().beginTransaction().remove(fragment).commit();
         }
 
         photoUrl.setValue("");
@@ -168,7 +191,11 @@ public class MainActivity extends AppCompatActivity {
             if(PlayerFragment.playerView.getPlayer()!=null) {
                 PlayerFragment.playerView.getPlayer().stop();
             }
+
+
+
             PlayerFragment.mService.onDestroy();
+
             Intent bgS = new Intent(MainActivity.this, BackgroundService.class);
             stopService(bgS);
         }

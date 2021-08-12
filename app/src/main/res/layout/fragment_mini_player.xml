@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_toLeftOf="@+id/mini_player_img"
-            android:layout_toRightOf="@id/mini_player_song_fav_btn"
+            android:layout_toRightOf="@id/mini_player_fav_btn"
             android:layout_weight="1"
             android:orientation="vertical">
 
@@ -70,11 +70,19 @@
     </LinearLayout>
 
     <ImageButton
-        android:id="@+id/mini_player_song_fav_btn"
-        android:layout_width="50dp"
+        android:id="@+id/mini_player_dismiss_btn"
+        android:layout_width="30dp"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:src="@drawable/cross" />
+
+    <ImageButton
+        android:id="@+id/mini_player_fav_btn"
+        android:layout_width="40dp"
         android:layout_height="match_parent"
         android:background="@android:color/transparent"
         android:src="@drawable/ic_heart_empty" />
+
 
     <com.google.android.exoplayer2.ui.PlayerView
         android:id="@+id/mini_player_view"
@@ -89,7 +97,9 @@
         app:layout_constraintTop_toBottomOf="@+id/player_small_box"
         app:show_buffering="never"
         app:shutter_background_color="@android:color/transparent" />
-    </LinearLayout>
+
+
+</LinearLayout>
 
 
 

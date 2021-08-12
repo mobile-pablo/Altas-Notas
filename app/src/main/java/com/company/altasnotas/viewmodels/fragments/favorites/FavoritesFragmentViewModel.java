@@ -35,12 +35,12 @@ import java.util.concurrent.CountDownLatch;
 
 public class FavoritesFragmentViewModel extends ViewModel {
 
-    public RecyclerView recyclerView;
+    public  RecyclerView recyclerView;
     private DatabaseReference database_ref;
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
     private Playlist playlist;
-    private CurrentPlaylistAdapter adapter;
+    public static CurrentPlaylistAdapter adapter;
     private CountDownLatch conditionLatch;
     private ImageView imageView;
     private TextView title, description;

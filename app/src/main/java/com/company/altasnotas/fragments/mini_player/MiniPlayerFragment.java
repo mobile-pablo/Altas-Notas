@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -21,17 +20,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.palette.graphics.Palette;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
-import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.Playlist;
@@ -55,25 +51,27 @@ import com.google.firebase.database.ValueEventListener;
 
 
 public class MiniPlayerFragment extends Fragment {
-    MainActivity mainActivity;
-    private Playlist playlist;
+  public   MainActivity mainActivity;
+    private  Playlist playlist;
     private ImageButton fav_btn;
     private DatabaseReference database_ref;
-    private FirebaseAuth mAuth;
+    private  FirebaseAuth mAuth;
     int position;
-    public static PlayerView playerView;
-    public static BackgroundService mService;
+    public  PlayerView playerView;
+    public BackgroundService mService;
     private boolean mBound = false;
-    private Intent intent;
+    public  Intent intent;
     private Long seekedTo;
-    private Boolean isReOpen;
+    private  Boolean isReOpen;
     private PlayerFragment  playerFragment;
     private PlayerFragmentViewModel viewModel;
-    private ImageView song_img;
-    private ExoListener exoListener;
-    private TextView title, author;
+    private  ImageView song_img;
+    private  ExoListener exoListener;
+    private  TextView title;
+    private TextView author;
     private LinearLayout box;
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private ImageButton dismiss_btn;
+    public ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             BackgroundService.LocalBinder binder = (BackgroundService.LocalBinder) iBinder;
@@ -115,7 +113,8 @@ public class MiniPlayerFragment extends Fragment {
         author.setSelected(true);
         song_img = view.findViewById(R.id.mini_player_img);
         box = view.findViewById(R.id.mini_player_small_box);
-        fav_btn = view.findViewById(R.id.mini_player_song_fav_btn);
+        fav_btn = view.findViewById(R.id.mini_player_fav_btn);
+        dismiss_btn = view.findViewById(R.id.mini_player_dismiss_btn);
         database_ref = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         viewModel = new ViewModelProvider(requireActivity()).get(PlayerFragmentViewModel.class);
@@ -149,6 +148,8 @@ public class MiniPlayerFragment extends Fragment {
                if(!(player.getPlayWhenReady() && player.getPlaybackState() == Player.STATE_READY)){
                    System.out.println("Should stop song!");
                    playerFragment.setSongState(false);
+               }else{
+                   playerFragment.setSongState(true);
                }
             }
 
@@ -168,6 +169,11 @@ public class MiniPlayerFragment extends Fragment {
                     .commit();
         });
 
+
+        dismiss_btn.setOnClickListener(v->{
+            dissmiss_mini();
+        });
+
         fav_btn.setOnClickListener(v -> {
 
             if (fav_btn.getDrawable().getConstantState().equals(fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
@@ -182,8 +188,46 @@ public class MiniPlayerFragment extends Fragment {
         return view;
     }
 
+    public  void dissmiss_mini() {
+        MainActivity.mini_player.setVisibility(View.GONE);
 
-    private void setUI() {
+        if(playerView!=null) {
+            if (playerView.getPlayer() != null) {
+                playerView.getPlayer().stop();
+                playerView.setPlayer(null);
+            }
+           mService.onDestroy();
+        }
+
+
+        if(PlayerFragment.playerView!=null){
+            if(PlayerFragment.playerView.getPlayer()!=null) {
+                if(  PlayerFragment.playerView.getPlayer().isPlaying()){
+                    PlayerFragment.playerView.getPlayer().stop();
+                    PlayerFragment.playerView.setPlayer(null);
+                }
+            }
+            PlayerFragment.mService.onDestroy();
+        }
+
+        Intent bgS = new Intent(getActivity(), BackgroundService.class);
+        mainActivity.stopService(bgS);
+
+        bgS = new Intent(getActivity(), BackgroundService.class);
+        mainActivity.stopService(bgS);
+
+        MainActivity.currentSongTitle="";
+        MainActivity.currentSongAlbum="";
+        MainActivity.currentSongAuthor="";
+
+        Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+        if (currentFragment instanceof CurrentPlaylistFragment) {
+            CurrentPlaylistFragment.adapter.notifyDataSetChanged();
+        }
+    }
+
+
+    public  void setUI() {
         if(getActivity()!=null) {
             Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
             if (currentFragment instanceof MiniPlayerFragment) {
@@ -279,7 +323,7 @@ public class MiniPlayerFragment extends Fragment {
                     }
                 });
     }
-    private void initializePlayer() {
+    public  void initializePlayer() {
         if (mBound) {
             SimpleExoPlayer player = mService.getPlayerInstance();
             exoListener = new ExoListener(player);
@@ -292,19 +336,7 @@ public class MiniPlayerFragment extends Fragment {
             playerView.setControllerShowTimeoutMs(0);
             playerView.setCameraDistance(0);
             playerView.setControllerAutoShow(true);
-            if(isReOpen)
-            {
-                //By this When Notification is Open and ExoPlayer is Paused. It remains that way.
-                if( player.getPlayWhenReady() && player.getPlaybackState() == Player.STATE_READY ){
-                    player.setPlayWhenReady(true);
-                }else {
-                    player.setPlayWhenReady(false);
-                }
-            }
-            else
-            {
-                player.setPlayWhenReady(true);
-            }
+            player.setPlayWhenReady(true);
             playerView.setDrawingCacheBackgroundColor(Color.TRANSPARENT);
             playerView.setShutterBackgroundColor(Color.TRANSPARENT);
             playerView.setControllerHideOnTouch(false);
@@ -316,6 +348,13 @@ public class MiniPlayerFragment extends Fragment {
         super.onStart();
         requireActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setUI();
+    }
+
 
 
     public  class ExoListener implements Player.Listener {
@@ -389,5 +428,6 @@ public class MiniPlayerFragment extends Fragment {
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         initializePlayer();
+        setUI();
     }
 }

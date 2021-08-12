@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 
@@ -24,8 +25,10 @@ import com.bumptech.glide.request.transition.Transition;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
+import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.Playlist;
+import com.company.altasnotas.viewmodels.fragments.favorites.FavoritesFragmentViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -110,6 +113,13 @@ public class PlayerFragmentViewModel extends ViewModel {
                                         Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
                                         if (currentFragment instanceof CurrentPlaylistFragment) {
                                             adapter.notifyDataSetChanged();
+                                        }
+
+                                        if(currentFragment instanceof FavoritesFragment){
+
+                                            FavoritesFragment fav = (FavoritesFragment) currentFragment;
+                                            activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, fav).commit();
+
                                         }
                                     }
                                 }

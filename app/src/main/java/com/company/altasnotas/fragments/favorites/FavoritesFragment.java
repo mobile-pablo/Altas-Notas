@@ -39,11 +39,11 @@ import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 
 public class FavoritesFragment extends Fragment {
-    public RecyclerView recyclerView;
+    public static RecyclerView recyclerView;
     private ImageView imageView;
     private TextView title, description;
     private ImageView settings;
-    public TextView fav_state;
+    public static TextView fav_state;
     private FavoritesFragmentViewModel viewModel;
 
     @Override
@@ -68,14 +68,16 @@ public class FavoritesFragment extends Fragment {
         viewModel.init(recyclerView,imageView,title,description,settings,fav_state, (MainActivity) getActivity());
 
         viewModel.initializeFavorites();
-
-        if(MiniPlayerFragment.playerView!=null){
-            if(MiniPlayerFragment.playerView.getPlayer()!=null){
+        Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
+        if (currentFragment instanceof MiniPlayerFragment) {
+            MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) currentFragment;
+        if(miniPlayerFragment.playerView!=null){
+            if(miniPlayerFragment.playerView.getPlayer()!=null){
                 MainActivity.mini_player.setVisibility(View.VISIBLE);
             }else{
                 MainActivity.mini_player.setVisibility(View.GONE);
             }
-        }
+        }}
 
         return view;
     }

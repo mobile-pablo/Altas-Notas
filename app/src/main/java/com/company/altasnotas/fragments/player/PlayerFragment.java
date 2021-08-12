@@ -1,5 +1,6 @@
 package com.company.altasnotas.fragments.player;
 
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -35,6 +36,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.ChoosePlaylistAdapter;
+import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
@@ -140,11 +142,13 @@ public class PlayerFragment extends Fragment {
         intent.putExtra("ms", seekedTo);
         intent.putParcelableArrayListExtra("songs", playlist.getSongs());
 
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             Util.startForegroundService(getActivity(), intent);
         } else {
             getActivity().startService(intent);
         }
+
 
 
 
@@ -353,7 +357,6 @@ public class PlayerFragment extends Fragment {
             SimpleExoPlayer player = mService.getPlayerInstance();
             exoListener = new ExoListener(player);
             player.addListener(exoListener);
-
             playerView.setKeepContentOnPlayerReset(true);
             playerView.setPlayer(player);
             playerView.setUseController(true);
@@ -361,7 +364,8 @@ public class PlayerFragment extends Fragment {
             playerView.setControllerShowTimeoutMs(0);
             playerView.setCameraDistance(0);
             playerView.setControllerAutoShow(true);
-            if(isReOpen)
+            /*
+                     if(isReOpen)
             {
                 //By this When Notification is Open and ExoPlayer is Paused. It remains that way.
                 if( player.getPlayWhenReady() && player.getPlaybackState() == Player.STATE_READY ){
@@ -380,6 +384,7 @@ public class PlayerFragment extends Fragment {
                   player.setPlayWhenReady(false);
                 }
             }
+             */
             playerView.setDrawingCacheBackgroundColor(Color.TRANSPARENT);
             playerView.setShutterBackgroundColor(Color.TRANSPARENT);
             playerView.setControllerHideOnTouch(false);
@@ -389,7 +394,12 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        requireActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+
+        Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
+        if (currentFragment instanceof MiniPlayerFragment) {
+            MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) currentFragment;
+            requireActivity().bindService(miniPlayerFragment.intent, mConnection, Context.BIND_AUTO_CREATE);
+        }
     }
 
 
