@@ -406,7 +406,7 @@ public class CurrentPlaylistFragment extends Fragment {
 
 
         if (resultCode == RESULT_CANCELED) {
-            Log.d("RESULT HAVE BEEN CANCELED", "RESULT");
+            Log.d("RESULT","RESULT HAVE BEEN CANCELED");
         }
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
@@ -491,7 +491,7 @@ public class CurrentPlaylistFragment extends Fragment {
 
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Log.d("Error while compressing and uploading photo to Firebase", "FirebaseStorage");
+                    Log.d(MainActivity.FIREBASE,"Error while compressing and uploading photo to Firebase");
                 }
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {

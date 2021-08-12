@@ -270,8 +270,7 @@ public class PlayerFragment extends Fragment {
                             x.setDir_title(playlist.getSongs().get(position).getAlbum());
                             x.setDir_desc(playlist.getSongs().get(position).getAuthor());
                             bottomSheetDialog.dismiss();
-                            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
-
+                            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
                         }
                     }
 
@@ -304,7 +303,7 @@ public class PlayerFragment extends Fragment {
     private void addToPlaylist() {
         choosePlaylistDialog = new BottomSheetDialog(getContext());
         choosePlaylistDialog.setContentView(R.layout.choose_playlist_dialog);
-
+        TextView chooseState = choosePlaylistDialog.findViewById(R.id.choose_playlist_recycler_view_state);
         RecyclerView chooseRecyclerView = choosePlaylistDialog.findViewById(R.id.choose_playlist_recycler_view);
         ArrayList<String> playlists_titles = new ArrayList<>();
         ArrayList<String> playlists_keys = new ArrayList<>();
@@ -323,16 +322,22 @@ public class PlayerFragment extends Fragment {
 
                 }
 
-                if (x == snapshot.getChildrenCount()) {
+                if(snapshot.getChildrenCount()!=0) {
+                    if (x == snapshot.getChildrenCount()) {
 
 
-                    ChoosePlaylistAdapter choosePlaylistAdapter = new ChoosePlaylistAdapter((MainActivity) requireActivity(), choosePlaylistDialog, playlist.getSongs().get(position), playlists_titles, playlists_keys);
-                    chooseRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-                    choosePlaylistAdapter.notifyDataSetChanged();
-                    chooseRecyclerView.setAdapter(choosePlaylistAdapter);
+                        ChoosePlaylistAdapter choosePlaylistAdapter = new ChoosePlaylistAdapter((MainActivity) requireActivity(), choosePlaylistDialog, playlist.getSongs().get(position), playlists_titles, playlists_keys);
+                        chooseRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+                        choosePlaylistAdapter.notifyDataSetChanged();
+                        chooseRecyclerView.setAdapter(choosePlaylistAdapter);
+                    }
+
+                    chooseState.setVisibility(View.GONE);
+                    chooseRecyclerView.setVisibility(View.VISIBLE);
+                }else{
+                        chooseState.setVisibility(View.VISIBLE);
+                        chooseRecyclerView.setVisibility(View.GONE);
                 }
-
-
             }
 
             @Override

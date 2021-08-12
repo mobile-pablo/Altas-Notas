@@ -2,6 +2,7 @@ package com.company.altasnotas.adapters;
 
 
 import android.content.Intent;
+import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -117,9 +119,17 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
             MainActivity.currentSongAlbum.equals(playlist.getTitle()) &&
                     MainActivity.currentSongAuthor.equals( playlist.getDescription())
                     ){
-        holder.currentTitle.setTextColor(activity.getColor(R.color.project_light_velvet));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            holder.currentTitle.setTextColor(activity.getColor(R.color.project_light_velvet));
+        }else{
+            holder.currentTitle.setTextColor(ContextCompat.getColor( activity,R.color.project_light_velvet));
+        }
     }else{
-        holder.currentTitle.setTextColor(activity.getColor(R.color.black));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            holder.currentTitle.setTextColor(activity.getColor(R.color.black));
+        }else{
+            holder.currentTitle.setTextColor(ContextCompat.getColor( activity,R.color.black));
+        }
     }
         holder.currentBox.setOnClickListener(v -> {
             MainActivity.currentSongTitle = songs.get(position).getTitle();
@@ -346,7 +356,9 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                             x.setDir_title(playlist.getSongs().get(position).getAlbum());
                             x.setDir_desc(playlist.getSongs().get(position).getAuthor());
                             bottomSheetDialog.dismiss();
-                            activity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
+                            if(!(x.getTitle().equals(playlist.getTitle()) && x.getDescription().equals(playlist.getDescription()))){
+                                activity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
+                            }
 
                         }
                     }
@@ -457,8 +469,9 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                             x.setDir_title(playlist.getSongs().get(position).getAlbum());
                             x.setDir_desc(playlist.getSongs().get(position).getAuthor());
                             bottomSheetDialog.dismiss();
-                            activity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
-
+                            if(!(x.getTitle().equals(playlist.getTitle()) && x.getDescription().equals(playlist.getDescription()))) {
+                                activity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
+                            }
                         }
                     }
 
@@ -516,6 +529,8 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                         choosePlaylistAdapter.notifyDataSetChanged();
                         chooseRecyclerView.setAdapter(choosePlaylistAdapter);
                     }
+                    chooseState.setVisibility(View.GONE);
+                    chooseRecyclerView.setVisibility(View.VISIBLE);
                 }else{
                     chooseState.setVisibility(View.VISIBLE);
                     chooseRecyclerView.setVisibility(View.GONE);

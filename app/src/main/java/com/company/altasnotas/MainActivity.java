@@ -30,9 +30,13 @@ import com.company.altasnotas.fragments.profile.ProfileFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
 import com.company.altasnotas.services.BackgroundService;
+import com.company.altasnotas.viewmodels.fragments.login_and_register.LoginFragmentViewModel;
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -47,6 +51,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -136,8 +141,9 @@ public class MainActivity extends AppCompatActivity {
         //Logout
         photoUrl.setValue("");
         if(PlayerFragment.playerView!=null){
-            PlayerFragment.playerView.getPlayer().stop();
-            PlayerFragment.playerView.setPlayer(null);
+            if(PlayerFragment.playerView.getPlayer()!=null) {
+                PlayerFragment.playerView.getPlayer().stop();
+            }
             PlayerFragment.mService.onDestroy();
             Intent bgS = new Intent(MainActivity.this, BackgroundService.class);
             stopService(bgS);
@@ -146,7 +152,6 @@ public class MainActivity extends AppCompatActivity {
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
         if (isLoggedIn == true) {
-
             LoginManager.getInstance().logOut();
         }
 
@@ -155,6 +160,21 @@ public class MainActivity extends AppCompatActivity {
             updateUI(null);
             FacebookSdk.sdkInitialize(getApplicationContext());
         }
+
+
+        if(LoginFragment.mGoogleApiClient!=null){
+            if (LoginFragment.mGoogleApiClient.isConnected()) {
+                Auth.GoogleSignInApi.signOut(LoginFragment.mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(@NonNull Status status) {
+
+                    }
+                });
+            }
+            LoginFragment.mGoogleApiClient.stopAutoManage(this);
+            LoginFragment.mGoogleApiClient.disconnect();
+        }
+
 
         if (isLoggedIn == true || mAuth.getCurrentUser() == null) {
 
@@ -254,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
                                     photoUrl.setValue("");
                                    // Glide.with(mainActivity).load(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
                                 }
-                                Log.d("Storage exception: " + exception.getLocalizedMessage() + "\nLoad from Page URL instead", "FirebaseStorage");
+                                Log.d(FIREBASE,"Storage exception: " + exception.getLocalizedMessage() + "\nLoad from Page URL instead");
 
                             }
                         }
@@ -263,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Log.d("DatabaseError: " + error.getMessage(), "FirebaseDatabase");
+                    Log.d(FIREBASE,"DatabaseError: " + error.getMessage());
                 }
             });
         }

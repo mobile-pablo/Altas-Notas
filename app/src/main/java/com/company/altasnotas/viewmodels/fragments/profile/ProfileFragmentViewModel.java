@@ -25,6 +25,8 @@ import com.company.altasnotas.fragments.login_and_register.LoginFragment;
 import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.models.User;
 import com.company.altasnotas.services.BackgroundService;
+import com.facebook.AccessToken;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -124,6 +126,8 @@ public class ProfileFragmentViewModel extends ViewModel {
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
         ArrayList<String> keys = new ArrayList<>();
         final Integer[] x = {0};
+
+
         /*
         We need to delete
         - Playlists data   + img
@@ -131,12 +135,7 @@ public class ProfileFragmentViewModel extends ViewModel {
         - Fav music
         */
 
-        storageReference.child("images").child("profiles").child(mAuth.getCurrentUser().getUid()).delete().addOnFailureListener(activity, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(MainActivity.FIREBASE, "Image not found");
-            }
-        });
+        storageReference.child("images").child("profiles").child(mAuth.getCurrentUser().getUid()).delete();
 
 
         database_ref.child("music").child("playlists").child(uid).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
@@ -177,37 +176,82 @@ public class ProfileFragmentViewModel extends ViewModel {
 
         database_ref.child("fav_music").child(uid).removeValue();
 
-        database_ref.child("users").child(uid).removeValue().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+        database_ref.child("users").child(uid).removeValue()
+                .addOnCompleteListener(activity, new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
+
                 mAuth.getCurrentUser().delete().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        for (int i = 0; i <    activity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
-                            activity.getSupportFragmentManager().popBackStack();
+
+
+                        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+                        boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
+                        if (isLoggedIn == true) {
+                            LoginManager.getInstance().logOut();
                         }
 
-                        mAuth.signOut();
 
-                        if(PlayerFragment.playerView!=null){
-                            PlayerFragment.playerView.getPlayer().stop();
-                            PlayerFragment.playerView.setPlayer(null);
-                            PlayerFragment.mService.onDestroy();
-                            Intent bgS = new Intent(activity, BackgroundService.class);
-                             activity.stopService(bgS);
-                        }
+                        if (task.isSuccessful()) {
+                            for (int i = 0; i <    activity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
+                                activity.getSupportFragmentManager().popBackStack();
+                            }
 
-                        MainActivity.currentSongAuthor="";
-                        MainActivity.currentSongAlbum="";
-                        MainActivity.currentSongTitle="";
-                        progress.dismiss();
-                        activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new LoginFragment()).commit();
 
+
+                            if(PlayerFragment.playerView!=null){
+                                if(PlayerFragment.playerView.getPlayer()!=null)
+                                {
+                                PlayerFragment.playerView.getPlayer().stop();
+                                }
+                                PlayerFragment.mService.onDestroy();
+                                Intent bgS = new Intent(activity, BackgroundService.class);
+                                activity.stopService(bgS);
+                            }
+
+                            MainActivity.currentSongAuthor="";
+                            MainActivity.currentSongAlbum="";
+                            MainActivity.currentSongTitle="";
+
+                            progress.dismiss();
+                            activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new LoginFragment()).commit();
+                            activity.updateUI(mAuth.getCurrentUser());
+
+                        }else{
+                          FirebaseAuth  mAuth = FirebaseAuth.getInstance();
+                            mAuth.getCurrentUser().delete();
+                            mAuth.getPendingAuthResult().getResult().getUser().delete();
+                            for (int i = 0; i <    activity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
+                                activity.getSupportFragmentManager().popBackStack();
+                            }
+
+                            mAuth.signOut();
+
+                            if(PlayerFragment.playerView!=null){
+                                if(PlayerFragment.playerView.getPlayer()!=null)
+                                {
+                                    PlayerFragment.playerView.getPlayer().stop();
+                                }
+                                PlayerFragment.mService.onDestroy();
+                                Intent bgS = new Intent(activity, BackgroundService.class);
+                                activity.stopService(bgS);
+                            }
+
+                              MainActivity.currentSongAuthor="";
+                            MainActivity.currentSongAlbum="";
+                            MainActivity.currentSongTitle="";
+
+                            progress.dismiss();
+                            activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new LoginFragment()).commit();
+                            activity.updateUI(mAuth.getCurrentUser());
+                           }
                     }
                 });
 
               }
         });
+
     }
 
     public void downloadProfile(MainActivity mainActivity, FirebaseAuth mAuth, DatabaseReference database_ref,  TextView profile_name, TextView profile_email, CircleImageView profile_img, TextView creationText, TextView creationDate) {
