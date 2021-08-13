@@ -190,6 +190,12 @@ public class CurrentPlaylistFragment extends Fragment {
         this.author = author;
         this.album = album;
         this.isAlbum = isAlbum;
+
+        /* ViewModel isFav
+        0 - Playlist
+        -1 - Album
+        1 - Fav
+         */
     }
 
 

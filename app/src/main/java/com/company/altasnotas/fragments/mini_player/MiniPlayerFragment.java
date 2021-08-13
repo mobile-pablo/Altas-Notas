@@ -354,9 +354,11 @@ public class MiniPlayerFragment extends Fragment {
 
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-            MainActivity.currentSongTitle = playlist.getSongs().get(position).getTitle();
-            MainActivity.currentSongAlbum=playlist.getTitle();
-            MainActivity.currentSongAuthor=playlist.getDescription();
+          if(position!=player.getCurrentWindowIndex()){
+              MainActivity.currentSongTitle = playlist.getSongs().get(position).getTitle();
+              MainActivity.currentSongAlbum=playlist.getTitle();
+              MainActivity.currentSongAuthor=playlist.getDescription();
+          }
             mService.setPosition(player.getCurrentWindowIndex());
             position = player.getCurrentWindowIndex();
             playerView.setPlayer(player);

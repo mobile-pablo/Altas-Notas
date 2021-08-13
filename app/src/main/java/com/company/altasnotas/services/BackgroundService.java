@@ -53,12 +53,13 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     private SimpleExoPlayer player;
     private Playlist playlist;
     private Context context;
-    private PlayerNotificationManager playerNotificationManager;
+    public PlayerNotificationManager playerNotificationManager;
     private final IBinder mBinder = new LocalBinder();
     private final String CHANNEL_ID = "5423";
     private final String NOTIFICATION_ID = "2421";
     public Integer position;
     public Long seekedTo;
+    public Integer isFav;
     private String externalPath, externalPlaylistTitle, externalDescription;
     private   MediaSessionCompat mediaSession;
     private  MediaSessionConnector mediaSessionConnector;
@@ -86,7 +87,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         externalPlaylistTitle = intent.getStringExtra("playlistTitle");
         externalDescription = intent.getStringExtra("desc");
         seekedTo = intent.getLongExtra("ms", 0);
-
+        isFav = intent.getIntExtra("isFav",0);
 
         if (playlist != null) {
             if (!(playlist.getSongs().get(position).getPath().equals(externalPath) && playlist.getTitle().equals(externalPlaylistTitle) && playlist.getDescription().equals(externalDescription))) {
@@ -116,6 +117,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                                 intent.putExtra("pos", position);
                                 intent.putParcelableArrayListExtra("songs", songs);
                                 intent.putExtra("ms", player.getContentPosition());
+                                intent.putExtra("isFav", isFav);
                                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
                                         | Intent.FLAG_ACTIVITY_SINGLE_TOP );
                                 return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -169,6 +171,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                                 intent.putExtra("pos", position);
                                 intent.putParcelableArrayListExtra("songs", songs);
                                 intent.putExtra("ms", player.getContentPosition());
+                                intent.putExtra("isFav", isFav);
                                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
                                         | Intent.FLAG_ACTIVITY_SINGLE_TOP );
                                 return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -259,6 +262,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                             intent.putExtra("pos", position);
                             intent.putParcelableArrayListExtra("songs", songs);
                             intent.putExtra("ms", player.getContentPosition());
+                            intent.putExtra("isFav", isFav);
                             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
                                     | Intent.FLAG_ACTIVITY_SINGLE_TOP );
                             return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -311,6 +315,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                             intent.putExtra("pos", position);
                             intent.putParcelableArrayListExtra("songs", songs);
                             intent.putExtra("ms", player.getContentPosition());
+                            intent.putExtra("isFav", isFav);
                             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
                                     | Intent.FLAG_ACTIVITY_SINGLE_TOP );
                             return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);

@@ -128,4 +128,6 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
     <include
         layout="@layout/bottom_song_settings_layout"/>
+    <include
+        layout="@layout/bottom_playlist_song_player_settings_layout"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

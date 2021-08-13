@@ -222,7 +222,6 @@ public class ProfileFragmentViewModel extends ViewModel {
                             if (currentFragment instanceof MiniPlayerFragment) {
                                 MiniPlayerFragment miniPlayerFragment= (MiniPlayerFragment) currentFragment;
                                 miniPlayerFragment.dissmiss_mini();
-                                MainActivity.mini_player.setVisibility(View.GONE);
                             }
 
 

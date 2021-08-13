@@ -1,33 +1,19 @@
 package com.company.altasnotas;
 
-import android.app.Activity;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.text.Layout;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
-import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
 import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.fragments.home.HomeFragment;
 import com.company.altasnotas.fragments.login_and_register.LoginFragment;
@@ -35,14 +21,10 @@ import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
 import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.fragments.playlists.PlaylistsFragment;
-import com.company.altasnotas.fragments.profile.ProfileFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
-import com.company.altasnotas.services.BackgroundService;
-import com.company.altasnotas.viewmodels.fragments.login_and_register.LoginFragmentViewModel;
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
-import com.facebook.login.Login;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.api.ResultCallback;
@@ -60,7 +42,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -268,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
                 Playlist playlist = intent.getParcelableExtra("playlist");
                 Integer position = intent.getIntExtra("pos", 0);
                 long seekedTo = intent.getLongExtra("ms", 0);
+                Integer isFavFragment =intent.getIntExtra("isFav",0);
                 ArrayList<Song> local_songs = intent.getParcelableArrayListExtra("songs");
                 playlist.setSongs(local_songs);
 
