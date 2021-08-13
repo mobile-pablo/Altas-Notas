@@ -31,6 +31,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -59,6 +61,25 @@ public class LoginFragment extends Fragment {
         model = new ViewModelProvider(requireActivity()).get(LoginFragmentViewModel.class);
         EditText email_editext = view.findViewById(R.id.login_email_edittext);
         EditText password_editext = view.findViewById(R.id.login_password_edittext);
+
+        if(mGoogleApiClient!=null){
+            if (mGoogleApiClient.isConnected()) {
+                Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(@NonNull Status status) {
+                        if(status.isSuccess()){
+                            Log.d("Google", "Signed out from Google");
+                        }else{
+                            Log.d("Google", "Error while sigining out from Google");
+                        }
+                    }
+                });
+
+                mGoogleApiClient.stopAutoManage(getActivity());
+               mGoogleApiClient.disconnect();
+            }
+
+        }
         view.findViewById(R.id.login_w_mail_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -132,6 +153,7 @@ public class LoginFragment extends Fragment {
                             .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                             .build();
                 }else{
+                    mGoogleApiClient.stopAutoManage(getActivity());
                     mGoogleApiClient.disconnect();
                     mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
                             .enableAutoManage(getActivity(), new GoogleApiClient.OnConnectionFailedListener() {

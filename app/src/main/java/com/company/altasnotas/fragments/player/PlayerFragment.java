@@ -364,7 +364,7 @@ public class PlayerFragment extends Fragment {
             playerView.setControllerShowTimeoutMs(0);
             playerView.setCameraDistance(0);
             playerView.setControllerAutoShow(true);
-            /*
+
                      if(isReOpen)
             {
                 //By this When Notification is Open and ExoPlayer is Paused. It remains that way.
@@ -382,9 +382,12 @@ public class PlayerFragment extends Fragment {
             if(shouldPlay!=null){
                 if(!shouldPlay){
                   player.setPlayWhenReady(false);
+                }else{
+                    player.setPlayWhenReady(true);
                 }
             }
-             */
+
+
             playerView.setDrawingCacheBackgroundColor(Color.TRANSPARENT);
             playerView.setShutterBackgroundColor(Color.TRANSPARENT);
             playerView.setControllerHideOnTouch(false);

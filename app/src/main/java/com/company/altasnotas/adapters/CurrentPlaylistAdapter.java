@@ -140,14 +140,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
             notifyDataSetChanged();
             PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0,false);
             MiniPlayerFragment miniPlayerFragment = new MiniPlayerFragment(playlist, position, 0,false,playerFragment);
-
-            Fragment fragment =  activity.getSupportFragmentManager().findFragmentByTag("Mini");
-            if(fragment != null)
-            {
-                activity.getSupportFragmentManager().beginTransaction().remove(fragment).commit();
-            }
-
-           activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_mini_player_container, miniPlayerFragment, "Mini").commit();
+           activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_mini_player_container, miniPlayerFragment).commit();
            MainActivity.mini_player.setVisibility(View.VISIBLE);
 
         });

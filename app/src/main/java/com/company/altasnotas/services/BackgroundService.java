@@ -58,7 +58,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     private final String CHANNEL_ID = "5423";
     private final String NOTIFICATION_ID = "2421";
     public Integer position;
-    private Long seekedTo;
+    public Long seekedTo;
     private String externalPath, externalPlaylistTitle, externalDescription;
     private   MediaSessionCompat mediaSession;
     private  MediaSessionConnector mediaSessionConnector;
@@ -98,7 +98,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
 
                 releasePlayer();
                startPlayer();
-              //   testingPlayer();
+               //  testingPlayer();
 
                 playerNotificationManager = PlayerNotificationManager
                         .createWithNotificationChannel(context,CHANNEL_ID,R.string.app_name, Integer.parseInt(NOTIFICATION_ID), new PlayerNotificationManager.MediaDescriptionAdapter() {
@@ -407,7 +407,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
 
 
 
-    private void releasePlayer() {
+    public void releasePlayer() {
         if (player != null) {
             playerNotificationManager.setPlayer(null);
             player.release();
@@ -574,6 +574,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
 
     public SimpleExoPlayer getPlayerInstance() {
         if (player == null) {
+         //   return testingPlayer();
             return startPlayer();
         } else {
             return player;

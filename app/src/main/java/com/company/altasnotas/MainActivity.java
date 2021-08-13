@@ -71,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
     public static Integer dialogHeight;
     public static final String FIREBASE = "Firebase";
     public  static View  mini_player;
-    public  MiniPlayerFragment miniPlayerFragment;
 
     private String frag;
     @Override
@@ -158,47 +157,19 @@ public class MainActivity extends AppCompatActivity {
     public void logoutUser() {
         //Logout
 
-        MainActivity.mini_player.setVisibility(View.GONE);
-       currentSongTitle="";
-       currentSongAlbum="";
-       currentSongAuthor="";
-      if(CurrentPlaylistFragment.adapter!=null){
-          CurrentPlaylistFragment.adapter.notifyDataSetChanged();
-      }
-
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
         if (currentFragment instanceof MiniPlayerFragment) {
-        MiniPlayerFragment miniPlayerFragment= (MiniPlayerFragment) currentFragment;
-            if(miniPlayerFragment.playerView!=null) {
-                if (miniPlayerFragment.playerView.getPlayer() != null) {
-                    miniPlayerFragment.playerView.getPlayer().stop();
-                    miniPlayerFragment.mService.onDestroy();
-                    miniPlayerFragment.playerView.setPlayer(null);
-                }
-            }
+            MiniPlayerFragment miniPlayerFragment= (MiniPlayerFragment) currentFragment;
+            miniPlayerFragment.dissmiss_mini();
         }
 
 
-
-        Fragment fragment =  getSupportFragmentManager().findFragmentByTag("Mini");
-        if(fragment != null)
-        {
-            getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+        if(CurrentPlaylistFragment.adapter!=null){
+            CurrentPlaylistFragment.adapter.notifyDataSetChanged();
         }
 
         photoUrl.setValue("");
-        if(PlayerFragment.playerView!=null){
-            if(PlayerFragment.playerView.getPlayer()!=null) {
-                PlayerFragment.playerView.getPlayer().stop();
-            }
 
-
-
-            PlayerFragment.mService.onDestroy();
-
-            Intent bgS = new Intent(MainActivity.this, BackgroundService.class);
-            stopService(bgS);
-        }
 
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
@@ -212,19 +183,31 @@ public class MainActivity extends AppCompatActivity {
             FacebookSdk.sdkInitialize(getApplicationContext());
         }
 
+        Fragment anotherFragment = getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+        if (anotherFragment instanceof LoginFragment) {
+            LoginFragment loginFragment = (LoginFragment) anotherFragment;
 
-        if(LoginFragment.mGoogleApiClient!=null){
-            if (LoginFragment.mGoogleApiClient.isConnected()) {
-                Auth.GoogleSignInApi.signOut(LoginFragment.mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(@NonNull Status status) {
+            if(loginFragment.mGoogleApiClient!=null){
+                if (loginFragment.mGoogleApiClient.isConnected()) {
+                    Auth.GoogleSignInApi.signOut(loginFragment.mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
+                        @Override
+                        public void onResult(@NonNull Status status) {
+                            if(status.isSuccess()){
+                                Log.d("Google", "Signed out from Google");
+                            }else{
+                                Log.d("Google", "Error while sigining out from Google");
+                            }
+                        }
+                    });
 
-                    }
-                });
+                    loginFragment.mGoogleApiClient.disconnect();
+                }
+
+                loginFragment.mGoogleApiClient.stopAutoManage(MainActivity.this);
+
             }
-            LoginFragment.mGoogleApiClient.stopAutoManage(this);
-            LoginFragment.mGoogleApiClient.disconnect();
         }
+
 
 
         if (isLoggedIn == true || mAuth.getCurrentUser() == null) {

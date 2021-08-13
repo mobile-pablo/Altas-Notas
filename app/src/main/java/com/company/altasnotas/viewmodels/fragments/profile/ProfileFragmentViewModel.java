@@ -132,15 +132,7 @@ public class ProfileFragmentViewModel extends ViewModel {
         ArrayList<String> keys = new ArrayList<>();
         final Integer[] x = {0};
 
-        MainActivity.mini_player.setVisibility(View.GONE);
-        Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
-        if (currentFragment instanceof MiniPlayerFragment) {
-            MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) currentFragment;
-            if(miniPlayerFragment.playerView!=null) {
-                if (miniPlayerFragment.playerView.getPlayer() != null) {
-                    miniPlayerFragment.playerView.getPlayer().stop();
-                }
-            }}
+
 
         /*
         We need to delete
@@ -226,37 +218,23 @@ public class ProfileFragmentViewModel extends ViewModel {
                                 LoginFragment.mGoogleApiClient.disconnect();
                             }
 
-                            if(PlayerFragment.playerView!=null){
-                                if(PlayerFragment.playerView.getPlayer()!=null)
-                                {
-                                PlayerFragment.playerView.getPlayer().stop();
-                                }
-                                PlayerFragment.mService.onDestroy();
-                                Intent bgS = new Intent(activity, BackgroundService.class);
-                                activity.stopService(bgS);
-                            }
                             Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
                             if (currentFragment instanceof MiniPlayerFragment) {
-                                MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) currentFragment;
-                                if(miniPlayerFragment.playerView!=null) {
-                                    if (miniPlayerFragment.playerView.getPlayer() != null) {
-                                        miniPlayerFragment.playerView.getPlayer().stop();
-                                        miniPlayerFragment.mService.onDestroy();
-                                    }
-                                }}
+                                MiniPlayerFragment miniPlayerFragment= (MiniPlayerFragment) currentFragment;
+                                miniPlayerFragment.dissmiss_mini();
+                                MainActivity.mini_player.setVisibility(View.GONE);
+                            }
 
-                            MainActivity.currentSongAuthor="";
-                            MainActivity.currentSongAlbum="";
-                            MainActivity.currentSongTitle="";
 
                             progress.dismiss();
                             activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new LoginFragment()).commit();
                             activity.updateUI(mAuth.getCurrentUser());
 
-                        }else{
+                        }
+                        else{
                           FirebaseAuth  mAuth = FirebaseAuth.getInstance();
                             mAuth.getCurrentUser().delete();
-                            mAuth.getPendingAuthResult().getResult().getUser().delete();
+
                             for (int i = 0; i <    activity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
                                 activity.getSupportFragmentManager().popBackStack();
                             }
@@ -275,19 +253,11 @@ public class ProfileFragmentViewModel extends ViewModel {
                                 LoginFragment.mGoogleApiClient.disconnect();
                             }
 
-                            if(PlayerFragment.playerView!=null){
-                                if(PlayerFragment.playerView.getPlayer()!=null)
-                                {
-                                    PlayerFragment.playerView.getPlayer().stop();
-                                }
-                                PlayerFragment.mService.onDestroy();
-                                Intent bgS = new Intent(activity, BackgroundService.class);
-                                activity.stopService(bgS);
+                            Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
+                            if (currentFragment instanceof MiniPlayerFragment) {
+                                MiniPlayerFragment miniPlayerFragment= (MiniPlayerFragment) currentFragment;
+                                miniPlayerFragment.dissmiss_mini();
                             }
-
-                              MainActivity.currentSongAuthor="";
-                            MainActivity.currentSongAlbum="";
-                            MainActivity.currentSongTitle="";
 
                             progress.dismiss();
                             activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new LoginFragment()).commit();

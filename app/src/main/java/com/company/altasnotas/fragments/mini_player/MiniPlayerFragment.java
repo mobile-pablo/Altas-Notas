@@ -141,8 +141,6 @@ public class MiniPlayerFragment extends Fragment {
 
         box.setOnClickListener(v -> {
 
-
-
             if(mBound){
                 SimpleExoPlayer player = mService.getPlayerInstance();
                if(!(player.getPlayWhenReady() && player.getPlaybackState() == Player.STATE_READY)){
@@ -193,28 +191,14 @@ public class MiniPlayerFragment extends Fragment {
 
         if(playerView!=null) {
             if (playerView.getPlayer() != null) {
-                playerView.getPlayer().stop();
+                playerView.getPlayer().pause();
+                playerView.getPlayer().seekTo(0);
                 playerView.setPlayer(null);
             }
-           mService.onDestroy();
+            mService.stopForeground(true);
+            mService.stopSelf();
+
         }
-
-
-        if(PlayerFragment.playerView!=null){
-            if(PlayerFragment.playerView.getPlayer()!=null) {
-                if(  PlayerFragment.playerView.getPlayer().isPlaying()){
-                    PlayerFragment.playerView.getPlayer().stop();
-                    PlayerFragment.playerView.setPlayer(null);
-                }
-            }
-            PlayerFragment.mService.onDestroy();
-        }
-
-        Intent bgS = new Intent(getActivity(), BackgroundService.class);
-        mainActivity.stopService(bgS);
-
-        bgS = new Intent(getActivity(), BackgroundService.class);
-        mainActivity.stopService(bgS);
 
         MainActivity.currentSongTitle="";
         MainActivity.currentSongAlbum="";
@@ -224,6 +208,8 @@ public class MiniPlayerFragment extends Fragment {
         if (currentFragment instanceof CurrentPlaylistFragment) {
             CurrentPlaylistFragment.adapter.notifyDataSetChanged();
         }
+
+        System.out.println("MINI DISMISSED");
     }
 
 
@@ -264,6 +250,7 @@ public class MiniPlayerFragment extends Fragment {
             fav_btn.setImageResource(R.drawable.ic_heart_empty);
         }
         //Loading fav btn state
+    if(mAuth.getCurrentUser()!=null){
         database_ref.child("fav_music")
                 .child(mAuth.getCurrentUser().getUid())
                 .orderByKey()
@@ -322,6 +309,7 @@ public class MiniPlayerFragment extends Fragment {
 
                     }
                 });
+    }
     }
     public  void initializePlayer() {
         if (mBound) {

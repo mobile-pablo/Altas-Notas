@@ -105,14 +105,16 @@ public class ProfileFragment extends Fragment {
         Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
         if (currentFragment instanceof MiniPlayerFragment) {
             MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) currentFragment;
-        if(miniPlayerFragment.playerView!=null){
-            if(miniPlayerFragment.playerView.getPlayer()!=null){
-                MainActivity.mini_player.setVisibility(View.VISIBLE);
-            }else{
-                MainActivity.mini_player.setVisibility(View.GONE);
-            }
-        }}
-
+            if(miniPlayerFragment.playerView!=null){
+                if(miniPlayerFragment.playerView.getPlayer()!=null){
+                    if(miniPlayerFragment.playerView.getPlayer().getCurrentPosition()!=0){
+                        miniPlayerFragment.setUI();
+                        MainActivity.mini_player.setVisibility(View.VISIBLE);
+                    }
+                }else{
+                    MainActivity.mini_player.setVisibility(View.GONE);
+                }
+            }}
 
 
           profile_img_edit_btn = view.findViewById(R.id.profile_user_img_btn);
@@ -200,6 +202,7 @@ public class ProfileFragment extends Fragment {
 
                     //Upload image
 
+           //         storageReference = FirebaseStorage.getInstance().getReferenceFromUrl("gs://altas-notas.appspot.com");
                     storageReference = FirebaseStorage.getInstance().getReference();
                     storageReference.child("images/profiles/"+mAuth.getCurrentUser().getUid()).putBytes(byteArray).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                         @Override

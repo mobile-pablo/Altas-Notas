@@ -107,8 +107,10 @@ public class HomeFragment extends Fragment {
             MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) currentFragment;
         if(miniPlayerFragment.playerView!=null){
       if(miniPlayerFragment.playerView.getPlayer()!=null){
+          if(miniPlayerFragment.playerView.getPlayer().getCurrentPosition()!=0){
           miniPlayerFragment.setUI();
           MainActivity.mini_player.setVisibility(View.VISIBLE);
+          }
       }else{
           MainActivity.mini_player.setVisibility(View.GONE);
       }
