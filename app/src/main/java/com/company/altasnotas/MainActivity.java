@@ -111,13 +111,14 @@ public class MainActivity extends AppCompatActivity {
                 Integer isFavFragment =getIntent().getIntExtra("isFav",0);
                 ArrayList<Song> local_songs = getIntent().getParcelableArrayListExtra("songs");
                 playlist.setSongs(local_songs);
-
+                Integer state = getIntent().getIntExtra("state",0);
+                Boolean ready = getIntent().getBooleanExtra("ready",false);
                 Fragment fragment = getSupportFragmentManager().findFragmentByTag("Player");
                 if(fragment != null)
                 {
                     getSupportFragmentManager().beginTransaction().remove(fragment).commit();
                 }
-                PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo,true);
+                PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo,true,state,ready);
                 MiniPlayerFragment miniPlayerFragment = new MiniPlayerFragment(playlist, position, 0,false,playerFragment);
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_mini_player_container, miniPlayerFragment).commit();
                 getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment, "Player").commit();
@@ -279,6 +280,8 @@ public class MainActivity extends AppCompatActivity {
                 Integer position = intent.getIntExtra("pos", 0);
                 long seekedTo = intent.getLongExtra("ms", 0);
                 Integer isFavFragment =intent.getIntExtra("isFav",0);
+                Integer state = intent.getIntExtra("state",0);
+                Boolean ready = intent.getBooleanExtra("ready",false);
                 ArrayList<Song> local_songs = intent.getParcelableArrayListExtra("songs");
                 playlist.setSongs(local_songs);
 
@@ -287,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
                 {
                     getSupportFragmentManager().beginTransaction().remove(fragment).commit();
                 }
-                PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo,true);
+                PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo,true,state,ready);
                 MiniPlayerFragment miniPlayerFragment = new MiniPlayerFragment(playlist, position, 0,false,playerFragment);
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_mini_player_container, miniPlayerFragment).commit();
                 getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment, "Player").commit();

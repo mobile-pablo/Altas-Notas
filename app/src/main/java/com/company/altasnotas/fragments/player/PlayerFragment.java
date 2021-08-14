@@ -81,6 +81,9 @@ public class PlayerFragment extends Fragment {
     private Boolean isReOpen;
     private Palette palette;
     ConstraintLayout player_full_box;
+
+    Integer state;
+    Boolean ready;
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -103,12 +106,14 @@ public class PlayerFragment extends Fragment {
 
     private PlayerFragmentViewModel viewModel;
 
-    public PlayerFragment(Playlist playlist, int position, long seekedTo, Boolean isReOpen) {
+    public PlayerFragment(Playlist playlist, int position, long seekedTo, Boolean isReOpen,Integer state, Boolean ready) {
         this.playlist = null;
         this.playlist = playlist;
         this.position = position;
         this.seekedTo = seekedTo;
         this.isReOpen=isReOpen;
+        this.state=state;
+        this.ready=ready;
         //We are sending playlist to this player and let it play all of it
     }
 
@@ -365,27 +370,35 @@ public class PlayerFragment extends Fragment {
             playerView.setCameraDistance(0);
             playerView.setControllerAutoShow(true);
 
-                     if(isReOpen)
-            {
-                //By this When Notification is Open and ExoPlayer is Paused. It remains that way.
-                if( player.getPlayWhenReady() && player.getPlaybackState() == Player.STATE_READY ){
-                        player.setPlayWhenReady(true);
-                }else {
-                    player.setPlayWhenReady(false);
-                }
-            }
-            else
-            {
-            player.setPlayWhenReady(true);
-            }
+            System.out.println(isReOpen+","+ shouldPlay);
+     if(state==null || ready==null){
+         if(isReOpen)
+         {
+             //By this When Notification is Open and ExoPlayer is Paused. It remains that way.
+             if( player.getPlayWhenReady() && player.getPlaybackState() == Player.STATE_READY ){
+                 player.setPlayWhenReady(true);
+             }else {
+                 player.setPlayWhenReady(false);
+             }
+         }
+         else
+         {
+             player.setPlayWhenReady(true);
+         }
 
-            if(shouldPlay!=null){
-                if(!shouldPlay){
-                  player.setPlayWhenReady(false);
-                }else{
-                    player.setPlayWhenReady(true);
-                }
-            }
+         if(shouldPlay!=null){
+             if(!shouldPlay){
+                 player.setPlayWhenReady(false);
+             }else{
+                 player.setPlayWhenReady(true);
+             }
+         }
+     }else{
+
+if(!(ready && state == Player.STATE_READY)){
+    player.setPlayWhenReady(false);
+}
+     }
 
 
             playerView.setDrawingCacheBackgroundColor(Color.TRANSPARENT);
