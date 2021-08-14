@@ -81,7 +81,7 @@ public class PlayerFragment extends Fragment {
     private Boolean isReOpen;
     private Palette palette;
     ConstraintLayout player_full_box;
-
+    Integer isFav;
     Integer state;
     Boolean ready;
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -103,10 +103,10 @@ public class PlayerFragment extends Fragment {
 
     private BottomSheetDialog bottomSheetDialog;
     private BottomSheetDialog choosePlaylistDialog;
-
+    private BottomSheetDialog songInPlaylistDialog;
     private PlayerFragmentViewModel viewModel;
 
-    public PlayerFragment(Playlist playlist, int position, long seekedTo, Boolean isReOpen,Integer state, Boolean ready) {
+    public PlayerFragment(Playlist playlist, int position, long seekedTo, Boolean isReOpen,Integer state, Boolean ready, Integer isFav) {
         this.playlist = null;
         this.playlist = playlist;
         this.position = position;
@@ -114,7 +114,13 @@ public class PlayerFragment extends Fragment {
         this.isReOpen=isReOpen;
         this.state=state;
         this.ready=ready;
+        this.isFav=isFav;
         //We are sending playlist to this player and let it play all of it
+       /*  isFav
+        0 - Playlist
+        -1 - Album
+        1 - Fav
+         */
     }
 
     @Override
@@ -137,28 +143,6 @@ public class PlayerFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
 
         setUI();
-
-        intent = new Intent(getActivity(), BackgroundService.class);
-        intent.putExtra("playlist", playlist);
-        intent.putExtra("pos", position);
-        intent.putExtra("path", playlist.getSongs().get(position).getPath());
-        intent.putExtra("playlistTitle", playlist.getTitle());
-        intent.putExtra("desc", playlist.getDescription());
-        intent.putExtra("ms", seekedTo);
-        intent.putParcelableArrayListExtra("songs", playlist.getSongs());
-
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            Util.startForegroundService(getActivity(), intent);
-        } else {
-            getActivity().startService(intent);
-        }
-
-
-
-
-
-
 
         //Loading fav btn state
         database_ref.child("fav_music")
@@ -232,11 +216,97 @@ public class PlayerFragment extends Fragment {
         });
 
         settings_btn.setOnClickListener(v -> {
-            openSettingsDialog();
+           if(isFav==0){
+                openSongInPlaylistsSettingsDialog();
+           }else{
+               openSettingsDialog();
+           }
         });
 
 
         return view;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        intent = new Intent(getActivity(), BackgroundService.class);
+        intent.putExtra("playlist", playlist);
+        intent.putExtra("pos", position);
+        intent.putExtra("path", playlist.getSongs().get(position).getPath());
+        intent.putExtra("playlistTitle", playlist.getTitle());
+        intent.putExtra("desc", playlist.getDescription());
+        intent.putExtra("ms", seekedTo);
+        intent.putExtra("isFav",isFav);
+        intent.putParcelableArrayListExtra("songs", playlist.getSongs());
+
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            Util.startForegroundService(getActivity(), intent);
+        } else {
+            getActivity().startService(intent);
+        }
+    }
+
+
+    private void openSongInPlaylistsSettingsDialog() {
+        songInPlaylistDialog = new BottomSheetDialog(getContext());
+        songInPlaylistDialog.setContentView(R.layout.bottom_playlist_song_player_settings_layout);
+
+        LinearLayout showAlbum = songInPlaylistDialog.findViewById(R.id.bottom_settings_album_box);
+        LinearLayout showPlaylist= songInPlaylistDialog.findViewById(R.id.bottom_settings_show_playlist_box);
+        LinearLayout share = songInPlaylistDialog.findViewById(R.id.bottom_settings_share_box);
+        LinearLayout dismissDialog = songInPlaylistDialog.findViewById(R.id.bottom_settings_dismiss_box);
+
+        showAlbum.setOnClickListener(v -> {
+            //Shows album
+            //Download playlist
+            Playlist x = new Playlist();
+            if (mAuth.getCurrentUser() != null) {
+
+                database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot != null) {
+                            x.setImage_id(snapshot.child("image_id").getValue().toString());
+                            x.setYear(snapshot.child("year").getValue().toString());
+                            x.setTitle(snapshot.child("title").getValue().toString());
+                            x.setDescription(snapshot.child("description").getValue().toString());
+                            x.setDir_title(playlist.getSongs().get(position).getAlbum());
+                            x.setDir_desc(playlist.getSongs().get(position).getAuthor());
+                            songInPlaylistDialog.dismiss();
+                            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        android.util.Log.d(MainActivity.FIREBASE,"Error: " + error.getMessage());
+                    }
+
+                });
+
+
+            }
+        });
+
+        showPlaylist.setOnClickListener(v->{
+          for(int i=0; i<getActivity().getSupportFragmentManager().getBackStackEntryCount(); i++){
+              getActivity().getSupportFragmentManager().popBackStack();
+          }
+            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getTitle(), "",playlist, 0)).addToBackStack("null").commit();
+
+            songInPlaylistDialog.dismiss();
+        });
+
+        share.setOnClickListener(v -> {
+            share();
+            songInPlaylistDialog.dismiss();
+        });
+        dismissDialog.setOnClickListener(v -> songInPlaylistDialog.dismiss());
+
+        songInPlaylistDialog.show();
     }
 
     private void openSettingsDialog() {
@@ -383,16 +453,18 @@ public class PlayerFragment extends Fragment {
          }
          else
          {
-             player.setPlayWhenReady(true);
-         }
-
-         if(shouldPlay!=null){
-             if(!shouldPlay){
-                 player.setPlayWhenReady(false);
+             if(shouldPlay!=null){
+                 if(!shouldPlay){
+                     player.setPlayWhenReady(false);
+                 }else{
+                     player.setPlayWhenReady(true);
+                 }
              }else{
-                 player.setPlayWhenReady(true);
+             player.setPlayWhenReady(true);
              }
          }
+
+
      }else{
 
 if(!(ready && state == Player.STATE_READY)){

@@ -138,7 +138,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
             MainActivity.currentSongAlbum=playlist.getTitle();
             MainActivity.currentSongAuthor=playlist.getDescription();
             notifyDataSetChanged();
-            PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0,false,null,null);
+            PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0,false,null,null, isFavFragment);
             MiniPlayerFragment miniPlayerFragment = new MiniPlayerFragment(playlist, position, 0,false,playerFragment);
            activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_mini_player_container, miniPlayerFragment).commit();
            MainActivity.mini_player.setVisibility(View.VISIBLE);

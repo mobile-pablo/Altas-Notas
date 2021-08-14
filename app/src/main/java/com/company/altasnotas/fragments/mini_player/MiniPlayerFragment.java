@@ -120,35 +120,15 @@ public class MiniPlayerFragment extends Fragment {
         viewModel = new ViewModelProvider(requireActivity()).get(PlayerFragmentViewModel.class);
         setUI();
 
-        intent = new Intent(getActivity(), BackgroundService.class);
-        intent.putExtra("playlist", playlist);
-        intent.putExtra("pos", position);
-        intent.putExtra("path", playlist.getSongs().get(position).getPath());
-        intent.putExtra("playlistTitle", playlist.getTitle());
-        intent.putExtra("desc", playlist.getDescription());
-        intent.putExtra("ms", seekedTo);
-        intent.putParcelableArrayListExtra("songs", playlist.getSongs());
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            Util.startForegroundService(getActivity(), intent);
-        } else {
-            getActivity().startService(intent);
-        }
-
-
-
-
-
         box.setOnClickListener(v -> {
 
             if(mBound){
                 SimpleExoPlayer player = mService.getPlayerInstance();
-               if(!(player.getPlayWhenReady() && player.getPlaybackState() == Player.STATE_READY)){
-                   System.out.println("Should stop song!");
-                   playerFragment.setSongState(false);
-               }else{
-                   playerFragment.setSongState(true);
-               }
+                if(!(player.getPlayWhenReady() && player.getPlaybackState() == Player.STATE_READY)){
+                    playerFragment.setSongState(false);
+                }else{
+                    playerFragment.setSongState(true);
+                }
             }
 
 
@@ -209,9 +189,31 @@ public class MiniPlayerFragment extends Fragment {
             CurrentPlaylistFragment.adapter.notifyDataSetChanged();
         }
 
-        System.out.println("MINI DISMISSED");
+     Log.d("MiniPlayerFragment", "Mini Player dismissed!");
     }
 
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+
+        intent = new Intent(getActivity(), BackgroundService.class);
+        intent.putExtra("playlist", playlist);
+        intent.putExtra("pos", position);
+        intent.putExtra("path", playlist.getSongs().get(position).getPath());
+        intent.putExtra("playlistTitle", playlist.getTitle());
+        intent.putExtra("desc", playlist.getDescription());
+        intent.putExtra("ms", seekedTo);
+        intent.putParcelableArrayListExtra("songs", playlist.getSongs());
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            Util.startForegroundService(getActivity(), intent);
+        } else {
+            getActivity().startService(intent);
+        }
+
+    }
 
     public  void setUI() {
         if(getActivity()!=null) {
