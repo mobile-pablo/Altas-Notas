@@ -118,7 +118,10 @@ public class MainActivity extends AppCompatActivity {
                     getSupportFragmentManager().beginTransaction().remove(fragment).commit();
                 }
                 PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo,true);
+                MiniPlayerFragment miniPlayerFragment = new MiniPlayerFragment(playlist, position, 0,false,playerFragment);
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_mini_player_container, miniPlayerFragment).commit();
                 getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment, "Player").commit();
+
             }
         }else{
             System.out.println("Frag is null");
@@ -285,6 +288,8 @@ public class MainActivity extends AppCompatActivity {
                     getSupportFragmentManager().beginTransaction().remove(fragment).commit();
                 }
                 PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo,true);
+                MiniPlayerFragment miniPlayerFragment = new MiniPlayerFragment(playlist, position, 0,false,playerFragment);
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_mini_player_container, miniPlayerFragment).commit();
                 getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment, "Player").commit();
             }
         }else{
