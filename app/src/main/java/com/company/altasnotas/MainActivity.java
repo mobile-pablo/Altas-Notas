@@ -97,6 +97,32 @@ public class MainActivity extends AppCompatActivity {
         mini_player.setVisibility(View.GONE);
 
 
+        frag = getIntent().getStringExtra("frag");
+        if (frag != null) {
+            if (frag.equals("PlayerFragment")) {
+
+                for (int i = 0; i < getSupportFragmentManager().getBackStackEntryCount(); i++) {
+                    getSupportFragmentManager().popBackStack();
+                }
+
+                Playlist playlist = getIntent().getParcelableExtra("playlist");
+                Integer position = getIntent().getIntExtra("pos", 0);
+                long seekedTo = getIntent().getLongExtra("ms", 0);
+                Integer isFavFragment =getIntent().getIntExtra("isFav",0);
+                ArrayList<Song> local_songs = getIntent().getParcelableArrayListExtra("songs");
+                playlist.setSongs(local_songs);
+
+                Fragment fragment = getSupportFragmentManager().findFragmentByTag("Player");
+                if(fragment != null)
+                {
+                    getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+                }
+                PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo,true);
+                getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment, "Player").commit();
+            }
+        }else{
+            System.out.println("Frag is null");
+        }
     }
 
 
