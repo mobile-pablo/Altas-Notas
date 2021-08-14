@@ -397,12 +397,16 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-
+        requireActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+  /*
         Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
         if (currentFragment instanceof MiniPlayerFragment) {
             MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) currentFragment;
             requireActivity().bindService(miniPlayerFragment.intent, mConnection, Context.BIND_AUTO_CREATE);
+        }else{
+
         }
+   */
     }
 
 
@@ -468,7 +472,11 @@ public class PlayerFragment extends Fragment {
     public void setSongState(boolean b) {
         shouldPlay =b;
     }
-
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        initializePlayer();
+    }
     public  class ExoListener implements Player.Listener {
         SimpleExoPlayer player;
 
@@ -478,9 +486,11 @@ public class PlayerFragment extends Fragment {
 
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-            MainActivity.currentSongTitle = playlist.getSongs().get(position).getTitle();
-            MainActivity.currentSongAlbum=playlist.getTitle();
-            MainActivity.currentSongAuthor=playlist.getDescription();
+            if(position!=player.getCurrentWindowIndex()){
+                MainActivity.currentSongTitle = playlist.getSongs().get(position).getTitle();
+                MainActivity.currentSongAlbum=playlist.getTitle();
+                MainActivity.currentSongAuthor=playlist.getDescription();
+            }
             mService.setPosition(player.getCurrentWindowIndex());
             position = player.getCurrentWindowIndex();
             playerView.setPlayer(player);
@@ -523,10 +533,12 @@ public class PlayerFragment extends Fragment {
 
         @Override
         public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+            if(position!=player.getCurrentWindowIndex()){
+                MainActivity.currentSongTitle = playlist.getSongs().get(position).getTitle();
+                MainActivity.currentSongAlbum=playlist.getTitle();
+                MainActivity.currentSongAuthor=playlist.getDescription();
+            }
             position = player.getCurrentWindowIndex();
-            MainActivity.currentSongTitle = playlist.getSongs().get(position).getTitle();
-            MainActivity.currentSongAlbum=playlist.getTitle();
-            MainActivity.currentSongAuthor=playlist.getDescription();
             CurrentPlaylistFragment.adapter.notifyDataSetChanged();
             setUI();
             fav_btn.setImageResource(R.drawable.ic_heart_empty);
@@ -595,11 +607,5 @@ public class PlayerFragment extends Fragment {
         }
     }
 
-
-        @Override
-        public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-            super.onViewStateRestored(savedInstanceState);
-            initializePlayer();
-        }
 }
 

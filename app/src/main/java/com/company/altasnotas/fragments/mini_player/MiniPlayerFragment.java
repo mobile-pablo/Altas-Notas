@@ -197,7 +197,7 @@ public class MiniPlayerFragment extends Fragment {
             }
             mService.stopForeground(true);
             mService.stopSelf();
-
+            mService.playerNotificationManager.setPlayer(new SimpleExoPlayer.Builder(getContext()).setHandleAudioBecomingNoisy(true).build());
         }
 
         MainActivity.currentSongTitle="";
