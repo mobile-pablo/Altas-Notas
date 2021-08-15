@@ -45,7 +45,7 @@ import static android.content.ContentValues.TAG;
 public class LoginFragment extends Fragment {
 
     private static final int RC_SIGN_IN = 120;
-    private GoogleSignInClient mGoogleSignInClient;
+    public static GoogleSignInClient mGoogleSignInClient;
     public static GoogleApiClient mGoogleApiClient;
     private CallbackManager callbackManager;
     private LoginFragmentViewModel model;
@@ -153,6 +153,9 @@ public class LoginFragment extends Fragment {
                             .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                             .build();
                 }else{
+                    if(mGoogleApiClient.isConnected()){
+                        mGoogleApiClient.clearDefaultAccountAndReconnect();
+                    }
                     mGoogleApiClient.stopAutoManage(getActivity());
                     mGoogleApiClient.disconnect();
                     mGoogleApiClient = new GoogleApiClient.Builder(getActivity())

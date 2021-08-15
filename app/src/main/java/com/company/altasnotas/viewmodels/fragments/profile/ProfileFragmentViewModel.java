@@ -28,6 +28,7 @@ import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.models.User;
 import com.company.altasnotas.services.BackgroundService;
 import com.facebook.AccessToken;
+import com.facebook.login.Login;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.api.ResultCallback;
@@ -207,15 +208,24 @@ public class ProfileFragmentViewModel extends ViewModel {
                             mAuth.signOut();
                             if(LoginFragment.mGoogleApiClient!=null){
                                 if (LoginFragment.mGoogleApiClient.isConnected()) {
+                                    LoginFragment.mGoogleApiClient.clearDefaultAccountAndReconnect();
                                     Auth.GoogleSignInApi.signOut(LoginFragment.mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
                                         @Override
                                         public void onResult(@NonNull Status status) {
-
+                                            if(status.isSuccess()){
+                                                Log.d("Google", "Signed out from Google");
+                                            }else{
+                                                Log.d("Google", "Error while sigining out from Google");
+                                            }
                                         }
                                     });
+
+                                    LoginFragment.mGoogleSignInClient.signOut();
+                                    LoginFragment.mGoogleApiClient.disconnect();
                                 }
+
                                 LoginFragment.mGoogleApiClient.stopAutoManage(activity);
-                                LoginFragment.mGoogleApiClient.disconnect();
+
                             }
 
                             Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);

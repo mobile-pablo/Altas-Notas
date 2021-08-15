@@ -175,9 +175,11 @@ public class MiniPlayerFragment extends Fragment {
                 playerView.getPlayer().seekTo(0);
                 playerView.setPlayer(null);
             }
-            mService.stopForeground(true);
-            mService.stopSelf();
-            mService.playerNotificationManager.setPlayer(new SimpleExoPlayer.Builder(getContext()).setHandleAudioBecomingNoisy(true).build());
+            mService.destroyNotif();
+      //      mService.stopForeground(false);
+   //         mService.stopSelf();
+       //     mService.playerNotificationManager.setPlayer(new SimpleExoPlayer.Builder(getContext()).setHandleAudioBecomingNoisy(true).build());
+   //         PlayerFragment.mService.playerNotificationManager.setPlayer(new SimpleExoPlayer.Builder(getContext()).setHandleAudioBecomingNoisy(true).build());
         }
 
         MainActivity.currentSongTitle="";

@@ -81,6 +81,12 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         return mBinder;
     }
 
+    public void destroyNotif(){
+
+        this.stopForeground(true);
+        stopSelf();
+        playerNotificationManager.setPlayer(new SimpleExoPlayer.Builder(this).setHandleAudioBecomingNoisy(true).build());
+    }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         externalPath = intent.getStringExtra("path");

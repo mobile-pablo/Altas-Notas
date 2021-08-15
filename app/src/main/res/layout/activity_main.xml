@@ -15,6 +15,10 @@
         android:layout_weight="9">
 
     </FrameLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/project_dark_velvet"/>
     <FrameLayout
         android:id="@+id/main_mini_player_container"
         android:layout_width="match_parent"

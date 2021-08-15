@@ -200,6 +200,7 @@ public class MainActivity extends AppCompatActivity {
 
             if(loginFragment.mGoogleApiClient!=null){
                 if (loginFragment.mGoogleApiClient.isConnected()) {
+                    loginFragment.mGoogleApiClient.clearDefaultAccountAndReconnect();
                     Auth.GoogleSignInApi.signOut(loginFragment.mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
                         @Override
                         public void onResult(@NonNull Status status) {
@@ -211,6 +212,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
 
+                    loginFragment.mGoogleSignInClient.signOut();
                     loginFragment.mGoogleApiClient.disconnect();
                 }
 
@@ -315,6 +317,7 @@ public class MainActivity extends AppCompatActivity {
         DatabaseReference database_ref = FirebaseDatabase.getInstance().getReference();
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
         //  Image download
+        mAuth= FirebaseAuth.getInstance();
         if(mAuth.getCurrentUser()!=null) {
             database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
