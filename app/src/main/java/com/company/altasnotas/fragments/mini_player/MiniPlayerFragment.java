@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
@@ -55,12 +56,12 @@ import com.google.firebase.database.ValueEventListener;
 public class MiniPlayerFragment extends Fragment {
   public   MainActivity mainActivity;
     public Playlist playlist;
-    public ImageButton fav_btn;
+    public static ImageButton fav_btn;
     private DatabaseReference database_ref;
     private  FirebaseAuth mAuth;
     int position;
     public  PlayerView playerView;
-    public BackgroundService mService;
+    public static BackgroundService mService;
     private boolean mBound = false;
     public  Intent intent;
     private final Long seekedTo;
@@ -212,7 +213,7 @@ public class MiniPlayerFragment extends Fragment {
         intent.putParcelableArrayListExtra("songs", playlist.getSongs());
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            Util.startForegroundService(getActivity(), intent);
+            ContextCompat.startForegroundService(getActivity(), intent);
         } else {
             getActivity().startService(intent);
         }
@@ -254,6 +255,7 @@ public class MiniPlayerFragment extends Fragment {
         }
         if (fav_btn.getDrawable().getConstantState().equals(fav_btn.getContext().getDrawable(R.drawable.ic_heart_full).getConstantState())) {
             fav_btn.setImageResource(R.drawable.ic_heart_empty);
+            fav_btn.getDrawable().setTint(Color.BLACK);
         }
         //Loading fav btn state
     if(mAuth.getCurrentUser()!=null){

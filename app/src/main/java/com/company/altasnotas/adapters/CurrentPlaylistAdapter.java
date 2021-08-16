@@ -134,15 +134,29 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
         }
     }
         holder.currentBox.setOnClickListener(v -> {
-            MainActivity.currentSongTitle.setValue(songs.get(position).getTitle());
-            MainActivity.currentSongAlbum.setValue(playlist.getTitle());
-            MainActivity.currentSongAuthor.setValue(playlist.getDescription());
-            notifyDataSetChanged();
-            PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0,false,null,null, isFavFragment);
-            MiniPlayerFragment miniPlayerFragment = new MiniPlayerFragment(playlist, position, 0,false,playerFragment);
-           activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_mini_player_container, miniPlayerFragment).commit();
-           MainActivity.mini_player.setVisibility(View.VISIBLE);
 
+
+
+            if (!((MainActivity.currentSongTitle.getValue().equals(songs.get(position).getTitle()))
+                    &&
+                    MainActivity.currentSongAlbum.getValue().equals(playlist.getTitle())
+                    &&
+                    MainActivity.currentSongAuthor.getValue().equals(playlist.getDescription())
+            ))
+            {
+
+                MainActivity.currentSongTitle.setValue(songs.get(position).getTitle());
+                MainActivity.currentSongAlbum.setValue(playlist.getTitle());
+                MainActivity.currentSongAuthor.setValue(playlist.getDescription());
+                notifyDataSetChanged();
+
+                PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0, false, null, null, isFavFragment);
+                MiniPlayerFragment miniPlayerFragment = new MiniPlayerFragment(playlist, position, 0, false, playerFragment);
+                activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_mini_player_container, miniPlayerFragment).commit();
+                MainActivity.mini_player.setVisibility(View.VISIBLE);
+
+
+        }
         });
         //Loading fav btn
         holder.databaseReference.child("fav_music")
@@ -268,45 +282,58 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                 if (task.isSuccessful()) {
                                     fav_btn.setImageResource(R.drawable.ic_heart_empty);
                                     Fragment mini_frag = activity.getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
-                                    MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) mini_frag;
-                                    Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-                                    if (currentFragment instanceof FavoritesFragment) {
+                                    if(mini_frag instanceof  MiniPlayerFragment){
+                                        MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) mini_frag;
+                                        Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                                        if (currentFragment instanceof FavoritesFragment) {
 
-                                        FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
-
-
-
-                                        if(
-                                                songs.get(position).getTitle().equals(MainActivity.currentSongTitle.getValue())
-                                                &&
-                                                playlist.getTitle().equals(MainActivity.currentSongAlbum.getValue())
-                                                &&
-                                                playlist.getTitle().equals(MainActivity.currentSongAlbum.getValue())
-                                        ){
+                                            FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
 
 
-                                            if(mini_frag instanceof MiniPlayerFragment){
 
+                                            if(
+                                                    songs.get(position).getTitle().equals(MainActivity.currentSongTitle.getValue())
+                                                            &&
+                                                            playlist.getTitle().equals(MainActivity.currentSongAlbum.getValue())
+                                                            &&
+                                                            playlist.getTitle().equals(MainActivity.currentSongAlbum.getValue())
+                                            ){
+                                                        miniPlayerFragment.dissmiss_mini();
 
-                                                if(currentFragment instanceof FavoritesFragment){
-                                                    miniPlayerFragment.dissmiss_mini();
-                                                }
+                                            }else{
+                                                miniPlayerFragment.setUI();
                                             }
+
+                                            favoritesFragment.viewModel.initializeFavorites();
+                                            //    activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();
+                                            if(playlist!=null){
+                                                if (playlist.getSongs().size() == 0) {
+                                                    FavoritesFragment.recyclerView.setVisibility(View.GONE);
+                                                    FavoritesFragment.fav_state.setText("Empty Favorites");
+                                                    FavoritesFragment.fav_state.setVisibility(View.VISIBLE);
+                                                }
+                                            }else{
+                                                FavoritesFragment.recyclerView.setVisibility(View.GONE);
+                                                FavoritesFragment.fav_state.setText("Empty Favorites");
+                                                FavoritesFragment.fav_state.setVisibility(View.VISIBLE);
+                                            }
+
                                         }else{
                                             miniPlayerFragment.setUI();
                                         }
-                                        favoritesFragment.viewModel.playlist.getSongs().remove(  favoritesFragment.viewModel.playlist.getSongs().get(position));
-                                        notifyDataSetChanged();
-
-                                        //    activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();
-                                        if (  favoritesFragment.viewModel.playlist.getSongs().size() == 0) {
-                                            FavoritesFragment.recyclerView.setVisibility(View.GONE);
-                                            FavoritesFragment.fav_state.setText("Empty Favorites");
-                                            FavoritesFragment.fav_state.setVisibility(View.VISIBLE);
-                                        }
-
                                     }else{
-                                        miniPlayerFragment.setUI();
+                                        Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                                        if (currentFragment instanceof FavoritesFragment) {
+
+                                            FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
+                                            favoritesFragment.viewModel.initializeFavorites();
+                                            if (  playlist.getSongs().size() == 0) {
+                                                FavoritesFragment.recyclerView.setVisibility(View.GONE);
+                                                FavoritesFragment.fav_state.setText("Empty Favorites");
+                                                FavoritesFragment.fav_state.setVisibility(View.VISIBLE);
+                                            }
+
+                                        }
                                     }
 
 

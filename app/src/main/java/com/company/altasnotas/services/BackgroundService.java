@@ -51,7 +51,7 @@ import java.util.ArrayList;
 public class BackgroundService extends Service implements ExoPlayer.EventListener {
 
     private SimpleExoPlayer player;
-    private Playlist playlist;
+    public Playlist playlist;
     private Context context;
     public PlayerNotificationManager playerNotificationManager;
     private final IBinder mBinder = new LocalBinder();

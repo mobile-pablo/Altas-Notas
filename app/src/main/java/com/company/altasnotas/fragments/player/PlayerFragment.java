@@ -24,6 +24,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.palette.graphics.Palette;
@@ -243,12 +244,11 @@ public class PlayerFragment extends Fragment {
 
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            Util.startForegroundService(getActivity(), intent);
+            ContextCompat.startForegroundService(getActivity(), intent);
         } else {
             getActivity().startService(intent);
         }
     }
-
 
     private void openSongInPlaylistsSettingsDialog() {
         songInPlaylistDialog = new BottomSheetDialog(getContext());
@@ -426,7 +426,6 @@ public class PlayerFragment extends Fragment {
 
     }
 
-
     private void initializePlayer() {
         if (mBound) {
             SimpleExoPlayer player = mService.getPlayerInstance();
@@ -461,6 +460,8 @@ public class PlayerFragment extends Fragment {
 
 if(!(ready && state == Player.STATE_READY)){
     player.setPlayWhenReady(false);
+}else{
+    player.setPlayWhenReady(true);
 }
      }
 
@@ -485,7 +486,6 @@ if(!(ready && state == Player.STATE_READY)){
         }
    */
     }
-
 
     private void setUI() {
         if(getActivity()!=null) {
@@ -524,6 +524,7 @@ if(!(ready && state == Player.STATE_READY)){
             }
         }
     }
+
     public static Bitmap drawableToBitmap (Drawable drawable) {
         Bitmap bitmap = null;
 
@@ -554,6 +555,7 @@ if(!(ready && state == Player.STATE_READY)){
         super.onViewStateRestored(savedInstanceState);
         initializePlayer();
     }
+
     public  class ExoListener implements Player.Listener {
         SimpleExoPlayer player;
 
@@ -566,6 +568,9 @@ if(!(ready && state == Player.STATE_READY)){
             mService.setPosition(player.getCurrentWindowIndex());
             position = player.getCurrentWindowIndex();
             playerView.setPlayer(player);
+
+            state= player.getPlaybackState();
+            ready = player.getPlayWhenReady();
             CurrentPlaylistFragment.adapter.notifyDataSetChanged();
 
             Log.d("Exo","playbackState = " + playbackState + " playWhenReady = " + playWhenReady );
@@ -677,6 +682,8 @@ if(!(ready && state == Player.STATE_READY)){
 
         }
     }
-
+    public  PlayerFragment getPlayerFragment(){
+        return  this;
+    }
 }
 

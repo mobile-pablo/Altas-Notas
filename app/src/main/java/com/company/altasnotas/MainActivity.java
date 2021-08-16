@@ -1,6 +1,7 @@
 package com.company.altasnotas;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -99,7 +100,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         mini_player = findViewById(R.id.main_mini_player_container);
-        mini_player.setVisibility(View.GONE);
+
+        reInitializePlayerViews();
 
 
         frag = getIntent().getStringExtra("frag");
@@ -126,11 +128,36 @@ public class MainActivity extends AppCompatActivity {
                 PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo,true,state,ready,isFavFragment);
                 MiniPlayerFragment miniPlayerFragment = new MiniPlayerFragment(playlist, position, 0,false,playerFragment);
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_mini_player_container, miniPlayerFragment).commit();
+                bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
                 getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment, "Player").commit();
 
             }
         }else{
             Log.d("MainActivity", "Frag is null");
+        }
+    }
+
+    //This function is called when I get back to App where I exit by onBackPressed
+    private void reInitializePlayerViews() {
+        if(MiniPlayerFragment.mService!=null){
+            Playlist playlist = MiniPlayerFragment.mService.playlist;
+            Integer position = MiniPlayerFragment.mService.position;
+            Integer isFav = MiniPlayerFragment.mService.isFav;
+            Boolean ready =MiniPlayerFragment.mService.getPlayerInstance().getPlayWhenReady();
+            Integer state = MiniPlayerFragment.mService.getPlayerInstance().getPlaybackState();
+            Long seekedTo  =MiniPlayerFragment.mService.getPlayerInstance().getContentPosition();
+            currentSongTitle.setValue(playlist.getSongs().get(position).getTitle());
+            currentSongAlbum.setValue(playlist.getTitle());
+            currentSongAuthor.setValue(playlist.getDescription());
+            PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo,false,state,ready,isFav);
+            MiniPlayerFragment miniPlayerFragment = new MiniPlayerFragment(playlist, position, 0,false,playerFragment);
+            getSupportFragmentManager().beginTransaction().replace(R.id.main_mini_player_container, miniPlayerFragment).commit();
+            if (miniPlayerFragment.fav_btn.getDrawable().getConstantState().equals(MiniPlayerFragment.fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+                miniPlayerFragment.fav_btn.getDrawable().setTint(Color.BLACK);
+            }
+            MainActivity.mini_player.setVisibility(View.VISIBLE);
+        }else {
+            System.out.println("PlayerFragment service is null");
         }
     }
 
@@ -286,6 +313,7 @@ public class MainActivity extends AppCompatActivity {
                 PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo,true,state,ready,isFavFragment);
                 MiniPlayerFragment miniPlayerFragment = new MiniPlayerFragment(playlist, position, 0,false,playerFragment);
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_mini_player_container, miniPlayerFragment).commit();
+                bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
                 getSupportFragmentManager().beginTransaction().addToBackStack("null").replace(R.id.main_fragment_container, playerFragment, "Player").commit();
             }
         }else{
