@@ -181,7 +181,7 @@ public class CurrentPlaylistFragment extends Fragment {
         MainActivity.currentSongTitle.observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String s) {
-                System.out.println("Item changed : "+ s);
+             Log.d("CurrentSongTitle", "Item changed : "+ s);
              if(adapter!=null){
                  adapter.notifyDataSetChanged();
              }
@@ -447,7 +447,7 @@ public class CurrentPlaylistFragment extends Fragment {
                 try {
 
                     Bitmap compresedImg = ProfileFragmentViewModel.getBitmapFormUri(requireActivity(), returnUri);
-                    Bitmap compressImgRotated =  viewModel.rotateImageIfRequired(requireContext(), compresedImg, returnUri);
+                    Bitmap compressImgRotated =  CurrentPlaylistFragmentViewModel.rotateImageIfRequired(requireContext(), compresedImg, returnUri);
                     ByteArrayOutputStream bao = new ByteArrayOutputStream();
                     compressImgRotated =  viewModel.getResizedBitmap(compressImgRotated, 300);
                     compressImgRotated.compress(Bitmap.CompressFormat.PNG, 100, bao);
@@ -467,7 +467,7 @@ public class CurrentPlaylistFragment extends Fragment {
                     storageReference = FirebaseStorage.getInstance().getReference();
 
                     Bitmap finalCompressImgRotated = compressImgRotated;
-                    database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid().toString()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
+                    database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             if (snapshot != null) {

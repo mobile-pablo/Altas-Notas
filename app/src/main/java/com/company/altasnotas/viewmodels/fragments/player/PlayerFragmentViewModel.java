@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -29,6 +30,7 @@ import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.Playlist;
+import com.company.altasnotas.models.Song;
 import com.company.altasnotas.viewmodels.fragments.favorites.FavoritesFragmentViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -53,7 +55,7 @@ public class PlayerFragmentViewModel extends ViewModel {
         return mostPopulous;
     }
 
-    public void setUpInfoBackgroundColor(Activity activity, ConstraintLayout ll, Palette palette,Button settings_btn) {
+    public void setUpInfoBackgroundColor(Activity activity, ConstraintLayout ll, Palette palette,Button settings_btn, ImageButton fav_btn) {
         Palette.Swatch swatch = getMostPopulousSwatch(palette);
         if (swatch != null) {
             int endColor = ContextCompat.getColor(ll.getContext(), R.color.black);
@@ -68,6 +70,7 @@ public class PlayerFragmentViewModel extends ViewModel {
                     @Override
                     public void run() {
                         settings_btn.getCompoundDrawables()[2].setTint(swatch.getTitleTextColor());
+                        fav_btn.getDrawable().setTint(swatch.getTitleTextColor());
                     }
                 });
             }
@@ -117,22 +120,17 @@ public class PlayerFragmentViewModel extends ViewModel {
                                         }
 
                                         if (currentFragment instanceof FavoritesFragment) {
+                                            FavoritesFragment fav = (FavoritesFragment) currentFragment;
+                                            fav.viewModel.initializeFavorites();
 
-                                            Fragment mini_frag = activity.getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
-                                            if(mini_frag instanceof MiniPlayerFragment){
-                                                if(mini_frag.isVisible()){
-                                                    ((MiniPlayerFragment) mini_frag).dissmiss_mini();
+                                            if(MainActivity.currentSongAlbum.getValue().equals(fav.viewModel.playlist.getTitle())){
+                                                Log.d("FavoritesFragment", "Album value:"+ MainActivity.currentSongAlbum.getValue()+", Title: "+ fav.viewModel.playlist.getTitle());
+                                                Fragment mini_frag = activity.getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
+                                                if (mini_frag instanceof MiniPlayerFragment) {
+                                                    if (mini_frag.isVisible()) {
+                                                        ((MiniPlayerFragment) mini_frag).dissmiss_mini();
+                                                    }
                                                 }
-                                            }
-
-                                            FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
-                                         favoritesFragment.viewModel.initializeFavorites();
-
-                                            //    activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();
-                                            if (playlist.getSongs().size() == 0) {
-                                                favoritesFragment.recyclerView.setVisibility(View.GONE);
-                                                favoritesFragment.fav_state.setText("Empty Favorites");
-                                                favoritesFragment.fav_state.setVisibility(View.VISIBLE);
                                             }
 
                                        //     activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, favoritesFragment).commit();

@@ -2,6 +2,7 @@ package com.company.altasnotas.adapters;
 
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -49,14 +50,14 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
     private final MainActivity activity;
     private final ArrayList<Song> songs;
     private final Integer isFavFragment;
-    private DatabaseReference database_ref = FirebaseDatabase.getInstance().getReference();
-    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private final DatabaseReference database_ref = FirebaseDatabase.getInstance().getReference();
+    private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
 
 
 
     public CurrentPlaylistAdapter(MainActivity activity, Playlist playlist, Integer isFavFragment) {
-        this.playlist = playlist;
+        CurrentPlaylistAdapter.playlist = playlist;
         songs = playlist.getSongs();
         this.activity = activity;
         this.isFavFragment = isFavFragment;
@@ -67,12 +68,12 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
             if (currentFragment instanceof FavoritesFragment) {
                 FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
                 if (playlist.getSongs().size() == 0) {
-                    favoritesFragment.recyclerView.setVisibility(View.GONE);
-                    favoritesFragment.fav_state.setText("Empty Playlist");
-                    favoritesFragment.fav_state.setVisibility(View.VISIBLE);
+                    FavoritesFragment.recyclerView.setVisibility(View.GONE);
+                    FavoritesFragment.fav_state.setText("Empty Playlist");
+                    FavoritesFragment.fav_state.setVisibility(View.VISIBLE);
                 } else {
-                    favoritesFragment.recyclerView.setVisibility(View.VISIBLE);
-                    favoritesFragment.fav_state.setVisibility(View.GONE);
+                    FavoritesFragment.recyclerView.setVisibility(View.VISIBLE);
+                    FavoritesFragment.fav_state.setVisibility(View.GONE);
                 }
 
             }
@@ -116,7 +117,6 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
         holder.currentTitle.setText(songs.get(position).getTitle());
         holder.currentAuthor.setText(songs.get(position).getAuthor());
-
     if(MainActivity.currentSongTitle.getValue().equals(songs.get(position).getTitle()) &&
             MainActivity.currentSongAlbum.getValue().equals(playlist.getTitle()) &&
                     MainActivity.currentSongAuthor.getValue().equals( playlist.getDescription())
@@ -207,7 +207,9 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                     }
                 });
 
-
+        if (holder.currentFav_btn.getDrawable().getConstantState().equals(holder.currentFav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+            holder.currentFav_btn.getDrawable().setTint(Color.BLACK);
+        }
         holder.currentFav_btn.setOnClickListener(v -> {
             if (holder.currentFav_btn.getDrawable().getConstantState().equals(holder.currentFav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
                 addToFav(position, holder.currentFav_btn);
@@ -273,9 +275,9 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                         notifyDataSetChanged();
                                         //    activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();
                                         if (playlist.getSongs().size() == 0) {
-                                            favoritesFragment.recyclerView.setVisibility(View.GONE);
-                                            favoritesFragment.fav_state.setText("Empty Favorites");
-                                            favoritesFragment.fav_state.setVisibility(View.VISIBLE);
+                                            FavoritesFragment.recyclerView.setVisibility(View.GONE);
+                                            FavoritesFragment.fav_state.setText("Empty Favorites");
+                                            FavoritesFragment.fav_state.setVisibility(View.VISIBLE);
                                         }
 
                                     }
@@ -425,9 +427,9 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                         for (DataSnapshot da : ds.child("songs").getChildren()) {
                             if (playlist.getSongs().get(position).getOrder().toString().trim().equals(da.child("numberInAlbum").getValue().toString().trim())
                                     &&
-                                    playlist.getSongs().get(position).getAuthor().toString().trim().equals(da.child("author").getValue().toString().trim())
+                                    playlist.getSongs().get(position).getAuthor().trim().equals(da.child("author").getValue().toString().trim())
                                     &&
-                                    playlist.getSongs().get(position).getAlbum().toString().trim().equals(da.child("album").getValue().toString().trim())
+                                    playlist.getSongs().get(position).getAlbum().trim().equals(da.child("album").getValue().toString().trim())
                             ) {
                                 String song_key = da.getKey();
                                 database_ref.child("music").child("playlists").child(mAuth.getUid()).child(playlist_key).child("songs").child(song_key).removeValue().addOnCompleteListener(activity, new OnCompleteListener<Void>() {

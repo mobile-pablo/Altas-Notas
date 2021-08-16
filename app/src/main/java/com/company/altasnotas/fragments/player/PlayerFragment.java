@@ -77,14 +77,14 @@ public class PlayerFragment extends Fragment {
     public static BackgroundService mService;
     private boolean mBound = false;
     private Intent intent;
-    private Long seekedTo;
-    private Boolean isReOpen;
+    private final Long seekedTo;
+    private final Boolean isReOpen;
     private Palette palette;
     ConstraintLayout player_full_box;
     Integer isFav;
     Integer state;
     Boolean ready;
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             BackgroundService.LocalBinder binder = (BackgroundService.LocalBinder) iBinder;
@@ -445,20 +445,12 @@ public class PlayerFragment extends Fragment {
          if(isReOpen)
          {
              //By this When Notification is Open and ExoPlayer is Paused. It remains that way.
-             if( player.getPlayWhenReady() && player.getPlaybackState() == Player.STATE_READY ){
-                 player.setPlayWhenReady(true);
-             }else {
-                 player.setPlayWhenReady(false);
-             }
+             player.setPlayWhenReady(player.getPlayWhenReady() && player.getPlaybackState() == Player.STATE_READY);
          }
          else
          {
              if(shouldPlay!=null){
-                 if(!shouldPlay){
-                     player.setPlayWhenReady(false);
-                 }else{
-                     player.setPlayWhenReady(true);
-                 }
+                 player.setPlayWhenReady(shouldPlay);
              }else{
              player.setPlayWhenReady(true);
              }
@@ -506,7 +498,7 @@ if(!(ready && state == Player.STATE_READY)){
                             song_img.setImageDrawable(resource);
                             Bitmap b = drawableToBitmap(resource);
                             palette = Palette.from(b).generate();
-                          viewModel.setUpInfoBackgroundColor(getActivity(), player_full_box, palette,settings_btn);
+                          viewModel.setUpInfoBackgroundColor(getActivity(), player_full_box, palette,settings_btn,fav_btn);
                         }
                     }
 

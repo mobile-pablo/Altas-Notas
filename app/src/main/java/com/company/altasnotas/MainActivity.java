@@ -89,9 +89,10 @@ public class MainActivity extends AppCompatActivity {
             if (mAuth.getCurrentUser() != null) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(false)).commit();
                 bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
+                bottomNavigationView.setVisibility(View.VISIBLE);
             } else {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new LoginFragment()).commit();
-                bottomNavigationView.setSelectedItemId(R.id.nav_login_item);
+                bottomNavigationView.setVisibility(View.GONE);
             }
         }
 
@@ -154,11 +155,6 @@ public class MainActivity extends AppCompatActivity {
 
                 case R.id.nav_playlist_item:
                     selectedFragment[0] = new PlaylistsFragment();
-                    break;
-
-
-                case R.id.nav_login_item:
-                        selectedFragment[0] = new LoginFragment();
                     break;
             }
 
@@ -240,15 +236,9 @@ public class MainActivity extends AppCompatActivity {
         Menu menu = bottomNavigationView.getMenu();
 
         if (user != null) {
-            menu.findItem(R.id.nav_fav_item).setVisible(true);
-            menu.findItem(R.id.nav_home_item).setVisible(true);
-            menu.findItem(R.id.nav_playlist_item).setVisible(true);
-            menu.findItem(R.id.nav_login_item).setVisible(false);
+            bottomNavigationView.setVisibility(View.VISIBLE);
         } else {
-            menu.findItem(R.id.nav_fav_item).setVisible(false);
-            menu.findItem(R.id.nav_home_item).setVisible(false);
-            menu.findItem(R.id.nav_playlist_item).setVisible(false);
-            menu.findItem(R.id.nav_login_item).setVisible(true);
+            bottomNavigationView.setVisibility(View.GONE);
         }
     }
 

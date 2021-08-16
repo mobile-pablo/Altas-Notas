@@ -34,13 +34,13 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 
 public class ChoosePlaylistAdapter extends RecyclerView.Adapter<ChoosePlaylistAdapter.MyViewHolder> {
-    private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-    private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+    private final StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+    private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
     ArrayList<String> titles, keys;
-    private MainActivity mainActivity;
-    private BottomSheetDialog choosePlaylistDialog;
-    private Song song;
+    private final MainActivity mainActivity;
+    private final BottomSheetDialog choosePlaylistDialog;
+    private final Song song;
 
     public ChoosePlaylistAdapter(MainActivity mainActivity, BottomSheetDialog choosePlaylistDialog, Song song, ArrayList<String> titles, ArrayList<String> keys) {
         this.mainActivity = mainActivity;

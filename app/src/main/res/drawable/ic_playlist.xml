@@ -3,18 +3,18 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24"
-    android:tint="@color/project_light_velvet"
+    android:tint="@color/project_light_gray"
     android:autoMirrored="true">
   <path
-      android:fillColor="@color/project_light_velvet"
+      android:fillColor="@color/project_light_gray"
       android:pathData="M3,10h11v2h-11z"/>
   <path
-      android:fillColor="@color/project_light_velvet"
+      android:fillColor="@color/project_light_gray"
       android:pathData="M3,6h11v2h-11z"/>
   <path
-      android:fillColor="@color/project_light_velvet"
+      android:fillColor="@color/project_light_gray"
       android:pathData="M3,14h7v2h-7z"/>
   <path
-      android:fillColor="@color/project_light_velvet"
+      android:fillColor="@color/project_light_gray"
       android:pathData="M16,13l0,8l6,-4z"/>
 </vector>

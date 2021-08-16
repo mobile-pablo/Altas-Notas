@@ -55,8 +55,8 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 
 public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFragmentAdapter.MyViewHolder> {
-    private ArrayList<Playlist> playlists;
-    private MainActivity mainActivity;
+    private final ArrayList<Playlist> playlists;
+    private final MainActivity mainActivity;
 
     private DatabaseReference database_ref;
     private FirebaseAuth mAuth;
@@ -99,7 +99,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         holder.setIsRecyclable(false);
         //Load photo
-        database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid().toString()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
+        database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot != null) {
@@ -247,7 +247,6 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                                 Log.d(MainActivity.FIREBASE, "Photo wasn't found");
                                             }
                                         });
-                                        ;
 
 
                                         //    activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();

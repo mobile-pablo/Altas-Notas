@@ -63,7 +63,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     private String externalPath, externalPlaylistTitle, externalDescription;
     private   MediaSessionCompat mediaSession;
     private  MediaSessionConnector mediaSessionConnector;
-    private AudioAttributes audioAttributes = new AudioAttributes.Builder()
+    private final AudioAttributes audioAttributes = new AudioAttributes.Builder()
             .setUsage(C.USAGE_MEDIA)
             .setContentType(C.CONTENT_TYPE_MOVIE)
             .build();

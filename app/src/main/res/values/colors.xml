@@ -22,4 +22,11 @@
 
     <color name="project_light_gray">#808080</color>
     <color name="project_dark_gray">#666666</color>
+
+    <color name="project_light_red">#DA251C</color>
+    <color name="project_dark_red">#AE1D16</color>
+
+    <color name="project_light_orange">#FF5733</color>
+    <color name="project_dark_orange">#CC4528</color>
+
 </resources>

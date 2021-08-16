@@ -63,9 +63,9 @@ public class MiniPlayerFragment extends Fragment {
     public BackgroundService mService;
     private boolean mBound = false;
     public  Intent intent;
-    private Long seekedTo;
-    private  Boolean isReOpen;
-    private PlayerFragment  playerFragment;
+    private final Long seekedTo;
+    private final Boolean isReOpen;
+    private final PlayerFragment  playerFragment;
     private PlayerFragmentViewModel viewModel;
     private  ImageView song_img;
     private  ExoListener exoListener;
@@ -126,11 +126,7 @@ public class MiniPlayerFragment extends Fragment {
 
             if(mBound){
                 SimpleExoPlayer player = mService.getPlayerInstance();
-                if(!(player.getPlayWhenReady() && player.getPlaybackState() == Player.STATE_READY)){
-                    playerFragment.setSongState(false);
-                }else{
-                    playerFragment.setSongState(true);
-                }
+                playerFragment.setSongState(player.getPlayWhenReady() && player.getPlaybackState() == Player.STATE_READY);
             }
 
 

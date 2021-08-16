@@ -39,7 +39,7 @@ public class FavoritesFragmentViewModel extends ViewModel {
     private DatabaseReference database_ref;
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
-    private Playlist playlist;
+    public Playlist playlist;
     public  CurrentPlaylistAdapter adapter;
     private CountDownLatch conditionLatch;
     private ImageView imageView;

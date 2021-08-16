@@ -12,12 +12,16 @@
         android:id="@+id/main_fragment_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_margin="0dp"
+        android:padding="0dp"
         android:layout_weight="9">
 
     </FrameLayout>
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
+        android:layout_margin="0dp"
+        android:padding="0dp"
         android:background="@color/project_dark_velvet"/>
     <FrameLayout
         android:id="@+id/main_mini_player_container"
@@ -31,7 +35,10 @@
         android:layout_height="50dp"
         android:paddingBottom="5dp"
         android:paddingTop="5dp"
+        android:visibility="gone"
         app:menu="@menu/main_bottom_nav_menu"
+        app:itemIconTint="@drawable/custom_bottom_bar_item_selector"
+        app:itemTextColor="@drawable/custom_bottom_bar_item_selector"
         android:background="@color/white"/>
 
 
