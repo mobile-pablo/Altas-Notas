@@ -48,7 +48,9 @@ public class MainActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     public MutableLiveData<String> photoUrl;
     public BottomNavigationView bottomNavigationView;
-    public static String currentSongTitle="", currentSongAlbum ="",currentSongAuthor="";
+    public static MutableLiveData<String> currentSongTitle = new MutableLiveData<>();
+    public static MutableLiveData<String> currentSongAlbum = new MutableLiveData<>();
+    public static MutableLiveData<String> currentSongAuthor = new MutableLiveData<>();
     public static Integer dialogHeight;
     public static final String FIREBASE = "Firebase";
     public  static View  mini_player;
@@ -63,7 +65,9 @@ public class MainActivity extends AppCompatActivity {
         decorView.setSystemUiVisibility(uiOptions);
 
 
-
+        currentSongTitle.setValue("");
+        currentSongAuthor.setValue("");
+        currentSongAlbum.setValue("");
         DisplayMetrics displayMetrics = new DisplayMetrics();
        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int height = displayMetrics.heightPixels;
@@ -194,31 +198,28 @@ public class MainActivity extends AppCompatActivity {
             FacebookSdk.sdkInitialize(getApplicationContext());
         }
 
-        Fragment anotherFragment = getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-        if (anotherFragment instanceof LoginFragment) {
-            LoginFragment loginFragment = (LoginFragment) anotherFragment;
+        if(LoginFragment.mGoogleApiClient!=null){
 
-            if(loginFragment.mGoogleApiClient!=null){
-                if (loginFragment.mGoogleApiClient.isConnected()) {
-                    loginFragment.mGoogleApiClient.clearDefaultAccountAndReconnect();
-                    Auth.GoogleSignInApi.signOut(loginFragment.mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
-                        @Override
-                        public void onResult(@NonNull Status status) {
-                            if(status.isSuccess()){
-                                Log.d("Google", "Signed out from Google");
-                            }else{
-                                Log.d("Google", "Error while sigining out from Google");
-                            }
+            if (LoginFragment.mGoogleApiClient.isConnected()) {
+                LoginFragment.mGoogleApiClient.clearDefaultAccountAndReconnect();
+                Auth.GoogleSignInApi.signOut(LoginFragment.mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(@NonNull Status status) {
+                        if(status.isSuccess()){
+                            Log.d("Google", "Signed out from Google");
+                        }else{
+                            Log.d("Google", "Error while sigining out from Google");
                         }
-                    });
+                    }
+                });
 
-                    loginFragment.mGoogleSignInClient.signOut();
-                    loginFragment.mGoogleApiClient.disconnect();
-                }
-
-                loginFragment.mGoogleApiClient.stopAutoManage(MainActivity.this);
-
+                LoginFragment.mGoogleSignInClient.signOut();
+                LoginFragment.mGoogleApiClient.disconnect();
             }
+
+
+            LoginFragment.mGoogleApiClient.stopAutoManage(MainActivity.this);
+
         }
 
 

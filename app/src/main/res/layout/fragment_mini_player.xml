@@ -95,7 +95,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/player_small_box"
-        app:show_buffering="never"
+        app:show_buffering="when_playing"
         app:shutter_background_color="@android:color/transparent" />
 
 

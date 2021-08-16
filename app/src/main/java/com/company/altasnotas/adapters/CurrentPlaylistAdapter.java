@@ -117,9 +117,9 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
         holder.currentTitle.setText(songs.get(position).getTitle());
         holder.currentAuthor.setText(songs.get(position).getAuthor());
 
-    if(MainActivity.currentSongTitle.equals(songs.get(position).getTitle()) &&
-            MainActivity.currentSongAlbum.equals(playlist.getTitle()) &&
-                    MainActivity.currentSongAuthor.equals( playlist.getDescription())
+    if(MainActivity.currentSongTitle.getValue().equals(songs.get(position).getTitle()) &&
+            MainActivity.currentSongAlbum.getValue().equals(playlist.getTitle()) &&
+                    MainActivity.currentSongAuthor.getValue().equals( playlist.getDescription())
                     ){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             holder.currentTitle.setTextColor(activity.getColor(R.color.project_light_velvet));
@@ -134,9 +134,9 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
         }
     }
         holder.currentBox.setOnClickListener(v -> {
-            MainActivity.currentSongTitle = songs.get(position).getTitle();
-            MainActivity.currentSongAlbum=playlist.getTitle();
-            MainActivity.currentSongAuthor=playlist.getDescription();
+            MainActivity.currentSongTitle.setValue(songs.get(position).getTitle());
+            MainActivity.currentSongAlbum.setValue(playlist.getTitle());
+            MainActivity.currentSongAuthor.setValue(playlist.getDescription());
             notifyDataSetChanged();
             PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0,false,null,null, isFavFragment);
             MiniPlayerFragment miniPlayerFragment = new MiniPlayerFragment(playlist, position, 0,false,playerFragment);
@@ -274,10 +274,21 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                         //    activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();
                                         if (playlist.getSongs().size() == 0) {
                                             favoritesFragment.recyclerView.setVisibility(View.GONE);
-                                            favoritesFragment.fav_state.setText("Empty Playlist");
+                                            favoritesFragment.fav_state.setText("Empty Favorites");
                                             favoritesFragment.fav_state.setVisibility(View.VISIBLE);
                                         }
 
+                                    }
+
+                                    Fragment mini_frag = activity.getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
+                                    if(mini_frag instanceof MiniPlayerFragment){
+                                        MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) mini_frag;
+
+                                        if(currentFragment instanceof FavoritesFragment){
+                                            miniPlayerFragment.dissmiss_mini();
+                                        }else {
+                                            miniPlayerFragment.setUI();
+                                        }
                                     }
                                 }
                             }
@@ -309,6 +320,12 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("album").setValue(playlist.getSongs().get(position).getAlbum());
                         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("author").setValue(playlist.getSongs().get(position).getAuthor());
                         fav_btn.setImageResource(R.drawable.ic_heart_full);
+
+                        Fragment mini_frag = activity.getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
+                        if(mini_frag instanceof MiniPlayerFragment){
+                            MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) mini_frag;
+                            miniPlayerFragment.setUI();
+                        }
                     }
                 }
             }

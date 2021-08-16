@@ -82,9 +82,9 @@ public class HomeFragment extends Fragment {
         initializePlaylists();
 
         logout_img.setOnClickListener(v -> {
-            MainActivity.currentSongTitle=" ";
-            MainActivity.currentSongAlbum=" ";
-            MainActivity.currentSongAuthor=" ";
+            MainActivity.currentSongAlbum.setValue("");
+            MainActivity.currentSongAuthor.setValue("");
+            MainActivity.currentSongTitle.setValue("");
             mainActivity.logoutUser();
         });
 

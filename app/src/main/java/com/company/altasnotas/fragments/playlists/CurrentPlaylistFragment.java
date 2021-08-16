@@ -34,6 +34,7 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -175,6 +176,17 @@ public class CurrentPlaylistFragment extends Fragment {
 
             initializePlaylist(author);
         }
+
+
+        MainActivity.currentSongTitle.observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                System.out.println("Item changed : "+ s);
+             if(adapter!=null){
+                 adapter.notifyDataSetChanged();
+             }
+            }
+        });
 
 
         settings_btn.setOnClickListener(v -> {

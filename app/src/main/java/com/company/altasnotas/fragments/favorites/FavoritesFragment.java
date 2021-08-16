@@ -44,7 +44,7 @@ public class FavoritesFragment extends Fragment {
     private TextView title, description;
     private ImageView settings;
     public static TextView fav_state;
-    private FavoritesFragmentViewModel viewModel;
+    public FavoritesFragmentViewModel viewModel;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

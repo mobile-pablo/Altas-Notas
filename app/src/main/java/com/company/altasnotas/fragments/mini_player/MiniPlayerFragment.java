@@ -21,6 +21,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
@@ -28,6 +29,7 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
+import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.Playlist;
@@ -53,7 +55,7 @@ import com.google.firebase.database.ValueEventListener;
 public class MiniPlayerFragment extends Fragment {
   public   MainActivity mainActivity;
     private  Playlist playlist;
-    private ImageButton fav_btn;
+    public ImageButton fav_btn;
     private DatabaseReference database_ref;
     private  FirebaseAuth mAuth;
     int position;
@@ -182,13 +184,17 @@ public class MiniPlayerFragment extends Fragment {
    //         PlayerFragment.mService.playerNotificationManager.setPlayer(new SimpleExoPlayer.Builder(getContext()).setHandleAudioBecomingNoisy(true).build());
         }
 
-        MainActivity.currentSongTitle="";
-        MainActivity.currentSongAlbum="";
-        MainActivity.currentSongAuthor="";
+        MainActivity.currentSongTitle.setValue("");
+        MainActivity.currentSongAlbum.setValue("");
+        MainActivity.currentSongAuthor.setValue("");
 
         Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
         if (currentFragment instanceof CurrentPlaylistFragment) {
             CurrentPlaylistFragment.adapter.notifyDataSetChanged();
+        }
+        if (currentFragment instanceof FavoritesFragment) {
+            FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
+            favoritesFragment.viewModel.adapter.notifyDataSetChanged();
         }
 
      Log.d("MiniPlayerFragment", "Mini Player dismissed!");
@@ -358,13 +364,8 @@ public class MiniPlayerFragment extends Fragment {
 
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-          if(position!=player.getCurrentWindowIndex()){
-              MainActivity.currentSongTitle = playlist.getSongs().get(position).getTitle();
-              MainActivity.currentSongAlbum=playlist.getTitle();
-              MainActivity.currentSongAuthor=playlist.getDescription();
-          }
-            mService.setPosition(player.getCurrentWindowIndex());
             position = player.getCurrentWindowIndex();
+            mService.setPosition(position);
             playerView.setPlayer(player);
             Log.d("Exo","playbackState = " + playbackState + " playWhenReady = " + playWhenReady );
             switch (playbackState) {
@@ -403,19 +404,17 @@ public class MiniPlayerFragment extends Fragment {
 
         @Override
         public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-            position = player.getCurrentWindowIndex();
-            MainActivity.currentSongTitle = playlist.getSongs().get(position).getTitle();
-            MainActivity.currentSongAlbum=playlist.getTitle();
-            MainActivity.currentSongAuthor=playlist.getDescription();
-            mService.setPosition(position);
+
+            MainActivity.currentSongTitle.setValue(playlist.getSongs().get(position).getTitle());
+            MainActivity.currentSongAlbum.setValue(playlist.getTitle());
+            MainActivity.currentSongAuthor.setValue(playlist.getDescription());
+
             setUI();
-          if(getActivity()!=null){
-              Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-              if (currentFragment instanceof CurrentPlaylistFragment) {
-                  CurrentPlaylistFragment.adapter.notifyDataSetChanged();
-              }
-          }
+            position = player.getCurrentWindowIndex();
+            mService.setPosition(position);
         }
+
+
     }
 
     @Override

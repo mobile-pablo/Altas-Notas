@@ -26,6 +26,7 @@ import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
 import com.company.altasnotas.fragments.favorites.FavoritesFragment;
+import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.viewmodels.fragments.favorites.FavoritesFragmentViewModel;
@@ -115,12 +116,28 @@ public class PlayerFragmentViewModel extends ViewModel {
                                             adapter.notifyDataSetChanged();
                                         }
 
-                                        if(currentFragment instanceof FavoritesFragment){
+                                        if (currentFragment instanceof FavoritesFragment) {
 
-                                            FavoritesFragment fav = (FavoritesFragment) currentFragment;
-                                            activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, fav).commit();
+                                            Fragment mini_frag = activity.getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
+                                            if(mini_frag instanceof MiniPlayerFragment){
+                                                if(mini_frag.isVisible()){
+                                                    ((MiniPlayerFragment) mini_frag).dissmiss_mini();
+                                                }
+                                            }
 
+                                            FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
+                                         favoritesFragment.viewModel.initializeFavorites();
+
+                                            //    activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();
+                                            if (playlist.getSongs().size() == 0) {
+                                                favoritesFragment.recyclerView.setVisibility(View.GONE);
+                                                favoritesFragment.fav_state.setText("Empty Favorites");
+                                                favoritesFragment.fav_state.setVisibility(View.VISIBLE);
+                                            }
+
+                                       //     activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, favoritesFragment).commit();
                                         }
+
                                     }
                                 }
                             }
@@ -157,6 +174,11 @@ public class PlayerFragmentViewModel extends ViewModel {
                             Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
                             if (currentFragment instanceof CurrentPlaylistFragment) {
                                 adapter.notifyDataSetChanged();
+                            }
+
+                            if (currentFragment instanceof FavoritesFragment) {
+                                FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
+                                favoritesFragment.viewModel.initializeFavorites();
                             }
                         }
                     }

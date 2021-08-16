@@ -571,11 +571,6 @@ if(!(ready && state == Player.STATE_READY)){
 
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-            if(position!=player.getCurrentWindowIndex()){
-                MainActivity.currentSongTitle = playlist.getSongs().get(position).getTitle();
-                MainActivity.currentSongAlbum=playlist.getTitle();
-                MainActivity.currentSongAuthor=playlist.getDescription();
-            }
             mService.setPosition(player.getCurrentWindowIndex());
             position = player.getCurrentWindowIndex();
             playerView.setPlayer(player);
@@ -618,15 +613,14 @@ if(!(ready && state == Player.STATE_READY)){
 
         @Override
         public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-            if(position!=player.getCurrentWindowIndex()){
-                MainActivity.currentSongTitle = playlist.getSongs().get(position).getTitle();
-                MainActivity.currentSongAlbum=playlist.getTitle();
-                MainActivity.currentSongAuthor=playlist.getDescription();
-            }
-            position = player.getCurrentWindowIndex();
+                 position = player.getCurrentWindowIndex();
+                MainActivity.currentSongTitle.setValue(playlist.getSongs().get(position).getTitle());
+                MainActivity.currentSongAlbum.setValue(playlist.getTitle());
+                MainActivity.currentSongAuthor.setValue(playlist.getDescription());
             CurrentPlaylistFragment.adapter.notifyDataSetChanged();
             setUI();
             fav_btn.setImageResource(R.drawable.ic_heart_empty);
+            mService.setPosition(position);
 
             //Loading fav btn state
             database_ref.child("fav_music")
@@ -688,7 +682,7 @@ if(!(ready && state == Player.STATE_READY)){
                         }
                     });
 
-            mService.setPosition(position);
+
         }
     }
 
