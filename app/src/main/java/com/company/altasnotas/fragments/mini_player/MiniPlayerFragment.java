@@ -54,7 +54,7 @@ import com.google.firebase.database.ValueEventListener;
 
 public class MiniPlayerFragment extends Fragment {
   public   MainActivity mainActivity;
-    private  Playlist playlist;
+    public Playlist playlist;
     public ImageButton fav_btn;
     private DatabaseReference database_ref;
     private  FirebaseAuth mAuth;

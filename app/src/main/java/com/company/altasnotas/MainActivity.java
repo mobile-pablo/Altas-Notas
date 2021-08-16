@@ -310,6 +310,7 @@ public class MainActivity extends AppCompatActivity {
         //  Image download
         mAuth= FirebaseAuth.getInstance();
         if(mAuth.getCurrentUser()!=null) {
+        if(!mAuth.getCurrentUser().getUid().isEmpty()){
             database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -317,7 +318,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(Uri uri) {
                             photoUrl.setValue(uri.toString());
-                               // Glide.with(mainActivity).load(uri).error(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
+                            // Glide.with(mainActivity).load(uri).error(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -328,11 +329,11 @@ public class MainActivity extends AppCompatActivity {
                                 if (url != null) {
 
                                     photoUrl.setValue(url);
-                                     //   Glide.with(mainActivity).load(url).error(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
+                                    //   Glide.with(mainActivity).load(url).error(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
 
                                 } else {
                                     photoUrl.setValue("");
-                                   // Glide.with(mainActivity).load(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
+                                    // Glide.with(mainActivity).load(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
                                 }
                                 Log.d(FIREBASE,"Storage exception: " + exception.getLocalizedMessage() + "\nLoad from Page URL instead");
 
@@ -346,6 +347,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(FIREBASE,"DatabaseError: " + error.getMessage());
                 }
             });
+        }
         }
     }
 }
