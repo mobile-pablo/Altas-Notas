@@ -663,7 +663,7 @@ if(!(ready && state == Player.STATE_READY)){
                                                             ) {
                                                                 //We found a song in Album and We need to set icon
                                                                 fav_btn.setImageResource(R.drawable.ic_heart_full);
-
+                                                                fav_btn.getDrawable().setTint(getResources().getColor(R.color.project_light_orange));
                                                             }
                                                         }
 

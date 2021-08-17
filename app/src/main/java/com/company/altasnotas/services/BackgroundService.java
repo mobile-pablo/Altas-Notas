@@ -252,7 +252,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                 mediaSession.setActive(true);
                 playerNotificationManager.setMediaSessionToken(mediaSession.getSessionToken());
 
-                playerNotificationManager.setSmallIcon(R.drawable.altas_notes);
+                playerNotificationManager.setSmallIcon(R.drawable.ic_altas_notes_notif);
                 playerNotificationManager.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
                 playerNotificationManager.setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL);
                 playerNotificationManager.setRewindIncrementMs(0);
@@ -404,7 +404,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
             mediaSession.setActive(true);
             playerNotificationManager.setMediaSessionToken(mediaSession.getSessionToken());
 
-            playerNotificationManager.setSmallIcon(R.drawable.altas_notes);
+            playerNotificationManager.setSmallIcon(R.drawable.ic_altas_notes_notif);
             playerNotificationManager.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
             playerNotificationManager.setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL);
             playerNotificationManager.setRewindIncrementMs(0);
@@ -601,7 +601,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         bigText.setSummaryText(playlist.getSongs().get(position).getTitle()); //small text under notification
 
         mBuilder.setContentIntent(pendingIntent);
-        mBuilder.setSmallIcon(R.drawable.altas_notes); //notification icon
+        mBuilder.setSmallIcon(R.drawable.ic_altas_notes_notif); //notification icon
         mBuilder.setContentTitle(playlist.getSongs().get(position).getTitle()); //main title
         mBuilder.setContentText(playlist.getSongs().get(position).getTitle()); //main text when you "haven't expanded" the notification yet
         mBuilder.setPriority(Notification.PRIORITY_MAX);
