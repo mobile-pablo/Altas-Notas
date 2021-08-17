@@ -30,7 +30,7 @@
 
             <ImageView
                 android:id="@+id/player_song_img"
-                android:layout_width="match_parent"
+                android:layout_width="300dp"
                 android:layout_height="300dp"
                 android:layout_marginBottom="30dp"
                 android:scaleType="fitCenter"
@@ -109,6 +109,8 @@
         <ImageButton
             android:id="@id/exo_prev"
             style="@style/ExoMediaButton.Previous"
+            android:scaleY="0.8"
+            android:scaleX="0.8"
             android:visibility="visible" />
 
         <ImageButton
@@ -122,6 +124,8 @@
         <ImageButton
             android:id="@id/exo_next"
             style="@style/ExoMediaButton.Next"
+            android:scaleY="0.8"
+            android:scaleX="0.8"
             android:visibility="visible" />
 
         <Button

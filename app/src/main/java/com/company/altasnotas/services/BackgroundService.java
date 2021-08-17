@@ -29,6 +29,8 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
+import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
+import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
 import com.google.android.exoplayer2.C;
@@ -41,6 +43,7 @@ import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.NotificationUtil;
@@ -85,7 +88,14 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
 
         this.stopForeground(true);
         stopSelf();
-        playerNotificationManager.setPlayer(new SimpleExoPlayer.Builder(this).setHandleAudioBecomingNoisy(true).build());
+
+        if(MiniPlayerFragment.playerView!=null){
+            MiniPlayerFragment.playerView.setPlayer(null);
+        }
+
+        if(PlayerFragment.playerView!=null){
+            PlayerFragment.playerView.setPlayer(null);
+        }
     }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -104,8 +114,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                 playlist.setSongs(songs);
 
                 releasePlayer();
-               startPlayer();
-            //     testingPlayer();
+           //    startPlayer();
+                 testingPlayer();
 
                 playerNotificationManager = PlayerNotificationManager
                         .createWithNotificationChannel(context,CHANNEL_ID,R.string.app_name, Integer.parseInt(NOTIFICATION_ID), new PlayerNotificationManager.MediaDescriptionAdapter() {
@@ -245,6 +255,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                 playerNotificationManager.setSmallIcon(R.drawable.altas_notes);
                 playerNotificationManager.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
                 playerNotificationManager.setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL);
+                playerNotificationManager.setRewindIncrementMs(0);
+                playerNotificationManager.setFastForwardIncrementMs(0);
                 playerNotificationManager.setPlayer(player);
             }
         } else {
@@ -252,8 +264,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
             position = intent.getIntExtra("pos", 0);
             ArrayList<Song> songs = intent.getParcelableArrayListExtra("songs");
             playlist.setSongs(songs);
-           startPlayer();
-          //   testingPlayer();
+        //   startPlayer();
+             testingPlayer();
 
 
             playerNotificationManager = PlayerNotificationManager
@@ -395,6 +407,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
             playerNotificationManager.setSmallIcon(R.drawable.altas_notes);
             playerNotificationManager.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
             playerNotificationManager.setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL);
+            playerNotificationManager.setRewindIncrementMs(0);
+            playerNotificationManager.setFastForwardIncrementMs(0);
             playerNotificationManager.setPlayer(player);
         }
 
@@ -610,8 +624,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
 
     public SimpleExoPlayer getPlayerInstance() {
         if (player == null) {
-        //    return testingPlayer();
-            return startPlayer();
+            return testingPlayer();
+        //    return startPlayer();
         } else {
             return player;
         }

@@ -139,25 +139,79 @@ public class MainActivity extends AppCompatActivity {
 
     //This function is called when I get back to App where I exit by onBackPressed
     private void reInitializePlayerViews() {
-        if(MiniPlayerFragment.mService!=null){
-            Playlist playlist = MiniPlayerFragment.mService.playlist;
-            Integer position = MiniPlayerFragment.mService.position;
-            Integer isFav = MiniPlayerFragment.mService.isFav;
-            Boolean ready =MiniPlayerFragment.mService.getPlayerInstance().getPlayWhenReady();
-            Integer state = MiniPlayerFragment.mService.getPlayerInstance().getPlaybackState();
-            Long seekedTo  =MiniPlayerFragment.mService.getPlayerInstance().getContentPosition();
-            currentSongTitle.setValue(playlist.getSongs().get(position).getTitle());
-            currentSongAlbum.setValue(playlist.getTitle());
-            currentSongAuthor.setValue(playlist.getDescription());
-            PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo,false,state,ready,isFav);
-            MiniPlayerFragment miniPlayerFragment = new MiniPlayerFragment(playlist, position, 0,false,playerFragment);
-            getSupportFragmentManager().beginTransaction().replace(R.id.main_mini_player_container, miniPlayerFragment).commit();
-            if (miniPlayerFragment.fav_btn.getDrawable().getConstantState().equals(MiniPlayerFragment.fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
-                miniPlayerFragment.fav_btn.getDrawable().setTint(Color.BLACK);
-            }
-            MainActivity.mini_player.setVisibility(View.VISIBLE);
+       if(MiniPlayerFragment.mBound){
+           if(MiniPlayerFragment.mService!=null) {
+
+               if (MiniPlayerFragment.playerView.getPlayer() != null) {
+
+                   Playlist playlist = MiniPlayerFragment.mService.playlist;
+                   Integer position = MiniPlayerFragment.mService.position;
+                   Integer isFav = MiniPlayerFragment.mService.isFav;
+                   Boolean ready = MiniPlayerFragment.mService.getPlayerInstance().getPlayWhenReady();
+                   Integer state = MiniPlayerFragment.mService.getPlayerInstance().getPlaybackState();
+                   Long seekedTo = MiniPlayerFragment.mService.getPlayerInstance().getContentPosition();
+
+                   System.out.println(ready+","+ state);
+                   currentSongTitle.setValue(playlist.getSongs().get(position).getTitle());
+                   currentSongAlbum.setValue(playlist.getTitle());
+                   currentSongAuthor.setValue(playlist.getDescription());
+
+                   PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo, true, state, null, isFav);
+                   MiniPlayerFragment miniPlayerFragment = new MiniPlayerFragment(playlist, position, 0, true, playerFragment);
+                   getSupportFragmentManager().beginTransaction().replace(R.id.main_mini_player_container, miniPlayerFragment).commit();
+                   if (miniPlayerFragment.fav_btn.getDrawable().getConstantState().equals(MiniPlayerFragment.fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+                       miniPlayerFragment.fav_btn.getDrawable().setTint(Color.BLACK);
+                   }
+                   MainActivity.mini_player.setVisibility(View.VISIBLE);
+               }
+           }else{
+               System.out.println("PlayerFragment service is null");
+
+               if(PlayerFragment.mService!=null) {
+                   Playlist playlist = PlayerFragment.mService.playlist;
+                   Integer position = PlayerFragment.mService.position;
+                   Integer isFav = PlayerFragment.mService.isFav;
+                   Boolean ready = PlayerFragment.mService.getPlayerInstance().getPlayWhenReady();
+                   Integer state = PlayerFragment.mService.getPlayerInstance().getPlaybackState();
+                   Long seekedTo = PlayerFragment.mService.getPlayerInstance().getContentPosition();
+                   currentSongTitle.setValue(playlist.getSongs().get(position).getTitle());
+                   currentSongAlbum.setValue(playlist.getTitle());
+                   currentSongAuthor.setValue(playlist.getDescription());
+
+                   PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo, false, state, ready, isFav);
+                   MiniPlayerFragment miniPlayerFragment = new MiniPlayerFragment(playlist, position, 0, false, playerFragment);
+                   getSupportFragmentManager().beginTransaction().replace(R.id.main_mini_player_container, miniPlayerFragment).commit();
+                   if (miniPlayerFragment.fav_btn.getDrawable().getConstantState().equals(MiniPlayerFragment.fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+                       miniPlayerFragment.fav_btn.getDrawable().setTint(Color.BLACK);
+                   }
+                   MainActivity.mini_player.setVisibility(View.VISIBLE);
+               }
+           }
         }else {
-            System.out.println("PlayerFragment service is null");
+            System.out.println("MiniPlayerFragment  bound is null");
+
+           if(PlayerFragment.mService!=null) {
+               Playlist playlist = PlayerFragment.mService.playlist;
+               Integer position = PlayerFragment.mService.position;
+               Integer isFav = PlayerFragment.mService.isFav;
+               Boolean ready = PlayerFragment.mService.getPlayerInstance().getPlayWhenReady();
+               Integer state = PlayerFragment.mService.getPlayerInstance().getPlaybackState();
+               Long seekedTo = PlayerFragment.mService.getPlayerInstance().getContentPosition();
+               currentSongTitle.setValue(playlist.getSongs().get(position).getTitle());
+               currentSongAlbum.setValue(playlist.getTitle());
+               currentSongAuthor.setValue(playlist.getDescription());
+
+               PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo, false, state, ready, isFav);
+               MiniPlayerFragment miniPlayerFragment = new MiniPlayerFragment(playlist, position, 0, false, playerFragment);
+               getSupportFragmentManager().beginTransaction().replace(R.id.main_mini_player_container, miniPlayerFragment).commit();
+               if (miniPlayerFragment.fav_btn.getDrawable().getConstantState().equals(MiniPlayerFragment.fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+                   miniPlayerFragment.fav_btn.getDrawable().setTint(Color.BLACK);
+               }
+               MainActivity.mini_player.setVisibility(View.VISIBLE);
+           }else{
+               System.out.println("PlayerFragment  bound is null");
+           }
+
         }
     }
 

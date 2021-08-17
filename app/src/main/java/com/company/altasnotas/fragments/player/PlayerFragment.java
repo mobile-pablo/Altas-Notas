@@ -48,6 +48,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -76,7 +77,7 @@ public class PlayerFragment extends Fragment {
 
     public static PlayerView playerView;
     public static BackgroundService mService;
-    private boolean mBound = false;
+    public boolean mBound = false;
     private Intent intent;
     private final Long seekedTo;
     private final Boolean isReOpen;
@@ -85,7 +86,7 @@ public class PlayerFragment extends Fragment {
     Integer isFav;
     Integer state;
     Boolean ready;
-    private final ServiceConnection mConnection = new ServiceConnection() {
+    public final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             BackgroundService.LocalBinder binder = (BackgroundService.LocalBinder) iBinder;
@@ -145,6 +146,24 @@ public class PlayerFragment extends Fragment {
 
         setUI();
 
+        intent = new Intent(getActivity(), BackgroundService.class);
+        intent.putExtra("playlist", playlist);
+        intent.putExtra("pos", position);
+        intent.putExtra("path", playlist.getSongs().get(position).getPath());
+        intent.putExtra("playlistTitle", playlist.getTitle());
+        intent.putExtra("desc", playlist.getDescription());
+        intent.putExtra("ms", seekedTo);
+        intent.putExtra("isFav",isFav);
+        intent.putParcelableArrayListExtra("songs", playlist.getSongs());
+
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            ContextCompat.startForegroundService(getActivity(), intent);
+        } else {
+            getActivity().startService(intent);
+        }
+
+
         //Loading fav btn state
         database_ref.child("fav_music")
                 .child(mAuth.getCurrentUser().getUid())
@@ -183,7 +202,7 @@ public class PlayerFragment extends Fragment {
                                                             //We found a song in Album and We need to set icon
                                                             fav_btn.setImageResource(R.drawable.ic_heart_full);
                                                             fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_light_orange));
-                                                            MiniPlayerFragment.fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_dark_velvet));
+
                                                         }
                                                     }
 
@@ -229,27 +248,6 @@ public class PlayerFragment extends Fragment {
         return view;
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        intent = new Intent(getActivity(), BackgroundService.class);
-        intent.putExtra("playlist", playlist);
-        intent.putExtra("pos", position);
-        intent.putExtra("path", playlist.getSongs().get(position).getPath());
-        intent.putExtra("playlistTitle", playlist.getTitle());
-        intent.putExtra("desc", playlist.getDescription());
-        intent.putExtra("ms", seekedTo);
-        intent.putExtra("isFav",isFav);
-        intent.putParcelableArrayListExtra("songs", playlist.getSongs());
-
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            ContextCompat.startForegroundService(getActivity(), intent);
-        } else {
-            getActivity().startService(intent);
-        }
-    }
 
     private void openSongInPlaylistsSettingsDialog() {
         songInPlaylistDialog = new BottomSheetDialog(getContext());
@@ -465,11 +463,6 @@ if(!(ready && state == Player.STATE_READY)){
     player.setPlayWhenReady(true);
 }
      }
-
-
-            playerView.setDrawingCacheBackgroundColor(Color.TRANSPARENT);
-            playerView.setShutterBackgroundColor(Color.TRANSPARENT);
-            playerView.setControllerHideOnTouch(false);
         }
     }
 
@@ -504,8 +497,7 @@ if(!(ready && state == Player.STATE_READY)){
                                 fav_btn.getDrawable().setTint(Color.WHITE);
                             }else{
                                 fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_light_orange));
-                                MiniPlayerFragment.fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_dark_velvet));
-                            }
+                              }
                         }
                     }
 

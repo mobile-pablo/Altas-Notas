@@ -60,9 +60,9 @@ public class MiniPlayerFragment extends Fragment {
     private DatabaseReference database_ref;
     private  FirebaseAuth mAuth;
     int position;
-    public  PlayerView playerView;
+    public static PlayerView playerView;
     public static BackgroundService mService;
-    private boolean mBound = false;
+    public static boolean mBound = false;
     public  Intent intent;
     private final Long seekedTo;
     private final Boolean isReOpen;
@@ -123,6 +123,23 @@ public class MiniPlayerFragment extends Fragment {
         viewModel = new ViewModelProvider(requireActivity()).get(PlayerFragmentViewModel.class);
         setUI();
 
+
+
+        intent = new Intent(getActivity(), BackgroundService.class);
+        intent.putExtra("playlist", playlist);
+        intent.putExtra("pos", position);
+        intent.putExtra("path", playlist.getSongs().get(position).getPath());
+        intent.putExtra("playlistTitle", playlist.getTitle());
+        intent.putExtra("desc", playlist.getDescription());
+        intent.putExtra("ms", seekedTo);
+        intent.putParcelableArrayListExtra("songs", playlist.getSongs());
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            ContextCompat.startForegroundService(getActivity(), intent);
+        } else {
+            getActivity().startService(intent);
+        }
+
         box.setOnClickListener(v -> {
 
             if(mBound){
@@ -170,7 +187,7 @@ public class MiniPlayerFragment extends Fragment {
 
         if(playerView!=null) {
             if (playerView.getPlayer() != null) {
-                playerView.getPlayer().pause();
+                playerView.getPlayer().stop();
                 playerView.getPlayer().seekTo(0);
                 playerView.setPlayer(null);
             }
@@ -196,32 +213,11 @@ public class MiniPlayerFragment extends Fragment {
         //Very important
         getActivity().unbindService(mConnection);
         mBound=false;
-
+        playerFragment.mBound=false;
      Log.d("MiniPlayerFragment", "Mini Player dismissed!");
     }
 
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-
-        intent = new Intent(getActivity(), BackgroundService.class);
-        intent.putExtra("playlist", playlist);
-        intent.putExtra("pos", position);
-        intent.putExtra("path", playlist.getSongs().get(position).getPath());
-        intent.putExtra("playlistTitle", playlist.getTitle());
-        intent.putExtra("desc", playlist.getDescription());
-        intent.putExtra("ms", seekedTo);
-        intent.putParcelableArrayListExtra("songs", playlist.getSongs());
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            ContextCompat.startForegroundService(getActivity(), intent);
-        } else {
-            getActivity().startService(intent);
-        }
-
-    }
 
     public  void setUI() {
         if(getActivity()!=null) {
@@ -338,7 +334,9 @@ public class MiniPlayerFragment extends Fragment {
             playerView.setControllerShowTimeoutMs(0);
             playerView.setCameraDistance(0);
             playerView.setControllerAutoShow(true);
-            player.setPlayWhenReady(true);
+          if(!isReOpen){
+              player.setPlayWhenReady(true);
+          }
             playerView.setDrawingCacheBackgroundColor(Color.TRANSPARENT);
             playerView.setShutterBackgroundColor(Color.TRANSPARENT);
             playerView.setControllerHideOnTouch(false);

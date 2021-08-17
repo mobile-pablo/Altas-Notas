@@ -44,30 +44,64 @@ import com.google.firebase.database.ValueEventListener;
 
 public class PlayerFragmentViewModel extends ViewModel {
 
-    //Background Pallete
-    Palette.Swatch getMostPopulousSwatch(Palette palette) {
-        Palette.Swatch mostPopulous = null;
-        if (palette != null) {
-            for (Palette.Swatch swatch : palette.getSwatches()) {
-                if (mostPopulous == null || swatch.getPopulation() > mostPopulous.getPopulation()) {
-                    mostPopulous = swatch;
-                }
-            }
-        }
-        return mostPopulous;
-    }
 
     public void setUpInfoBackgroundColor(Activity activity, LinearLayout ll, Palette palette) {
-        Palette.Swatch swatch = getMostPopulousSwatch(palette);
+        Palette.Swatch swatch =  palette.getDominantSwatch();
         if (swatch != null) {
-            int endColor = ContextCompat.getColor(ll.getContext(), R.color.black);
-            int startColor = swatch.getRgb();
+            int swatchRgb = swatch.getRgb();
 
-            if (startColor == endColor) {
-                startColor = Color.DKGRAY;
+            String hex = Integer.toHexString(swatchRgb);
+            System.out.println("Hex: "+ hex);
+            String[] startCTable = hex.split("");
+            String alphaHex ="",redHex ="", greenHex="", blueHex="";
+
+            System.out.println("L: "+startCTable.length);
+            for (int i = 0; i <startCTable.length; i++) {
+                switch (i){
+                    case 0:
+                    case 1:
+                        alphaHex += startCTable[i];
+                        break;
+
+                    case 2:
+                    case 3:
+                        redHex +=startCTable[i];
+                        break;
+
+
+                    case 4:
+                    case 5:
+                        greenHex +=startCTable[i];
+                        break;
+
+
+                    case 6:
+                    case 7:
+                        blueHex +=startCTable[i];
+                        break;
+
+                }
+            }
+            //We have taken color from Swatch divided to seprate Colors and now we turn them into Integers
+
+            Integer alphaInt, redInt, greenInt, blueInt;
+
+            alphaInt = Integer.parseInt(alphaHex,16);
+            redInt = manipulateColor(Integer.parseInt(redHex,16), 1.4f);
+            greenInt = manipulateColor(Integer.parseInt(greenHex,16), 1.4f);
+            blueInt = manipulateColor(Integer.parseInt(blueHex,16), 1.4f);
+            System.out.println("R: "+redInt+", "+ ", G: "+greenInt+", B"+blueInt);
+            Integer startColor = Color.argb(alphaInt,redInt, greenInt, blueInt);
+
+            if(alphaInt>20){
+                alphaInt -=0;
             }
 
+            Integer darkerRed =   manipulateColor(redInt,0.2f);
+            Integer darkerGreen = manipulateColor(greenInt,0.2f);
+            Integer darkerBlue =  manipulateColor(blueInt,0.2f);
 
+            Integer endColor = Color.argb(alphaInt,darkerRed,darkerGreen,darkerBlue);
 
             GradientDrawable gradientDrawable = new GradientDrawable(
                     GradientDrawable.Orientation.TOP_BOTTOM,
@@ -91,7 +125,16 @@ public class PlayerFragmentViewModel extends ViewModel {
             }
         }
     }
-
+    public static int manipulateColor(int color, float factor) {
+        int a = Color.alpha(color);
+        int r = Math.round(Color.red(color) * factor);
+        int g = Math.round(Color.green(color) * factor);
+        int b = Math.round(Color.blue(color) * factor);
+        return Color.argb(a,
+                Math.min(r,255),
+                Math.min(g,255),
+                Math.min(b,255));
+    }
     public void removeFromFav(FragmentActivity activity, DatabaseReference database_ref, FirebaseAuth mAuth, Playlist playlist, Integer position, ImageButton fav_btn, CurrentPlaylistAdapter adapter) {
         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -131,6 +174,7 @@ public class PlayerFragmentViewModel extends ViewModel {
 
                                         if(currentFragment instanceof PlayerFragment){
                                             fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.white));
+                                            MiniPlayerFragment.fav_btn.setImageResource(R.drawable.ic_heart_empty);
                                             MiniPlayerFragment.fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.black));
                                         }
 
@@ -179,7 +223,6 @@ public class PlayerFragmentViewModel extends ViewModel {
 
                             if(currentFragment instanceof PlayerFragment){
                                 fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_light_orange));
-                                MiniPlayerFragment.fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_dark_velvet));
                             }
                         }
                     }

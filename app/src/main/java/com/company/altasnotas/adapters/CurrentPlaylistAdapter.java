@@ -344,6 +344,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                             }
 
                                         }else{
+                                            miniPlayerFragment.fav_btn.setImageResource(R.drawable.ic_heart_empty);
                                             miniPlayerFragment.setUI();
                                         }
                                     }else{
@@ -392,7 +393,14 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("album").setValue(playlist.getSongs().get(position).getAlbum());
                         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("author").setValue(playlist.getSongs().get(position).getAuthor());
                         fav_btn.setImageResource(R.drawable.ic_heart_full);
-
+                        if(MainActivity.currentSongTitle.getValue().equals(songs.get(position).getTitle()) &&
+                                MainActivity.currentSongAlbum.getValue().equals(playlist.getTitle()) &&
+                                MainActivity.currentSongAuthor.getValue().equals( playlist.getDescription())
+                        ){
+                          fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_light_orange));
+                        }else{
+                            fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_dark_velvet));
+                        }
                         Fragment mini_frag = activity.getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
                         if(mini_frag instanceof MiniPlayerFragment){
                             MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) mini_frag;
