@@ -253,10 +253,12 @@ public class MiniPlayerFragment extends Fragment {
 
             }
         }
-        if (fav_btn.getDrawable().getConstantState().equals(fav_btn.getContext().getDrawable(R.drawable.ic_heart_full).getConstantState())) {
-            fav_btn.setImageResource(R.drawable.ic_heart_empty);
+        if (fav_btn.getDrawable().getConstantState().equals(fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
             fav_btn.getDrawable().setTint(Color.BLACK);
+        }else{
+            fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_dark_velvet));
         }
+
         //Loading fav btn state
     if(mAuth.getCurrentUser()!=null){
         database_ref.child("fav_music")
@@ -296,6 +298,7 @@ public class MiniPlayerFragment extends Fragment {
                                                         ) {
                                                             //We found a song in Album and We need to set icon
                                                             fav_btn.setImageResource(R.drawable.ic_heart_full);
+                                                            fav_btn.getDrawable().setTint(ContextCompat.getColor(mainActivity,R.color.project_dark_velvet));
                                                         }
                                                     }
 

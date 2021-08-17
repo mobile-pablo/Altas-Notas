@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,7 +56,7 @@ public class PlayerFragmentViewModel extends ViewModel {
         return mostPopulous;
     }
 
-    public void setUpInfoBackgroundColor(Activity activity, ConstraintLayout ll, Palette palette,Button settings_btn, ImageButton fav_btn) {
+    public void setUpInfoBackgroundColor(Activity activity, LinearLayout ll, Palette palette) {
         Palette.Swatch swatch = getMostPopulousSwatch(palette);
         if (swatch != null) {
             int endColor = ContextCompat.getColor(ll.getContext(), R.color.black);
@@ -65,15 +66,7 @@ public class PlayerFragmentViewModel extends ViewModel {
                 startColor = Color.DKGRAY;
             }
 
-            if(settings_btn!=null){
-                settings_btn.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        settings_btn.getCompoundDrawables()[2].setTint(swatch.getTitleTextColor());
-                        fav_btn.getDrawable().setTint(swatch.getTitleTextColor());
-                    }
-                });
-            }
+
 
             GradientDrawable gradientDrawable = new GradientDrawable(
                     GradientDrawable.Orientation.TOP_BOTTOM,
@@ -177,6 +170,9 @@ public class PlayerFragmentViewModel extends ViewModel {
                             if (currentFragment instanceof FavoritesFragment) {
                                 FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
                                 favoritesFragment.viewModel.initializeFavorites();
+                            }else{
+                                fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_light_orange));
+                                MiniPlayerFragment.fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_dark_velvet));
                             }
                         }
                     }

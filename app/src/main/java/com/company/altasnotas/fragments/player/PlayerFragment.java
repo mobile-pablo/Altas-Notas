@@ -81,7 +81,7 @@ public class PlayerFragment extends Fragment {
     private final Long seekedTo;
     private final Boolean isReOpen;
     private Palette palette;
-    ConstraintLayout player_full_box;
+    LinearLayout player_full_box;
     Integer isFav;
     Integer state;
     Boolean ready;
@@ -182,7 +182,8 @@ public class PlayerFragment extends Fragment {
                                                         ) {
                                                             //We found a song in Album and We need to set icon
                                                             fav_btn.setImageResource(R.drawable.ic_heart_full);
-
+                                                            fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_light_orange));
+                                                            MiniPlayerFragment.fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_dark_velvet));
                                                         }
                                                     }
 
@@ -498,7 +499,13 @@ if(!(ready && state == Player.STATE_READY)){
                             song_img.setImageDrawable(resource);
                             Bitmap b = drawableToBitmap(resource);
                             palette = Palette.from(b).generate();
-                          viewModel.setUpInfoBackgroundColor(getActivity(), player_full_box, palette,settings_btn,fav_btn);
+                          viewModel.setUpInfoBackgroundColor(getActivity(), player_full_box, palette);
+                            if (fav_btn.getDrawable().getConstantState().equals(fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+                                fav_btn.getDrawable().setTint(Color.WHITE);
+                            }else{
+                                fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_light_orange));
+                                MiniPlayerFragment.fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_dark_velvet));
+                            }
                         }
                     }
 

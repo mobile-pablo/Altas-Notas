@@ -123,16 +123,21 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                     ){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             holder.currentTitle.setTextColor(activity.getColor(R.color.project_light_orange));
+            holder.currentFav_btn.getDrawable().setTint(activity.getColor(R.color.project_light_orange));
         }else{
             holder.currentTitle.setTextColor(ContextCompat.getColor( activity,R.color.project_light_orange));
+            holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
         }
     }else{
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             holder.currentTitle.setTextColor(activity.getColor(R.color.black));
+            holder.currentFav_btn.getDrawable().setTint(activity.getColor(R.color.black));
         }else{
             holder.currentTitle.setTextColor(ContextCompat.getColor( activity,R.color.black));
+            holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.black));
         }
     }
+
         holder.currentBox.setOnClickListener(v -> {
 
 
@@ -148,13 +153,14 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                 MainActivity.currentSongTitle.setValue(songs.get(position).getTitle());
                 MainActivity.currentSongAlbum.setValue(playlist.getTitle());
                 MainActivity.currentSongAuthor.setValue(playlist.getDescription());
+                holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
+
                 notifyDataSetChanged();
 
                 PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0, false, null, null, isFavFragment);
                 MiniPlayerFragment miniPlayerFragment = new MiniPlayerFragment(playlist, position, 0, false, playerFragment);
                 activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_mini_player_container, miniPlayerFragment).commit();
                 MainActivity.mini_player.setVisibility(View.VISIBLE);
-
 
         }
         });
@@ -199,6 +205,23 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                                             holder.currentFav_btn.setImageResource(R.drawable.ic_heart_full);
 
 
+                                                            if ((MainActivity.currentSongTitle.getValue().equals(songs.get(position).getTitle()))
+                                                                    &&
+                                                                    MainActivity.currentSongAlbum.getValue().equals(playlist.getTitle())
+                                                                    &&
+                                                                    MainActivity.currentSongAuthor.getValue().equals(playlist.getDescription())
+                                                            )
+                                                            {
+                                                                holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
+
+                                                            }else{
+
+                                                                if (holder.currentFav_btn.getDrawable().getConstantState().equals(holder.currentFav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+                                                                    holder.currentFav_btn.getDrawable().setTint(Color.BLACK);
+                                                                }else{
+                                                                    holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_dark_velvet));
+                                                                }
+                                                            }
                                                         }
                                                     }
 
@@ -224,6 +247,8 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
         if (holder.currentFav_btn.getDrawable().getConstantState().equals(holder.currentFav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
             holder.currentFav_btn.getDrawable().setTint(Color.BLACK);
         }
+
+
         holder.currentFav_btn.setOnClickListener(v -> {
             if (holder.currentFav_btn.getDrawable().getConstantState().equals(holder.currentFav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
                 addToFav(position, holder.currentFav_btn);
