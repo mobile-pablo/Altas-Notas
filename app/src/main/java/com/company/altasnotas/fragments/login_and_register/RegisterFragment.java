@@ -1,5 +1,6 @@
 package com.company.altasnotas.fragments.login_and_register;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +25,7 @@ public class RegisterFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_register, container, false);
         model = new ViewModelProvider(requireActivity()).get(RegisterFragmentViewModel.class);
-
+        MainActivity.main_activty_box.setBackgroundColor(Color.WHITE);
         EditText et_mail = view.findViewById(R.id.register_email_edittext);
         EditText et_pass_one = view.findViewById(R.id.register_password_one_edittext);
         EditText et_pass_two = view.findViewById(R.id.register_password_two_edittext);

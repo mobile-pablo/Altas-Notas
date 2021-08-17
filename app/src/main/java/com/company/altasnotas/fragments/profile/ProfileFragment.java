@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -83,7 +84,7 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
       View view = inflater.inflate(R.layout.fragment_profile, container, false);
-
+        MainActivity.main_activty_box.setBackgroundColor(Color.WHITE);
           mAuth = FirebaseAuth.getInstance();
           database = FirebaseDatabase.getInstance();
           database_ref = database.getReference();

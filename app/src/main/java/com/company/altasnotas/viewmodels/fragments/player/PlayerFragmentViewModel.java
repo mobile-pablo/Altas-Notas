@@ -42,6 +42,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
+import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+import static android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+
 public class PlayerFragmentViewModel extends ViewModel {
 
 
@@ -110,7 +114,8 @@ public class PlayerFragmentViewModel extends ViewModel {
             if(activity!=null){
                 Glide.with(activity)
                         .load(gradientDrawable)
-                        .into(new CustomTarget<Drawable>() {
+                        .error(R.drawable.custom_player_fragment_bg)
+                        .into(new CustomTarget<Drawable>(){
                             @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
                             @Override
                             public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {

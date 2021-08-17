@@ -1,14 +1,21 @@
 package com.company.altasnotas;
 
+import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowInsets;
+import android.view.WindowManager;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -44,6 +51,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 
+import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+import static android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+
 public class MainActivity extends AppCompatActivity {
 
     FirebaseAuth mAuth;
@@ -56,19 +67,17 @@ public class MainActivity extends AppCompatActivity {
     public static final String FIREBASE = "Firebase";
     public  static View  mini_player;
 
+    public static LinearLayout main_activty_box;
+
     private String frag;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        View decorView = getWindow().getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-        decorView.setSystemUiVisibility(uiOptions);
-
-
         currentSongTitle.setValue("");
         currentSongAuthor.setValue("");
         currentSongAlbum.setValue("");
+        main_activty_box = findViewById(R.id.main_activity_box);
         DisplayMetrics displayMetrics = new DisplayMetrics();
        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int height = displayMetrics.heightPixels;
@@ -136,7 +145,28 @@ public class MainActivity extends AppCompatActivity {
             Log.d("MainActivity", "Frag is null");
         }
     }
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            hideSystemUI();
+        }
+    }
 
+    private void hideSystemUI() {
+        // Enables regular immersive mode.
+        // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
+        // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN|
+                        SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION|
+                        SYSTEM_UI_FLAG_LAYOUT_STABLE
+        | SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+    }
     //This function is called when I get back to App where I exit by onBackPressed
     private void reInitializePlayerViews() {
        if(MiniPlayerFragment.mBound){

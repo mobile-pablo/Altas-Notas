@@ -1,6 +1,7 @@
 package com.company.altasnotas.fragments.login_and_register;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -61,7 +62,7 @@ public class LoginFragment extends Fragment {
         model = new ViewModelProvider(requireActivity()).get(LoginFragmentViewModel.class);
         EditText email_editext = view.findViewById(R.id.login_email_edittext);
         EditText password_editext = view.findViewById(R.id.login_password_edittext);
-
+        MainActivity.main_activty_box.setBackgroundColor(Color.WHITE);
         if(mGoogleApiClient!=null){
             if (mGoogleApiClient.isConnected()) {
                 Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {

@@ -59,6 +59,7 @@ public class PlaylistsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_playlists, container, false);
+        MainActivity.main_activty_box.setBackgroundColor(Color.WHITE);
 
         recyclerView = view.findViewById(R.id.playlists_recycler_view);
         fab = view.findViewById(R.id.playlists_floating_btn);

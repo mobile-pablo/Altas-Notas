@@ -1,5 +1,6 @@
 package com.company.altasnotas.fragments.favorites;
 
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -53,7 +54,7 @@ public class FavoritesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_current_playlist, container, false);
 
 
-
+        MainActivity.main_activty_box.setBackgroundColor(Color.WHITE);
 
         imageView = view.findViewById(R.id.current_playlist_img);
         title = view.findViewById(R.id.current_playlist_title);

@@ -78,7 +78,7 @@ public class HomeFragment extends Fragment {
         adapter = new HomeFragmentAdapter((MainActivity) getActivity(), authors, albums, playlists);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         recyclerView.setAdapter(adapter);
-
+        MainActivity.main_activty_box.setBackground( getResources().getDrawable( R.drawable.custom_home_fragment_bg ));
         initializePlaylists();
 
         logout_img.setOnClickListener(v -> {

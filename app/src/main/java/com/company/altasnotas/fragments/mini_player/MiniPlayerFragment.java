@@ -423,6 +423,5 @@ public class MiniPlayerFragment extends Fragment {
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         initializePlayer();
-        setUI();
     }
 }
