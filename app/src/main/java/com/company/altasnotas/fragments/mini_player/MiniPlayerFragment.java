@@ -193,6 +193,9 @@ public class MiniPlayerFragment extends Fragment {
             FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
             favoritesFragment.viewModel.adapter.notifyDataSetChanged();
         }
+        //Very important
+        getActivity().unbindService(mConnection);
+        mBound=false;
 
      Log.d("MiniPlayerFragment", "Mini Player dismissed!");
     }

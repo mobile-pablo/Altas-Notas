@@ -519,7 +519,15 @@ if(!(ready && state == Player.STATE_READY)){
                 database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        title.setText(playlist.getSongs().get(position).getTitle());
+
+                        //We add extra space because This Light font have small spacing between words.
+                     String local_title = playlist.getSongs().get(position).getTitle();
+                     title.setTag(" ");
+                     String space = (String) title.getTag();
+                        title.setText(local_title.replace(space, (space += " ")));
+                        title.setTag(space);
+
+
                         author.setText(snapshot.child("description").getValue().toString());
                     }
 

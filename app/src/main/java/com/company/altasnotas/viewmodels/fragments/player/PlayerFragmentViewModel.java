@@ -29,6 +29,7 @@ import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
 import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
+import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
@@ -125,8 +126,12 @@ public class PlayerFragmentViewModel extends ViewModel {
                                                     }
                                                 }
                                             }
+                                        }
 
-                                       //     activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, favoritesFragment).commit();
+
+                                        if(currentFragment instanceof PlayerFragment){
+                                            fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.white));
+                                            MiniPlayerFragment.fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.black));
                                         }
 
                                     }
@@ -170,7 +175,9 @@ public class PlayerFragmentViewModel extends ViewModel {
                             if (currentFragment instanceof FavoritesFragment) {
                                 FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
                                 favoritesFragment.viewModel.initializeFavorites();
-                            }else{
+                            }
+
+                            if(currentFragment instanceof PlayerFragment){
                                 fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_light_orange));
                                 MiniPlayerFragment.fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_dark_velvet));
                             }
