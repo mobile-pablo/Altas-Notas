@@ -118,32 +118,9 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i < getSupportFragmentManager().getBackStackEntryCount(); i++) {
                     getSupportFragmentManager().popBackStack();
                 }
-
-                Playlist playlist = getIntent().getParcelableExtra("playlist");
-                Integer position = PlayerFragment.mService.position;
-                long seekedTo = getIntent().getLongExtra("ms", 0);
-                Integer isFavFragment =getIntent().getIntExtra("isFav",5);
-                if(isFavFragment==5){
-                    if(PlayerFragment.mService!=null){
-                        isFavFragment=   PlayerFragment.mService.isFav;
-                    }
-                }
-                ArrayList<Song> local_songs = getIntent().getParcelableArrayListExtra("songs");
-                playlist.setSongs(local_songs);
-                Integer state = getIntent().getIntExtra("state",0);
-                Boolean ready = getIntent().getBooleanExtra("ready",false);
-                Fragment fragment = getSupportFragmentManager().findFragmentByTag("Player");
-                if(fragment != null)
-                {
-                    getSupportFragmentManager().beginTransaction().remove(fragment).commit();
-                }
                 slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo,true,state,ready,isFavFragment);
-              bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
-
+                bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
                 getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.main_fragment_container, new HomeFragment(true), "Player").commit();
-                getSupportFragmentManager().beginTransaction().replace(R.id.sliding_layout_frag, playerFragment, "Player").commit();
-
             }
         }else{
             Log.d("MainActivity", "Frag is null");
@@ -192,49 +169,11 @@ public class MainActivity extends AppCompatActivity {
                    currentSongAuthor.setValue(playlist.getDescription());
 
                    PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo, true, state, null, isFav);
-                    if (PlayerFragment.fav_btn.getDrawable().getConstantState().equals(PlayerFragment.fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
-                        PlayerFragment.fav_btn.getDrawable().setTint(Color.BLACK);
+                   if (PlayerFragment.fav_btn.getDrawable().getConstantState().equals(PlayerFragment.fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+                       PlayerFragment.fav_btn.getDrawable().setTint(Color.BLACK);
                    }
                }
-           }else{
-               System.out.println("PlayerFragment service is null");
-
-               if(PlayerFragment.mService!=null) {
-                   Playlist playlist = PlayerFragment.mService.playlist;
-                   Integer position = PlayerFragment.mService.position;
-                   Integer isFav = PlayerFragment.mService.isFav;
-                   Boolean ready = PlayerFragment.mService.getPlayerInstance().getPlayWhenReady();
-                   Integer state = PlayerFragment.mService.getPlayerInstance().getPlaybackState();
-                   Long seekedTo = PlayerFragment.mService.getPlayerInstance().getContentPosition();
-                   currentSongTitle.setValue(playlist.getSongs().get(position).getTitle());
-                   currentSongAlbum.setValue(playlist.getTitle());
-                   currentSongAuthor.setValue(playlist.getDescription());
-
-                   PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo, false, state, ready, isFav);
-               }
            }
-        }else {
-            System.out.println("MiniPlayerFragment  bound is null");
-
-           if(PlayerFragment.mService!=null) {
-               Playlist playlist = PlayerFragment.mService.playlist;
-               Integer position = PlayerFragment.mService.position;
-               Integer isFav = PlayerFragment.mService.isFav;
-               Boolean ready = PlayerFragment.mService.getPlayerInstance().getPlayWhenReady();
-               Integer state = PlayerFragment.mService.getPlayerInstance().getPlaybackState();
-               Long seekedTo = PlayerFragment.mService.getPlayerInstance().getContentPosition();
-               currentSongTitle.setValue(playlist.getSongs().get(position).getTitle());
-               currentSongAlbum.setValue(playlist.getTitle());
-               currentSongAuthor.setValue(playlist.getDescription());
-
-               PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo, false, state, ready, isFav);
-               if (PlayerFragment.fav_btn.getDrawable().getConstantState().equals(PlayerFragment.fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
-                   PlayerFragment.fav_btn.getDrawable().setTint(Color.BLACK);
-               }
-           }else{
-               System.out.println("PlayerFragment  bound is null");
-           }
-
         }
     }
 
@@ -262,9 +201,13 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
 
-            if (selectedFragment[0] != null)
+            if (selectedFragment[0] != null){
                 //.setCustomAnimations(R.anim.slide_in_up, R.anim.slide_out_up)
+                if(slidingUpPanelLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED){
+                    slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                }
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, selectedFragment[0]).commit();
+            }
             return true;
         }
     };
@@ -366,31 +309,9 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i < getSupportFragmentManager().getBackStackEntryCount(); i++) {
                     getSupportFragmentManager().popBackStack();
                 }
-
-                Playlist playlist = intent.getParcelableExtra("playlist");
-                Integer position = PlayerFragment.mService.position;
-                long seekedTo = intent.getLongExtra("ms", 0);
-
-                Integer isFavFragment =getIntent().getIntExtra("isFav",5);
-                if(isFavFragment==5){
-                    if(PlayerFragment.mService!=null){
-                        isFavFragment=   PlayerFragment.mService.isFav;
-                    }
-                }
-                Integer state = intent.getIntExtra("state",0);
-                Boolean ready = intent.getBooleanExtra("ready",false);
-                ArrayList<Song> local_songs = intent.getParcelableArrayListExtra("songs");
-                playlist.setSongs(local_songs);
                 slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                Fragment fragment = getSupportFragmentManager().findFragmentByTag("Player");
-                if(fragment != null)
-                {
-                    getSupportFragmentManager().beginTransaction().remove(fragment).commit();
-                }
-                PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo,true,state,ready,isFavFragment);
-                   bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
+                bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
                 getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.main_fragment_container, new HomeFragment(true), "Player").commit();
-                getSupportFragmentManager().beginTransaction().replace(R.id.sliding_layout_frag, playerFragment, "Player").commit();
             }
         }else{
             System.out.println("Frag is null");
@@ -453,6 +374,17 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+
+
+        if(slidingUpPanelLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED){
+            slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        }else{
+            super.onBackPressed();
         }
     }
 }

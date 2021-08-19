@@ -93,8 +93,12 @@ public class PlayerFragment extends Fragment {
             BackgroundService.LocalBinder binder = (BackgroundService.LocalBinder) iBinder;
             mService = binder.getService();
             mBound = true;
+        if(mService.position==null){
+         mService.destroyNotif();
+        }else{
             initializePlayer();
             initializeMiniPlayer();
+        }
         }
 
         @Override
@@ -188,13 +192,7 @@ public class PlayerFragment extends Fragment {
             public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
                 if(newState == SlidingUpPanelLayout.PanelState.EXPANDED){
                     mini_layout.setVisibility(View.GONE);
-                }
-
-                if(newState== SlidingUpPanelLayout.PanelState.COLLAPSED){
-                    mini_layout.setVisibility(View.VISIBLE);
-                }
-
-                if(newState == SlidingUpPanelLayout.PanelState.HIDDEN){
+                }else{
                     mini_layout.setVisibility(View.VISIBLE);
                 }
             }
@@ -526,42 +524,44 @@ public class PlayerFragment extends Fragment {
 
     private void initializePlayer() {
         if (mBound) {
-            SimpleExoPlayer player = mService.getPlayerInstance();
-            exoListener = new ExoListener(player);
-            player.addListener(exoListener);
-            playerView.setKeepContentOnPlayerReset(true);
-            playerView.setPlayer(player);
-            playerView.setUseController(true);
-            playerView.showController();
-            playerView.setControllerShowTimeoutMs(0);
-            playerView.setCameraDistance(0);
-            playerView.setControllerAutoShow(true);
+   if(mService.position!=null){
+       SimpleExoPlayer player = mService.getPlayerInstance();
+       exoListener = new ExoListener(player);
+       player.addListener(exoListener);
+       playerView.setKeepContentOnPlayerReset(true);
+       playerView.setPlayer(player);
+       playerView.setUseController(true);
+       playerView.showController();
+       playerView.setControllerShowTimeoutMs(0);
+       playerView.setCameraDistance(0);
+       playerView.setControllerAutoShow(true);
 
-            System.out.println(isReOpen+","+ shouldPlay);
-     if(state==null || ready==null){
-         if(isReOpen)
-         {
-             //By this When Notification is Open and ExoPlayer is Paused. It remains that way.
-             player.setPlayWhenReady(player.getPlayWhenReady() && player.getPlaybackState() == Player.STATE_READY);
-         }
-         else
-         {
-             if(shouldPlay!=null){
-                 player.setPlayWhenReady(shouldPlay);
-             }else{
-             player.setPlayWhenReady(true);
-             }
-         }
+       System.out.println(isReOpen+","+ shouldPlay);
+       if(state==null || ready==null){
+           if(isReOpen)
+           {
+               //By this When Notification is Open and ExoPlayer is Paused. It remains that way.
+               player.setPlayWhenReady(player.getPlayWhenReady() && player.getPlaybackState() == Player.STATE_READY);
+           }
+           else
+           {
+               if(shouldPlay!=null){
+                   player.setPlayWhenReady(shouldPlay);
+               }else{
+                   player.setPlayWhenReady(true);
+               }
+           }
 
 
-     }else{
+       }else{
 
-if(!(ready && state == Player.STATE_READY)){
-    player.setPlayWhenReady(false);
-}else{
-    player.setPlayWhenReady(true);
-}
-     }
+           if(!(ready && state == Player.STATE_READY)){
+               player.setPlayWhenReady(false);
+           }else{
+               player.setPlayWhenReady(true);
+           }
+       }
+   }
         }
     }
 
@@ -782,7 +782,9 @@ if(!(ready && state == Player.STATE_READY)){
             playerView.setPlayer(player);
             state= player.getPlaybackState();
             ready = player.getPlayWhenReady();
-            CurrentPlaylistFragment.adapter.notifyDataSetChanged();
+          if(CurrentPlaylistFragment.adapter!=null){
+              CurrentPlaylistFragment.adapter.notifyDataSetChanged();
+          }
 
             Log.d("Exo","playbackState = " + playbackState + " playWhenReady = " + playWhenReady );
             switch (playbackState) {
@@ -825,7 +827,10 @@ if(!(ready && state == Player.STATE_READY)){
                 MainActivity.currentSongTitle.setValue(playlist.getSongs().get(position).getTitle());
                 MainActivity.currentSongAlbum.setValue(playlist.getTitle());
                 MainActivity.currentSongAuthor.setValue(playlist.getDescription());
-            CurrentPlaylistFragment.adapter.notifyDataSetChanged();
+              if(CurrentPlaylistFragment.adapter!=null){
+              CurrentPlaylistFragment.adapter.notifyDataSetChanged();
+          }
+
             setUI();
             fav_btn.setImageResource(R.drawable.ic_heart_empty);
             mService.setPosition(position);
