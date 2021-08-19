@@ -23,7 +23,6 @@ import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.fragments.home.HomeFragment;
 import com.company.altasnotas.fragments.login_and_register.LoginFragment;
-import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
 import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.models.User;
 import com.company.altasnotas.services.BackgroundService;
@@ -228,11 +227,6 @@ public class ProfileFragmentViewModel extends ViewModel {
 
                             }
 
-                            Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
-                            if (currentFragment instanceof MiniPlayerFragment) {
-                                MiniPlayerFragment miniPlayerFragment= (MiniPlayerFragment) currentFragment;
-                                miniPlayerFragment.dissmiss_mini();
-                            }
 
 
                             progress.dismiss();
@@ -262,11 +256,6 @@ public class ProfileFragmentViewModel extends ViewModel {
                                 LoginFragment.mGoogleApiClient.disconnect();
                             }
 
-                            Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
-                            if (currentFragment instanceof MiniPlayerFragment) {
-                                MiniPlayerFragment miniPlayerFragment= (MiniPlayerFragment) currentFragment;
-                                miniPlayerFragment.dissmiss_mini();
-                            }
 
                             progress.dismiss();
                             activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new LoginFragment()).commit();

@@ -28,7 +28,6 @@ import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
 import com.company.altasnotas.fragments.favorites.FavoritesFragment;
-import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
 import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.Playlist;
@@ -140,7 +139,7 @@ public class PlayerFragmentViewModel extends ViewModel {
                 Math.min(g,255),
                 Math.min(b,255));
     }
-    public void removeFromFav(FragmentActivity activity, DatabaseReference database_ref, FirebaseAuth mAuth, Playlist playlist, Integer position, ImageButton fav_btn, CurrentPlaylistAdapter adapter) {
+    public void removeFromFav(FragmentActivity activity, DatabaseReference database_ref, FirebaseAuth mAuth, Playlist playlist, Integer position, ImageButton fav_btn,ImageButton mini_fav_btn, CurrentPlaylistAdapter adapter) {
         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -154,7 +153,7 @@ public class PlayerFragmentViewModel extends ViewModel {
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
                                     fav_btn.setImageResource(R.drawable.ic_heart_empty);
-
+                                    mini_fav_btn.setImageResource(R.drawable.ic_heart_empty);
                                     if(activity!=null){
                                         Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
                                         if (currentFragment instanceof CurrentPlaylistFragment) {
@@ -167,21 +166,15 @@ public class PlayerFragmentViewModel extends ViewModel {
 
                                             if(MainActivity.currentSongAlbum.getValue().equals(fav.viewModel.playlist.getTitle())){
                                                 Log.d("FavoritesFragment", "Album value:"+ MainActivity.currentSongAlbum.getValue()+", Title: "+ fav.viewModel.playlist.getTitle());
-                                                Fragment mini_frag = activity.getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
-                                                if (mini_frag instanceof MiniPlayerFragment) {
-                                                    if (mini_frag.isVisible()) {
-                                                        ((MiniPlayerFragment) mini_frag).dissmiss_mini();
-                                                    }
-                                                }
+
                                             }
                                         }
 
-
-                                        if(currentFragment instanceof PlayerFragment){
+                                        Fragment playerF = activity.getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
+                                        if(playerF instanceof PlayerFragment){
                                             fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.white));
-                                            MiniPlayerFragment.fav_btn.setImageResource(R.drawable.ic_heart_empty);
-                                            MiniPlayerFragment.fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.black));
-                                        }
+                                            mini_fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.black));
+                                         }
 
                                     }
                                 }
@@ -198,7 +191,7 @@ public class PlayerFragmentViewModel extends ViewModel {
         });
     }
 
-    public void addToFav(FragmentActivity activity, DatabaseReference database_ref, FirebaseAuth mAuth, Playlist playlist, Integer position, ImageButton fav_btn, CurrentPlaylistAdapter adapter) {
+    public void addToFav(FragmentActivity activity, DatabaseReference database_ref, FirebaseAuth mAuth, Playlist playlist, Integer position, ImageButton fav_btn,ImageButton mini_fav_btn, CurrentPlaylistAdapter adapter) {
         String key = database_ref.push().getKey();
 
         database_ref
@@ -214,7 +207,7 @@ public class PlayerFragmentViewModel extends ViewModel {
                         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("album").setValue(playlist.getSongs().get(position).getAlbum());
                         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("author").setValue(playlist.getSongs().get(position).getAuthor());
                         fav_btn.setImageResource(R.drawable.ic_heart_full);
-
+                        mini_fav_btn.setImageResource(R.drawable.ic_heart_full);
                         if(activity!=null){
                             Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
                             if (currentFragment instanceof CurrentPlaylistFragment) {
@@ -226,8 +219,11 @@ public class PlayerFragmentViewModel extends ViewModel {
                                 favoritesFragment.viewModel.initializeFavorites();
                             }
 
-                            if(currentFragment instanceof PlayerFragment){
+                            Fragment playerF = activity.getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
+
+                            if(playerF instanceof PlayerFragment){
                                 fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_light_orange));
+                                mini_fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_dark_velvet));
                             }
                         }
                     }

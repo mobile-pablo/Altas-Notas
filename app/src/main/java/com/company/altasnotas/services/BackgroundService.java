@@ -1,5 +1,6 @@
 package com.company.altasnotas.services;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -15,6 +16,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.Looper;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
@@ -29,7 +31,6 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
-import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
 import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
@@ -50,6 +51,8 @@ import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
 
 import java.util.ArrayList;
+
+import static androidx.media2.exoplayer.external.util.Util.getLooper;
 
 public class BackgroundService extends Service implements ExoPlayer.EventListener {
 
@@ -72,7 +75,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
             .build();
 
     @Override
-    public void onCreate() {
+    public synchronized void onCreate() {
         super.onCreate();
         context = this;
 
@@ -80,30 +83,25 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
 
     @Nullable
     @Override
-    public IBinder onBind(Intent intent) {
+    public synchronized IBinder onBind(Intent intent) {
         return mBinder;
     }
-
-    public void destroyNotif(){
-
-        this.stopForeground(true);
-        stopSelf();
-
-        if(MiniPlayerFragment.playerView!=null){
-            MiniPlayerFragment.playerView.setPlayer(null);
-        }
-
-        if(PlayerFragment.playerView!=null){
-            PlayerFragment.playerView.setPlayer(null);
+    
+    public synchronized void destroyNotif(){
+        if(Looper.myLooper().getThread().isAlive()){
+             stopForeground(true);
+             releasePlayer();
+             PlayerFragment.playerView.setPlayer(null);
+             PlayerFragment.mini_playerView.setPlayer(null);
         }
     }
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public synchronized int onStartCommand(Intent intent, int flags, int startId) {
         externalPath = intent.getStringExtra("path");
         externalPlaylistTitle = intent.getStringExtra("playlistTitle");
         externalDescription = intent.getStringExtra("desc");
         seekedTo = intent.getLongExtra("ms", 0);
-        isFav = intent.getIntExtra("isFav",0);
+        isFav = intent.getIntExtra("isFav",-1);
 
         if (playlist != null) {
             if (!(playlist.getSongs().get(position).getPath().equals(externalPath) && playlist.getTitle().equals(externalPlaylistTitle) && playlist.getDescription().equals(externalDescription))) {
@@ -114,7 +112,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                 playlist.setSongs(songs);
 
                 releasePlayer();
-           //    startPlayer();
+            //   startPlayer();
                  testingPlayer();
 
                 playerNotificationManager = PlayerNotificationManager
@@ -245,8 +243,6 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                                     }
                                 })
                         .build();
-
-
 
                 MediaSessionCompat mediaSession = new MediaSessionCompat(context, context.getString(R.string.app_name));
                 mediaSession.setActive(true);
@@ -413,18 +409,10 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         }
 
 
-        return START_STICKY;
-    }
-    private void createNotificationChannel(String channelId) {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            int importance = NotificationUtil.IMPORTANCE_DEFAULT;
-            NotificationUtil.createNotificationChannel(context,channelId,R.string.app_name, R.string.app_name, importance);
-        }
+        return START_NOT_STICKY;
     }
     @Override
-    public void onTaskRemoved(Intent rootIntent) {
+    public synchronized void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
         stopSelf();
         if (mediaSession != null) {
@@ -443,7 +431,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     }
 
     @Override
-    public void onDestroy() {
+    public synchronized void onDestroy() {
         releasePlayer();
         super.onDestroy();
         MainActivity.currentSongAlbum.setValue("");
@@ -455,9 +443,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         mNotificationManager.cancel(Integer.parseInt(NOTIFICATION_ID));
     }
 
-
-
-    public void releasePlayer() {
+    public synchronized void releasePlayer() {
         if (player != null) {
             playerNotificationManager.setPlayer(null);
             player.release();
@@ -470,7 +456,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         }
     }
 
-    public SimpleExoPlayer startPlayer() {
+    public synchronized SimpleExoPlayer startPlayer() {
 
         player = new SimpleExoPlayer.Builder(this).setHandleAudioBecomingNoisy(true).build();
 
@@ -526,7 +512,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         return player;
     }
 
-    public SimpleExoPlayer testingPlayer() {
+    public synchronized SimpleExoPlayer testingPlayer() {
 
 
         Uri uri = Uri.parse("https://media1.vocaroo.com/mp3/1nS8YXb35PBj");
@@ -566,7 +552,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         return player;
     }
 
-    public Bitmap drawableToBitmap(Drawable drawable) {
+    public synchronized Bitmap drawableToBitmap(Drawable drawable) {
         Bitmap bitmap = null;
 
         if (drawable instanceof BitmapDrawable) {
@@ -588,56 +574,23 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         return bitmap;
     }
 
-    //Notificion for older version of player
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void createNotification() {
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), "notify_001");
-        Intent ii = new Intent(getApplicationContext(), MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, ii, 0);
 
-        NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
-        bigText.bigText(playlist.getSongs().get(position).getAuthor()); //detail mode is the "expanded" notification
-        bigText.setBigContentTitle(playlist.getSongs().get(position).getTitle());
-        bigText.setSummaryText(playlist.getSongs().get(position).getTitle()); //small text under notification
-
-        mBuilder.setContentIntent(pendingIntent);
-        mBuilder.setSmallIcon(R.drawable.ic_altas_notes_notif); //notification icon
-        mBuilder.setContentTitle(playlist.getSongs().get(position).getTitle()); //main title
-        mBuilder.setContentText(playlist.getSongs().get(position).getTitle()); //main text when you "haven't expanded" the notification yet
-        mBuilder.setPriority(Notification.PRIORITY_MAX);
-        mBuilder.setStyle(bigText);
-
-        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        NotificationChannel channel = new NotificationChannel("notify_001",
-                "Channel human readable title",
-                NotificationManager.IMPORTANCE_DEFAULT);
-        if (mNotificationManager != null) {
-            mNotificationManager.createNotificationChannel(channel);
-        }
-
-        if (mNotificationManager != null) {
-            mNotificationManager.notify(0, mBuilder.build());
-        }
-
-    }
-
-    public SimpleExoPlayer getPlayerInstance() {
+    public synchronized SimpleExoPlayer getPlayerInstance() {
         if (player == null) {
             return testingPlayer();
-        //    return startPlayer();
+         //   return startPlayer();
         } else {
             return player;
         }
     }
 
-    public void setPosition(Integer integer) {
+    public synchronized void setPosition(Integer integer) {
         position = integer;
     }
 
 
     public class LocalBinder extends Binder {
-        public BackgroundService getService() {
+        public synchronized  BackgroundService getService() {
             return BackgroundService.this;
         }
     }

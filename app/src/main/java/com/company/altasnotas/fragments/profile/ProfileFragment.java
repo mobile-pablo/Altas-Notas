@@ -38,7 +38,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.canhub.cropper.CropImage;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
-import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
 import com.company.altasnotas.viewmodels.fragments.profile.ProfileFragmentViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -103,19 +102,7 @@ public class ProfileFragment extends Fragment {
 
           model =  new ViewModelProvider(requireActivity()).get(ProfileFragmentViewModel.class);
           model.downloadProfile((MainActivity) getActivity(), mAuth,  database_ref, profile_name, profile_email, profile_img,creationTextView, creationDateTextView);
-        Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
-        if (currentFragment instanceof MiniPlayerFragment) {
-            MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) currentFragment;
-            if(miniPlayerFragment.playerView!=null){
-                if(miniPlayerFragment.playerView.getPlayer()!=null){
-                    if(miniPlayerFragment.playerView.getPlayer().getCurrentPosition()!=0){
-                        miniPlayerFragment.setUI();
-                        MainActivity.mini_player.setVisibility(View.VISIBLE);
-                    }
-                }else{
-                    MainActivity.mini_player.setVisibility(View.GONE);
-                }
-            }}
+
 
 
           profile_img_edit_btn = view.findViewById(R.id.profile_user_img_btn);

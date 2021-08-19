@@ -21,7 +21,6 @@ import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.HomeFragmentAdapter;
 import com.company.altasnotas.fragments.login_and_register.LoginFragment;
-import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
 import com.company.altasnotas.fragments.profile.ProfileFragment;
 import com.company.altasnotas.models.Playlist;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -102,21 +101,6 @@ public class HomeFragment extends Fragment {
                  }
              }
          });
-        Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
-        if (currentFragment instanceof MiniPlayerFragment) {
-            MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) currentFragment;
-        if(miniPlayerFragment.playerView!=null){
-      if(miniPlayerFragment.playerView.getPlayer()!=null){
-          if(miniPlayerFragment.playerView.getPlayer().getCurrentPosition()!=0){
-          miniPlayerFragment.setUI();
-          MainActivity.mini_player.setVisibility(View.VISIBLE);
-          }
-      }else{
-          MainActivity.mini_player.setVisibility(View.GONE);
-      }
-        }}
-
-
 
 
         profile_img.setOnClickListener(v -> {

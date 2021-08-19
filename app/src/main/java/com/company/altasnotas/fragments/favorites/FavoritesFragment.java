@@ -21,7 +21,6 @@ import com.bumptech.glide.Glide;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
-import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
 import com.company.altasnotas.models.FavoriteFirebaseSong;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
@@ -69,19 +68,6 @@ public class FavoritesFragment extends Fragment {
         viewModel.init(recyclerView,imageView,title,description,settings,fav_state, (MainActivity) getActivity());
 
         viewModel.initializeFavorites();
-        Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
-        if (currentFragment instanceof MiniPlayerFragment) {
-            MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) currentFragment;
-            if(miniPlayerFragment.playerView!=null){
-                if(miniPlayerFragment.playerView.getPlayer()!=null){
-                    if(miniPlayerFragment.playerView.getPlayer().getCurrentPosition()!=0){
-                        miniPlayerFragment.setUI();
-                        MainActivity.mini_player.setVisibility(View.VISIBLE);
-                    }
-                }else{
-                    MainActivity.mini_player.setVisibility(View.GONE);
-                }
-            }}
 
         return view;
     }

@@ -37,7 +37,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.ChoosePlaylistAdapter;
-import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
+import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
@@ -59,12 +59,13 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
 
 
 public class PlayerFragment extends Fragment {
-    private ImageButton fav_btn;
+    public static ImageButton fav_btn;
     private Button settings_btn;
     private Playlist playlist;
     int position;
@@ -77,7 +78,7 @@ public class PlayerFragment extends Fragment {
 
     public static PlayerView playerView;
     public static BackgroundService mService;
-    public boolean mBound = false;
+    public static boolean mBound = false;
     private Intent intent;
     private final Long seekedTo;
     private final Boolean isReOpen;
@@ -93,7 +94,7 @@ public class PlayerFragment extends Fragment {
             mService = binder.getService();
             mBound = true;
             initializePlayer();
-
+            initializeMiniPlayer();
         }
 
         @Override
@@ -101,6 +102,28 @@ public class PlayerFragment extends Fragment {
             mBound = false;
         }
     };
+
+    private void initializeMiniPlayer() {
+        if (mBound) {
+            SimpleExoPlayer player = mService.getPlayerInstance();
+            exoListener = new ExoListener(player);
+            player.addListener(exoListener);
+            mini_playerView.setKeepContentOnPlayerReset(true);
+            mini_playerView.setPlayer(player);
+            mini_playerView.setUseController(true);
+            mini_playerView.showController();
+            mini_playerView.setControllerShowTimeoutMs(0);
+            mini_playerView.setCameraDistance(0);
+            mini_playerView.setControllerAutoShow(true);
+            if(!isReOpen){
+                player.setPlayWhenReady(true);
+            }
+            mini_playerView.setDrawingCacheBackgroundColor(Color.TRANSPARENT);
+            mini_playerView.setShutterBackgroundColor(Color.TRANSPARENT);
+            mini_playerView.setControllerHideOnTouch(false);
+        }
+    }
+
     private Boolean shouldPlay=null;
 
     private BottomSheetDialog bottomSheetDialog;
@@ -108,6 +131,17 @@ public class PlayerFragment extends Fragment {
     private BottomSheetDialog songInPlaylistDialog;
     private PlayerFragmentViewModel viewModel;
 
+
+    //Mini Player
+
+    public static ImageButton mini_fav_btn;
+    public static PlayerView mini_playerView;
+    private  ImageView mini_song_img;
+    private  TextView mini_title;
+    private TextView mini_author;
+    private LinearLayout mini_box;
+    private ImageButton mini_dismiss_btn;
+    LinearLayout mini_layout;
     public PlayerFragment(Playlist playlist, int position, long seekedTo, Boolean isReOpen,Integer state, Boolean ready, Integer isFav) {
         this.playlist = null;
         this.playlist = playlist;
@@ -130,7 +164,6 @@ public class PlayerFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_player, container, false);
-        MainActivity.mini_player.setVisibility(View.GONE);
         title = view.findViewById(R.id.player_song_title);
         author = view.findViewById(R.id.player_song_author);
         song_img = view.findViewById(R.id.player_song_img);
@@ -144,25 +177,56 @@ public class PlayerFragment extends Fragment {
         database_ref = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
 
+        mini_layout = view.findViewById(R.id.mini_included);
+        //Mini Player
+        MainActivity.slidingUpPanelLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset) {
+            }
+
+            @Override
+            public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
+                if(newState == SlidingUpPanelLayout.PanelState.EXPANDED){
+                    mini_layout.setVisibility(View.GONE);
+                }
+
+                if(newState== SlidingUpPanelLayout.PanelState.COLLAPSED){
+                    mini_layout.setVisibility(View.VISIBLE);
+                }
+
+                if(newState == SlidingUpPanelLayout.PanelState.HIDDEN){
+                    mini_layout.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        mini_playerView = view.findViewById(R.id.mini_player_view);
+        mini_song_img = view.findViewById(R.id.mini_player_img);
+        mini_title = view.findViewById(R.id.mini_player_title);
+        mini_title.setSelected(true);
+        mini_author = view.findViewById(R.id.mini_player_description);
+        mini_author.setSelected(true);
+        mini_box = view.findViewById(R.id.mini_player_small_box);
+        mini_dismiss_btn = view.findViewById(R.id.mini_player_dismiss_btn);
+        mini_fav_btn =view.findViewById(R.id.mini_player_fav_btn);
+
+                intent = new Intent(getActivity(), BackgroundService.class);
+                intent.putExtra("playlist", playlist);
+                intent.putExtra("pos", position);
+                intent.putExtra("path", playlist.getSongs().get(position).getPath());
+                intent.putExtra("playlistTitle", playlist.getTitle());
+                intent.putExtra("desc", playlist.getDescription());
+                intent.putExtra("ms", seekedTo);
+                intent.putExtra("isFav",isFav);
+                intent.putParcelableArrayListExtra("songs", playlist.getSongs());
+
+
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    ContextCompat.startForegroundService(getActivity(), intent);
+                } else {
+                    getActivity().startService(intent);
+                }
+
         setUI();
-
-        intent = new Intent(getActivity(), BackgroundService.class);
-        intent.putExtra("playlist", playlist);
-        intent.putExtra("pos", position);
-        intent.putExtra("path", playlist.getSongs().get(position).getPath());
-        intent.putExtra("playlistTitle", playlist.getTitle());
-        intent.putExtra("desc", playlist.getDescription());
-        intent.putExtra("ms", seekedTo);
-        intent.putExtra("isFav",isFav);
-        intent.putParcelableArrayListExtra("songs", playlist.getSongs());
-
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            ContextCompat.startForegroundService(getActivity(), intent);
-        } else {
-            getActivity().startService(intent);
-        }
-
 
         //Loading fav btn state
         database_ref.child("fav_music")
@@ -230,9 +294,9 @@ public class PlayerFragment extends Fragment {
 
             if (fav_btn.getDrawable().getConstantState().equals(fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
 
-                viewModel.addToFav( getActivity(),database_ref,mAuth,playlist,position,fav_btn, CurrentPlaylistFragment.adapter);
+                viewModel.addToFav( getActivity(),database_ref,mAuth,playlist,position,fav_btn,mini_fav_btn, CurrentPlaylistFragment.adapter);
             } else {
-                viewModel.removeFromFav( getActivity(), database_ref,mAuth,playlist,position,fav_btn, CurrentPlaylistFragment.adapter);
+                viewModel.removeFromFav( getActivity(), database_ref,mAuth,playlist,position,fav_btn,mini_fav_btn, CurrentPlaylistFragment.adapter);
             }
         });
 
@@ -245,6 +309,41 @@ public class PlayerFragment extends Fragment {
         });
 
 
+        mini_dismiss_btn.setOnClickListener(v->{
+          MainActivity.slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+
+            if(playerView!=null) {
+                mService.destroyNotif();
+
+              }
+
+            MainActivity.currentSongTitle.setValue("");
+            MainActivity.currentSongAlbum.setValue("");
+            MainActivity.currentSongAuthor.setValue("");
+
+            Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+            if (currentFragment instanceof CurrentPlaylistFragment) {
+                CurrentPlaylistFragment.adapter.notifyDataSetChanged();
+            }
+            if (currentFragment instanceof FavoritesFragment) {
+                FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
+                favoritesFragment.viewModel.adapter.notifyDataSetChanged();
+            }
+            //Very important
+            getActivity().unbindService(mConnection);
+            mBound=false;
+            Log.d("PlayerFragment", "Player dismissed!");
+        });
+
+        mini_fav_btn.setOnClickListener(v -> {
+
+            if (mini_fav_btn.getDrawable().getConstantState().equals(mini_fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+
+                viewModel.addToFav( getActivity(),database_ref,mAuth,playlist,position,fav_btn,mini_fav_btn, CurrentPlaylistFragment.adapter);
+            } else {
+                viewModel.removeFromFav( getActivity(), database_ref,mAuth,playlist,position,fav_btn,mini_fav_btn, CurrentPlaylistFragment.adapter);
+            }
+        });
         return view;
     }
 
@@ -469,7 +568,7 @@ if(!(ready && state == Player.STATE_READY)){
     @Override
     public void onStart() {
         super.onStart();
-        requireActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+       requireActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
   /*
         Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
         if (currentFragment instanceof MiniPlayerFragment) {
@@ -482,8 +581,9 @@ if(!(ready && state == Player.STATE_READY)){
     }
 
     private void setUI() {
+        setMiniUI();
         if(getActivity()!=null) {
-            Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+            Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
             if (currentFragment instanceof PlayerFragment) {
                 Glide.with(getActivity()).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(new CustomTarget<Drawable>() {
                     @Override
@@ -529,6 +629,111 @@ if(!(ready && state == Player.STATE_READY)){
                 });
 
             }
+        }else{
+            Log.d("Activity", "Activity is null");
+        }
+    }
+
+    public  void setMiniUI() {
+        if(getActivity()!=null) {
+            Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
+            if (currentFragment instanceof PlayerFragment) {
+                Glide.with(getActivity()).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(new CustomTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                        if(resource!=null) {
+                            mini_song_img.setImageDrawable(resource);
+                        }
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
+
+                database_ref = FirebaseDatabase.getInstance().getReference();
+                database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        mini_title.setText(playlist.getSongs().get(position).getTitle());
+                        mini_author.setText(snapshot.child("description").getValue().toString());
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                    }
+                });
+
+            }
+        }
+        if (mini_fav_btn.getDrawable().getConstantState().equals(mini_fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+            mini_fav_btn.getDrawable().setTint(Color.BLACK);
+        }else{
+            mini_fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_light_orange));
+        }
+
+        //Loading fav btn state
+        if(mAuth.getCurrentUser()!=null){
+            database_ref.child("fav_music")
+                    .child(mAuth.getCurrentUser().getUid())
+                    .orderByKey()
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                            if (snapshot != null) {
+                                Song mySong = playlist.getSongs().get(position);
+
+                                for (DataSnapshot ds : snapshot.getChildren()) {
+
+                                    if (
+                                            ds.child("album").getValue().equals(mySong.getAlbum())
+                                                    &&
+                                                    ds.child("author").getValue().equals(mySong.getAuthor())
+                                    ) {
+                                        //Same album and Author now we check song title
+                                        database_ref
+                                                .child("music")
+                                                .child("albums")
+                                                .child(mySong.getAuthor())
+                                                .child(mySong.getAlbum())
+                                                .addListenerForSingleValueEvent(new ValueEventListener() {
+
+                                                    @Override
+                                                    public void onDataChange(@NonNull DataSnapshot snap) {
+
+                                                        for (DataSnapshot s : snap.child("songs").getChildren()) {
+
+                                                            if (
+                                                                    s.child("order").getValue().toString().trim().equals(ds.child("numberInAlbum").getValue().toString().trim())
+                                                                            &&
+                                                                            s.child("title").getValue().equals(mySong.getTitle())
+                                                            ) {
+                                                                //We found a song in Album and We need to set icon
+                                                                mini_fav_btn.setImageResource(R.drawable.ic_heart_full);
+                                                                mini_fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(),R.color.project_dark_velvet));
+                                                            }
+                                                        }
+
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(@NonNull DatabaseError error) {
+
+                                                    }
+                                                });
+                                    }
+                                }
+
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
         }
     }
 
@@ -575,7 +780,6 @@ if(!(ready && state == Player.STATE_READY)){
             mService.setPosition(player.getCurrentWindowIndex());
             position = player.getCurrentWindowIndex();
             playerView.setPlayer(player);
-
             state= player.getPlaybackState();
             ready = player.getPlayWhenReady();
             CurrentPlaylistFragment.adapter.notifyDataSetChanged();
@@ -663,7 +867,9 @@ if(!(ready && state == Player.STATE_READY)){
                                                             ) {
                                                                 //We found a song in Album and We need to set icon
                                                                 fav_btn.setImageResource(R.drawable.ic_heart_full);
-                                                                fav_btn.getDrawable().setTint(getResources().getColor(R.color.project_light_orange));
+                                                                if(getActivity()!=null){
+                                                                    fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(),R.color.project_light_orange));
+                                                                }
                                                             }
                                                         }
 

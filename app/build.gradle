@@ -109,5 +109,7 @@ dependencies {
     //Round pic
     implementation 'de.hdodenhof:circleimageview:3.1.0'
 
+    //Slideup Panel
+    compile 'com.sothree.slidinguppanel:library:3.4.0'
 
 }

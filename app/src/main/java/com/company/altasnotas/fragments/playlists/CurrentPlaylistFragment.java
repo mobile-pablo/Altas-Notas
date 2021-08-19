@@ -47,7 +47,6 @@ import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
 import com.company.altasnotas.fragments.home.HomeFragment;
-import com.company.altasnotas.fragments.mini_player.MiniPlayerFragment;
 import com.company.altasnotas.models.FavoriteFirebaseSong;
 import com.company.altasnotas.models.FirebaseSong;
 import com.company.altasnotas.models.Playlist;
@@ -131,19 +130,6 @@ public class CurrentPlaylistFragment extends Fragment {
         viewModel.init(playlist, (MainActivity) getActivity(), database_ref, mAuth,storageReference);
         title.setText(playlist.getTitle());
         description.setText(playlist.getDescription() + "\n(" + playlist.getYear() + ")");
-        Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
-        if (currentFragment instanceof MiniPlayerFragment) {
-            MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) currentFragment;
-            if(miniPlayerFragment.playerView!=null){
-                if(miniPlayerFragment.playerView.getPlayer()!=null){
-                    if(miniPlayerFragment.playerView.getPlayer().getCurrentPosition()!=0){
-                        miniPlayerFragment.setUI();
-                        MainActivity.mini_player.setVisibility(View.VISIBLE);
-                    }
-                }else{
-                    MainActivity.mini_player.setVisibility(View.GONE);
-                }
-            }}
         recyclerView = view.findViewById(R.id.current_playlist_recycler_view);
 
         if (!  viewModel.getPlaylist().getImage_id().isEmpty()) {
@@ -181,7 +167,6 @@ public class CurrentPlaylistFragment extends Fragment {
         MainActivity.currentSongTitle.observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String s) {
-             Log.d("CurrentSongTitle", "Item changed : "+ s);
              if(adapter!=null){
                  adapter.notifyDataSetChanged();
              }
