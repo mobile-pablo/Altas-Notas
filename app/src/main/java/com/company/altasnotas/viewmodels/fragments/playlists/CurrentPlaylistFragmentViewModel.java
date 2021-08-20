@@ -207,11 +207,29 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
                                         @Override
                                         public void onFailure(@NonNull Exception exception) {
                                             Log.d(MainActivity.FIREBASE, "Photo wasn't found");
+
+                                            mainActivity.bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
+
+                                            for (int i = 0; i < mainActivity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
+                                                mainActivity.getSupportFragmentManager().popBackStack();
+                                            }
+
+                                            mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(false)).commit();
+
                                         }
                                     });
 
                                 } else {
                                     System.out.println("Error while  deleting Playlist");
+
+                                    mainActivity.bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
+
+                                    for (int i = 0; i < mainActivity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
+                                        mainActivity.getSupportFragmentManager().popBackStack();
+                                    }
+
+                                    mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(false)).commit();
+
                                 }
                             }
                         });

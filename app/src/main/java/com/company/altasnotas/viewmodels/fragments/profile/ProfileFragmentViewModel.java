@@ -242,6 +242,12 @@ public class ProfileFragmentViewModel extends ViewModel {
                                 activity.getSupportFragmentManager().popBackStack();
                             }
 
+                            Fragment frag = activity.getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
+                            if (frag instanceof PlayerFragment) {
+                                ((PlayerFragment) frag).dismissPlayer();
+                            }
+
+
                             mAuth.signOut();
                             if(LoginFragment.mGoogleApiClient!=null){
                                 if (LoginFragment.mGoogleApiClient.isConnected()) {

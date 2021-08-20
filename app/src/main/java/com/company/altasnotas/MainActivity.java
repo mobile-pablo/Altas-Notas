@@ -21,6 +21,7 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 
@@ -110,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        reInitializePlayerViews();
+
         frag = getIntent().getStringExtra("frag");
         if (frag != null) {
             if (frag.equals("PlayerFragment")) {
@@ -119,13 +120,22 @@ public class MainActivity extends AppCompatActivity {
                     getSupportFragmentManager().popBackStack();
                 }
                 slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
+                if (currentFragment instanceof PlayerFragment) {
+                    PlayerFragment playerFragment = (PlayerFragment) currentFragment;
+                    playerFragment.initializePlayer();
+                    playerFragment.initializeMiniPlayer();
+                    playerFragment.setUI();
+                }
                 bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
-                getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.main_fragment_container, new HomeFragment(true), "Player").commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
             }
         }else{
             Log.d("MainActivity", "Frag is null");
             slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
         }
+
+        reInitializePlayerViews();
     }
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -155,23 +165,34 @@ public class MainActivity extends AppCompatActivity {
            if(PlayerFragment.mService!=null) {
 
                if (PlayerFragment.playerView.getPlayer() != null) {
-
+                   System.out.println("Restore players!");
                    Playlist playlist = PlayerFragment.mService.playlist;
                    Integer position = PlayerFragment.mService.position;
-                   Integer isFav = PlayerFragment.mService.isFav;
                    Boolean ready = PlayerFragment.mService.getPlayerInstance().getPlayWhenReady();
                    Integer state = PlayerFragment.mService.getPlayerInstance().getPlaybackState();
                    Long seekedTo = PlayerFragment.mService.getPlayerInstance().getContentPosition();
+                   Integer isFav = PlayerFragment.mService.isFav;
 
                    System.out.println(ready+","+ state);
                    currentSongTitle.setValue(playlist.getSongs().get(position).getTitle());
                    currentSongAlbum.setValue(playlist.getTitle());
                    currentSongAuthor.setValue(playlist.getDescription());
-
                    PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo, true, state, null, isFav);
-                   if (PlayerFragment.fav_btn.getDrawable().getConstantState().equals(PlayerFragment.fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
-                       PlayerFragment.fav_btn.getDrawable().setTint(Color.BLACK);
+                  getSupportFragmentManager().beginTransaction().replace(R.id.sliding_layout_frag, playerFragment).commit();
+                  getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
+                   MainActivity.slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                   main_activty_box.setVisibility(View.VISIBLE);
+
+                      if (PlayerFragment.fav_btn.getDrawable().getConstantState().equals(PlayerFragment.fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+                       PlayerFragment.fav_btn.getDrawable().setTint(Color.WHITE);
+                          PlayerFragment.mini_fav_btn.getDrawable().setTint(Color.BLACK);
                    }
+
+                   if (PlayerFragment.mini_fav_btn.getDrawable().getConstantState().equals(PlayerFragment.mini_fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+                       PlayerFragment.mini_fav_btn.getDrawable().setTint(Color.BLACK);
+                   }
+               }else{
+                   MainActivity.slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
                }
            }
         }
@@ -222,6 +243,10 @@ public class MainActivity extends AppCompatActivity {
 
         photoUrl.setValue("");
 
+        Fragment frag = getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
+        if (frag instanceof PlayerFragment) {
+            ((PlayerFragment) frag).dismissPlayer();
+        }
 
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
@@ -311,7 +336,14 @@ public class MainActivity extends AppCompatActivity {
                 }
                 slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                 bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
-                getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.main_fragment_container, new HomeFragment(true), "Player").commit();
+                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
+                if (currentFragment instanceof PlayerFragment) {
+                    PlayerFragment playerFragment = (PlayerFragment) currentFragment;
+                    playerFragment.initializePlayer();
+                    playerFragment.initializeMiniPlayer();
+                }
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
+
             }
         }else{
             System.out.println("Frag is null");

@@ -162,12 +162,26 @@ public class PlayerFragmentViewModel extends ViewModel {
 
                                         if (currentFragment instanceof FavoritesFragment) {
                                             FavoritesFragment fav = (FavoritesFragment) currentFragment;
-                                            fav.viewModel.initializeFavorites();
+
 
                                             if(MainActivity.currentSongAlbum.getValue().equals(fav.viewModel.playlist.getTitle())){
                                                 Log.d("FavoritesFragment", "Album value:"+ MainActivity.currentSongAlbum.getValue()+", Title: "+ fav.viewModel.playlist.getTitle());
 
                                             }
+
+                                            Fragment frag = activity.getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
+                                            if (frag instanceof PlayerFragment) {
+
+                                                if(MainActivity.currentSongTitle.getValue().equals(fav.viewModel.playlist.getSongs().get(position).getTitle()) &&
+                                                        MainActivity.currentSongAlbum.getValue().equals(fav.viewModel.playlist.getTitle()) &&
+                                                        MainActivity.currentSongAuthor.getValue().equals( fav.viewModel.playlist.getDescription())
+                                                ){
+                                                ((PlayerFragment) frag).dismissPlayer();
+                                                }
+
+
+                                            }
+                                            fav.viewModel.initializeFavorites();
                                         }
 
                                         Fragment playerF = activity.getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);

@@ -107,26 +107,7 @@ public class PlayerFragment extends Fragment {
         }
     };
 
-    private void initializeMiniPlayer() {
-        if (mBound) {
-            SimpleExoPlayer player = mService.getPlayerInstance();
-            exoListener = new ExoListener(player);
-            player.addListener(exoListener);
-            mini_playerView.setKeepContentOnPlayerReset(true);
-            mini_playerView.setPlayer(player);
-            mini_playerView.setUseController(true);
-            mini_playerView.showController();
-            mini_playerView.setControllerShowTimeoutMs(0);
-            mini_playerView.setCameraDistance(0);
-            mini_playerView.setControllerAutoShow(true);
-            if(!isReOpen){
-                player.setPlayWhenReady(true);
-            }
-            mini_playerView.setDrawingCacheBackgroundColor(Color.TRANSPARENT);
-            mini_playerView.setShutterBackgroundColor(Color.TRANSPARENT);
-            mini_playerView.setControllerHideOnTouch(false);
-        }
-    }
+
 
     private Boolean shouldPlay=null;
 
@@ -192,7 +173,13 @@ public class PlayerFragment extends Fragment {
             public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
                 if(newState == SlidingUpPanelLayout.PanelState.EXPANDED){
                     mini_layout.setVisibility(View.GONE);
-                }else{
+                }
+
+                if(newState== SlidingUpPanelLayout.PanelState.HIDDEN){
+                    mini_layout.setVisibility(View.VISIBLE);
+                }
+
+                if(newState== SlidingUpPanelLayout.PanelState.COLLAPSED){
                     mini_layout.setVisibility(View.VISIBLE);
                 }
             }
@@ -216,7 +203,6 @@ public class PlayerFragment extends Fragment {
                 intent.putExtra("ms", seekedTo);
                 intent.putExtra("isFav",isFav);
                 intent.putParcelableArrayListExtra("songs", playlist.getSongs());
-
 
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                     ContextCompat.startForegroundService(getActivity(), intent);
@@ -308,29 +294,7 @@ public class PlayerFragment extends Fragment {
 
 
         mini_dismiss_btn.setOnClickListener(v->{
-          MainActivity.slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-
-            if(playerView!=null) {
-                mService.destroyNotif();
-
-              }
-
-            MainActivity.currentSongTitle.setValue("");
-            MainActivity.currentSongAlbum.setValue("");
-            MainActivity.currentSongAuthor.setValue("");
-
-            Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-            if (currentFragment instanceof CurrentPlaylistFragment) {
-                CurrentPlaylistFragment.adapter.notifyDataSetChanged();
-            }
-            if (currentFragment instanceof FavoritesFragment) {
-                FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
-                favoritesFragment.viewModel.adapter.notifyDataSetChanged();
-            }
-            //Very important
-            getActivity().unbindService(mConnection);
-            mBound=false;
-            Log.d("PlayerFragment", "Player dismissed!");
+            dismissPlayer();
         });
 
         mini_fav_btn.setOnClickListener(v -> {
@@ -345,7 +309,60 @@ public class PlayerFragment extends Fragment {
         return view;
     }
 
+    public void dismissPlayer() {
+        MainActivity.slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
 
+        if(playerView!=null) {
+            mService.destroyNotif();
+        }
+
+        MainActivity.currentSongTitle.setValue("");
+        MainActivity.currentSongAlbum.setValue("");
+        MainActivity.currentSongAuthor.setValue("");
+
+        Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+        if (currentFragment instanceof CurrentPlaylistFragment) {
+           if(CurrentPlaylistFragment.adapter!=null){
+               CurrentPlaylistFragment.adapter.notifyDataSetChanged();
+           }
+        }
+        if (currentFragment instanceof FavoritesFragment) {
+            FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
+           if(favoritesFragment.viewModel!=null){
+               if(favoritesFragment.viewModel.adapter!=null){
+                   favoritesFragment.viewModel.adapter.notifyDataSetChanged();
+               }
+           }
+        }
+        //Very important
+        if (mBound) {
+            getActivity().unbindService(mConnection);
+            mBound=false;
+        }
+
+
+        Log.d("PlayerFragment", "Player dismissed!");
+    }
+
+    public void initializeMiniPlayer() {
+        if (mBound) {
+            if(mService.position!=null){
+                SimpleExoPlayer player = mService.getPlayerInstance();
+                exoListener = new ExoListener(player);
+                player.addListener(exoListener);
+                mini_playerView.setKeepContentOnPlayerReset(true);
+                mini_playerView.setPlayer(player);
+                mini_playerView.setUseController(true);
+                mini_playerView.showController();
+                mini_playerView.setControllerShowTimeoutMs(0);
+                mini_playerView.setCameraDistance(0);
+                mini_playerView.setControllerAutoShow(true);
+                mini_playerView.setDrawingCacheBackgroundColor(Color.TRANSPARENT);
+                mini_playerView.setShutterBackgroundColor(Color.TRANSPARENT);
+                mini_playerView.setControllerHideOnTouch(false);
+            }
+        }
+    }
     private void openSongInPlaylistsSettingsDialog() {
         songInPlaylistDialog = new BottomSheetDialog(getContext());
         songInPlaylistDialog.setContentView(R.layout.bottom_playlist_song_player_settings_layout);
@@ -522,7 +539,7 @@ public class PlayerFragment extends Fragment {
 
     }
 
-    private void initializePlayer() {
+    public void initializePlayer() {
         if (mBound) {
    if(mService.position!=null){
        SimpleExoPlayer player = mService.getPlayerInstance();
@@ -580,7 +597,7 @@ public class PlayerFragment extends Fragment {
    */
     }
 
-    private void setUI() {
+    public void setUI() {
         setMiniUI();
         if(getActivity()!=null) {
             Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
@@ -628,6 +645,68 @@ public class PlayerFragment extends Fragment {
                     }
                 });
 
+                //Loading fav btn state
+                if(mAuth.getCurrentUser()!=null){
+                    database_ref.child("fav_music")
+                            .child(mAuth.getCurrentUser().getUid())
+                            .orderByKey()
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                                    if (snapshot != null) {
+                                        Song mySong = playlist.getSongs().get(position);
+
+                                        for (DataSnapshot ds : snapshot.getChildren()) {
+
+                                            if (
+                                                    ds.child("album").getValue().equals(mySong.getAlbum())
+                                                            &&
+                                                            ds.child("author").getValue().equals(mySong.getAuthor())
+                                            ) {
+                                                //Same album and Author now we check song title
+                                                database_ref
+                                                        .child("music")
+                                                        .child("albums")
+                                                        .child(mySong.getAuthor())
+                                                        .child(mySong.getAlbum())
+                                                        .addListenerForSingleValueEvent(new ValueEventListener() {
+
+                                                            @Override
+                                                            public void onDataChange(@NonNull DataSnapshot snap) {
+
+                                                                for (DataSnapshot s : snap.child("songs").getChildren()) {
+
+                                                                    if (
+                                                                            s.child("order").getValue().toString().trim().equals(ds.child("numberInAlbum").getValue().toString().trim())
+                                                                                    &&
+                                                                                    s.child("title").getValue().equals(mySong.getTitle())
+                                                                    ) {
+                                                                        //We found a song in Album and We need to set icon
+                                                                        fav_btn.setImageResource(R.drawable.ic_heart_full);
+                                                                        fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(),R.color.project_light_orange));
+                                                                    }
+                                                                }
+
+                                                            }
+
+                                                            @Override
+                                                            public void onCancelled(@NonNull DatabaseError error) {
+
+                                                            }
+                                                        });
+                                            }
+                                        }
+
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+
+                                }
+                            });
+                }
             }
         }else{
             Log.d("Activity", "Activity is null");
@@ -667,11 +746,7 @@ public class PlayerFragment extends Fragment {
 
             }
         }
-        if (mini_fav_btn.getDrawable().getConstantState().equals(mini_fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
-            mini_fav_btn.getDrawable().setTint(Color.BLACK);
-        }else{
-            mini_fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_light_orange));
-        }
+
 
         //Loading fav btn state
         if(mAuth.getCurrentUser()!=null){
@@ -735,6 +810,13 @@ public class PlayerFragment extends Fragment {
                         }
                     });
         }
+
+
+        if (mini_fav_btn.getDrawable().getConstantState().equals(mini_fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+            mini_fav_btn.getDrawable().setTint(Color.BLACK);
+        }else{
+            mini_fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_dark_velvet));
+        }
     }
 
     public static Bitmap drawableToBitmap (Drawable drawable) {
@@ -766,6 +848,7 @@ public class PlayerFragment extends Fragment {
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         initializePlayer();
+        initializeMiniPlayer();
     }
 
     public  class ExoListener implements Player.Listener {
@@ -834,70 +917,6 @@ public class PlayerFragment extends Fragment {
             setUI();
             fav_btn.setImageResource(R.drawable.ic_heart_empty);
             mService.setPosition(position);
-
-            //Loading fav btn state
-            database_ref.child("fav_music")
-                    .child(mAuth.getCurrentUser().getUid())
-                    .orderByKey()
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (snapshot != null) {
-                                Song mySong = playlist.getSongs().get(position);
-
-                                for (DataSnapshot ds : snapshot.getChildren()) {
-
-                                    if (
-                                            ds.child("album").getValue().equals(mySong.getAlbum())
-                                                    &&
-                                                    ds.child("author").getValue().equals(mySong.getAuthor())
-                                    ) {
-                                        //Same album and Author now we check song title
-                                        database_ref
-                                                .child("music")
-                                                .child("albums")
-                                                .child(mySong.getAuthor())
-                                                .child(mySong.getAlbum())
-                                                .addListenerForSingleValueEvent(new ValueEventListener() {
-
-                                                    @Override
-                                                    public void onDataChange(@NonNull DataSnapshot snap) {
-
-                                                        for (DataSnapshot s : snap.child("songs").getChildren()) {
-
-                                                            if (
-                                                                    s.child("order").getValue().toString().trim().equals(ds.child("numberInAlbum").getValue().toString().trim())
-                                                                            &&
-                                                                            s.child("title").getValue().equals(mySong.getTitle())
-                                                            ) {
-                                                                //We found a song in Album and We need to set icon
-                                                                fav_btn.setImageResource(R.drawable.ic_heart_full);
-                                                                if(getActivity()!=null){
-                                                                    fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(),R.color.project_light_orange));
-                                                                }
-                                                            }
-                                                        }
-
-                                                    }
-
-                                                    @Override
-                                                    public void onCancelled(@NonNull DatabaseError error) {
-
-                                                    }
-                                                });
-                                    }
-                                }
-
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
-
-
         }
     }
     public  PlayerFragment getPlayerFragment(){

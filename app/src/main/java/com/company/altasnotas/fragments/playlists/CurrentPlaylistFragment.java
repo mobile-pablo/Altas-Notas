@@ -87,7 +87,7 @@ import static android.app.Activity.RESULT_OK;
 public class CurrentPlaylistFragment extends Fragment {
 
     private final Playlist playlist;
-    public RecyclerView recyclerView;
+    public static RecyclerView recyclerView;
     private ImageView imageView;
     private AppCompatTextView title, description;
     private DatabaseReference database_ref;
@@ -101,7 +101,7 @@ public class CurrentPlaylistFragment extends Fragment {
     private Uri returnUri;
     private StorageReference storageReference;
 
-    public TextView recyclerViewState;
+    public static TextView recyclerViewState;
     private FloatingActionButton fab;
     private CurrentPlaylistFragmentViewModel viewModel;
 

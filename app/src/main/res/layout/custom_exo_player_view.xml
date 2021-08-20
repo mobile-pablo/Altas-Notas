@@ -165,6 +165,8 @@
             android:id="@id/exo_progress"
             android:layout_width="0dp"
             android:layout_height="26dp"
+            app:played_color="@color/project_light_orange"
+            app:scrubber_color="@color/project_dark_orange"
             android:layout_weight="1" />
 
         <TextView

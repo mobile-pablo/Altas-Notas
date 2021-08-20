@@ -78,7 +78,6 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     public synchronized void onCreate() {
         super.onCreate();
         context = this;
-
     }
 
     @Nullable
@@ -88,9 +87,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     }
     
     public synchronized void destroyNotif(){
-        if(Looper.myLooper().getThread().isAlive()){
-             stopForeground(true);
-             releasePlayer();
+        if(getMainLooper().getThread().isAlive()){
+             onDestroy();
              PlayerFragment.playerView.setPlayer(null);
              PlayerFragment.mini_playerView.setPlayer(null);
         }
@@ -407,9 +405,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
             playerNotificationManager.setFastForwardIncrementMs(0);
             playerNotificationManager.setPlayer(player);
         }
-
-
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
     @Override
     public synchronized void onTaskRemoved(Intent rootIntent) {

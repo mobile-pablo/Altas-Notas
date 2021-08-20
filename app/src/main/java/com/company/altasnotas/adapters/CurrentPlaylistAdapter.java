@@ -155,10 +155,19 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                 MainActivity.currentSongAuthor.setValue(playlist.getDescription());
                 holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
 
-                notifyDataSetChanged();
+                Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+             if(currentFragment instanceof  FavoritesFragment){
+                 if(FavoritesFragment.recyclerView!=null){
+                     FavoritesFragment.recyclerView.getAdapter().notifyDataSetChanged();
+                 }
+             }
+
+             if(currentFragment instanceof CurrentPlaylistFragment){
+                 notifyDataSetChanged();
+             }
 
                 PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0, false, null, null, isFavFragment);
-                activity.getSupportFragmentManager().beginTransaction().replace(R.id.sliding_layout_frag, playerFragment, "Player").commit();
+                activity.getSupportFragmentManager().beginTransaction().replace(R.id.sliding_layout_frag, playerFragment).commit();
                 MainActivity.slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
 
         }
@@ -305,25 +314,39 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
                                     fav_btn.setImageResource(R.drawable.ic_heart_empty);
-
+                                    fav_btn.getDrawable().setTint(Color.BLACK);
+                                    Fragment miniFrag = activity.getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
                                     Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
                                     if (currentFragment instanceof FavoritesFragment) {
 
                                         FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
+                                        if(miniFrag instanceof  PlayerFragment){
+                                            if(
+                                                    playlist.getSongs().get(position).getTitle().equals(MainActivity.currentSongTitle.getValue())
+                                                            &&
+                                                            playlist.getTitle().equals(MainActivity.currentSongAlbum.getValue())
+                                                            &&
+                                                            playlist.getDescription().equals(MainActivity.currentSongAuthor.getValue())
+                                            ){
+
+                                                ((PlayerFragment) miniFrag).dismissPlayer();
+
+                                            }else{
+
+                                                if(
+                                                        playlist.getSongs().get(position).getTitle().equals(MainActivity.currentSongTitle.getValue())
+                                                                &&
+                                                            playlist.getSongs().get(position).getAuthor().equals(MainActivity.currentSongAuthor.getValue())
+                                                ){
+                                                    PlayerFragment.mini_fav_btn.setImageResource(R.drawable.ic_heart_empty);
+                                                    PlayerFragment.mini_fav_btn.getDrawable().setTint(Color.BLACK);
 
 
+                                                    PlayerFragment.fav_btn.setImageResource(R.drawable.ic_heart_empty);
+                                                    PlayerFragment.fav_btn.getDrawable().setTint(Color.WHITE);
+                                                }
 
-                                        if(
-                                                songs.get(position).getTitle().equals(MainActivity.currentSongTitle.getValue())
-                                                        &&
-                                                        playlist.getTitle().equals(MainActivity.currentSongAlbum.getValue())
-                                                        &&
-                                                        playlist.getTitle().equals(MainActivity.currentSongAlbum.getValue())
-                                        ){
-                                          //  miniPlayerFragment.dissmiss_mini();
-
-                                        }else{
-                                        //    miniPlayerFragment.setUI();
+                                            }
                                         }
 
                                         favoritesFragment.viewModel.initializeFavorites();
@@ -340,6 +363,38 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                             FavoritesFragment.fav_state.setVisibility(View.VISIBLE);
                                         }
 
+                                    }else{
+                                        if(miniFrag instanceof  PlayerFragment){
+                                            if(
+                                                    playlist.getSongs().get(position).getTitle().equals(MainActivity.currentSongTitle.getValue())
+                                                            &&
+                                                            playlist.getTitle().equals(MainActivity.currentSongAlbum.getValue())
+                                                            &&
+                                                            playlist.getDescription().equals(MainActivity.currentSongAuthor.getValue())
+                                            ){
+
+                                              PlayerFragment.mini_fav_btn.setImageResource(R.drawable.ic_heart_empty);
+                                              PlayerFragment.mini_fav_btn.getDrawable().setTint(Color.BLACK);
+
+
+                                                PlayerFragment.fav_btn.setImageResource(R.drawable.ic_heart_empty);
+                                                PlayerFragment.fav_btn.getDrawable().setTint(Color.WHITE);
+                                            }
+                                        }
+
+                                      notifyDataSetChanged();
+                                        //    activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();
+                                        if(playlist!=null){
+                                            if (playlist.getSongs().size() == 0) {
+                                                CurrentPlaylistFragment.recyclerView.setVisibility(View.GONE);
+                                                CurrentPlaylistFragment.recyclerViewState.setText("Empty Playlist");
+                                                CurrentPlaylistFragment.recyclerViewState.setVisibility(View.VISIBLE);
+                                            }
+                                        }else{
+                                            CurrentPlaylistFragment.recyclerView.setVisibility(View.GONE);
+                                            CurrentPlaylistFragment.recyclerViewState.setText("Empty Playlist");
+                                            CurrentPlaylistFragment.recyclerViewState.setVisibility(View.VISIBLE);
+                                        }
                                     }
 
 
@@ -373,14 +428,20 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("album").setValue(playlist.getSongs().get(position).getAlbum());
                         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).child(key).child("author").setValue(playlist.getSongs().get(position).getAuthor());
                         fav_btn.setImageResource(R.drawable.ic_heart_full);
+                             Fragment frag = activity.getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
+                            if (frag instanceof PlayerFragment) {
+                                ((PlayerFragment) frag).setUI();
+                            }
                         if(MainActivity.currentSongTitle.getValue().equals(songs.get(position).getTitle()) &&
                                 MainActivity.currentSongAlbum.getValue().equals(playlist.getTitle()) &&
                                 MainActivity.currentSongAuthor.getValue().equals( playlist.getDescription())
                         ){
-                          fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_light_orange));
+                            fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_light_orange));
                         }else{
                             fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_dark_velvet));
                         }
+
+
                     }
                 }
             }
