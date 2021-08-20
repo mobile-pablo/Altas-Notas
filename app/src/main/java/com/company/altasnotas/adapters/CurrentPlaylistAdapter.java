@@ -4,7 +4,6 @@ package com.company.altasnotas.adapters;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,10 +14,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,9 +29,7 @@ import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -68,12 +63,12 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
             if (currentFragment instanceof FavoritesFragment) {
                 FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
                 if (playlist.getSongs().size() == 0) {
-                    FavoritesFragment.recyclerView.setVisibility(View.GONE);
-                    FavoritesFragment.fav_state.setText("Empty Playlist");
-                    FavoritesFragment.fav_state.setVisibility(View.VISIBLE);
+                    FavoritesFragment.binding.currentPlaylistRecyclerView.setVisibility(View.GONE);
+                    FavoritesFragment.binding.currentPlaylistRecyclerState.setText("Empty Playlist");
+                    FavoritesFragment.binding.currentPlaylistRecyclerState.setVisibility(View.VISIBLE);
                 } else {
-                    FavoritesFragment.recyclerView.setVisibility(View.VISIBLE);
-                    FavoritesFragment.fav_state.setVisibility(View.GONE);
+                    FavoritesFragment.binding.currentPlaylistRecyclerView.setVisibility(View.VISIBLE);
+                    FavoritesFragment.binding.currentPlaylistRecyclerState.setVisibility(View.GONE);
                 }
 
             }
@@ -157,8 +152,8 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
                 Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
              if(currentFragment instanceof  FavoritesFragment){
-                 if(FavoritesFragment.recyclerView!=null){
-                     FavoritesFragment.recyclerView.getAdapter().notifyDataSetChanged();
+                 if(FavoritesFragment.binding.currentPlaylistRecyclerView!=null){
+                     FavoritesFragment.binding.currentPlaylistRecyclerView.getAdapter().notifyDataSetChanged();
                  }
              }
 
@@ -168,7 +163,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
                 PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0, false, null, null, isFavFragment);
                 activity.getSupportFragmentManager().beginTransaction().replace(R.id.sliding_layout_frag, playerFragment).commit();
-                MainActivity.slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                MainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
 
         }
         });
@@ -353,14 +348,14 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                         //    activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();
                                         if(playlist!=null){
                                             if (playlist.getSongs().size() == 0) {
-                                                FavoritesFragment.recyclerView.setVisibility(View.GONE);
-                                                FavoritesFragment.fav_state.setText("Empty Favorites");
-                                                FavoritesFragment.fav_state.setVisibility(View.VISIBLE);
+                                                FavoritesFragment.binding.currentPlaylistRecyclerView.setVisibility(View.GONE);
+                                                FavoritesFragment.binding.currentPlaylistRecyclerState.setText("Empty Favorites");
+                                                FavoritesFragment.binding.currentPlaylistRecyclerState.setVisibility(View.VISIBLE);
                                             }
                                         }else{
-                                            FavoritesFragment.recyclerView.setVisibility(View.GONE);
-                                            FavoritesFragment.fav_state.setText("Empty Favorites");
-                                            FavoritesFragment.fav_state.setVisibility(View.VISIBLE);
+                                            FavoritesFragment.binding.currentPlaylistRecyclerView.setVisibility(View.GONE);
+                                            FavoritesFragment.binding.currentPlaylistRecyclerState.setText("Empty Favorites");
+                                            FavoritesFragment.binding.currentPlaylistRecyclerState.setVisibility(View.VISIBLE);
                                         }
 
                                     }else{

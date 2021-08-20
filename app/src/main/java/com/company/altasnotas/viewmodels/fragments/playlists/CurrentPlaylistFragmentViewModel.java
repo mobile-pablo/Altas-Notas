@@ -188,7 +188,7 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Void> task) {
 
-                                                    mainActivity.bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
+                                                    MainActivity.activityMainBinding.mainNavBottom.setSelectedItemId(R.id.nav_home_item);
 
                                                     for (int i = 0; i < mainActivity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
                                                         mainActivity.getSupportFragmentManager().popBackStack();
@@ -208,7 +208,7 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
                                         public void onFailure(@NonNull Exception exception) {
                                             Log.d(MainActivity.FIREBASE, "Photo wasn't found");
 
-                                            mainActivity.bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
+                                            MainActivity.activityMainBinding.mainNavBottom.setSelectedItemId(R.id.nav_home_item);
 
                                             for (int i = 0; i < mainActivity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
                                                 mainActivity.getSupportFragmentManager().popBackStack();
@@ -222,7 +222,7 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
                                 } else {
                                     System.out.println("Error while  deleting Playlist");
 
-                                    mainActivity.bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
+                                    MainActivity.activityMainBinding.mainNavBottom.setSelectedItemId(R.id.nav_home_item);
 
                                     for (int i = 0; i < mainActivity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
                                         mainActivity.getSupportFragmentManager().popBackStack();

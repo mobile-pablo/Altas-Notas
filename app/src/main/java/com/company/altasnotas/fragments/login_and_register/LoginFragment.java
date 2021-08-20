@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
+import com.company.altasnotas.databinding.FragmentLoginBinding;
 import com.company.altasnotas.viewmodels.fragments.login_and_register.LoginFragmentViewModel;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -50,19 +51,19 @@ public class LoginFragment extends Fragment {
     public static GoogleApiClient mGoogleApiClient;
     private CallbackManager callbackManager;
     private LoginFragmentViewModel model;
-    private LoginButton facebookLoginButton;
     private FirebaseAuth mAuth;
-
+    public static FragmentLoginBinding binding;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_login, container, false);
+      binding = FragmentLoginBinding.inflate(inflater, container,false);
+      View view = binding.getRoot();
+
         mAuth = FirebaseAuth.getInstance();
         model = new ViewModelProvider(requireActivity()).get(LoginFragmentViewModel.class);
-        EditText email_editext = view.findViewById(R.id.login_email_edittext);
-        EditText password_editext = view.findViewById(R.id.login_password_edittext);
-        MainActivity.main_activty_box.setBackgroundColor(Color.WHITE);
+
+        MainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
         if(mGoogleApiClient!=null){
             if (mGoogleApiClient.isConnected()) {
                 Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
@@ -81,13 +82,13 @@ public class LoginFragment extends Fragment {
             }
 
         }
-        view.findViewById(R.id.login_w_mail_btn).setOnClickListener(new View.OnClickListener() {
+        binding.loginWMailBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                model.login((MainActivity) requireActivity(), email_editext.getText().toString().toLowerCase().trim(), password_editext.getText().toString().toLowerCase().trim());
+                model.login((MainActivity) requireActivity(), binding.loginEmailEdittext.getText().toString().toLowerCase().trim(), binding.loginPasswordEdittext.getText().toString().toLowerCase().trim());
             }
         });
-        view.findViewById(R.id.jump_to_register_btn).setOnClickListener(new View.OnClickListener() {
+        binding.jumpToRegisterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 requireActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).addToBackStack(null).replace(R.id.main_fragment_container, new RegisterFragment()).commit();
@@ -98,13 +99,12 @@ public class LoginFragment extends Fragment {
         FacebookSdk.sdkInitialize(getContext());
 
         callbackManager = CallbackManager.Factory.create();
-        facebookLoginButton = view.findViewById(R.id.fb_new_login_button);
-        facebookLoginButton.setReadPermissions("email", "public_profile");
-        facebookLoginButton.setFragment(this);
+        binding.fbNewLoginButton.setReadPermissions("email", "public_profile");
+        binding.fbNewLoginButton.setFragment(this);
 
 
         // Callback registration
-        facebookLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+        binding.fbNewLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 AccessToken token = loginResult.getAccessToken();
@@ -122,15 +122,10 @@ public class LoginFragment extends Fragment {
                 Log.d("Facebook", "Login error: " + exception.toString());
             }
         });
-
-
-        ImageButton fb_btn = view.findViewById(R.id.login_fb_btn);
-        fb_btn.setOnClickListener(v -> facebookLoginButton.performClick());
+        binding.loginFbBtn.setOnClickListener(v ->  binding.fbNewLoginButton.performClick());
 
 
         //Google Auth
-        ImageButton google_btn = view.findViewById(R.id.login_google_btn);
-
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -138,8 +133,7 @@ public class LoginFragment extends Fragment {
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(getContext(), gso);
-
-        google_btn.setOnClickListener(new View.OnClickListener() {
+        binding.loginGoogleBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 

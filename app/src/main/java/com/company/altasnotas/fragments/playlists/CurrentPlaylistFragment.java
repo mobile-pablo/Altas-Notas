@@ -114,7 +114,7 @@ public class CurrentPlaylistFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_current_playlist, container, false);
-        MainActivity.main_activty_box.setBackgroundColor(Color.WHITE);
+        MainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
         imageView = view.findViewById(R.id.current_playlist_img);
         title = view.findViewById(R.id.current_playlist_title);
         description = view.findViewById(R.id.current_playlist_description);

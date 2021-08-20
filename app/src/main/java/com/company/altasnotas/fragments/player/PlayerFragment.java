@@ -156,7 +156,7 @@ public class PlayerFragment extends Fragment {
         playerView.setBackgroundColor(Color.TRANSPARENT);
         player_full_box = view.findViewById(R.id.player_full_box);
         viewModel = new ViewModelProvider(requireActivity()).get(PlayerFragmentViewModel.class);
-        MainActivity.main_activty_box.setBackgroundColor(Color.WHITE);
+        MainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
         fav_btn = view.findViewById(R.id.player_song_fav_btn);
         settings_btn = view.findViewById(R.id.player_song_options_btn);
         database_ref = FirebaseDatabase.getInstance().getReference();
@@ -164,7 +164,7 @@ public class PlayerFragment extends Fragment {
 
         mini_layout = view.findViewById(R.id.mini_included);
         //Mini Player
-        MainActivity.slidingUpPanelLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+        MainActivity.activityMainBinding.slidingLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View panel, float slideOffset) {
             }
@@ -310,7 +310,7 @@ public class PlayerFragment extends Fragment {
     }
 
     public void dismissPlayer() {
-        MainActivity.slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+        MainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
 
         if(playerView!=null) {
             mService.destroyNotif();

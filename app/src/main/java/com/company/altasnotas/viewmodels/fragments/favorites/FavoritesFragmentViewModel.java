@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
+import com.company.altasnotas.databinding.FragmentCurrentPlaylistBinding;
 import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.models.FavoriteFirebaseSong;
 import com.company.altasnotas.models.Playlist;
@@ -49,15 +50,13 @@ public class FavoritesFragmentViewModel extends ViewModel {
 
     private MainActivity mainActivity;
 
-    public void init(RecyclerView recyclerView, ImageView imageView, TextView title, TextView description, ImageView settings, TextView fav_state, MainActivity mainActivity) {
-        this.recyclerView = recyclerView;
-        this.playlist = playlist;
-        this.adapter = adapter;
-        this.imageView = imageView;
-        this.title = title;
-        this.description = description;
-        this.settings = settings;
-        this.fav_state = fav_state;
+    public void init(FragmentCurrentPlaylistBinding binding, MainActivity mainActivity) {
+        this.recyclerView = binding.currentPlaylistRecyclerView;
+        this.imageView = binding.currentPlaylistImg;
+        this.title = binding.currentPlaylistTitle;
+        this.description = binding.currentPlaylistDescription;
+        this.settings = binding.currentPlaylistSettings;
+        this.fav_state = binding.currentPlaylistRecyclerState;
         this.mainActivity = mainActivity;
 
 

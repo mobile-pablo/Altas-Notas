@@ -1,33 +1,26 @@
 package com.company.altasnotas.fragments.home;
 
 import android.app.Activity;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.HomeFragmentAdapter;
+import com.company.altasnotas.databinding.FragmentHomeBinding;
 import com.company.altasnotas.fragments.login_and_register.LoginFragment;
 import com.company.altasnotas.fragments.profile.ProfileFragment;
 import com.company.altasnotas.models.Playlist;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -39,11 +32,9 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
 public class HomeFragment extends Fragment {
 
-    RecyclerView recyclerView;
+
     HomeFragmentAdapter adapter;
     private DatabaseReference database_ref;
     private FirebaseDatabase database;
@@ -54,15 +45,16 @@ public class HomeFragment extends Fragment {
     private ArrayList<String> authors;
     private ArrayList<String> albums;
     MainActivity mainActivity;
-    private ImageView  logout_img;
-    private CircleImageView profile_img;
+
     StorageReference storageReference;
     Boolean isOpenByLogin;
+    public static FragmentHomeBinding binding;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_home, container, false);
+
+        binding =FragmentHomeBinding.inflate(inflater,container,false);
+        View view = binding.getRoot();
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         database_ref = database.getReference();
@@ -72,16 +64,13 @@ public class HomeFragment extends Fragment {
         playlists = new ArrayList<>();
 
         mainActivity= (MainActivity) getActivity();
-        recyclerView = view.findViewById(R.id.home_recycler_view);
-        logout_img = view.findViewById(R.id.home_logout_btn);
-        profile_img=  view.findViewById(R.id.home_profile_btn);
         adapter = new HomeFragmentAdapter((MainActivity) getActivity(), authors, albums, playlists);
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        recyclerView.setAdapter(adapter);
-        MainActivity.main_activty_box.setBackground( getResources().getDrawable( R.drawable.custom_home_fragment_bg ));
+        binding.homeRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        binding.homeRecyclerView.setAdapter(adapter);
+        MainActivity. activityMainBinding.mainActivityBox.setBackground( getResources().getDrawable( R.drawable.custom_home_fragment_bg ));
         initializePlaylists();
 
-        logout_img.setOnClickListener(v -> {
+        binding.homeLogoutBtn.setOnClickListener(v -> {
             MainActivity.currentSongAlbum.setValue("");
             MainActivity.currentSongAuthor.setValue("");
             MainActivity.currentSongTitle.setValue("");
@@ -98,13 +87,13 @@ public class HomeFragment extends Fragment {
              @Override
              public void onChanged(String s) {
                  if(mainActivity.photoUrl!=null){
-                     Glide.with(parentActivity).load(mainActivity.photoUrl.getValue()).error(R.drawable.img_not_found).into(profile_img);
+                     Glide.with(parentActivity).load(mainActivity.photoUrl.getValue()).error(R.drawable.img_not_found).into(binding.homeProfileBtn);
                  }
              }
          });
 
 
-        profile_img.setOnClickListener(v -> {
+        binding.homeProfileBtn.setOnClickListener(v -> {
         getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new ProfileFragment()).addToBackStack(null).commit();
         });
 
@@ -170,6 +159,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        MainActivity.main_activty_box.setBackground( getResources().getDrawable( R.drawable.custom_home_fragment_bg ));
+        MainActivity.activityMainBinding.mainActivityBox.setBackground( getResources().getDrawable( R.drawable.custom_home_fragment_bg ));
     }
 }

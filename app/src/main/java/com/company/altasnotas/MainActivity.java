@@ -25,6 +25,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 
+import com.company.altasnotas.databinding.ActivityMainBinding;
 import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.fragments.home.HomeFragment;
 import com.company.altasnotas.fragments.login_and_register.LoginFragment;
@@ -63,34 +64,33 @@ public class MainActivity extends AppCompatActivity {
 
     FirebaseAuth mAuth;
     public MutableLiveData<String> photoUrl;
-    public BottomNavigationView bottomNavigationView;
+ //   public BottomNavigationView bottomNavigationView;
     public static MutableLiveData<String> currentSongTitle = new MutableLiveData<>();
     public static MutableLiveData<String> currentSongAlbum = new MutableLiveData<>();
     public static MutableLiveData<String> currentSongAuthor = new MutableLiveData<>();
     public static Integer dialogHeight;
     public static final String FIREBASE = "Firebase";
-    public  static FrameLayout slideup_box;
-    public static LinearLayout main_activty_box;
-    public static SlidingUpPanelLayout slidingUpPanelLayout;
 
+    public  static ActivityMainBinding activityMainBinding;
     private String frag;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+       activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
+       setContentView(activityMainBinding.getRoot());
         currentSongTitle.setValue("");
         currentSongAuthor.setValue("");
         currentSongAlbum.setValue("");
-        slideup_box = findViewById(R.id.sliding_layout_frag);
-        slidingUpPanelLayout = findViewById(R.id.sliding_layout);
-        main_activty_box = findViewById(R.id.main_activity_box);
+
+
+
         DisplayMetrics displayMetrics = new DisplayMetrics();
        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int height = displayMetrics.heightPixels;
         dialogHeight= (int) (height* 0.4);
-        bottomNavigationView = findViewById(R.id.main_nav_bottom);
-        bottomNavigationView.setItemIconTintList(null);
-        bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
+        activityMainBinding.mainNavBottom.setItemIconTintList(null);
+        activityMainBinding.mainNavBottom.setOnNavigationItemSelectedListener(navListener);
 
         photoUrl = new MutableLiveData<>("");
         mAuth = FirebaseAuth.getInstance();
@@ -103,11 +103,11 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             if (mAuth.getCurrentUser() != null) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(false)).commit();
-                bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
-                bottomNavigationView.setVisibility(View.VISIBLE);
+                activityMainBinding.mainNavBottom.setSelectedItemId(R.id.nav_home_item);
+                activityMainBinding.mainNavBottom.setVisibility(View.VISIBLE);
             } else {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new LoginFragment()).commit();
-                bottomNavigationView.setVisibility(View.GONE);
+                activityMainBinding.mainNavBottom.setVisibility(View.GONE);
             }
         }
 
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i < getSupportFragmentManager().getBackStackEntryCount(); i++) {
                     getSupportFragmentManager().popBackStack();
                 }
-                slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                 Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
                 if (currentFragment instanceof PlayerFragment) {
                     PlayerFragment playerFragment = (PlayerFragment) currentFragment;
@@ -127,12 +127,12 @@ public class MainActivity extends AppCompatActivity {
                     playerFragment.initializeMiniPlayer();
                     playerFragment.setUI();
                 }
-                bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
+                activityMainBinding.mainNavBottom.setSelectedItemId(R.id.nav_home_item);
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
             }
         }else{
             Log.d("MainActivity", "Frag is null");
-            slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+            activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
         }
 
         reInitializePlayerViews();
@@ -180,8 +180,8 @@ public class MainActivity extends AppCompatActivity {
                    PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo, true, state, null, isFav);
                   getSupportFragmentManager().beginTransaction().replace(R.id.sliding_layout_frag, playerFragment).commit();
                   getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
-                   MainActivity.slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                   main_activty_box.setVisibility(View.VISIBLE);
+                   activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                   activityMainBinding.mainActivityBox.setVisibility(View.VISIBLE);
 
                       if (PlayerFragment.fav_btn.getDrawable().getConstantState().equals(PlayerFragment.fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
                        PlayerFragment.fav_btn.getDrawable().setTint(Color.WHITE);
@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
                        PlayerFragment.mini_fav_btn.getDrawable().setTint(Color.BLACK);
                    }
                }else{
-                   MainActivity.slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+                  activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
                }
            }
         }
@@ -224,8 +224,8 @@ public class MainActivity extends AppCompatActivity {
 
             if (selectedFragment[0] != null){
                 //.setCustomAnimations(R.anim.slide_in_up, R.anim.slide_out_up)
-                if(slidingUpPanelLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED){
-                    slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                if(  activityMainBinding.slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED){
+                    activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                 }
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, selectedFragment[0]).commit();
             }
@@ -298,13 +298,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateUI(FirebaseUser user) {
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.main_nav_bottom);
-        Menu menu = bottomNavigationView.getMenu();
+
+        Menu menu = activityMainBinding.mainNavBottom.getMenu();
 
         if (user != null) {
-            bottomNavigationView.setVisibility(View.VISIBLE);
+            activityMainBinding.mainNavBottom.setVisibility(View.VISIBLE);
         } else {
-            bottomNavigationView.setVisibility(View.GONE);
+            activityMainBinding.mainNavBottom.setVisibility(View.GONE);
         }
     }
 
@@ -334,8 +334,8 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i < getSupportFragmentManager().getBackStackEntryCount(); i++) {
                     getSupportFragmentManager().popBackStack();
                 }
-                slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
+                activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                activityMainBinding.mainNavBottom.setSelectedItemId(R.id.nav_home_item);
                 Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
                 if (currentFragment instanceof PlayerFragment) {
                     PlayerFragment playerFragment = (PlayerFragment) currentFragment;
@@ -347,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }else{
             System.out.println("Frag is null");
-            slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+            activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
         }
     }
 
@@ -413,8 +413,8 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
 
 
-        if(slidingUpPanelLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED){
-            slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        if(  activityMainBinding.slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED){
+            activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         }else{
             super.onBackPressed();
         }

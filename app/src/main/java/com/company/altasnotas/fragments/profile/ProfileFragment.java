@@ -83,7 +83,7 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
       View view = inflater.inflate(R.layout.fragment_profile, container, false);
-        MainActivity.main_activty_box.setBackgroundColor(Color.WHITE);
+        MainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
           mAuth = FirebaseAuth.getInstance();
           database = FirebaseDatabase.getInstance();
           database_ref = database.getReference();
