@@ -46,6 +46,7 @@ import com.canhub.cropper.CropImage;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
+import com.company.altasnotas.databinding.FragmentCurrentPlaylistBinding;
 import com.company.altasnotas.fragments.home.HomeFragment;
 import com.company.altasnotas.models.FavoriteFirebaseSong;
 import com.company.altasnotas.models.FirebaseSong;
@@ -87,9 +88,6 @@ import static android.app.Activity.RESULT_OK;
 public class CurrentPlaylistFragment extends Fragment {
 
     private final Playlist playlist;
-    public static RecyclerView recyclerView;
-    private ImageView imageView;
-    private AppCompatTextView title, description;
     private DatabaseReference database_ref;
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
@@ -101,48 +99,38 @@ public class CurrentPlaylistFragment extends Fragment {
     private Uri returnUri;
     private StorageReference storageReference;
 
-    public static TextView recyclerViewState;
-    private FloatingActionButton fab;
     private CurrentPlaylistFragmentViewModel viewModel;
-
-    private ImageView settings_btn;
-
+    public static FragmentCurrentPlaylistBinding binding;
 
     @Override
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_current_playlist, container, false);
+       binding= FragmentCurrentPlaylistBinding.inflate(inflater,container,false);
+        View view = binding.getRoot();
         MainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
-        imageView = view.findViewById(R.id.current_playlist_img);
-        title = view.findViewById(R.id.current_playlist_title);
-        description = view.findViewById(R.id.current_playlist_description);
-        fab = view.findViewById(R.id.current_playlist_photo_btn);
-        recyclerViewState = view.findViewById(R.id.current_playlist_recycler_state);
 
-        settings_btn = view.findViewById(R.id.current_playlist_settings);
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         database_ref = database.getReference();
         storageReference = FirebaseStorage.getInstance().getReference();
         viewModel =  new ViewModelProvider(requireActivity()).get(CurrentPlaylistFragmentViewModel.class);
         viewModel.init(playlist, (MainActivity) getActivity(), database_ref, mAuth,storageReference);
-        title.setText(playlist.getTitle());
-        description.setText(playlist.getDescription() + "\n(" + playlist.getYear() + ")");
-        recyclerView = view.findViewById(R.id.current_playlist_recycler_view);
+        binding.currentPlaylistTitle.setText(playlist.getTitle());
+        binding.currentPlaylistDescription.setText(playlist.getDescription() + "\n(" + playlist.getYear() + ")");
 
         if (!  viewModel.getPlaylist().getImage_id().isEmpty()) {
 
             Glide.with(container)
                     .load(playlist.getImage_id())
                     .apply(RequestOptions.centerCropTransform())
-                    .error(R.drawable.img_not_found).into(imageView);
+                    .error(R.drawable.img_not_found).into( binding.currentPlaylistImg);
         } else {
-            Glide.with(container).load(R.drawable.img_not_found).apply(RequestOptions.centerCropTransform()).into(imageView);
+            Glide.with(container).load(R.drawable.img_not_found).apply(RequestOptions.centerCropTransform()).into(binding.currentPlaylistImg);
         }
 
-        fab.setOnClickListener(v ->
+        binding.currentPlaylistPhotoBtn.setOnClickListener(v ->
         {
             if (ActivityCompat.checkSelfPermission(getActivity(),
                     Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -155,10 +143,10 @@ public class CurrentPlaylistFragment extends Fragment {
             }
         });
         if (isAlbum != 0) {
-            settings_btn.setVisibility(View.INVISIBLE);
+            binding.currentPlaylistSettings.setVisibility(View.INVISIBLE);
             initializeAlbum(author, album);
         } else {
-            settings_btn.setVisibility(View.VISIBLE);
+            binding.currentPlaylistSettings.setVisibility(View.VISIBLE);
 
             initializePlaylist(author);
         }
@@ -174,7 +162,7 @@ public class CurrentPlaylistFragment extends Fragment {
         });
 
 
-        settings_btn.setOnClickListener(v -> {
+        binding.currentPlaylistSettings.setOnClickListener(v -> {
            viewModel.openPlaylistSettings((MainActivity) getActivity());
         });
         return view;
@@ -243,24 +231,24 @@ public class CurrentPlaylistFragment extends Fragment {
                                 e.printStackTrace();
                                 System.out.println("ConditionLatch error");
                             }
-                            recyclerView.setVisibility(View.VISIBLE);
-                            recyclerViewState.setVisibility(View.GONE);
+                            binding.currentPlaylistRecyclerView.setVisibility(View.VISIBLE);
+                            binding.currentPlaylistRecyclerState.setVisibility(View.GONE);
                         } else {
-                            recyclerViewState.setText("Empty Album");
-                            recyclerView.setVisibility(View.GONE);
-                            recyclerViewState.setVisibility(View.VISIBLE);
+                            binding.currentPlaylistRecyclerState.setText("Empty Album");
+                            binding.currentPlaylistRecyclerView.setVisibility(View.GONE);
+                            binding.currentPlaylistRecyclerState.setVisibility(View.VISIBLE);
                         }
                         playlist.setAlbum(true);
 
-                        fab.setVisibility(View.INVISIBLE);
+                        binding.currentPlaylistPhotoBtn.setVisibility(View.INVISIBLE);
 
                         if (x != 0) {
-                            recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+                            binding.currentPlaylistRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
                             adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, -1);
                             adapter.notifyDataSetChanged();
                             Drawable songBg = AppCompatResources.getDrawable(requireContext(), R.drawable.custom_song_bg);
-                            recyclerView.setBackground(songBg);
-                            recyclerView.setAdapter(adapter);
+                            binding.currentPlaylistRecyclerView.setBackground(songBg);
+                            binding.currentPlaylistRecyclerView.setAdapter(adapter);
                         }
                     }
 
@@ -326,26 +314,26 @@ public class CurrentPlaylistFragment extends Fragment {
                                         System.out.println("ConditionLatch error");
                                     }
 
-                                    recyclerView.setVisibility(View.VISIBLE);
-                                    recyclerViewState.setVisibility(View.GONE);
+                                    binding.currentPlaylistRecyclerView.setVisibility(View.VISIBLE);
+                                    binding.currentPlaylistRecyclerState.setVisibility(View.GONE);
                                 } else {
-                                    recyclerViewState.setText("Empty Playlist");
-                                    recyclerViewState.setVisibility(View.VISIBLE);
-                                    recyclerView.setVisibility(View.GONE);
+                                    binding.currentPlaylistRecyclerState.setText("Empty Playlist");
+                                    binding.currentPlaylistRecyclerState.setVisibility(View.VISIBLE);
+                                    binding.currentPlaylistRecyclerView.setVisibility(View.GONE);
                                 }
 
 
                                 playlist.setAlbum((Boolean) snapshot.child("isAlbum").getValue());
                                 if (!playlist.isAlbum()) {
-                                    fab.setVisibility(View.VISIBLE);
+                                    binding.currentPlaylistPhotoBtn.setVisibility(View.VISIBLE);
                                 }
 
 
                                 if (x != 0) {
-                                    recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+                                    binding.currentPlaylistRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
                                     adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, 0);
                                     adapter.notifyDataSetChanged();
-                                    recyclerView.setAdapter(adapter);
+                                    binding.currentPlaylistRecyclerView.setAdapter(adapter);
                                 }
                             }
                         }
@@ -393,10 +381,10 @@ public class CurrentPlaylistFragment extends Fragment {
 
                                 if (playlist.getSongs() != null) {
                                     adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, 0);
-                                    recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-                                    recyclerView.setAdapter(adapter);
+                                    binding.currentPlaylistRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+                                    binding.currentPlaylistRecyclerView.setAdapter(adapter);
                                     Drawable songBg = AppCompatResources.getDrawable(requireContext(), R.drawable.custom_song_bg);
-                                    recyclerView.setBackground(songBg);
+                                    binding.currentPlaylistRecyclerView.setBackground(songBg);
                                     adapter.notifyDataSetChanged();
                                 }
                             }
@@ -472,7 +460,7 @@ public class CurrentPlaylistFragment extends Fragment {
                                                                     progress.dismiss();
                                                                     database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(ds.getKey()).child("image_id").setValue(u.toString());
                                                                     playlist.setImage_id(u.toString());
-                                                                    Glide.with(requireActivity()).load(finalCompressImgRotated).apply(RequestOptions.centerCropTransform()).into(imageView);
+                                                                    Glide.with(requireActivity()).load(finalCompressImgRotated).apply(RequestOptions.centerCropTransform()).into(binding.currentPlaylistImg);
 
                                                                 }
                                                             }).addOnFailureListener(getActivity(), new OnFailureListener() {

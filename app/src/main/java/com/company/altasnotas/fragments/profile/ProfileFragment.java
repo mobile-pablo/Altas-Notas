@@ -38,6 +38,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.canhub.cropper.CropImage;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
+import com.company.altasnotas.databinding.FragmentProfileBinding;
 import com.company.altasnotas.viewmodels.fragments.profile.ProfileFragmentViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -68,47 +69,29 @@ public class ProfileFragment extends Fragment {
     private Uri returnUri=null;
     private ProfileFragmentViewModel model;
     private StorageReference storageReference;
-    private CircleImageView profile_img;
-    private TextView profile_name, profile_email;
-    private ImageButton profile_img_edit_btn, profile_name_edit_btn;
-    private TextView creationTextView, creationDateTextView;
-    private LinearLayout delete_box;
 
-    private LinearLayout  profile_details_box;
-    private RelativeLayout profile_box;
-    private LinearLayout profile_half_circle_box;
+    public static FragmentProfileBinding binding;
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-      View view = inflater.inflate(R.layout.fragment_profile, container, false);
+     binding = FragmentProfileBinding.inflate(inflater, container,false);
+     View view = binding.getRoot();
+
         MainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
           mAuth = FirebaseAuth.getInstance();
           database = FirebaseDatabase.getInstance();
           database_ref = database.getReference();
 
 
-          profile_name = view.findViewById(R.id.profile_full_name);
-          profile_email = view.findViewById(R.id.profile_email);
-          profile_img = view.findViewById(R.id.profile_user_img);
-          creationTextView = view.findViewById(R.id.profile_details_creation_text);
-          creationDateTextView= view.findViewById(R.id.profile_details_creation_date);
-          delete_box = view.findViewById(R.id.profile_details_delete_box);
-
-          profile_box = view.findViewById(R.id.profile_box);
-          profile_details_box=view.findViewById(R.id.profile_details_box);
-          profile_half_circle_box = view.findViewById(R.id.profile_half_circle_box);
 
           model =  new ViewModelProvider(requireActivity()).get(ProfileFragmentViewModel.class);
-          model.downloadProfile((MainActivity) getActivity(), mAuth,  database_ref, profile_name, profile_email, profile_img,creationTextView, creationDateTextView);
+          model.downloadProfile((MainActivity) getActivity(), mAuth,  database_ref,   binding.profileFullName,   binding.profileEmail,   binding.profileUserImg,  binding.profileDetailsCreationText, binding.profileDetailsCreationDate);
 
-
-
-          profile_img_edit_btn = view.findViewById(R.id.profile_user_img_btn);
-          profile_name_edit_btn = view.findViewById(R.id.profile_name_edit_btn);
-
-          profile_img_edit_btn.setOnClickListener(v->{
+        binding.profileUserImgBtn.setOnClickListener(v->{
               if(ActivityCompat.checkSelfPermission(getActivity(),
                       Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
               {
@@ -121,7 +104,7 @@ public class ProfileFragment extends Fragment {
                           .start(getContext(), this);
               }
           });
-          profile_name_edit_btn.setOnClickListener(v->{
+        binding.profileNameEditBtn.setOnClickListener(v->{
               final EditText taskEditText = new EditText(v.getContext());
               AlertDialog dialog = new AlertDialog.Builder(v.getContext())
                       .setTitle("Change username")
@@ -129,8 +112,8 @@ public class ProfileFragment extends Fragment {
                       .setPositiveButton("Accept", new DialogInterface.OnClickListener() {
                           @Override
                           public void onClick(DialogInterface dialog, int which) {
-                              profile_name.setText(String.valueOf(taskEditText.getText()));
-                              model.updateProfile(mAuth,database_ref ,profile_name);
+                              binding.profileFullName.setText(String.valueOf(taskEditText.getText()));
+                              model.updateProfile(mAuth,database_ref ,  binding.profileFullName);
                           }
                       })
                       .setNegativeButton("Cancel", null)
@@ -139,10 +122,10 @@ public class ProfileFragment extends Fragment {
 
               dialog.setView(taskEditText,50,0,50,0);
                 dialog.show();
-              taskEditText.setText(profile_name.getText());
+              taskEditText.setText(  binding.profileFullName.getText());
           });
 
-          delete_box.setOnClickListener(v->{
+        binding.profileDetailsDeleteBox.setOnClickListener(v->{
               AlertDialog dialog = new AlertDialog.Builder(v.getContext())
                       .setTitle("Delete Profile?")
                       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -207,7 +190,7 @@ public class ProfileFragment extends Fragment {
                                                 MainActivity mainActivity = (MainActivity) getActivity();
                                                 if(task.getResult()!=null && mainActivity!=null) {
                                                     progress.dismiss();
-                                                    Glide.with(requireActivity()).load(task.getResult()).apply(RequestOptions.centerCropTransform()).error(R.drawable.img_not_found).into(profile_img);
+                                                    Glide.with(requireActivity()).load(task.getResult()).apply(RequestOptions.centerCropTransform()).error(R.drawable.img_not_found).into(  binding.profileUserImg);
                                                     mainActivity.photoUrl.setValue( task.getResult().toString());
                                                 }
                                             }else if(task.getResult()==null){
@@ -230,13 +213,6 @@ public class ProfileFragment extends Fragment {
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
             }
-        }
-    }
-    public static void setMargins (View v, int l, int t, int r, int b) {
-        if (v.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
-            ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-            p.setMargins(l, t, r, b);
-            v.requestLayout();
         }
     }
     private static Bitmap rotateImageIfRequired(Context context, Bitmap img, Uri selectedImage) throws IOException {

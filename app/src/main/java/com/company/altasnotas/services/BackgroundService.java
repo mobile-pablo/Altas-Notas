@@ -90,7 +90,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         if(getMainLooper().getThread().isAlive()){
              onDestroy();
              PlayerFragment.playerView.setPlayer(null);
-             PlayerFragment.mini_playerView.setPlayer(null);
+             PlayerFragment.binding.miniIncluded.miniPlayerView.setPlayer(null);
         }
     }
     @Override

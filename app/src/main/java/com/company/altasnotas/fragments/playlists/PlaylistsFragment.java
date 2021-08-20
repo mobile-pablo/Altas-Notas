@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.PlaylistsFragmentAdapter;
+import com.company.altasnotas.databinding.FragmentPlaylistsBinding;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.viewmodels.fragments.favorites.FavoritesFragmentViewModel;
 import com.company.altasnotas.viewmodels.fragments.playlists.PlaylistsFragmentViewModel;
@@ -44,25 +45,22 @@ import java.util.Calendar;
 public class PlaylistsFragment extends Fragment {
 
 
-    public RecyclerView recyclerView;
-    public TextView recyclerViewState;
-    private FloatingActionButton fab;
+
     private FirebaseDatabase database;
     private DatabaseReference database_ref;
     private FirebaseAuth mAuth;
     private ArrayList<Playlist> playlists;
     private PlaylistsFragmentAdapter adapter;
     private PlaylistsFragmentViewModel viewModel;
+
+    public static FragmentPlaylistsBinding binding;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_playlists, container, false);
+        binding= FragmentPlaylistsBinding.inflate(inflater,container,false);
+        View view = binding.getRoot();
         MainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
-
-        recyclerView = view.findViewById(R.id.playlists_recycler_view);
-        fab = view.findViewById(R.id.playlists_floating_btn);
-        recyclerViewState = view.findViewById(R.id.playlists_recycler_state);
 
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
@@ -72,7 +70,7 @@ public class PlaylistsFragment extends Fragment {
 
         viewModel =  new ViewModelProvider(requireActivity()).get(PlaylistsFragmentViewModel.class);
         viewModel.init((MainActivity) getActivity(), database_ref,mAuth);
-        fab.setOnClickListener(new View.OnClickListener() {
+        binding.playlistsFloatingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 viewModel.openDialog((MainActivity) getActivity());
@@ -100,10 +98,10 @@ public class PlaylistsFragment extends Fragment {
                 }
 
 
-                recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+                binding.playlistsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
                 adapter = new PlaylistsFragmentAdapter((MainActivity) getActivity(), playlists);
                 adapter.notifyDataSetChanged();
-                recyclerView.setAdapter(adapter);
+                binding.playlistsRecyclerView.setAdapter(adapter);
             }
 
             @Override

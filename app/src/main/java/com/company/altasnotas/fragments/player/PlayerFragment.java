@@ -25,6 +25,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
+import androidx.databinding.DataBindingUtil;
+import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.palette.graphics.Palette;
@@ -37,6 +39,8 @@ import com.bumptech.glide.request.transition.Transition;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.ChoosePlaylistAdapter;
+import com.company.altasnotas.databinding.BottomPlaylistSongPlayerSettingsLayoutBinding;
+import com.company.altasnotas.databinding.FragmentPlayerBinding;
 import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.Playlist;
@@ -118,15 +122,7 @@ public class PlayerFragment extends Fragment {
 
 
     //Mini Player
-
-    public static ImageButton mini_fav_btn;
-    public static PlayerView mini_playerView;
-    private  ImageView mini_song_img;
-    private  TextView mini_title;
-    private TextView mini_author;
-    private LinearLayout mini_box;
-    private ImageButton mini_dismiss_btn;
-    LinearLayout mini_layout;
+    public static FragmentPlayerBinding binding;
     public PlayerFragment(Playlist playlist, int position, long seekedTo, Boolean isReOpen,Integer state, Boolean ready, Integer isFav) {
         this.playlist = null;
         this.playlist = playlist;
@@ -148,21 +144,22 @@ public class PlayerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_player, container, false);
-        title = view.findViewById(R.id.player_song_title);
-        author = view.findViewById(R.id.player_song_author);
-        song_img = view.findViewById(R.id.player_song_img);
-        playerView = view.findViewById(R.id.player_view);
+        binding = FragmentPlayerBinding.inflate(inflater,container,false);
+        View view = binding.getRoot();
+
+        title = binding.playerView.findViewById(R.id.player_song_title);
+        author = binding.playerView.findViewById(R.id.player_song_author);
+        song_img = binding.playerView.findViewById(R.id.player_song_img);
+        playerView = binding.playerView.findViewById(R.id.player_view);
         playerView.setBackgroundColor(Color.TRANSPARENT);
-        player_full_box = view.findViewById(R.id.player_full_box);
+        player_full_box = binding.playerView.findViewById(R.id.player_full_box);
         viewModel = new ViewModelProvider(requireActivity()).get(PlayerFragmentViewModel.class);
         MainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
-        fav_btn = view.findViewById(R.id.player_song_fav_btn);
-        settings_btn = view.findViewById(R.id.player_song_options_btn);
+        fav_btn = binding.playerView.findViewById(R.id.player_song_fav_btn);
+        settings_btn = binding.playerView.findViewById(R.id.player_song_options_btn);
         database_ref = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-
-        mini_layout = view.findViewById(R.id.mini_included);
+        
         //Mini Player
         MainActivity.activityMainBinding.slidingLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
@@ -172,27 +169,24 @@ public class PlayerFragment extends Fragment {
             @Override
             public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
                 if(newState == SlidingUpPanelLayout.PanelState.EXPANDED){
-                    mini_layout.setVisibility(View.GONE);
+                    binding.miniIncluded.getRoot().setVisibility(View.GONE);
                 }
 
                 if(newState== SlidingUpPanelLayout.PanelState.HIDDEN){
-                    mini_layout.setVisibility(View.VISIBLE);
+                    binding.miniIncluded.getRoot().setVisibility(View.VISIBLE);
                 }
 
                 if(newState== SlidingUpPanelLayout.PanelState.COLLAPSED){
-                    mini_layout.setVisibility(View.VISIBLE);
+                    binding.miniIncluded.getRoot().setVisibility(View.VISIBLE);
                 }
             }
         });
-        mini_playerView = view.findViewById(R.id.mini_player_view);
-        mini_song_img = view.findViewById(R.id.mini_player_img);
-        mini_title = view.findViewById(R.id.mini_player_title);
-        mini_title.setSelected(true);
-        mini_author = view.findViewById(R.id.mini_player_description);
-        mini_author.setSelected(true);
-        mini_box = view.findViewById(R.id.mini_player_small_box);
-        mini_dismiss_btn = view.findViewById(R.id.mini_player_dismiss_btn);
-        mini_fav_btn =view.findViewById(R.id.mini_player_fav_btn);
+
+
+        binding.miniIncluded.miniPlayerTitle.setSelected(true);
+
+        binding.miniIncluded.miniPlayerDescription.setSelected(true);
+
 
                 intent = new Intent(getActivity(), BackgroundService.class);
                 intent.putExtra("playlist", playlist);
@@ -278,9 +272,9 @@ public class PlayerFragment extends Fragment {
 
             if (fav_btn.getDrawable().getConstantState().equals(fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
 
-                viewModel.addToFav( getActivity(),database_ref,mAuth,playlist,position,fav_btn,mini_fav_btn, CurrentPlaylistFragment.adapter);
+                viewModel.addToFav( getActivity(),database_ref,mAuth,playlist,position,fav_btn,binding.miniIncluded.miniPlayerFavBtn, CurrentPlaylistFragment.adapter);
             } else {
-                viewModel.removeFromFav( getActivity(), database_ref,mAuth,playlist,position,fav_btn,mini_fav_btn, CurrentPlaylistFragment.adapter);
+                viewModel.removeFromFav( getActivity(), database_ref,mAuth,playlist,position,fav_btn,binding.miniIncluded.miniPlayerFavBtn, CurrentPlaylistFragment.adapter);
             }
         });
 
@@ -293,17 +287,17 @@ public class PlayerFragment extends Fragment {
         });
 
 
-        mini_dismiss_btn.setOnClickListener(v->{
+        binding.miniIncluded.miniPlayerDismissBtn.setOnClickListener(v->{
             dismissPlayer();
         });
 
-        mini_fav_btn.setOnClickListener(v -> {
+        binding.miniIncluded.miniPlayerFavBtn.setOnClickListener(v -> {
 
-            if (mini_fav_btn.getDrawable().getConstantState().equals(mini_fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+            if (binding.miniIncluded.miniPlayerFavBtn.getDrawable().getConstantState().equals(binding.miniIncluded.miniPlayerFavBtn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
 
-                viewModel.addToFav( getActivity(),database_ref,mAuth,playlist,position,fav_btn,mini_fav_btn, CurrentPlaylistFragment.adapter);
+                viewModel.addToFav( getActivity(),database_ref,mAuth,playlist,position,fav_btn,binding.miniIncluded.miniPlayerFavBtn, CurrentPlaylistFragment.adapter);
             } else {
-                viewModel.removeFromFav( getActivity(), database_ref,mAuth,playlist,position,fav_btn,mini_fav_btn, CurrentPlaylistFragment.adapter);
+                viewModel.removeFromFav( getActivity(), database_ref,mAuth,playlist,position,fav_btn,binding.miniIncluded.miniPlayerFavBtn, CurrentPlaylistFragment.adapter);
             }
         });
         return view;
@@ -350,16 +344,16 @@ public class PlayerFragment extends Fragment {
                 SimpleExoPlayer player = mService.getPlayerInstance();
                 exoListener = new ExoListener(player);
                 player.addListener(exoListener);
-                mini_playerView.setKeepContentOnPlayerReset(true);
-                mini_playerView.setPlayer(player);
-                mini_playerView.setUseController(true);
-                mini_playerView.showController();
-                mini_playerView.setControllerShowTimeoutMs(0);
-                mini_playerView.setCameraDistance(0);
-                mini_playerView.setControllerAutoShow(true);
-                mini_playerView.setDrawingCacheBackgroundColor(Color.TRANSPARENT);
-                mini_playerView.setShutterBackgroundColor(Color.TRANSPARENT);
-                mini_playerView.setControllerHideOnTouch(false);
+                binding.miniIncluded.miniPlayerView.setKeepContentOnPlayerReset(true);
+                binding.miniIncluded.miniPlayerView.setPlayer(player);
+                binding.miniIncluded.miniPlayerView.setUseController(true);
+                binding.miniIncluded.miniPlayerView.showController();
+                binding.miniIncluded.miniPlayerView.setControllerShowTimeoutMs(0);
+                binding.miniIncluded.miniPlayerView.setCameraDistance(0);
+                binding.miniIncluded.miniPlayerView.setControllerAutoShow(true);
+                binding.miniIncluded.miniPlayerView.setDrawingCacheBackgroundColor(Color.TRANSPARENT);
+                binding.miniIncluded.miniPlayerView.setShutterBackgroundColor(Color.TRANSPARENT);
+                binding.miniIncluded.miniPlayerView.setControllerHideOnTouch(false);
             }
         }
     }
@@ -721,7 +715,7 @@ public class PlayerFragment extends Fragment {
                     @Override
                     public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
                         if(resource!=null) {
-                            mini_song_img.setImageDrawable(resource);
+                            binding.miniIncluded.miniPlayerImg.setImageDrawable(resource);
                         }
                     }
 
@@ -735,8 +729,8 @@ public class PlayerFragment extends Fragment {
                 database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        mini_title.setText(playlist.getSongs().get(position).getTitle());
-                        mini_author.setText(snapshot.child("description").getValue().toString());
+                        binding.miniIncluded.miniPlayerTitle.setText(playlist.getSongs().get(position).getTitle());
+                        binding.miniIncluded.miniPlayerDescription.setText(snapshot.child("description").getValue().toString());
                     }
 
                     @Override
@@ -786,8 +780,8 @@ public class PlayerFragment extends Fragment {
                                                                             s.child("title").getValue().equals(mySong.getTitle())
                                                             ) {
                                                                 //We found a song in Album and We need to set icon
-                                                                mini_fav_btn.setImageResource(R.drawable.ic_heart_full);
-                                                                mini_fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(),R.color.project_dark_velvet));
+                                                                binding.miniIncluded.miniPlayerFavBtn.setImageResource(R.drawable.ic_heart_full);
+                                                                binding.miniIncluded.miniPlayerFavBtn.getDrawable().setTint(ContextCompat.getColor(getActivity(),R.color.project_dark_velvet));
                                                             }
                                                         }
 
@@ -812,10 +806,10 @@ public class PlayerFragment extends Fragment {
         }
 
 
-        if (mini_fav_btn.getDrawable().getConstantState().equals(mini_fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
-            mini_fav_btn.getDrawable().setTint(Color.BLACK);
+        if (binding.miniIncluded.miniPlayerFavBtn.getDrawable().getConstantState().equals(binding.miniIncluded.miniPlayerFavBtn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+            binding.miniIncluded.miniPlayerFavBtn.getDrawable().setTint(Color.BLACK);
         }else{
-            mini_fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_dark_velvet));
+            binding.miniIncluded.miniPlayerFavBtn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_dark_velvet));
         }
     }
 

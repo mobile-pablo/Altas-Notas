@@ -74,11 +74,11 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                 PlaylistsFragment playlistsFragment = (PlaylistsFragment) currentFragment;
 
                 if (playlists.size() == 0) {
-                    playlistsFragment.recyclerView.setVisibility(View.GONE);
-                    playlistsFragment.recyclerViewState.setVisibility(View.VISIBLE);
+                    PlaylistsFragment.binding.playlistsRecyclerView.setVisibility(View.GONE);
+                    PlaylistsFragment.binding.playlistsRecyclerState.setVisibility(View.VISIBLE);
                 } else {
-                    playlistsFragment.recyclerView.setVisibility(View.VISIBLE);
-                    playlistsFragment.recyclerViewState.setVisibility(View.GONE);
+                    PlaylistsFragment.binding.playlistsRecyclerView.setVisibility(View.VISIBLE);
+                    PlaylistsFragment.binding.playlistsRecyclerState.setVisibility(View.GONE);
                 }
             }
         }
@@ -251,8 +251,8 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
 
                                         //    activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();
                                         if (playlists.size() == 0) {
-                                            playlistsFragment.recyclerView.setVisibility(View.GONE);
-                                            playlistsFragment.recyclerViewState.setVisibility(View.VISIBLE);
+                                            PlaylistsFragment.binding.playlistsRecyclerView.setVisibility(View.GONE);
+                                            PlaylistsFragment.binding.playlistsRecyclerState.setVisibility(View.VISIBLE);
                                         }
 
                                     }

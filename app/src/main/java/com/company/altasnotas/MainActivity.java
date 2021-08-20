@@ -185,11 +185,10 @@ public class MainActivity extends AppCompatActivity {
 
                       if (PlayerFragment.fav_btn.getDrawable().getConstantState().equals(PlayerFragment.fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
                        PlayerFragment.fav_btn.getDrawable().setTint(Color.WHITE);
-                          PlayerFragment.mini_fav_btn.getDrawable().setTint(Color.BLACK);
                    }
 
-                   if (PlayerFragment.mini_fav_btn.getDrawable().getConstantState().equals(PlayerFragment.mini_fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
-                       PlayerFragment.mini_fav_btn.getDrawable().setTint(Color.BLACK);
+                   if (PlayerFragment.binding.miniIncluded.miniPlayerFavBtn.getDrawable().getConstantState().equals(PlayerFragment.binding.miniIncluded.miniPlayerFavBtn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+                       PlayerFragment.binding.miniIncluded.miniPlayerFavBtn.getDrawable().setTint(Color.BLACK);
                    }
                }else{
                   activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);

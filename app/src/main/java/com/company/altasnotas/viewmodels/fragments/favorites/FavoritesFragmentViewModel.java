@@ -2,23 +2,15 @@ package com.company.altasnotas.viewmodels.fragments.favorites;
 
 import android.graphics.drawable.Drawable;
 import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
-import com.company.altasnotas.databinding.FragmentCurrentPlaylistBinding;
-import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.models.FavoriteFirebaseSong;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
@@ -36,35 +28,62 @@ import java.util.concurrent.CountDownLatch;
 
 public class FavoritesFragmentViewModel extends ViewModel {
 
-    public  RecyclerView recyclerView;
+
     private DatabaseReference database_ref;
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
     public Playlist playlist;
     public  CurrentPlaylistAdapter adapter;
     private CountDownLatch conditionLatch;
-    private ImageView imageView;
-    private TextView title, description;
-    private ImageView settings;
-    public TextView fav_state;
+    public  ArrayList<FavoriteFirebaseSong> favoriteFirebaseSongs;
+    private MutableLiveData<Integer> _imageViewDrawable = new MutableLiveData<Integer>();
+    private MutableLiveData<Drawable> _settingsDrawable = new MutableLiveData<>();
 
-    private MainActivity mainActivity;
-
-    public void init(FragmentCurrentPlaylistBinding binding, MainActivity mainActivity) {
-        this.recyclerView = binding.currentPlaylistRecyclerView;
-        this.imageView = binding.currentPlaylistImg;
-        this.title = binding.currentPlaylistTitle;
-        this.description = binding.currentPlaylistDescription;
-        this.settings = binding.currentPlaylistSettings;
-        this.fav_state = binding.currentPlaylistRecyclerState;
-        this.mainActivity = mainActivity;
+    private MutableLiveData<String>
+            _titleText = new MutableLiveData<>(),
+            _descriptionText = new MutableLiveData<>();
 
 
-        conditionLatch = new CountDownLatch(1);
-        mAuth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
-        database_ref = database.getReference();
+
+    private MutableLiveData<Boolean> _favStateBool  =
+            new MutableLiveData<>(),
+            _isReadyToInit  = new MutableLiveData<>();
+
+    public LiveData<Drawable> getSettingsDrawable(){
+        if(_settingsDrawable==null){
+            _settingsDrawable=new MutableLiveData<>();
+        }
+        return _settingsDrawable;
     }
+    public LiveData<Integer> getImageViewDrawable(){
+        if(_imageViewDrawable==null){
+            _imageViewDrawable=new MutableLiveData<Integer>();
+        }
+        return _imageViewDrawable;
+    }
+    public LiveData<String> getTitleText(){
+        if(_titleText==null){
+            _titleText=new MutableLiveData<>();
+        }
+        return _titleText;
+    }
+    public LiveData<String> getDescriptionText(){
+        if(_descriptionText==null){
+            _descriptionText=new MutableLiveData<>();
+        }
+        return _descriptionText;
+    }
+    public LiveData<Boolean> getFavStateBool(){
+        if(_favStateBool==null){
+            _favStateBool=new MutableLiveData<>();
+        }
+        return _favStateBool;
+    }
+
+
+
+
+
 
 
 
@@ -81,18 +100,23 @@ public class FavoritesFragmentViewModel extends ViewModel {
 
 
     public void initializeFavorites() {
+
+        conditionLatch = new CountDownLatch(1);
+        mAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
+        database_ref = database.getReference();
+
         playlist = new Playlist();
-        ArrayList<FavoriteFirebaseSong> favoriteFirebaseSongs = new ArrayList<>();
+        favoriteFirebaseSongs = new ArrayList<>();
         playlist.setImage_id("");
         playlist.setAlbum(false);
         playlist.setTitle("Favorites");
         playlist.setDescription("Store here Your favorites Songs!");
         playlist.setYear(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
-        title.setText(playlist.getTitle());
-        description.setText(playlist.getDescription() + "\n(" + playlist.getYear() + ")");
+        _titleText.setValue(playlist.getTitle());
+        _descriptionText.setValue(playlist.getDescription() + "\n(" + playlist.getYear() + ")");
 
-        Glide.with(mainActivity).load(R.drawable.fav_songs).into(imageView);
-
+        _imageViewDrawable.setValue(R.drawable.fav_songs);
 
         if (mAuth.getCurrentUser() != null) {
 
@@ -120,16 +144,14 @@ public class FavoritesFragmentViewModel extends ViewModel {
                             }
 
 
-                            recyclerView.setVisibility(View.VISIBLE);
-                            fav_state.setVisibility(View.GONE);
-
                             if (favoriteFirebaseSongs.size() == x) {
-                                initializeFavoritesRecyclerView(favoriteFirebaseSongs);
+                               _favStateBool.setValue(false);
+                            }else{
+                                _favStateBool.setValue(true);
                             }
                         } else {
-                            fav_state.setText("Empty Favorites");
-                            recyclerView.setVisibility(View.GONE);
-                            fav_state.setVisibility(View.VISIBLE);
+
+                         _favStateBool.setValue(true);
                         }
 
 
@@ -149,54 +171,5 @@ public class FavoritesFragmentViewModel extends ViewModel {
         }
     }
 
-    public void initializeFavoritesRecyclerView(ArrayList<FavoriteFirebaseSong> favoriteFirebaseSongs) {
-        ArrayList<Song> songs = new ArrayList<>();
-        for (int i = 0; i < favoriteFirebaseSongs.size(); i++) {
-            FavoriteFirebaseSong song = favoriteFirebaseSongs.get(i);
-            database_ref.child("music").child("albums").child(song.getAuthor()).child(song.getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                    if (snapshot != null) {
-                        for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
-                            if (Integer.parseInt(ds.child("order").getValue().toString()) == song.getNumberInAlbum()) {
-
-                                Song local_song = new Song(snapshot.child("dir_desc").getValue().toString(), snapshot.child("dir_title").getValue().toString(), ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString(), song.getNumberInAlbum());
-                                local_song.setDateTime(song.getDateTime());
-                                songs.add(local_song);
-                            }
-                        }
-
-                        if (songs.size() == favoriteFirebaseSongs.size()) {
-                            Collections.sort(songs, (f1, f2) -> f1.getDateTime().compareTo(f2.getDateTime()));
-
-
-                            playlist.setSongs(songs);
-
-                            if (playlist.getSongs() != null) {
-                                adapter = new CurrentPlaylistAdapter( mainActivity, playlist, 1);
-                                recyclerView.setLayoutManager(new LinearLayoutManager(mainActivity, LinearLayoutManager.VERTICAL, false));
-                                recyclerView.setAdapter(adapter);
-                                adapter.notifyDataSetChanged();
-                                if (mainActivity != null) {
-                                    Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-                                    if (currentFragment instanceof FavoritesFragment) {
-                                        Drawable songBg = AppCompatResources.getDrawable(mainActivity, R.drawable.custom_song_bg);
-                                        recyclerView.setBackground(songBg);
-                                    }
-                                }
-
-                            }
-                        }
-                    }
-                }
-
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-        }
-    }
 }

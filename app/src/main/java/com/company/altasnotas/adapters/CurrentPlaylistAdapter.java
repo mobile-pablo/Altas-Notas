@@ -333,8 +333,8 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                                                 &&
                                                             playlist.getSongs().get(position).getAuthor().equals(MainActivity.currentSongAuthor.getValue())
                                                 ){
-                                                    PlayerFragment.mini_fav_btn.setImageResource(R.drawable.ic_heart_empty);
-                                                    PlayerFragment.mini_fav_btn.getDrawable().setTint(Color.BLACK);
+                                                    PlayerFragment.binding.miniIncluded.miniPlayerFavBtn.setImageResource(R.drawable.ic_heart_empty);
+                                                    PlayerFragment.binding.miniIncluded.miniPlayerFavBtn.getDrawable().setTint(Color.BLACK);
 
 
                                                     PlayerFragment.fav_btn.setImageResource(R.drawable.ic_heart_empty);
@@ -368,8 +368,8 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                                             playlist.getDescription().equals(MainActivity.currentSongAuthor.getValue())
                                             ){
 
-                                              PlayerFragment.mini_fav_btn.setImageResource(R.drawable.ic_heart_empty);
-                                              PlayerFragment.mini_fav_btn.getDrawable().setTint(Color.BLACK);
+                                              PlayerFragment.binding.miniIncluded.miniPlayerFavBtn.setImageResource(R.drawable.ic_heart_empty);
+                                              PlayerFragment.binding.miniIncluded.miniPlayerFavBtn.getDrawable().setTint(Color.BLACK);
 
 
                                                 PlayerFragment.fav_btn.setImageResource(R.drawable.ic_heart_empty);
@@ -381,14 +381,14 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                         //    activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();
                                         if(playlist!=null){
                                             if (playlist.getSongs().size() == 0) {
-                                                CurrentPlaylistFragment.recyclerView.setVisibility(View.GONE);
-                                                CurrentPlaylistFragment.recyclerViewState.setText("Empty Playlist");
-                                                CurrentPlaylistFragment.recyclerViewState.setVisibility(View.VISIBLE);
+                                                CurrentPlaylistFragment.binding.currentPlaylistRecyclerView.setVisibility(View.GONE);
+                                                CurrentPlaylistFragment.binding.currentPlaylistRecyclerState.setText("Empty Playlist");
+                                                CurrentPlaylistFragment.binding.currentPlaylistRecyclerState.setVisibility(View.VISIBLE);
                                             }
                                         }else{
-                                            CurrentPlaylistFragment.recyclerView.setVisibility(View.GONE);
-                                            CurrentPlaylistFragment.recyclerViewState.setText("Empty Playlist");
-                                            CurrentPlaylistFragment.recyclerViewState.setVisibility(View.VISIBLE);
+                                            CurrentPlaylistFragment.binding.currentPlaylistRecyclerView.setVisibility(View.GONE);
+                                            CurrentPlaylistFragment.binding.currentPlaylistRecyclerState.setText("Empty Playlist");
+                                            CurrentPlaylistFragment.binding.currentPlaylistRecyclerState.setVisibility(View.VISIBLE);
                                         }
                                     }
 
@@ -551,9 +551,9 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                                 playlist.getSongs().remove(playlist.getSongs().get(position));
                                                 notifyDataSetChanged();
                                                 if (playlist.getSongs().size() == 0) {
-                                                    currentPlaylistFragment.recyclerView.setVisibility(View.GONE);
-                                                    currentPlaylistFragment.recyclerViewState.setText("Empty Playlist");
-                                                    currentPlaylistFragment.recyclerViewState.setVisibility(View.VISIBLE);
+                                                    currentPlaylistFragment.binding.currentPlaylistRecyclerView.setVisibility(View.GONE);
+                                                    currentPlaylistFragment.binding.currentPlaylistRecyclerState.setText("Empty Playlist");
+                                                    currentPlaylistFragment.binding.currentPlaylistRecyclerState.setVisibility(View.VISIBLE);
                                                 }
                                             }
                                         } else {
