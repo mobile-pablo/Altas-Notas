@@ -6,6 +6,8 @@ import android.util.Patterns;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.company.altasnotas.MainActivity;
@@ -13,6 +15,7 @@ import com.company.altasnotas.R;
 import com.company.altasnotas.fragments.home.HomeFragment;
 import com.company.altasnotas.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.AuthResult;
@@ -22,83 +25,112 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterFragmentViewModel extends ViewModel {
 
-    DatabaseReference database;
-    FirebaseAuth mAuth;
+    private DatabaseReference database;
+    private FirebaseAuth mAuth;
+    private MutableLiveData<Integer> _errorState = new MutableLiveData<>(0);
+    private String mail, passOne, passTwo;
+    private MutableLiveData<Boolean> _isRegistered = new MutableLiveData<>();
 
-    public void register(MainActivity activity, String mail, String pass_one, String pass_two) {
-        if (checkData(activity.getApplicationContext(), mail, pass_one, pass_two)) {
+
+    public LiveData<Boolean> getIsRegistered(){
+        return  _isRegistered;
+    }
+    public LiveData<Integer> getErrorState(){
+       return _errorState;
+    }
+    public void register() {
+        if (checkData( mail, passOne, passTwo)) {
             mAuth = FirebaseAuth.getInstance();
             database = FirebaseDatabase.getInstance().getReference();
 
-            mAuth.createUserWithEmailAndPassword(mail, pass_one).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            mAuth.createUserWithEmailAndPassword(mail, passOne).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
-
-                        User user = new User("Username", mail,"",1);
-                        /**
-                         * Login methods :
-                         *  1 - Mail
-                         *  2 - Google
-                         *  3 - Facebook
-                         */
-                        database.child("users").child(mAuth.getCurrentUser().getUid()).setValue(user).addOnCompleteListener(task1 -> {
-                            if (task1.isSuccessful()) {
-
-                                int count = activity.getSupportFragmentManager().getBackStackEntryCount();
-
-                                for (int i = 0; i < count; i++) {
-                                    activity.getSupportFragmentManager().popBackStack();
-                                }
-                                activity.updateUI(mAuth.getCurrentUser());
-                                BottomNavigationView bottomNavigationView = activity.findViewById(R.id.main_nav_bottom);
-                                bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
-                                Toast.makeText(activity, "Register success", Toast.LENGTH_SHORT).show();
-
-                                activity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
-                                //Walkthrough will be here
-                            }
-                        });
-
-
-                    } else {
-                        Toast.makeText(activity, "Register error.\nTry another mail", Toast.LENGTH_SHORT).show();
+                            createUser();
                     }
                 }
 
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    _errorState.setValue(5);
+                }
             });
         }
 
     }
 
+    private void createUser() {
 
-    private boolean checkData(Context context, String email, String password, String passwordTwo) {
+        User user = new User("Username", mail,"",1);
+        /**
+         * Login methods :
+         *  1 - Mail
+         *  2 - Google
+         *  3 - Facebook
+         */
+        database.child("users").child(mAuth.getCurrentUser().getUid()).setValue(user).addOnCompleteListener(task1 -> {
+            if (task1.isSuccessful()) {
+                _isRegistered.setValue(true);
+            }else {
+                _isRegistered.setValue(false);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                _isRegistered.setValue(false);
+            }
+        });
+
+
+    }
+
+    public FirebaseAuth getMAuth(){
+        return mAuth;
+    }
+
+    private boolean checkData(String email, String password, String passwordTwo) {
         if ((!email.isEmpty()) && (!password.isEmpty()) && (!passwordTwo.isEmpty())) {
 
             if (email.length() > 10 && password.length() > 4 && passwordTwo.length() > 4) {
                 if (!password.equals(passwordTwo)) {
-                    Toast.makeText(context, "Wrong passwords", Toast.LENGTH_SHORT).show();
+                    _errorState.setValue(1);
+
                     return false;
                 } else {
 
                     Boolean isValidEmail = !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches();
 
                     if (!isValidEmail) {
-                        Toast.makeText(context, "Wrong email", Toast.LENGTH_SHORT).show();
+                        _errorState.setValue(2);
                     }
 
                     return isValidEmail;
 
                 }
             } else {
-                Toast.makeText(context, "Required Length : \nEmail 10+\nPassword 4+", Toast.LENGTH_SHORT).show();
+                _errorState.setValue(3);
                 return false;
             }
         } else {
-            Toast.makeText(context, "Fill all forms", Toast.LENGTH_SHORT).show();
+            _errorState.setValue(4);
             return false;
         }
 
 
+    }
+
+
+    public void setMail(String mail) {
+        this.mail = mail;
+    }
+
+    public void setPassOne(String passOne) {
+        this.passOne = passOne;
+    }
+
+    public void setPassTwo(String passTwo) {
+        this.passTwo = passTwo;
     }
 }

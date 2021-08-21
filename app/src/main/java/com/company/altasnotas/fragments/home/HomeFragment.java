@@ -1,6 +1,5 @@
 package com.company.altasnotas.fragments.home;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,40 +33,35 @@ import java.util.ArrayList;
 
 public class HomeFragment extends Fragment {
 
+    private final String[] album_array = new String[1];
+    private final String[] author_array = new String[1];
 
-    HomeFragmentAdapter adapter;
+    private HomeFragmentAdapter adapter;
     private DatabaseReference database_ref;
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
-    private final String[] album_array = new String[1];
-    private final String[] author_array = new String[1];
     private ArrayList<Playlist> playlists;
     private ArrayList<String> authors;
     private ArrayList<String> albums;
-    MainActivity mainActivity;
+    private MainActivity mainActivity;
+    private Boolean isOpenByLogin;
 
-    StorageReference storageReference;
-    Boolean isOpenByLogin;
     public static FragmentHomeBinding binding;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        binding =FragmentHomeBinding.inflate(inflater,container,false);
+        binding = FragmentHomeBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-        mAuth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
-        database_ref = database.getReference();
-        storageReference = FirebaseStorage.getInstance().getReference();
-        albums = new ArrayList<>();
-        authors = new ArrayList<>();
-        playlists = new ArrayList<>();
 
-        mainActivity= (MainActivity) getActivity();
-        adapter = new HomeFragmentAdapter((MainActivity) getActivity(), authors, albums, playlists);
-        binding.homeRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        binding.homeRecyclerView.setAdapter(adapter);
-        mainActivity.activityMainBinding.mainActivityBox.setBackground( getResources().getDrawable( R.drawable.custom_home_fragment_bg ));
+        initalizeFirebaseConnection();
+
+        setUpArrays();
+
+        mainActivity = (MainActivity) getActivity();
+
+        initializeRecyclerView();
         initializePlaylists();
 
         binding.homeLogoutBtn.setOnClickListener(v -> {
@@ -75,34 +69,51 @@ public class HomeFragment extends Fragment {
             mainActivity.logoutUser();
         });
 
-        Activity parentActivity=(Activity) view.getContext();
-
-        if(isOpenByLogin){
+        if (isOpenByLogin) {
             mainActivity.downloadPhoto();
         }
 
-         mainActivity.viewModel.getPhotoUrl().observe(mainActivity, new Observer<String>() {
-             @Override
-             public void onChanged(String s) {
-                 if(mainActivity.viewModel.getPhotoUrl()!=null){
-                     Glide.with(parentActivity).load(mainActivity.viewModel.getPhotoUrl().getValue()).error(R.drawable.img_not_found).into(binding.homeProfileBtn);
-                 }
-             }
-         });
+        mainActivity.viewModel.getPhotoUrl().observe(mainActivity, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                if (mainActivity.viewModel.getPhotoUrl() != null) {
+                    Glide.with(mainActivity).load(mainActivity.viewModel.getPhotoUrl().getValue()).error(R.drawable.img_not_found).into(binding.homeProfileBtn);
+                }
+            }
+        });
 
 
         binding.homeProfileBtn.setOnClickListener(v -> {
-        getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new ProfileFragment()).addToBackStack(null).commit();
+            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new ProfileFragment()).addToBackStack(null).commit();
         });
 
-        if(mAuth.getCurrentUser()==null){
-            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new LoginFragment()).commit();
+        if (mAuth.getCurrentUser() == null) {
+            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new LoginFragment()).commit();
         }
         return view;
     }
 
-    public HomeFragment(Boolean isOpenByLogin){
-        this.isOpenByLogin=isOpenByLogin;
+    private void setUpArrays() {
+        albums = new ArrayList<>();
+        authors = new ArrayList<>();
+        playlists = new ArrayList<>();
+    }
+
+    private void initalizeFirebaseConnection() {
+        mAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
+        database_ref = database.getReference();
+    }
+
+    private void initializeRecyclerView() {
+        adapter = new HomeFragmentAdapter((MainActivity) getActivity(), authors, albums, playlists);
+        binding.homeRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        binding.homeRecyclerView.setAdapter(adapter);
+        mainActivity.activityMainBinding.mainActivityBox.setBackground(getResources().getDrawable(R.drawable.custom_home_fragment_bg));
+    }
+
+    public HomeFragment(Boolean isOpenByLogin) {
+        this.isOpenByLogin = isOpenByLogin;
     }
 
 
@@ -114,8 +125,8 @@ public class HomeFragment extends Fragment {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                    for(DataSnapshot ds_author: snapshot.getChildren()){
-                        for(DataSnapshot ds_album: ds_author.getChildren() ){
+                    for (DataSnapshot ds_author : snapshot.getChildren()) {
+                        for (DataSnapshot ds_album : ds_author.getChildren()) {
                             if (ds_album != null) {
                                 Playlist x = new Playlist();
                                 String author = ds_author.getKey();
@@ -157,6 +168,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        mainActivity.activityMainBinding.mainActivityBox.setBackground( getResources().getDrawable( R.drawable.custom_home_fragment_bg ));
+        mainActivity.activityMainBinding.mainActivityBox.setBackground(getResources().getDrawable(R.drawable.custom_home_fragment_bg));
     }
 }

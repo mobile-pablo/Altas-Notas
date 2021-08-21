@@ -51,14 +51,16 @@ import static android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
 
 public class MainActivity extends AppCompatActivity {
 
-    FirebaseAuth mAuth;
 
+    public static final String FIREBASE = "Firebase";
 
     public static Integer dialogHeight;
-    public static final String FIREBASE = "Firebase";
     public static MainActivityViewModel viewModel;
+
     public ActivityMainBinding activityMainBinding;
+
     private String frag;
+    private FirebaseAuth mAuth;
 
 
     @Override

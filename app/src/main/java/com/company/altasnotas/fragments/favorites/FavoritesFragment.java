@@ -37,21 +37,25 @@ public class FavoritesFragment extends Fragment {
 
     public FavoritesFragmentViewModel viewModel;
     public static FragmentCurrentPlaylistBinding binding;
+
     private DatabaseReference database_ref;
     private MainActivity mainActivity;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         binding = FragmentCurrentPlaylistBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+
         database_ref = FirebaseDatabase.getInstance().getReference();
+
         mainActivity= (MainActivity) getActivity();
         mainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
 
         binding.currentPlaylistSettings.setVisibility(View.INVISIBLE);
 
-        viewModel = new ViewModelProvider(requireActivity()).get(FavoritesFragmentViewModel.class);
+        viewModel = new ViewModelProvider(mainActivity).get(FavoritesFragmentViewModel.class);
 
         initalizeObservers();
         viewModel.initializeFavorites();

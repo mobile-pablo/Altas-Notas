@@ -23,6 +23,7 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
@@ -31,7 +32,14 @@ import com.canhub.cropper.CropImage;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.databinding.FragmentProfileBinding;
+import com.company.altasnotas.fragments.login_and_register.LoginFragment;
+import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.viewmodels.fragments.profile.ProfileFragmentViewModel;
+import com.facebook.AccessToken;
+import com.facebook.login.LoginManager;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -54,9 +62,9 @@ public class ProfileFragment extends Fragment {
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
     private Uri returnUri = null;
-    private ProfileFragmentViewModel model;
+    private ProfileFragmentViewModel viewModel;
     private StorageReference storageReference;
-
+    private ProgressDialog progress;
     public static FragmentProfileBinding binding;
 
     private MainActivity mainActivity;
@@ -74,8 +82,8 @@ public class ProfileFragment extends Fragment {
         database_ref = database.getReference();
 
 
-        model = new ViewModelProvider(requireActivity()).get(ProfileFragmentViewModel.class);
-        model.downloadProfile((MainActivity) getActivity(), mAuth, database_ref, binding.profileFullName, binding.profileEmail, binding.profileUserImg, binding.profileDetailsCreationText, binding.profileDetailsCreationDate);
+        viewModel = new ViewModelProvider(requireActivity()).get(ProfileFragmentViewModel.class);
+        viewModel.downloadProfile((MainActivity) getActivity(), mAuth, database_ref, binding.profileFullName, binding.profileEmail, binding.profileUserImg, binding.profileDetailsCreationText, binding.profileDetailsCreationDate);
 
         binding.profileUserImgBtn.setOnClickListener(v -> {
             if (ActivityCompat.checkSelfPermission(getActivity(),
@@ -97,7 +105,7 @@ public class ProfileFragment extends Fragment {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             binding.profileFullName.setText(String.valueOf(taskEditText.getText()));
-                            model.updateProfile(mAuth, database_ref, binding.profileFullName);
+                            viewModel.updateProfile(mAuth, database_ref, binding.profileFullName);
                         }
                     })
                     .setNegativeButton("Cancel", null)
@@ -115,7 +123,7 @@ public class ProfileFragment extends Fragment {
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            model.deleteProfile((MainActivity) getActivity(), mAuth, database_ref);
+                            viewModel.deleteProfile();
                         }
                     })
                     .setNegativeButton("Cancel", null)
@@ -124,7 +132,30 @@ public class ProfileFragment extends Fragment {
             dialog.show();
         });
 
+        initializeObservers();
         return view;
+    }
+
+    private void initializeObservers() {
+        viewModel.getShouldDeleteUser().observe(getViewLifecycleOwner(), new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                switch (integer){
+                    case 0:
+                        showProgress("Deleting Account");
+                        break;
+
+                    case 1:
+                        if(progress!=null)
+                        {
+                        progress.dismiss();
+                        }
+                        deleteUser();
+                }
+            }
+        });
+
+
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -139,11 +170,7 @@ public class ProfileFragment extends Fragment {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
                 returnUri = result.getUriContent();
-                ProgressDialog progress = new ProgressDialog(getContext());
-                progress.setTitle("Loading Photo");
-                progress.setMessage("Please wait...");
-                progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
-                progress.show();
+            showProgress("Loading Photo");
                 try {
 
                     Bitmap compresedImg = ProfileFragmentViewModel.getBitmapFormUri(getActivity(), returnUri);
@@ -243,6 +270,107 @@ public class ProfileFragment extends Fragment {
             width = (int) (height * bitmapRatio);
         }
         return Bitmap.createScaledBitmap(image, width, height, true);
+    }
+
+    private void deleteUser() {
+        database_ref.child("users").child(viewModel.uid).removeValue()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+
+                        mAuth.getCurrentUser().delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+
+
+                                AccessToken accessToken = AccessToken.getCurrentAccessToken();
+                                boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
+                                if (isLoggedIn == true) {
+                                    LoginManager.getInstance().logOut();
+                                }
+
+
+                                if (task.isSuccessful()) {
+                                    for (int i = 0; i <    mainActivity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
+                                        mainActivity.getSupportFragmentManager().popBackStack();
+                                    }
+
+                                    mAuth.signOut();
+                                    if(LoginFragment.mGoogleApiClient!=null){
+                                        if (LoginFragment.mGoogleApiClient.isConnected()) {
+                                            LoginFragment.mGoogleApiClient.clearDefaultAccountAndReconnect();
+                                            Auth.GoogleSignInApi.signOut(LoginFragment.mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
+                                                @Override
+                                                public void onResult(@NonNull Status status) {
+                                                    if(status.isSuccess()){
+                                                        Log.d("Google", "Signed out from Google");
+                                                    }else{
+                                                        Log.d("Google", "Error while sigining out from Google");
+                                                    }
+                                                }
+                                            });
+
+                                            LoginFragment.mGoogleSignInClient.signOut();
+                                            LoginFragment.mGoogleApiClient.disconnect();
+                                        }
+
+                                        LoginFragment.mGoogleApiClient.stopAutoManage(mainActivity);
+
+                                    }
+
+
+
+                                    mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new LoginFragment()).commit();
+                                    mainActivity.updateUI(mAuth.getCurrentUser());
+
+                                }
+                                else{
+                                  mAuth = FirebaseAuth.getInstance();
+                                    if(mAuth.getCurrentUser()!=null){
+                                        mAuth.getCurrentUser().delete();
+
+                                        for (int i = 0; i <    mainActivity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
+                                            mainActivity.getSupportFragmentManager().popBackStack();
+                                        }
+
+                                        Fragment frag = mainActivity.getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
+                                        if (frag instanceof PlayerFragment) {
+                                            ((PlayerFragment) frag).dismissPlayer();
+                                        }
+
+
+                                        mAuth.signOut();
+                                        if(LoginFragment.mGoogleApiClient!=null){
+                                            if (LoginFragment.mGoogleApiClient.isConnected()) {
+                                                Auth.GoogleSignInApi.signOut(LoginFragment.mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
+                                                    @Override
+                                                    public void onResult(@NonNull Status status) {
+
+                                                    }
+                                                });
+                                            }
+                                            LoginFragment.mGoogleApiClient.stopAutoManage(mainActivity);
+                                            LoginFragment.mGoogleApiClient.disconnect();
+                                        }
+
+
+                                        mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new LoginFragment()).commit();
+                                        mainActivity.updateUI(mAuth.getCurrentUser());
+                                    }
+                                }
+                            }
+                        });
+
+                    }
+                });
+    }
+
+    private void showProgress(String title){
+        progress = new ProgressDialog(mainActivity);
+        progress.setTitle(title);
+        progress.setMessage("Please wait...");
+        progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
+        progress.show();
     }
 
 

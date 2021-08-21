@@ -7,8 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -24,7 +22,6 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -39,63 +36,81 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.util.Objects;
-
 import static android.content.ContentValues.TAG;
 
 
 public class LoginFragment extends Fragment {
 
     private static final int RC_SIGN_IN = 120;
+
     public static GoogleSignInClient mGoogleSignInClient;
     public static GoogleApiClient mGoogleApiClient;
-    private CallbackManager callbackManager;
-    private LoginFragmentViewModel model;
-    private FirebaseAuth mAuth;
     public static FragmentLoginBinding binding;
+
     private MainActivity mainActivity;
+    private GoogleSignInOptions gso;
+    private String email, password;
+    private CallbackManager callbackManager;
+    private LoginFragmentViewModel viewModel;
+    private FirebaseAuth mAuth;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-      binding = FragmentLoginBinding.inflate(inflater, container,false);
-      View view = binding.getRoot();
+        binding = FragmentLoginBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
+
         mainActivity = (MainActivity) getActivity();
+
         mAuth = FirebaseAuth.getInstance();
-        model = new ViewModelProvider(requireActivity()).get(LoginFragmentViewModel.class);
+        viewModel = new ViewModelProvider(mainActivity).get(LoginFragmentViewModel.class);
 
         mainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
-        if(mGoogleApiClient!=null){
-            if (mGoogleApiClient.isConnected()) {
-                Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(@NonNull Status status) {
-                        if(status.isSuccess()){
-                            Log.d("Google", "Signed out from Google");
-                        }else{
-                            Log.d("Google", "Error while sigining out from Google");
-                        }
-                    }
-                });
+        releaseGoogleLogin();
 
-                mGoogleApiClient.stopAutoManage(getActivity());
-               mGoogleApiClient.disconnect();
-            }
-
-        }
         binding.loginWMailBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                model.login((MainActivity) requireActivity(), binding.loginEmailEdittext.getText().toString().toLowerCase().trim(), binding.loginPasswordEdittext.getText().toString().toLowerCase().trim());
-            }
-        });
-        binding.jumpToRegisterBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                requireActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).addToBackStack(null).replace(R.id.main_fragment_container, new RegisterFragment()).commit();
+                email = binding.loginEmailEdittext.getText().toString().toLowerCase().trim();
+                password = binding.loginPasswordEdittext.getText().toString().toLowerCase().trim();
+                viewModel.login((MainActivity) requireActivity(), email, password);
             }
         });
 
+        binding.jumpToRegisterBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requireActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).addToBackStack(null).replace(R.id.main_fragment_container, new RegisterFragment()).commit();
+            }
+        });
+
+        initializeFacebookLogin();
+
+        initializeGoogleLogin();
+
+        return view;
+    }
+
+
+
+    private void initializeGoogleLogin() {
+        gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(getContext(), gso);
+        binding.loginGoogleBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            loginByGoogle();
+            }
+        });
+
+    }
+
+    private void initializeFacebookLogin() {
         // Initialize Facebook Login button
         FacebookSdk.sdkInitialize(getContext());
 
@@ -110,7 +125,7 @@ public class LoginFragment extends Fragment {
             public void onSuccess(LoginResult loginResult) {
                 AccessToken token = loginResult.getAccessToken();
                 Log.d("Facebook", "Token: " + token.getUserId());
-                model.handleFacebookAccessToken((MainActivity) getActivity(), loginResult.getAccessToken());
+                viewModel.handleFacebookAccessToken((MainActivity) getActivity(), loginResult.getAccessToken());
             }
 
             @Override
@@ -123,61 +138,71 @@ public class LoginFragment extends Fragment {
                 Log.d("Facebook", "Login error: " + exception.toString());
             }
         });
-        binding.loginFbBtn.setOnClickListener(v ->  binding.fbNewLoginButton.performClick());
+        binding.loginFbBtn.setOnClickListener(v -> binding.fbNewLoginButton.performClick());
+    }
 
+    private void loginByGoogle() {
 
-        //Google Auth
-        // Configure Google Sign In
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                    .enableAutoManage(getActivity(), new GoogleApiClient.OnConnectionFailedListener() {
+                        @Override
+                        public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
-        mGoogleSignInClient = GoogleSignIn.getClient(getContext(), gso);
-        binding.loginGoogleBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if(mGoogleApiClient==null){
-                    mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
-                            .enableAutoManage(getActivity(), new GoogleApiClient.OnConnectionFailedListener() {
-                                @Override
-                                public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-                                }
-                            })
-                            .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                            .build();
-                }else{
-                    if(mGoogleApiClient.isConnected()){
-                        mGoogleApiClient.clearDefaultAccountAndReconnect();
-                    }
-                    mGoogleApiClient.stopAutoManage(getActivity());
-                    mGoogleApiClient.disconnect();
-                    mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
-                            .enableAutoManage(getActivity(), new GoogleApiClient.OnConnectionFailedListener() {
-                                @Override
-                                public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-                                }
-                            })
-                            .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                            .build();
-                }
-
-                signIn();
+                        }
+                    })
+                    .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                    .build();
+        }
+        else
+        {
+            if (mGoogleApiClient.isConnected())
+            {
+                mGoogleApiClient.clearDefaultAccountAndReconnect();
             }
-        });
 
+            mGoogleApiClient.stopAutoManage(getActivity());
+            mGoogleApiClient.disconnect();
+            mGoogleApiClient = new GoogleApiClient
+                    .Builder(getActivity())
+                    .enableAutoManage(getActivity(), new GoogleApiClient.OnConnectionFailedListener() {
+                        @Override
+                        public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
-        return view;
+                        }
+                    })
+                    .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                    .build();
+        }
+
+        signIn();
+    }
+
+    private void releaseGoogleLogin() {
+        if (mGoogleApiClient != null) {
+            if (mGoogleApiClient.isConnected()) {
+                Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(@NonNull Status status) {
+                        if (status.isSuccess()) {
+                            Log.d("Google", "Signed out from Google");
+                        } else {
+                            Log.d("Google", "Error while sigining out from Google");
+                        }
+                    }
+                });
+
+                mGoogleApiClient.stopAutoManage(getActivity());
+                mGoogleApiClient.disconnect();
+            }
+
+        }
     }
 
     @Override
     public void onStart() {
         super.onStart();
         FirebaseUser user = mAuth.getCurrentUser();
-        MainActivity mainActivity = (MainActivity) getActivity();
         mainActivity.updateUI(user);
 
     }
@@ -194,7 +219,8 @@ public class LoginFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+
+        // Result returned from launching the Intent from GoogleSignInApi
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             if (task.isSuccessful()) {
@@ -202,7 +228,7 @@ public class LoginFragment extends Fragment {
                     // Google Sign In was successful, authenticate with Firebase
                     GoogleSignInAccount account = task.getResult(ApiException.class);
                     Log.d(TAG, "firebaseAuthWithGoogle:" + account.getId());
-                    model.firebaseAuthWithGoogle((MainActivity) getActivity(), account.getIdToken());
+                    viewModel.firebaseAuthWithGoogle((MainActivity) getActivity(), account.getIdToken());
                 } catch (ApiException e) {
                     // Google Sign In failed, update UI appropriately
                     Log.w(TAG, "Google sign in failed", e);

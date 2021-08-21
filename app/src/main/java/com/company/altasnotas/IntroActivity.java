@@ -11,7 +11,9 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class IntroActivity extends AppCompatActivity {
+
     private final Integer START_DELAY=1500;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

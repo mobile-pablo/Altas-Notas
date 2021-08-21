@@ -15,6 +15,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.bumptech.glide.Glide;
@@ -25,22 +27,18 @@ import com.company.altasnotas.fragments.home.HomeFragment;
 import com.company.altasnotas.fragments.login_and_register.LoginFragment;
 import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.models.User;
-import com.company.altasnotas.services.BackgroundService;
 import com.facebook.AccessToken;
-import com.facebook.login.Login;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -50,14 +48,25 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.concurrent.CountDownLatch;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ProfileFragmentViewModel extends ViewModel {
+    private  StorageReference storageReference;
+    private FirebaseAuth mAuth;
+    private DatabaseReference database_ref;
+    public String uid;
+    private   ArrayList<String> keys;
+    private Integer[] x={0};
+
+    private MutableLiveData<Integer> _shouldDeleteUser = new MutableLiveData<>();
+    public LiveData<Integer> getShouldDeleteUser(){
+        return  _shouldDeleteUser;
+    }
+
+
     /**
      * Two functions below are copied from : https://programming.vip/docs/android-uri-to-bitmap-image-and-compress.html
      * It helps me compress the photo to 5 times worse quality than the original (5MB -> 1MB)
@@ -97,40 +106,35 @@ public class ProfileFragmentViewModel extends ViewModel {
 
         return compressImage(bitmap);//Mass compression again
     }
-
     public static Bitmap compressImage(Bitmap image) {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.JPEG, 100, baos);//Quality compression method, here 100 means no compression, store the compressed data in the BIOS
         int options = 100;
         while (baos.toByteArray().length / 1024 > 100) {  //Cycle to determine if the compressed image is greater than 100kb, greater than continue compression
-            baos.reset();//Reset the BIOS to clear it
-            //First parameter: picture format, second parameter: picture quality, 100 is the highest, 0 is the worst, third parameter: save the compressed data stream
+            baos.reset();
+
             image.compress(Bitmap.CompressFormat.JPEG, options, baos);//Here, the compression options are used to store the compressed data in the BIOS
             if (options >= 30) {
-                options -= 10;//10 less each time
+                options -= 10;
             } else {
-                ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//Store the compressed data in ByteArrayInputStream
+                ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());
                 Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);//Generate image from ByteArrayInputStream data
                 return bitmap;
             }
         }
-        ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//Store the compressed data in ByteArrayInputStream
-        Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);//Generate image from ByteArrayInputStream data
+        ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());
+        Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);
         return bitmap;
     }
 
-    public void deleteProfile(MainActivity activity ,FirebaseAuth mAuth, DatabaseReference database_ref){
-        ProgressDialog progress = new ProgressDialog(activity);
-        progress.setTitle("Deleting Account");
-        progress.setMessage("Please wait...");
-        progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
-        progress.show();
+    public void deleteProfile(){
+        _shouldDeleteUser.setValue(0);
+        initializeFirebase();
 
-        String uid = mAuth.getCurrentUser().getUid();
-        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-        ArrayList<String> keys = new ArrayList<>();
-        final Integer[] x = {0};
+        uid = mAuth.getCurrentUser().getUid();
+         keys = new ArrayList<>();
+
 
 
 
@@ -141,9 +145,19 @@ public class ProfileFragmentViewModel extends ViewModel {
         - Fav music
         */
 
-        storageReference.child("images").child("profiles").child(mAuth.getCurrentUser().getUid()).delete();
+       deleteImgProfile();
 
+        deletePlaylists();
+        deleteFavMusic();
 
+       _shouldDeleteUser.setValue(1);
+    }
+
+    private void deleteFavMusic() {
+        database_ref.child("fav_music").child(uid).removeValue();
+    }
+
+    private void deletePlaylists() {
         database_ref.child("music").child("playlists").child(uid).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -154,7 +168,7 @@ public class ProfileFragmentViewModel extends ViewModel {
 
                 if(keys.size() == snapshot.getChildrenCount()){
                     for(String key: keys){
-                        storageReference.child("images/playlists/"+uid+"/"+ key).delete().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+                        storageReference.child("images/playlists/"+uid+"/"+ key).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 x[0]++;
@@ -179,100 +193,16 @@ public class ProfileFragmentViewModel extends ViewModel {
             }
         });
 
+    }
 
-        database_ref.child("fav_music").child(uid).removeValue();
+    private void initializeFirebase() {
+        mAuth= FirebaseAuth.getInstance();
+        database_ref = FirebaseDatabase.getInstance().getReference();
+        storageReference= FirebaseStorage.getInstance().getReference();
+    }
 
-        database_ref.child("users").child(uid).removeValue()
-                .addOnCompleteListener(activity, new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-
-                mAuth.getCurrentUser().delete().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-
-
-                        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-                        boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
-                        if (isLoggedIn == true) {
-                            LoginManager.getInstance().logOut();
-                        }
-
-
-                        if (task.isSuccessful()) {
-                            for (int i = 0; i <    activity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
-                                activity.getSupportFragmentManager().popBackStack();
-                            }
-
-                            mAuth.signOut();
-                            if(LoginFragment.mGoogleApiClient!=null){
-                                if (LoginFragment.mGoogleApiClient.isConnected()) {
-                                    LoginFragment.mGoogleApiClient.clearDefaultAccountAndReconnect();
-                                    Auth.GoogleSignInApi.signOut(LoginFragment.mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
-                                        @Override
-                                        public void onResult(@NonNull Status status) {
-                                            if(status.isSuccess()){
-                                                Log.d("Google", "Signed out from Google");
-                                            }else{
-                                                Log.d("Google", "Error while sigining out from Google");
-                                            }
-                                        }
-                                    });
-
-                                    LoginFragment.mGoogleSignInClient.signOut();
-                                    LoginFragment.mGoogleApiClient.disconnect();
-                                }
-
-                                LoginFragment.mGoogleApiClient.stopAutoManage(activity);
-
-                            }
-
-
-
-                            progress.dismiss();
-                            activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new LoginFragment()).commit();
-                            activity.updateUI(mAuth.getCurrentUser());
-
-                        }
-                        else{
-                          FirebaseAuth  mAuth = FirebaseAuth.getInstance();
-                            mAuth.getCurrentUser().delete();
-
-                            for (int i = 0; i <    activity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
-                                activity.getSupportFragmentManager().popBackStack();
-                            }
-
-                            Fragment frag = activity.getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
-                            if (frag instanceof PlayerFragment) {
-                                ((PlayerFragment) frag).dismissPlayer();
-                            }
-
-
-                            mAuth.signOut();
-                            if(LoginFragment.mGoogleApiClient!=null){
-                                if (LoginFragment.mGoogleApiClient.isConnected()) {
-                                    Auth.GoogleSignInApi.signOut(LoginFragment.mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
-                                        @Override
-                                        public void onResult(@NonNull Status status) {
-
-                                        }
-                                    });
-                                }
-                                LoginFragment.mGoogleApiClient.stopAutoManage(activity);
-                                LoginFragment.mGoogleApiClient.disconnect();
-                            }
-
-
-                            progress.dismiss();
-                            activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new LoginFragment()).commit();
-                            activity.updateUI(mAuth.getCurrentUser());
-                           }
-                    }
-                });
-
-              }
-        });
-
+    private void deleteImgProfile() {
+        storageReference.child("images").child("profiles").child(mAuth.getCurrentUser().getUid()).delete();
     }
 
     public void downloadProfile(MainActivity mainActivity, FirebaseAuth mAuth, DatabaseReference database_ref,  TextView profile_name, TextView profile_email, CircleImageView profile_img, TextView creationText, TextView creationDate) {
@@ -297,50 +227,7 @@ public class ProfileFragmentViewModel extends ViewModel {
                         creationDate.setText(formatter.format(date));
 
                     Glide.with(mainActivity).load(MainActivity.viewModel.getPhotoUrl().getValue()).error(R.drawable.img_not_found).into(profile_img);
-                    /*
-                           //  Image download
-                        StorageReference storageReference = storage.getReference();
-                        database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                storageReference.child("images/profiles/" + mAuth.getCurrentUser().getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        System.out.println("IMG FOUND");
-                                        if(mainActivity!=null) {
-                                            Glide.with(mainActivity).load(uri).error(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
-                                            mainActivity.photoUrl=uri.toString();
-                                        }
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception exception) {
 
-                                        if ((Integer.parseInt(snapshot.child("login_method").getValue().toString())) != 1) {
-                                            String url = snapshot.child("photoUrl").getValue().toString();
-                                            if(url!=null) {
-                                                if (mainActivity != null) {
-                                                    Glide.with(mainActivity).load(url).error(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
-                                                    mainActivity.photoUrl=url;
-                                                }
-                                            }else{
-                                                mainActivity.photoUrl="";
-                                                Glide.with(mainActivity).load(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
-                                            }
-                                            Log.d("Storage exception: " + exception.getLocalizedMessage() + "\nLoad from Page URL instead", "FirebaseStorage");
-
-                                        }
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-                                Log.d("DatabaseError: " + error.getMessage(), "FirebaseDatabase");
-                            }
-                        });
-
-                     */
                     }
                 }
 
