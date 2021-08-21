@@ -21,6 +21,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.company.altasnotas.MainActivity;
@@ -53,55 +55,40 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 
 public class CurrentPlaylistFragmentViewModel  extends ViewModel {
-    private BottomSheetDialog bottomSheetDialog;
-    private Dialog dialog;
-    private TextView dialog_playlist_name, dialog_playlist_desc;
-
-    private Playlist playlist;
+    private Playlist _playlist, p;
     private DatabaseReference database_ref;
     private FirebaseAuth mAuth;
     private StorageReference storageReference;
+    private    int[] x;
+    private String finalName, finalDesc;
+    private String key;
+    private String old_key;
     private MainActivity mainActivity;
-
-    public void init(Playlist playlist, MainActivity mainActivity, DatabaseReference database_ref, FirebaseAuth mAuth, StorageReference storageReference){
-        this.playlist=playlist;
-        this.mainActivity=mainActivity;
-        this.database_ref=database_ref;
-        this.mAuth=mAuth;
-        this.storageReference =storageReference;
+    private MutableLiveData<Integer> _validErrorState = new MutableLiveData<>();
+    public LiveData<Integer> getValidErrorState(){
+        return _validErrorState;
     }
 
-    public static Bitmap rotateImageIfRequired(Context context, Bitmap img, Uri selectedImage) throws IOException {
-
-        InputStream input = context.getContentResolver().openInputStream(selectedImage);
-        ExifInterface ei;
-        if (Build.VERSION.SDK_INT > 23)
-            ei = new ExifInterface(input);
-        else
-            ei = new ExifInterface(selectedImage.getPath());
-
-        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-
-        switch (orientation) {
-            case ExifInterface.ORIENTATION_ROTATE_90:
-                return rotateImage(img, 90);
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                return rotateImage(img, 180);
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                return rotateImage(img, 270);
-            default:
-                return img;
-        }
+    private MutableLiveData<Boolean> _shouldOpenCopy = new MutableLiveData<>();
+    public LiveData<Boolean> getShouldOpenCopy(){
+        return _shouldOpenCopy;
     }
 
-    public static Bitmap rotateImage(Bitmap img, int degree) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(degree);
-        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
-        img.recycle();
-        return rotatedImg;
+    private MutableLiveData<Boolean> _shouldOpenCurrentFragment = new MutableLiveData<>();
+    public LiveData<Boolean> getShouldOpenCurrentFragment(){
+        return _shouldOpenCurrentFragment;
     }
 
+    private MutableLiveData<Integer> _deleteState = new MutableLiveData<>();
+    public LiveData<Integer> getDeleteState(){
+        return  _deleteState;
+    }
+
+    private void initializeFirebase(){
+        database_ref = FirebaseDatabase.getInstance().getReference();
+        mAuth= FirebaseAuth.getInstance();
+        storageReference= FirebaseStorage.getInstance().getReference();
+    }
     public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -117,30 +104,12 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
         return Bitmap.createScaledBitmap(image, width, height, true);
     }
 
-
-    public void openPlaylistSettings(MainActivity mainActivity) {
-        bottomSheetDialog = new BottomSheetDialog(mainActivity);
-        bottomSheetDialog.setContentView(R.layout.bottom_playlist_settings);
-        bottomSheetDialog.getBehavior().setPeekHeight(MainActivity.dialogHeight);
-        LinearLayout copy = bottomSheetDialog.findViewById(R.id.bottom_settings_copy_box);
-        LinearLayout delete = bottomSheetDialog.findViewById(R.id.bottom_settings_delete_box);
-        LinearLayout dismissDialog = bottomSheetDialog.findViewById(R.id.bottom_settings_dismiss_box);
-
-        copy.setOnClickListener(v -> {
-            settingsCopy(playlist);
-            bottomSheetDialog.dismiss();
-        });
-
-        delete.setOnClickListener(v -> {
-            deletePlaylist(playlist);
-            bottomSheetDialog.dismiss();
-        });
-        dismissDialog.setOnClickListener(v -> bottomSheetDialog.dismiss());
-
-        bottomSheetDialog.show();
+    public void setMainActivity(MainActivity mainActivity){
+        this.mainActivity=mainActivity;
     }
-
     public void settingsCopy(Playlist playlist) {
+        initializeFirebase();
+        _shouldOpenCopy.setValue(false);
         database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -150,7 +119,8 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
                                     &&
                                     ds.child("description").getValue().toString().trim().equals(playlist.getDescription())
                     ) {
-                        openDialog(ds.getKey(), playlist);
+                        key = ds.getKey();
+                       _shouldOpenCopy.setValue(true);
                     }
                 }
             }
@@ -163,6 +133,7 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
     }
 
     public void deletePlaylist(Playlist playlist) {
+        initializeFirebase();
         database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -175,30 +146,22 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
 
                         String key = ds.getKey();
 
-                        database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).removeValue().addOnCompleteListener(mainActivity, new OnCompleteListener<Void>() {
+                        database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).removeValue().addOnCompleteListener( new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
-                                    System.out.println("Playlist deleted");
+                                 Log.d("Playlist", "Playlist deleted!");
 
-                                    storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).getDownloadUrl().addOnSuccessListener(mainActivity, new OnSuccessListener<Uri>() {
+                                    storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                         @Override
                                         public void onSuccess(Uri uri) {
-                                            storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).delete().addOnCompleteListener(mainActivity, new OnCompleteListener<Void>() {
+                                            storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + key).delete().addOnCompleteListener( new OnCompleteListener<Void>() {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Void> task) {
-
-                                                    mainActivity.activityMainBinding.mainNavBottom.setSelectedItemId(R.id.nav_home_item);
-
-                                                    for (int i = 0; i < mainActivity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
-                                                        mainActivity.getSupportFragmentManager().popBackStack();
-                                                    }
-
-                                                    mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(false)).commit();
-                                                    if (task.isSuccessful()) {
-                                                        System.out.println("Photo deleted with playlist");
+                                                  if (task.isSuccessful()) {
+                                                      _deleteState.setValue(0);
                                                     } else {
-                                                        Toast.makeText(mainActivity, "Error while deleting Photo", Toast.LENGTH_SHORT).show();
+                                                      _deleteState.setValue(1);
                                                     }
                                                 }
                                             });
@@ -206,30 +169,12 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
                                     }).addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception exception) {
-                                            Log.d(MainActivity.FIREBASE, "Photo wasn't found");
-
-                                            mainActivity.activityMainBinding.mainNavBottom.setSelectedItemId(R.id.nav_home_item);
-
-                                            for (int i = 0; i < mainActivity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
-                                                mainActivity.getSupportFragmentManager().popBackStack();
-                                            }
-
-                                            mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(false)).commit();
-
+                                            _deleteState.setValue(2);
                                         }
                                     });
 
                                 } else {
-                                    System.out.println("Error while  deleting Playlist");
-
-                                    mainActivity.activityMainBinding.mainNavBottom.setSelectedItemId(R.id.nav_home_item);
-
-                                    for (int i = 0; i < mainActivity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
-                                        mainActivity.getSupportFragmentManager().popBackStack();
-                                    }
-
-                                    mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(false)).commit();
-
+                                    _deleteState.setValue(3);
                                 }
                             }
                         });
@@ -239,66 +184,34 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                _deleteState.setValue(4);
                 System.out.println("Error while  deleting Playlist");
             }
         });
-
     }
 
-    public void openDialog(String key, Playlist playlist) {
-
-
-        dialog = new Dialog(mainActivity, R.style.Theme_AltasNotas);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCanceledOnTouchOutside(true);
-        dialog.setContentView(R.layout.add_playlists_dialog);
-        dialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
-        dialog.getWindow().setGravity(Gravity.CENTER);
-
-        ImageButton cancel, accept;
-
-        dialog_playlist_name = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_name);
-        dialog_playlist_desc = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_desc);
-
-        dialog_playlist_name.setText(playlist.getTitle());
-        dialog_playlist_desc.setText(playlist.getDescription());
-
-        cancel = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_cancel_btn);
-        accept = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_accept_btn);
-
-
-        cancel.setOnClickListener(v -> dialog.dismiss());
-
-
-        accept.setOnClickListener(v -> validInput(key, dialog_playlist_name.getText().toString(), dialog_playlist_desc.getText().toString(), playlist));
-
-        dialog.show();
-
-    }
-
-    public void validInput(String key, String name, String desc, Playlist playlist) {
+    public void validInput(String name, String desc) {
         name = name.trim();
         desc = desc.trim();
 
 
         if (name.isEmpty() && desc.isEmpty()) {
-            Toast.makeText(mainActivity, "Both fields are empty.\nPlease fill data.", Toast.LENGTH_SHORT).show();
+            _validErrorState.setValue(1);
         } else {
 
             if (name.isEmpty() || desc.isEmpty()) {
                 if (name.isEmpty()) {
-                    Toast.makeText(mainActivity, "Name is empty.\nPlease fill data.", Toast.LENGTH_SHORT).show();
+                    _validErrorState.setValue(2);
+
                 }
 
                 if (desc.isEmpty()) {
-                    Toast.makeText(mainActivity, "Description is empty.\nPlease fill data.", Toast.LENGTH_SHORT).show();
+                    _validErrorState.setValue(3);
                 }
             } else {
                 name = name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
-                desc = desc.substring(0, 1).toUpperCase() + desc.substring(1).toLowerCase();
-                String finalName = name;
-                String finalDesc = desc;
+                 finalName = name;
+                 finalDesc= desc;
                 database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -307,13 +220,13 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
                             for (DataSnapshot ds : snapshot.getChildren()) {
                                 if (ds.child("title").getValue().toString().trim().equals(finalName)) {
                                     x--;
-                                    Toast.makeText(mainActivity, "Playlist exist with same title!", Toast.LENGTH_SHORT).show();
+                                    _validErrorState.setValue(4);
                                 }
                             }
 
                             if (x == snapshot.getChildrenCount()) {
-                                dialog.dismiss();
-                                copyPlaylist(key, finalName, finalDesc, playlist);
+                                System.out.println("DODAJEMY COPY!");
+                               copyPlaylist(old_key, finalName,finalDesc,p);
                             }
                         }
                     }
@@ -329,13 +242,14 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
     }
 
     public void copyPlaylist(String old_key, String name, String desc, Playlist p) {
+        initializeFirebase();
 
         p.setTitle(name);
         p.setDescription(desc);
 
-        String key = database_ref.push().getKey();
+       key = database_ref.push().getKey();
 
-        database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).setValue(p).addOnCompleteListener(mainActivity, new OnCompleteListener<Void>() {
+       database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).setValue(p).addOnCompleteListener(mainActivity, new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
@@ -348,7 +262,7 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         //Copy songs
-                                        int[] x = {0};
+                                       x = new int[]{0};
                                         database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(old_key).child("songs").addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -509,6 +423,8 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
                                         });
                                     }
                                 });
+                            }else{
+
                             }
                         }
                     });
@@ -518,7 +434,9 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
                 }
             }
         });
-    }
+
+
+   }
 
     public Bitmap loadBitmap(String url) {
         Bitmap bm = null;
@@ -552,6 +470,36 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
     }
 
     public Playlist getPlaylist(){
-        return playlist;
+        return _playlist;
     }
+
+    public void setPlaylist(Playlist playlist) {
+        _playlist = playlist;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public String  getFinalName() {
+        return finalName;
+    }
+    public String  getFinalDesc() {
+        return finalDesc;
+    }
+    public void setP(Playlist playlist) {
+        p=playlist;
+    }
+    public Playlist getP(){
+        return p;
+    }
+
+    public void setOldKey(String i){
+        old_key=i;
+    }
+
+    public void setShouldOpenCopy(boolean b) {
+        _shouldOpenCopy.setValue(b);
+    }
+
 }

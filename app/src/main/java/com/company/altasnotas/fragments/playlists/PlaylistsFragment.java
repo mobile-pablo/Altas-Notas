@@ -55,8 +55,8 @@ public class PlaylistsFragment extends Fragment {
     private PlaylistsFragmentViewModel viewModel;
     private MainActivity mainActivity;
     private Dialog dialog;
-
     private String name,desc;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

@@ -48,6 +48,7 @@ import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
 import com.company.altasnotas.databinding.FragmentCurrentPlaylistBinding;
 import com.company.altasnotas.fragments.home.HomeFragment;
+import com.company.altasnotas.fragments.profile.ProfileFragment;
 import com.company.altasnotas.models.FavoriteFirebaseSong;
 import com.company.altasnotas.models.FirebaseSong;
 import com.company.altasnotas.models.Playlist;
@@ -98,6 +99,9 @@ public class CurrentPlaylistFragment extends Fragment {
     private MainActivity mainActivity;
     private Uri returnUri;
     private StorageReference storageReference;
+    private BottomSheetDialog bottomSheetDialog;
+    private Dialog dialog;
+    private TextView dialog_playlist_name, dialog_playlist_desc;
 
     private CurrentPlaylistFragmentViewModel viewModel;
     public static FragmentCurrentPlaylistBinding binding;
@@ -117,7 +121,7 @@ public class CurrentPlaylistFragment extends Fragment {
         database_ref = database.getReference();
         storageReference = FirebaseStorage.getInstance().getReference();
         viewModel =  new ViewModelProvider(requireActivity()).get(CurrentPlaylistFragmentViewModel.class);
-        viewModel.init(playlist, (MainActivity) getActivity(), database_ref, mAuth,storageReference);
+        viewModel.setPlaylist(playlist);
         binding.currentPlaylistTitle.setText(playlist.getTitle());
         binding.currentPlaylistDescription.setText(playlist.getDescription() + "\n(" + playlist.getYear() + ")");
 
@@ -164,8 +168,11 @@ public class CurrentPlaylistFragment extends Fragment {
 
 
         binding.currentPlaylistSettings.setOnClickListener(v -> {
-           viewModel.openPlaylistSettings((MainActivity) getActivity());
+          openPlaylistSettings();
         });
+
+        viewModel.setMainActivity(mainActivity);
+        initializeObservers();
         return view;
 
     }
@@ -421,7 +428,7 @@ public class CurrentPlaylistFragment extends Fragment {
                 try {
 
                     Bitmap compresedImg = ProfileFragmentViewModel.getBitmapFormUri(requireActivity(), returnUri);
-                    Bitmap compressImgRotated =  CurrentPlaylistFragmentViewModel.rotateImageIfRequired(requireContext(), compresedImg, returnUri);
+                    Bitmap compressImgRotated =  ProfileFragment.rotateImageIfRequired(requireContext(), compresedImg, returnUri);
                     ByteArrayOutputStream bao = new ByteArrayOutputStream();
                     compressImgRotated =  viewModel.getResizedBitmap(compressImgRotated, 300);
                     compressImgRotated.compress(Bitmap.CompressFormat.PNG, 100, bao);
@@ -502,6 +509,161 @@ public class CurrentPlaylistFragment extends Fragment {
                 Exception error = result.getError();
             }
         }
+    }
+
+
+    private void openPlaylistSettings() {
+        bottomSheetDialog = new BottomSheetDialog(mainActivity);
+        bottomSheetDialog.setContentView(R.layout.bottom_playlist_settings);
+        bottomSheetDialog.getBehavior().setPeekHeight(MainActivity.dialogHeight);
+        LinearLayout copy = bottomSheetDialog.findViewById(R.id.bottom_settings_copy_box);
+        LinearLayout delete = bottomSheetDialog.findViewById(R.id.bottom_settings_delete_box);
+        LinearLayout dismissDialog = bottomSheetDialog.findViewById(R.id.bottom_settings_dismiss_box);
+
+        copy.setOnClickListener(v -> {
+            viewModel.settingsCopy(playlist);
+            bottomSheetDialog.dismiss();
+        });
+
+        delete.setOnClickListener(v -> {
+            viewModel.deletePlaylist(playlist);
+            bottomSheetDialog.dismiss();
+        });
+        dismissDialog.setOnClickListener(v -> bottomSheetDialog.dismiss());
+
+        bottomSheetDialog.show();
+    }
+    private void openDialog(String key, Playlist playlist) {
+
+        dialog = new Dialog(mainActivity, R.style.Theme_AltasNotas);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.setContentView(R.layout.add_playlists_dialog);
+        dialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setGravity(Gravity.CENTER);
+
+        ImageButton cancel, accept;
+
+        dialog_playlist_name = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_name);
+        dialog_playlist_desc = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_desc);
+
+        dialog_playlist_name.setText(playlist.getTitle());
+        dialog_playlist_desc.setText(playlist.getDescription());
+
+        cancel = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_cancel_btn);
+        accept = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_accept_btn);
+
+
+        cancel.setOnClickListener(v -> dialog.dismiss());
+
+        accept.setOnClickListener(v -> {
+            dialog.dismiss();
+            viewModel.setOldKey(key);
+            viewModel.setP(playlist);
+            viewModel.validInput(dialog_playlist_name.getText().toString(), dialog_playlist_desc.getText().toString());
+        });
+
+        dialog.show();
+
+    }
+    private void initializeObservers(){
+        viewModel.getValidErrorState().observe(getViewLifecycleOwner(), new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                String errorMsg=null;
+                switch (integer){
+                    case 1: errorMsg="Both fields are empty.\nPlease fill data."; break;
+                    case 2:errorMsg="Name is empty.\nPlease fill data."; break;
+                    case 3: errorMsg="Description is empty.\nPlease fill data."; break;
+                    case 4: errorMsg="Playlist exist with same title!"; break;
+                    default: errorMsg="Unknown error!"; break;
+                }
+
+                if(errorMsg!=null){
+                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        viewModel.getDeleteState().observe(getViewLifecycleOwner(), new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                String errorMsg=null;
+                switch (integer){
+                    case 0: errorMsg="Photo deleted with playlist"; break;
+                    case 1: errorMsg="Error while deleting Photo"; break;
+                    case 2:errorMsg="Photo wasn't found"; break;
+                    case 3:
+                    case 4: errorMsg="Error while  deleting Playlist"; break;
+                    case 5: errorMsg="Photo to copy isnt found!"; break;
+                    default: errorMsg="Unknown error!"; break;
+                }
+
+                if(errorMsg!=null){
+                   Log.d("DeletePlaylist", errorMsg);
+                }
+
+                switch (integer){
+                    case 0:
+                    case 2:
+                    case 3:
+                    case 4:
+                    default:
+                        if(errorMsg!=null){
+                        Log.d("DeletePlaylist", errorMsg);
+                    }
+                    break;
+
+                    case 1:
+                if(errorMsg!=null) {
+                    Toast.makeText(mainActivity, errorMsg, Toast.LENGTH_SHORT).show();
+                }
+                    break;
+                }
+
+               if(integer<5){
+                   openHomeFragment();
+               }
+            }
+        });
+
+        viewModel.getShouldOpenCopy().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if(aBoolean){
+                    openDialog(viewModel.getKey(), viewModel.getPlaylist());
+                    viewModel.setShouldOpenCopy(false);
+                }
+            }
+        });
+
+        viewModel.getShouldOpenCurrentFragment().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if(aBoolean){
+                    openCurrentFragment();
+                }
+            }
+        });
+
+    }
+
+    private void openCurrentFragment() {
+        Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+        if (currentFragment instanceof CurrentPlaylistFragment) {
+
+            mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(viewModel.getP().getTitle(), "", viewModel.getP(), 0)).commit();
+        }
+    }
+
+    private void openHomeFragment() {
+        mainActivity.activityMainBinding.mainNavBottom.setSelectedItemId(R.id.nav_home_item);
+
+        for (int i = 0; i < mainActivity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
+            mainActivity.getSupportFragmentManager().popBackStack();
+        }
+        mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(false)).commit();
     }
 
 
