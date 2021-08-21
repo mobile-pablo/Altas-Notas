@@ -14,19 +14,19 @@
         android:layout_height="0dp"
         android:layout_margin="0dp"
         android:padding="0dp"
-        xmlns:sothree="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/sliding_layout"
+        android:id="@+id/slidingLayout"
         android:gravity="bottom"
-        sothree:umanoPanelHeight="70dp"
-        sothree:umanoShadowHeight="4dp"
+        app:umanoPanelHeight="70dp"
+        app:umanoShadowHeight="4dp"
         android:layout_weight="9">
-    <FrameLayout
-        android:id="@+id/main_fragment_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </FrameLayout>
+
         <FrameLayout
-            android:id="@+id/sliding_layout_frag"
+            android:id="@+id/mainFragmentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"></FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/slidingLayoutFrag"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <include layout="@layout/fragment_player"/>
@@ -35,7 +35,7 @@
 
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/main_nav_bottom"
+        android:id="@+id/mainNavBottom"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:paddingBottom="5dp"

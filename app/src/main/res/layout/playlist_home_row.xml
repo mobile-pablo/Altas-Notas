@@ -20,7 +20,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:id="@+id/playlist_home_row_img"
+            android:id="@+id/playlistHomeRowImg"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:scaleType="fitXY"
@@ -30,7 +30,7 @@
             android:background="@drawable/img_not_found" />
 
         <TextView
-            android:id="@+id/playlist_home_row_year"
+            android:id="@+id/playlistHomeRowYear"
             android:layout_width="wrap_content"
             android:layout_height="20dp"
             android:layout_gravity="bottom|end"
@@ -43,7 +43,7 @@
 
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/playlist_home_row_title"
+        android:id="@+id/playlistHomeRowTitle"
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:layout_marginTop="1dp"
@@ -67,7 +67,7 @@
 
 
     <TextView
-        android:id="@+id/playlist_home_row_author"
+        android:id="@+id/playlistHomeRowDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -82,6 +82,6 @@
         android:lines="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/playlist_home_row_title" />
+        app:layout_constraintTop_toBottomOf="@+id/playlistHomeRowTitle" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

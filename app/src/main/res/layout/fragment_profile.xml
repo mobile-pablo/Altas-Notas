@@ -9,7 +9,7 @@
     tools:context=".fragments.profile.ProfileFragment">
 
     <LinearLayout
-        android:id="@+id/profile_half_circle_box"
+        android:id="@+id/profileHalfCircleBox"
         android:layout_width="match_parent"
         android:layout_height="300dp"
         android:layout_margin="0dp"
@@ -20,7 +20,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <RelativeLayout
-            android:id="@+id/profile_half_circle"
+            android:id="@+id/profileHalfCircle"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginBottom="50dp"
@@ -31,10 +31,10 @@
     </LinearLayout>
 
     <RelativeLayout
-        android:id="@+id/profile_box"
+        android:id="@+id/profileBox"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignTop="@+id/profile_img_box"
+        android:layout_alignTop="@+id/profileImgBox"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
@@ -47,7 +47,7 @@
         android:padding="5dp">
 
         <TextView
-            android:id="@+id/profile_full_name"
+            android:id="@+id/profileFullName"
             android:layout_width="wrap_content"
             android:layout_height="35dp"
             android:layout_alignParentStart="true"
@@ -67,10 +67,10 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
-            android:id="@+id/profile_name_edit_btn"
+            android:id="@+id/profileNameEditBtn"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:layout_alignTop="@+id/profile_full_name"
+            android:layout_alignTop="@+id/profileFullName"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="0dp"
             android:layout_marginEnd="30dp"
@@ -79,10 +79,10 @@
             app:tint="@color/black" />
 
         <TextView
-            android:id="@+id/profile_email"
+            android:id="@+id/profileEmail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/profile_full_name"
+            android:layout_below="@+id/profileFullName"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="5dp"
@@ -95,14 +95,14 @@
             android:textAlignment="center"
             android:textColor="@android:color/secondary_text_light"
             android:textSize="15sp"
-            app:layout_constraintEnd_toEndOf="@id/profile_full_name" />
+            app:layout_constraintEnd_toEndOf="@id/profileFullName" />
 
 
         <LinearLayout
-            android:id="@+id/profile_details_box"
+            android:id="@+id/profileDetailsBox"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
-            android:layout_below="@+id/profile_email"
+            android:layout_below="@+id/profileEmail"
             android:layout_marginStart="15dp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="15dp"
@@ -117,7 +117,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/profile_details_creation_text"
+                    android:id="@+id/profileDetailsCreationText"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
@@ -135,7 +135,7 @@
                     />
 
                 <TextView
-                    android:id="@+id/profile_details_creation_date"
+                    android:id="@+id/profileDetailsCreationDate"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
@@ -155,7 +155,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_alignBottom="@+id/profile_details_box"
+                android:layout_alignBottom="@+id/profileDetailsBox"
                 android:layout_marginBottom="0dp"
                 android:layout_weight="1">
 
@@ -164,7 +164,7 @@
                     android:layout_height="match_parent">
 
                     <LinearLayout
-                        android:id="@+id/profile_details_delete_box"
+                        android:id="@+id/profileDeleteBox"
                         android:layout_width="wrap_content"
                         android:layout_height="40dp"
                         android:layout_gravity="center"
@@ -195,15 +195,15 @@
     </RelativeLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/profile_img_box"
+        android:id="@+id/profileImgBox"
         android:layout_width="match_parent"
         android:layout_height="150dp"
-        android:layout_alignBottom="@+id/profile_half_circle_box"
+        android:layout_alignBottom="@+id/profileHalfCircleBox"
         android:elevation="25dp"
-        app:layout_constraintTop_toBottomOf="@+id/profile_half_circle_box">
+        app:layout_constraintTop_toBottomOf="@+id/profileHalfCircleBox">
 
         <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/profile_user_img"
+            android:id="@+id/profileUserImg"
             android:layout_width="130dp"
             android:layout_height="130dp"
             android:layout_alignParentStart="true"
@@ -220,7 +220,7 @@
              />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/profile_user_img_btn"
+            android:id="@+id/profileUserAddImgBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="100dp"
@@ -233,8 +233,8 @@
             android:src="@drawable/ic_camera"
             app:elevation="10dp"
             app:fabSize="mini"
-            app:layout_constraintStart_toStartOf="@+id/profile_user_img"
-            app:layout_constraintTop_toTopOf="@+id/profile_user_img" />
+            app:layout_constraintStart_toStartOf="@+id/profileUserImg"
+            app:layout_constraintTop_toTopOf="@+id/profileUserImg" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -242,7 +242,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/profile_img_box"
+        android:layout_alignTop="@+id/profileImgBox"
         android:layout_alignParentStart="true"
         android:layout_marginStart="30dp"
         android:layout_marginTop="-70dp"

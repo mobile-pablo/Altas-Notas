@@ -141,21 +141,21 @@ public class PlayerFragment extends Fragment {
         View view = binding.getRoot();
         mainActivity = (MainActivity) getActivity();
 
-        title = binding.playerView.findViewById(R.id.player_song_title);
-        author = binding.playerView.findViewById(R.id.player_song_author);
-        song_img = binding.playerView.findViewById(R.id.player_song_img);
-        playerView = binding.playerView.findViewById(R.id.player_view);
+        title = binding.playerView.findViewById(R.id.playerSongTitle);
+        author = binding.playerView.findViewById(R.id.playerSongDescription);
+        song_img = binding.playerView.findViewById(R.id.playerSongImg);
+        playerView = binding.playerView.findViewById(R.id.playerView);
 
         playerView.setBackgroundColor(Color.TRANSPARENT);
 
-        player_full_box = binding.playerView.findViewById(R.id.player_full_box);
+        player_full_box = binding.playerView.findViewById(R.id.playerFullBox);
 
         viewModel = new ViewModelProvider(requireActivity()).get(PlayerFragmentViewModel.class);
 
         mainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
 
-        fav_btn = binding.playerView.findViewById(R.id.player_song_fav_btn);
-        settings_btn = binding.playerView.findViewById(R.id.player_song_options_btn);
+        fav_btn = binding.playerView.findViewById(R.id.playerSongFavBtn);
+        settings_btn = binding.playerView.findViewById(R.id.playerSongSettingsBtn);
 
         database_ref = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
@@ -312,7 +312,7 @@ public class PlayerFragment extends Fragment {
 
         mainActivity.clearCurrentSong();
 
-        Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+        Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
         if (currentFragment instanceof CurrentPlaylistFragment) {
             if (CurrentPlaylistFragment.adapter != null) {
                 CurrentPlaylistFragment.adapter.notifyDataSetChanged();
@@ -360,10 +360,10 @@ public class PlayerFragment extends Fragment {
         songInPlaylistDialog = new BottomSheetDialog(getContext());
         songInPlaylistDialog.setContentView(R.layout.bottom_playlist_song_player_settings_layout);
 
-        LinearLayout showAlbum = songInPlaylistDialog.findViewById(R.id.bottom_settings_album_box);
-        LinearLayout showPlaylist = songInPlaylistDialog.findViewById(R.id.bottom_settings_show_playlist_box);
-        LinearLayout share = songInPlaylistDialog.findViewById(R.id.bottom_settings_share_box);
-        LinearLayout dismissDialog = songInPlaylistDialog.findViewById(R.id.bottom_settings_dismiss_box);
+        LinearLayout showAlbum = songInPlaylistDialog.findViewById(R.id.bottomSettingsAlbumBox);
+        LinearLayout showPlaylist = songInPlaylistDialog.findViewById(R.id.bottomSettingsShowPlaylistBox);
+        LinearLayout share = songInPlaylistDialog.findViewById(R.id.bottomSettingsShareBox);
+        LinearLayout dismissDialog = songInPlaylistDialog.findViewById(R.id.bottomSettingsDismissBox);
 
         showAlbum.setOnClickListener(v -> {
             //Shows album
@@ -382,7 +382,7 @@ public class PlayerFragment extends Fragment {
                             x.setDir_title(playlist.getSongs().get(position).getAlbum());
                             x.setDir_desc(playlist.getSongs().get(position).getAuthor());
                             songInPlaylistDialog.dismiss();
-                            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
+                            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
                         }
                     }
 
@@ -401,7 +401,7 @@ public class PlayerFragment extends Fragment {
             for (int i = 0; i < getActivity().getSupportFragmentManager().getBackStackEntryCount(); i++) {
                 getActivity().getSupportFragmentManager().popBackStack();
             }
-            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getTitle(), "", playlist, 0)).addToBackStack("null").commit();
+            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(playlist.getTitle(), "", playlist, 0)).addToBackStack("null").commit();
 
             songInPlaylistDialog.dismiss();
         });
@@ -419,10 +419,10 @@ public class PlayerFragment extends Fragment {
         bottomSheetDialog = new BottomSheetDialog(getContext());
         bottomSheetDialog.setContentView(R.layout.bottom_song_settings_layout);
 
-        LinearLayout showAlbum = bottomSheetDialog.findViewById(R.id.bottom_settings_album_box);
-        LinearLayout addToPlaylist = bottomSheetDialog.findViewById(R.id.bottom_settings_playlists_box);
-        LinearLayout share = bottomSheetDialog.findViewById(R.id.bottom_settings_share_box);
-        LinearLayout dismissDialog = bottomSheetDialog.findViewById(R.id.bottom_settings_dismiss_box);
+        LinearLayout showAlbum = bottomSheetDialog.findViewById(R.id.bottomSettingsAlbumBox);
+        LinearLayout addToPlaylist = bottomSheetDialog.findViewById(R.id.bottomSettingsPlaylistsBox);
+        LinearLayout share = bottomSheetDialog.findViewById(R.id.bottomSettingsShareBox);
+        LinearLayout dismissDialog = bottomSheetDialog.findViewById(R.id.bottomSettingsDismissBox);
 
         showAlbum.setOnClickListener(v -> {
             //Shows album
@@ -441,7 +441,7 @@ public class PlayerFragment extends Fragment {
                             x.setDir_title(playlist.getSongs().get(position).getAlbum());
                             x.setDir_desc(playlist.getSongs().get(position).getAuthor());
                             bottomSheetDialog.dismiss();
-                            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
+                            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
                         }
                     }
 
@@ -474,8 +474,8 @@ public class PlayerFragment extends Fragment {
     private void addToPlaylist() {
         choosePlaylistDialog = new BottomSheetDialog(getContext());
         choosePlaylistDialog.setContentView(R.layout.choose_playlist_dialog);
-        TextView chooseState = choosePlaylistDialog.findViewById(R.id.choose_playlist_recycler_view_state);
-        RecyclerView chooseRecyclerView = choosePlaylistDialog.findViewById(R.id.choose_playlist_recycler_view);
+        TextView chooseState = choosePlaylistDialog.findViewById(R.id.choosePlaylistRecyclerViewState);
+        RecyclerView chooseRecyclerView = choosePlaylistDialog.findViewById(R.id.choosePlaylistRecyclerView);
         ArrayList<String> playlists_titles = new ArrayList<>();
         ArrayList<String> playlists_keys = new ArrayList<>();
 
@@ -590,7 +590,7 @@ public class PlayerFragment extends Fragment {
     public void setUI() {
         setMiniUI();
         if (getActivity() != null) {
-            Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
+            Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
             if (currentFragment instanceof PlayerFragment) {
                 Glide.with(getActivity()).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(new CustomTarget<Drawable>() {
                     @Override
@@ -705,7 +705,7 @@ public class PlayerFragment extends Fragment {
 
     public void setMiniUI() {
         if (getActivity() != null) {
-            Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
+            Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
             if (currentFragment instanceof PlayerFragment) {
                 Glide.with(getActivity()).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(new CustomTarget<Drawable>() {
                     @Override

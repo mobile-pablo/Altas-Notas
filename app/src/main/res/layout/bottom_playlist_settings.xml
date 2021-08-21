@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/bottom_sheet"
+    android:id="@+id/bottomSheet"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/custom_player_fragment_bg_reversed"
@@ -20,7 +20,7 @@
 
         <LinearLayout
 
-            android:id="@+id/bottom_settings_copy_box"
+            android:id="@+id/bottomSettingsCopyBox"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="30dp"
@@ -51,7 +51,7 @@
 
         <LinearLayout
 
-            android:id="@+id/bottom_settings_delete_box"
+            android:id="@+id/bottomSettingsDeleteBox"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="5dp"
@@ -81,7 +81,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/bottom_settings_dismiss_box"
+            android:id="@+id/bottomSettingsDismissBox"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="5dp"

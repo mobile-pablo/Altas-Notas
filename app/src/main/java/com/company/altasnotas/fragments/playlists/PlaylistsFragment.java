@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,18 +20,13 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.PlaylistsFragmentAdapter;
 import com.company.altasnotas.databinding.FragmentPlaylistsBinding;
 import com.company.altasnotas.models.Playlist;
-import com.company.altasnotas.viewmodels.fragments.favorites.FavoritesFragmentViewModel;
 import com.company.altasnotas.viewmodels.fragments.playlists.PlaylistsFragmentViewModel;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -41,7 +35,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class PlaylistsFragment extends Fragment {
 
@@ -73,7 +66,7 @@ public class PlaylistsFragment extends Fragment {
         initalizeList();
 
         viewModel =  new ViewModelProvider(requireActivity()).get(PlaylistsFragmentViewModel.class);
-        binding.playlistsFloatingBtn.setOnClickListener(new View.OnClickListener() {
+        binding.playlistsFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
               openDialog();
@@ -156,11 +149,11 @@ public class PlaylistsFragment extends Fragment {
 
         ImageButton cancel, accept;
 
-        TextView  dialog_playlist_name = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_name);
-        TextView  dialog_playlist_desc = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_desc);
+        TextView  dialog_playlist_name = dialog.getWindow().getDecorView().findViewById(R.id.addPlaylistDialogName);
+        TextView  dialog_playlist_desc = dialog.getWindow().getDecorView().findViewById(R.id.addPlaylistDialogDesc);
 
-        cancel = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_cancel_btn);
-        accept = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_accept_btn);
+        cancel = dialog.getWindow().getDecorView().findViewById(R.id.addPlaylistDialogCancelBtn);
+        accept = dialog.getWindow().getDecorView().findViewById(R.id.addPlaylistDialogAcceptBtn);
 
 
         cancel.setOnClickListener(v -> dialog.dismiss());

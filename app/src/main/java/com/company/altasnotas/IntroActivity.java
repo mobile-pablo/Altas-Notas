@@ -40,7 +40,7 @@ public class IntroActivity extends AppCompatActivity {
 
     private void startAnimation() {
         Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.img_zoom_out);
-        ImageView logo = findViewById(R.id.intro_logo);
+        ImageView logo = findViewById(R.id.introLogo);
         logo.startAnimation(animation);
 
     }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/bottom_sheet"
+    android:id="@+id/bottomSheet"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/custom_player_fragment_bg_reversed"
@@ -24,14 +24,14 @@
         android:textSize="18sp" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/choose_playlist_recycler_view"
+        android:id="@+id/choosePlaylistRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="240dp" >
 
     </androidx.recyclerview.widget.RecyclerView>
 
     <TextView
-        android:id="@+id/choose_playlist_recycler_view_state"
+        android:id="@+id/choosePlaylistRecyclerViewState"
         android:layout_width="match_parent"
         android:layout_height="240dp"
         android:fontFamily="@font/roboto"

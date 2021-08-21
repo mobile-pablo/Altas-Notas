@@ -85,7 +85,7 @@ public class ProfileFragment extends Fragment {
         viewModel = new ViewModelProvider(requireActivity()).get(ProfileFragmentViewModel.class);
         viewModel.downloadProfile();
 
-        binding.profileUserImgBtn.setOnClickListener(v -> {
+        binding.profileUserAddImgBtn.setOnClickListener(v -> {
             if (ActivityCompat.checkSelfPermission(getActivity(),
                     Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(
@@ -118,7 +118,7 @@ public class ProfileFragment extends Fragment {
             taskEditText.setText(binding.profileFullName.getText());
         });
 
-        binding.profileDetailsDeleteBox.setOnClickListener(v -> {
+        binding.profileDeleteBox.setOnClickListener(v -> {
             AlertDialog dialog = new AlertDialog.Builder(v.getContext())
                     .setTitle("Delete Profile?")
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -349,7 +349,7 @@ public class ProfileFragment extends Fragment {
 
 
 
-                                    mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new LoginFragment()).commit();
+                                    mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer,new LoginFragment()).commit();
                                     mainActivity.updateUI(mAuth.getCurrentUser());
 
                                 }
@@ -362,7 +362,7 @@ public class ProfileFragment extends Fragment {
                                             mainActivity.getSupportFragmentManager().popBackStack();
                                         }
 
-                                        Fragment frag = mainActivity.getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
+                                        Fragment frag = mainActivity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
                                         if (frag instanceof PlayerFragment) {
                                             ((PlayerFragment) frag).dismissPlayer();
                                         }
@@ -383,7 +383,7 @@ public class ProfileFragment extends Fragment {
                                         }
 
 
-                                        mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new LoginFragment()).commit();
+                                        mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer,new LoginFragment()).commit();
                                         mainActivity.updateUI(mAuth.getCurrentUser());
                                     }
                                 }

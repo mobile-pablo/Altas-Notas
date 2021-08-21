@@ -6,15 +6,12 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -31,8 +28,6 @@ import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.Playlist;
-import com.company.altasnotas.models.Song;
-import com.company.altasnotas.viewmodels.fragments.favorites.FavoritesFragmentViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,10 +35,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
-
-import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
-import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-import static android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
 
 public class PlayerFragmentViewModel extends ViewModel {
 
@@ -155,7 +146,7 @@ public class PlayerFragmentViewModel extends ViewModel {
                                     fav_btn.setImageResource(R.drawable.ic_heart_empty);
                                     mini_fav_btn.setImageResource(R.drawable.ic_heart_empty);
                                     if(activity!=null){
-                                        Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                                        Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
                                         if (currentFragment instanceof CurrentPlaylistFragment) {
                                             adapter.notifyDataSetChanged();
                                         }
@@ -170,7 +161,7 @@ public class PlayerFragmentViewModel extends ViewModel {
 
                                             }
 
-                                            Fragment frag = activity.getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
+                                            Fragment frag = activity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
                                             if (frag instanceof PlayerFragment) {
 
                                                 if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(fav.viewModel.getPlaylist().getSongs().get(position).getTitle()) &&
@@ -185,7 +176,7 @@ public class PlayerFragmentViewModel extends ViewModel {
                                             fav.viewModel.initializeFavorites();
                                         }
 
-                                        Fragment playerF = activity.getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
+                                        Fragment playerF = activity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
                                         if(playerF instanceof PlayerFragment){
                                             fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.white));
                                             mini_fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.black));
@@ -224,7 +215,7 @@ public class PlayerFragmentViewModel extends ViewModel {
                         fav_btn.setImageResource(R.drawable.ic_heart_full);
                         mini_fav_btn.setImageResource(R.drawable.ic_heart_full);
                         if(activity!=null){
-                            Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                            Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
                             if (currentFragment instanceof CurrentPlaylistFragment) {
                                 adapter.notifyDataSetChanged();
                             }
@@ -234,7 +225,7 @@ public class PlayerFragmentViewModel extends ViewModel {
                                 favoritesFragment.viewModel.initializeFavorites();
                             }
 
-                            Fragment playerF = activity.getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
+                            Fragment playerF = activity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
 
                             if(playerF instanceof PlayerFragment){
                                 fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_light_orange));

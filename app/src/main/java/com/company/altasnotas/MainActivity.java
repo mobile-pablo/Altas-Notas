@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -88,11 +87,11 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             if (mAuth.getCurrentUser() != null) {
-                getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(false)).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, new HomeFragment(false)).commit();
                 activityMainBinding.mainNavBottom.setSelectedItemId(R.id.nav_home_item);
                 activityMainBinding.mainNavBottom.setVisibility(View.VISIBLE);
             } else {
-                getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new LoginFragment()).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, new LoginFragment()).commit();
                 activityMainBinding.mainNavBottom.setVisibility(View.GONE);
             }
         }
@@ -157,8 +156,8 @@ public class MainActivity extends AppCompatActivity {
                     viewModel.setCurrentSongAlbum(playlist.getTitle());
                     viewModel.setCurrentSongAuthor(playlist.getDescription());
                     PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo, true, state, null, isFav);
-                    getSupportFragmentManager().beginTransaction().replace(R.id.sliding_layout_frag, playerFragment).commit();
-                    getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.slidingLayoutFrag, playerFragment).commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, new HomeFragment(true)).commit();
                     activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                     activityMainBinding.mainActivityBox.setVisibility(View.VISIBLE);
 
@@ -205,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
                 if (activityMainBinding.slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
                     activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                 }
-                getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, selectedFragment[0]).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, selectedFragment[0]).commit();
             }
             return true;
         }
@@ -218,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
 
         viewModel.setPhotoUrl("");
 
-        Fragment frag = getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
+        Fragment frag = getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
         if (frag instanceof PlayerFragment) {
             ((PlayerFragment) frag).dismissPlayer();
         }
@@ -265,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < getSupportFragmentManager().getBackStackEntryCount(); i++) {
                 getSupportFragmentManager().popBackStack();
             }
-            getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new LoginFragment()).commit();
+            getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.mainFragmentContainer, new LoginFragment()).commit();
         }
     }
 
@@ -380,13 +379,13 @@ public class MainActivity extends AppCompatActivity {
                 }
                 activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                 activityMainBinding.mainNavBottom.setSelectedItemId(R.id.nav_home_item);
-                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
+                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
                 if (currentFragment instanceof PlayerFragment) {
                     PlayerFragment playerFragment = (PlayerFragment) currentFragment;
                     playerFragment.initializePlayer();
                     playerFragment.initializeMiniPlayer();
                 }
-                getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, new HomeFragment(true)).commit();
 
             }
         } else {

@@ -69,7 +69,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
         this.playlists = playlists;
 
         if (mainActivity != null) {
-            Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+            Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
             if (currentFragment instanceof PlaylistsFragment) {
                 PlaylistsFragment playlistsFragment = (PlaylistsFragment) currentFragment;
 
@@ -148,7 +148,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
         holder.linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(title, "", playlists.get(position), 0)).addToBackStack(null).commit();
+                mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(title, "", playlists.get(position), 0)).addToBackStack(null).commit();
             }
         });
     }
@@ -162,9 +162,9 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
         bottomSheetDialog = new BottomSheetDialog(holder.itemView.getContext());
         bottomSheetDialog.setContentView(R.layout.bottom_playlist_settings);
 
-        LinearLayout copy = bottomSheetDialog.findViewById(R.id.bottom_settings_copy_box);
-        LinearLayout delete = bottomSheetDialog.findViewById(R.id.bottom_settings_delete_box);
-        LinearLayout dismissDialog = bottomSheetDialog.findViewById(R.id.bottom_settings_dismiss_box);
+        LinearLayout copy = bottomSheetDialog.findViewById(R.id.bottomSettingsCopyBox);
+        LinearLayout delete = bottomSheetDialog.findViewById(R.id.bottomSettingsDeleteBox);
+        LinearLayout dismissDialog = bottomSheetDialog.findViewById(R.id.bottomSettingsDismissBox);
 
         copy.setOnClickListener(v -> {
             settingsCopy(playlists.get(position), holder);
@@ -223,7 +223,7 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                     playlists.remove(playlist);
                                     notifyDataSetChanged();
 
-                                    Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                                    Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
                                     if (currentFragment instanceof PlaylistsFragment) {
                                         PlaylistsFragment playlistsFragment = (PlaylistsFragment) currentFragment;
                                         playlists.remove(playlist);
@@ -287,13 +287,13 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
 
         ImageButton cancel, accept;
 
-        holder.dialog_playlist_name = holder.dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_name);
-        holder.dialog_playlist_desc = holder.dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_desc);
+        holder.dialog_playlist_name = holder.dialog.getWindow().getDecorView().findViewById(R.id.addPlaylistDialogName);
+        holder.dialog_playlist_desc = holder.dialog.getWindow().getDecorView().findViewById(R.id.addPlaylistDialogDesc);
 
         holder.dialog_playlist_name.setText(playlist.getTitle());
         holder.dialog_playlist_desc.setText(playlist.getDescription());
-        cancel = holder.dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_cancel_btn);
-        accept = holder.dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_accept_btn);
+        cancel = holder.dialog.getWindow().getDecorView().findViewById(R.id.addPlaylistDialogCancelBtn);
+        accept = holder.dialog.getWindow().getDecorView().findViewById(R.id.addPlaylistDialogAcceptBtn);
 
 
         cancel.setOnClickListener(v -> holder.dialog.dismiss());
@@ -433,10 +433,10 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
 
                                                                             }
 
-                                                                            Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                                                                            Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
                                                                             if (currentFragment instanceof PlaylistsFragment) {
 
-                                                                                mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
+                                                                                mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
                                                                             }
                                                                         }
                                                                     });
@@ -480,10 +480,10 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                                                                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                                                                                     if (!task.isSuccessful()) {
                                                                                         Log.d(MainActivity.FIREBASE, "Error while  copying photo");
-                                                                                        Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                                                                                        Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
                                                                                         if (currentFragment instanceof PlaylistsFragment) {
 
-                                                                                            mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
+                                                                                            mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
                                                                                         }
 
                                                                                     }
@@ -498,10 +498,10 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                                                 });
                                                                 thread.start();
 
-                                                                Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                                                                Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
                                                                 if (currentFragment instanceof PlaylistsFragment) {
 
-                                                                    mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
+                                                                    mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
                                                                 }
                                                             }
 
@@ -511,10 +511,10 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                                             .addOnFailureListener(mainActivity, new OnFailureListener() {
                                                         @Override
                                                         public void onFailure(@NonNull Exception e) {
-                                                            Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                                                            Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
                                                             if (currentFragment instanceof PlaylistsFragment) {
 
-                                                                mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
+                                                                mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(p.getTitle(), "", p, 0)).commit();
                                                             }
                                                         }
                                                     });
@@ -588,12 +588,12 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
-            photo = itemView.findViewById(R.id.playlists_recycler_row_photo);
-            title = itemView.findViewById(R.id.playlists_recycler_row_title);
-            desc = itemView.findViewById(R.id.playlists_recycler_row_desc);
+            photo = itemView.findViewById(R.id.playlistsRecyclerRowPhoto);
+            title = itemView.findViewById(R.id.playlistsRecyclerRowTitle);
+            desc = itemView.findViewById(R.id.playlistsRecyclerRowDescription);
 
-            settings_btn = itemView.findViewById(R.id.playlists_recycler_row_settings_btn);
-            linearLayout = itemView.findViewById(R.id.playlists_recycler_row_box);
+            settings_btn = itemView.findViewById(R.id.playlistsRecyclerRowSettingsBtn);
+            linearLayout = itemView.findViewById(R.id.playlistsRecyclerRowBox);
         }
     }
 }

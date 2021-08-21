@@ -41,7 +41,7 @@
 
 
                 <TextView
-                    android:id="@+id/textView2"
+                    android:id="@+id/registerTextView"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="40dp"
@@ -58,7 +58,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/textView3"
+                    android:id="@+id/registerTextView2"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="44dp"
@@ -72,10 +72,10 @@
                     android:textSize="24sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView2" />
+                    app:layout_constraintTop_toBottomOf="@+id/registerTextView" />
 
                 <EditText
-                    android:id="@+id/register_email_edittext"
+                    android:id="@+id/registerEmailEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="40dp"
@@ -97,11 +97,11 @@
                     android:textColorHint="@color/project_light_velvet"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView3" />
+                    app:layout_constraintTop_toBottomOf="@+id/registerTextView2" />
 
 
                 <TextView
-                    android:id="@+id/textView4"
+                    android:id="@+id/registerTextView3"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="40dp"
@@ -115,10 +115,10 @@
                     android:textSize="24sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/register_email_edittext" />
+                    app:layout_constraintTop_toBottomOf="@+id/registerEmailEditText" />
 
                 <EditText
-                    android:id="@+id/register_password_one_edittext"
+                    android:id="@+id/registerPasswordOneEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="40dp"
@@ -141,10 +141,10 @@
                     android:textSize="18sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView4" />
+                    app:layout_constraintTop_toBottomOf="@+id/registerTextView3" />
 
                 <TextView
-                    android:id="@+id/textView5"
+                    android:id="@+id/registerTextView4"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="40dp"
@@ -158,10 +158,10 @@
                     android:textSize="24sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/register_password_one_edittext" />
+                    app:layout_constraintTop_toBottomOf="@+id/registerPasswordOneEditText" />
 
                 <EditText
-                    android:id="@+id/register_password_two_edittext"
+                    android:id="@+id/registerPasswordTwoEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="40dp"
@@ -184,10 +184,10 @@
                     android:textSize="18sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView5" />
+                    app:layout_constraintTop_toBottomOf="@+id/registerTextView4" />
 
                 <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/register_w_mail_btn"
+                    android:id="@+id/registerBtn"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="30dp"
@@ -202,7 +202,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/register_password_two_edittext" />
+                    app:layout_constraintTop_toBottomOf="@+id/registerPasswordTwoEditText" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </RelativeLayout>

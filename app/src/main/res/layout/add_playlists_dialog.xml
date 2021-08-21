@@ -24,7 +24,7 @@
         android:textSize="24sp" />
 
     <EditText
-        android:id="@+id/add_playlist_dialog_name"
+        android:id="@+id/addPlaylistDialogName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
@@ -51,7 +51,7 @@
         android:textSize="18sp" />
 
     <EditText
-        android:id="@+id/add_playlist_dialog_desc"
+        android:id="@+id/addPlaylistDialogDesc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
@@ -80,7 +80,7 @@
             android:gravity="center">
 
             <ImageButton
-                android:id="@+id/add_playlist_dialog_cancel_btn"
+                android:id="@+id/addPlaylistDialogCancelBtn"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:padding="25dp"
@@ -96,7 +96,7 @@
             android:gravity="center">
 
             <ImageButton
-                android:id="@+id/add_playlist_dialog_accept_btn"
+                android:id="@+id/addPlaylistDialogAcceptBtn"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"

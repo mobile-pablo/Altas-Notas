@@ -13,7 +13,7 @@
     android:orientation="vertical">
 
     <LinearLayout
-        android:id="@+id/current_playlist_info_box"
+        android:id="@+id/currentPlaylistInfoBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
@@ -24,14 +24,14 @@
             android:layout_height="155dp">
 
             <ImageView
-                android:id="@+id/current_playlist_img"
+                android:id="@+id/currentPlaylistImg"
                 android:layout_width="120dp"
                 android:layout_height="120dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_launcher_background" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/current_playlist_photo_btn"
+                android:id="@+id/currentPlaylistPhotoBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|right"
@@ -58,7 +58,7 @@
                 android:orientation="horizontal">
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/current_playlist_title"
+                    android:id="@+id/currentPlaylistTitle"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="5"
@@ -74,7 +74,7 @@
                     />
 
                 <ImageView
-                    android:id="@+id/current_playlist_settings"
+                    android:id="@+id/currentPlaylistSettingsBtn"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
@@ -87,7 +87,7 @@
 
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/current_playlist_description"
+                android:id="@+id/currentPlaylistDescription"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
@@ -110,7 +110,7 @@
         android:layout_height="1dp"
         android:background="@color/project_dark_velvet"/>
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/current_playlist_recycler_view"
+        android:id="@+id/currentPlaylistRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="5">
@@ -118,7 +118,7 @@
     </androidx.recyclerview.widget.RecyclerView>
 
     <TextView
-        android:id="@+id/current_playlist_recycler_state"
+        android:id="@+id/currentPlaylistRecyclerState"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="5"

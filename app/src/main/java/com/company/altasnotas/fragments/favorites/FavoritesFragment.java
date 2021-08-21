@@ -53,7 +53,7 @@ public class FavoritesFragment extends Fragment {
         mainActivity= (MainActivity) getActivity();
         mainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
 
-        binding.currentPlaylistSettings.setVisibility(View.INVISIBLE);
+        binding.currentPlaylistSettingsBtn.setVisibility(View.INVISIBLE);
 
         viewModel = new ViewModelProvider(mainActivity).get(FavoritesFragmentViewModel.class);
 
@@ -130,7 +130,7 @@ public class FavoritesFragment extends Fragment {
                                 binding.currentPlaylistRecyclerView.setAdapter(adapter);
                                 adapter.notifyDataSetChanged();
                                 if (getActivity() != null) {
-                                    Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                                    Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
                                     if (currentFragment instanceof FavoritesFragment) {
                                         Drawable songBg = AppCompatResources.getDrawable(getActivity(), R.drawable.custom_song_bg);
                                         binding.currentPlaylistRecyclerView.setBackground(songBg);

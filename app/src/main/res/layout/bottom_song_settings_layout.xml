@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/bottom_sheet"
+    android:id="@+id/bottomSheet"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/custom_player_fragment_bg_reversed"
@@ -19,7 +19,7 @@
         android:orientation="vertical">
 
         <LinearLayout
-            android:id="@+id/bottom_settings_album_box"
+            android:id="@+id/bottomSettingsAlbumBox"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="5dp"
@@ -49,7 +49,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/bottom_settings_playlists_box"
+            android:id="@+id/bottomSettingsPlaylistsBox"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="5dp"
@@ -79,7 +79,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/bottom_settings_share_box"
+            android:id="@+id/bottomSettingsShareBox"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="5dp"
@@ -109,7 +109,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/bottom_settings_dismiss_box"
+            android:id="@+id/bottomSettingsDismissBox"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="5dp"

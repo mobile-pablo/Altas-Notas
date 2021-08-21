@@ -144,9 +144,9 @@ public class ChoosePlaylistAdapter extends RecyclerView.Adapter<ChoosePlaylistAd
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            image = itemView.findViewById(R.id.choose_playlist_row_image);
-            title = itemView.findViewById(R.id.choose_playlist_row_title);
-            linearLayout = itemView.findViewById(R.id.choose_playlist_row_box);
+            image = itemView.findViewById(R.id.choosePlaylistRowImage);
+            title = itemView.findViewById(R.id.choosePlaylistRowTitle);
+            linearLayout = itemView.findViewById(R.id.choosePlaylistRowBox);
         }
     }
 

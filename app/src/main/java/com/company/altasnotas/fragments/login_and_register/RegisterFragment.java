@@ -38,7 +38,7 @@ public class RegisterFragment extends Fragment {
 
         mainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
 
-        binding.registerWMailBtn.setOnClickListener(v -> {
+        binding.registerBtn.setOnClickListener(v -> {
             register();
         });
 
@@ -47,9 +47,9 @@ public class RegisterFragment extends Fragment {
     }
 
     private void register() {
-        email= binding.registerEmailEdittext.getText().toString().toLowerCase().trim();
-        passwordOne = binding.registerPasswordOneEdittext.getText().toString().toLowerCase().trim();
-        passwordTwo  = binding.registerPasswordTwoEdittext.getText().toString().toLowerCase().trim();
+        email= binding.registerEmailEditText.getText().toString().toLowerCase().trim();
+        passwordOne = binding.registerPasswordOneEditText.getText().toString().toLowerCase().trim();
+        passwordTwo  = binding.registerPasswordTwoEditText.getText().toString().toLowerCase().trim();
         viewModel.setMail(email);
         viewModel.setPassOne(passwordOne);
         viewModel.setPassTwo(passwordTwo);
@@ -69,11 +69,11 @@ public class RegisterFragment extends Fragment {
                     mainActivity.getSupportFragmentManager().popBackStack();
                 }
                 mainActivity.updateUI(viewModel.getMAuth().getCurrentUser());
-                BottomNavigationView bottomNavigationView = mainActivity.findViewById(R.id.main_nav_bottom);
+                BottomNavigationView bottomNavigationView = mainActivity.findViewById(R.id.mainNavBottom);
                 bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
                 Toast.makeText(mainActivity, "Register success", Toast.LENGTH_SHORT).show();
 
-                mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
+                mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.mainFragmentContainer, new HomeFragment(true)).commit();
 
             }
             }

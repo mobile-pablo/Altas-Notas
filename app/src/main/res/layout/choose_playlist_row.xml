@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:id="@+id/choose_playlist_row_box"
+    android:id="@+id/choosePlaylistRowBox"
     android:layout_marginBottom="10dp"
     android:layout_marginTop="10dp"
     android:layout_height="80dp">
 
     <ImageView
-        android:id="@+id/choose_playlist_row_image"
+        android:id="@+id/choosePlaylistRowImage"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:padding="5dp"
@@ -18,7 +18,7 @@
         app:srcCompat="@drawable/img_not_found" />
 
     <TextView
-        android:id="@+id/choose_playlist_row_title"
+        android:id="@+id/choosePlaylistRowTitle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_vertical|left"

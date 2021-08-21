@@ -69,11 +69,11 @@ public class LoginFragment extends Fragment {
         mainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
         releaseGoogleLogin();
 
-        binding.loginWMailBtn.setOnClickListener(new View.OnClickListener() {
+        binding.loginWEmailBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                email = binding.loginEmailEdittext.getText().toString().toLowerCase().trim();
-                password = binding.loginPasswordEdittext.getText().toString().toLowerCase().trim();
+                email = binding.loginEmailEditText.getText().toString().toLowerCase().trim();
+                password = binding.loginPasswordEditText.getText().toString().toLowerCase().trim();
                 viewModel.login((MainActivity) requireActivity(), email, password);
             }
         });
@@ -81,7 +81,7 @@ public class LoginFragment extends Fragment {
         binding.jumpToRegisterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                requireActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).addToBackStack(null).replace(R.id.main_fragment_container, new RegisterFragment()).commit();
+                requireActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).addToBackStack(null).replace(R.id.mainFragmentContainer, new RegisterFragment()).commit();
             }
         });
 

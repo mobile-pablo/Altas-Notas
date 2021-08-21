@@ -3,18 +3,13 @@ package com.company.altasnotas.fragments.playlists;
 import android.Manifest;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.ExifInterface;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -24,23 +19,19 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
-import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.canhub.cropper.CropImage;
 import com.company.altasnotas.MainActivity;
@@ -53,7 +44,6 @@ import com.company.altasnotas.models.FavoriteFirebaseSong;
 import com.company.altasnotas.models.FirebaseSong;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
-import com.company.altasnotas.viewmodels.fragments.favorites.FavoritesFragmentViewModel;
 import com.company.altasnotas.viewmodels.fragments.playlists.CurrentPlaylistFragmentViewModel;
 import com.company.altasnotas.viewmodels.fragments.profile.ProfileFragmentViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -61,7 +51,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -72,12 +61,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -148,10 +133,10 @@ public class CurrentPlaylistFragment extends Fragment {
             }
         });
         if (isAlbum != 0) {
-            binding.currentPlaylistSettings.setVisibility(View.INVISIBLE);
+            binding.currentPlaylistSettingsBtn.setVisibility(View.INVISIBLE);
             initializeAlbum(author, album);
         } else {
-            binding.currentPlaylistSettings.setVisibility(View.VISIBLE);
+            binding.currentPlaylistSettingsBtn.setVisibility(View.VISIBLE);
 
             initializePlaylist(author);
         }
@@ -167,7 +152,7 @@ public class CurrentPlaylistFragment extends Fragment {
         });
 
 
-        binding.currentPlaylistSettings.setOnClickListener(v -> {
+        binding.currentPlaylistSettingsBtn.setOnClickListener(v -> {
           openPlaylistSettings();
         });
 
@@ -460,7 +445,7 @@ public class CurrentPlaylistFragment extends Fragment {
                                                 if (task.isSuccessful()) {
                                                     System.out.println("Upload image is successful!");
                                                     if (getActivity() != null) {
-                                                        Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                                                        Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
                                                         if (currentFragment instanceof CurrentPlaylistFragment) {
                                                             storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + ds.getKey()).getDownloadUrl().addOnSuccessListener(requireActivity(), new OnSuccessListener<Uri>() {
                                                                 @Override
@@ -516,9 +501,9 @@ public class CurrentPlaylistFragment extends Fragment {
         bottomSheetDialog = new BottomSheetDialog(mainActivity);
         bottomSheetDialog.setContentView(R.layout.bottom_playlist_settings);
         bottomSheetDialog.getBehavior().setPeekHeight(MainActivity.dialogHeight);
-        LinearLayout copy = bottomSheetDialog.findViewById(R.id.bottom_settings_copy_box);
-        LinearLayout delete = bottomSheetDialog.findViewById(R.id.bottom_settings_delete_box);
-        LinearLayout dismissDialog = bottomSheetDialog.findViewById(R.id.bottom_settings_dismiss_box);
+        LinearLayout copy = bottomSheetDialog.findViewById(R.id.bottomSettingsCopyBox);
+        LinearLayout delete = bottomSheetDialog.findViewById(R.id.bottomSettingsDeleteBox);
+        LinearLayout dismissDialog = bottomSheetDialog.findViewById(R.id.bottomSettingsDismissBox);
 
         copy.setOnClickListener(v -> {
             viewModel.settingsCopy(playlist);
@@ -545,14 +530,14 @@ public class CurrentPlaylistFragment extends Fragment {
 
         ImageButton cancel, accept;
 
-        dialog_playlist_name = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_name);
-        dialog_playlist_desc = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_desc);
+        dialog_playlist_name = dialog.getWindow().getDecorView().findViewById(R.id.addPlaylistDialogName);
+        dialog_playlist_desc = dialog.getWindow().getDecorView().findViewById(R.id.addPlaylistDialogDesc);
 
         dialog_playlist_name.setText(playlist.getTitle());
         dialog_playlist_desc.setText(playlist.getDescription());
 
-        cancel = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_cancel_btn);
-        accept = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_accept_btn);
+        cancel = dialog.getWindow().getDecorView().findViewById(R.id.addPlaylistDialogCancelBtn);
+        accept = dialog.getWindow().getDecorView().findViewById(R.id.addPlaylistDialogAcceptBtn);
 
 
         cancel.setOnClickListener(v -> dialog.dismiss());
@@ -650,10 +635,10 @@ public class CurrentPlaylistFragment extends Fragment {
     }
 
     private void openCurrentFragment() {
-        Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+        Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
         if (currentFragment instanceof CurrentPlaylistFragment) {
 
-            mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(viewModel.getP().getTitle(), "", viewModel.getP(), 0)).commit();
+            mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(viewModel.getP().getTitle(), "", viewModel.getP(), 0)).commit();
         }
     }
 
@@ -663,7 +648,7 @@ public class CurrentPlaylistFragment extends Fragment {
         for (int i = 0; i < mainActivity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
             mainActivity.getSupportFragmentManager().popBackStack();
         }
-        mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(false)).commit();
+        mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, new HomeFragment(false)).commit();
     }
 
 

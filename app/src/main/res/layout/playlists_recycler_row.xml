@@ -7,14 +7,14 @@
     android:layout_margin="5dp">
 
     <LinearLayout
-        android:id="@+id/playlists_recycler_row_box"
+        android:id="@+id/playlistsRecyclerRowBox"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="3"
         android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/playlists_recycler_row_photo"
+            android:id="@+id/playlistsRecyclerRowPhoto"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_margin="5dp"
@@ -28,7 +28,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/playlists_recycler_row_title"
+                android:id="@+id/playlistsRecyclerRowTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_weight="1"
@@ -41,7 +41,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/playlists_recycler_row_desc"
+                android:id="@+id/playlistsRecyclerRowDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_weight="1"
@@ -49,7 +49,7 @@
                 android:fontFamily="@font/lato_light_italic"
                 android:text="TextView"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/playlists_recycler_row_title" />
+                app:layout_constraintTop_toBottomOf="@+id/playlistsRecyclerRowTitle" />
         </LinearLayout>
     </LinearLayout>
 
@@ -61,7 +61,7 @@
         android:orientation="horizontal">
 
         <ImageButton
-            android:id="@+id/playlists_recycler_row_settings_btn"
+            android:id="@+id/playlistsRecyclerRowSettingsBtn"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="20dp"
