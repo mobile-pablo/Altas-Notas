@@ -57,15 +57,28 @@ public class ProfileFragmentViewModel extends ViewModel {
     private  StorageReference storageReference;
     private FirebaseAuth mAuth;
     private DatabaseReference database_ref;
-    public String uid;
-    private   ArrayList<String> keys;
+    private ArrayList<String> keys;
     private Integer[] x={0};
-
+    private MutableLiveData<String>
+            _profileName = new MutableLiveData<>(),
+            _profileEmail =new MutableLiveData<>(),
+            _creationDate = new MutableLiveData<>();
     private MutableLiveData<Integer> _shouldDeleteUser = new MutableLiveData<>();
+
+
+    public LiveData<String> getProfileName(){
+        return _profileName;
+    }
+    public LiveData<String> getProfileEmail(){
+        return _profileEmail;
+    }
+    public LiveData<String> getCreationDate(){
+        return _creationDate;
+    }
     public LiveData<Integer> getShouldDeleteUser(){
         return  _shouldDeleteUser;
     }
-
+    public String uid;
 
     /**
      * Two functions below are copied from : https://programming.vip/docs/android-uri-to-bitmap-image-and-compress.html
@@ -205,44 +218,44 @@ public class ProfileFragmentViewModel extends ViewModel {
         storageReference.child("images").child("profiles").child(mAuth.getCurrentUser().getUid()).delete();
     }
 
-    public void downloadProfile(MainActivity mainActivity, FirebaseAuth mAuth, DatabaseReference database_ref,  TextView profile_name, TextView profile_email, CircleImageView profile_img, TextView creationText, TextView creationDate) {
+    public void downloadProfile() {
+        initializeFirebase();
 
         User localUser = new User();
-        if (mAuth.getCurrentUser() != null) {
+
+        if (mAuth.getCurrentUser() != null)
+        {
             database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists()) {
-                        localUser.name = snapshot.child("name").getValue().toString();
-                        localUser.mail = mAuth.getCurrentUser().getEmail();
-                        localUser.photoUrl = snapshot.child("photoUrl").getValue().toString();
-                        profile_email.setText(localUser.mail);
-                        profile_name.setText(localUser.name);
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            localUser.name = snapshot.child("name").getValue().toString();
+                            localUser.mail = mAuth.getCurrentUser().getEmail();
+                            localUser.photoUrl = snapshot.child("photoUrl").getValue().toString();
+                            _profileEmail.setValue(localUser.mail);
+                            _profileName.setValue(localUser.name);
 
-                        creationText.setVisibility(View.VISIBLE);
-                        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy ");
-                        Long creationDateLong =mAuth.getCurrentUser().getMetadata().getCreationTimestamp();
-                        Date date = new Date( creationDateLong);
-                        creationDate.setVisibility(View.VISIBLE);
-                        creationDate.setText(formatter.format(date));
+                            SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy ");
+                            Long creationDateLong =mAuth.getCurrentUser().getMetadata().getCreationTimestamp();
+                            Date date = new Date( creationDateLong);
+                            _creationDate.setValue(formatter.format(date));
 
-                    Glide.with(mainActivity).load(MainActivity.viewModel.getPhotoUrl().getValue()).error(R.drawable.img_not_found).into(profile_img);
+                        }
+                    }
 
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.d(MainActivity.FIREBASE + error.getMessage(), "Firebase error: "+error.getMessage());
                     }
                 }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Log.d(MainActivity.FIREBASE + error.getMessage(), "Firebase error: "+error.getMessage());
-                }
-            });
+            );
 
         }
     }
 
-    public void updateProfile(FirebaseAuth mAuth, DatabaseReference database_ref, TextView profile_name) {
+    public void updateProfile() {
 
-
+    initializeFirebase();
         User localUser = new User();
         if (mAuth.getCurrentUser() != null) {
             database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -254,11 +267,7 @@ public class ProfileFragmentViewModel extends ViewModel {
                         localUser.photoUrl = snapshot.child("photoUrl").getValue().toString();
                         localUser.login_method = Integer.parseInt(snapshot.child("login_method").getValue().toString());
 
-
-                        //After we download data from db, We update its according to Inputed Data
-
-
-                        localUser.name = profile_name.getText().toString();
+                        localUser.name = _profileName.getValue().toString();
                         database_ref.child("users").child(mAuth.getCurrentUser().getUid()).setValue(localUser);
                     }
                 }
@@ -271,4 +280,17 @@ public class ProfileFragmentViewModel extends ViewModel {
         }
 
     }
+
+    public void setProfileName(String s){
+        _profileName.setValue(s);
+    }
+
+    public void setProfileEmail(String s){
+        _profileEmail.setValue(s);
+    }
+
+    public void setCreationDate(String s){
+        _creationDate.setValue(s);
+    }
+
 }

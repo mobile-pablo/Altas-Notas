@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,7 +45,7 @@ import java.util.Calendar;
 
 public class PlaylistsFragment extends Fragment {
 
-
+    public static FragmentPlaylistsBinding binding;
 
     private FirebaseDatabase database;
     private DatabaseReference database_ref;
@@ -53,7 +54,9 @@ public class PlaylistsFragment extends Fragment {
     private PlaylistsFragmentAdapter adapter;
     private PlaylistsFragmentViewModel viewModel;
     private MainActivity mainActivity;
-    public static FragmentPlaylistsBinding binding;
+    private Dialog dialog;
+
+    private String name,desc;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -70,15 +73,42 @@ public class PlaylistsFragment extends Fragment {
         initalizeList();
 
         viewModel =  new ViewModelProvider(requireActivity()).get(PlaylistsFragmentViewModel.class);
-        viewModel.init((MainActivity) getActivity(), database_ref,mAuth);
         binding.playlistsFloatingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                viewModel.openDialog((MainActivity) getActivity());
+              openDialog();
             }
         });
 
+        initializeObservers();
+
         return view;
+    }
+
+    private void initializeObservers() {
+        viewModel.getErrorState().observe(getViewLifecycleOwner(), new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                String errorMsg=null;
+                switch (integer){
+                    case 0: break;
+                    case 1:
+                    case 2:
+                    case 3: errorMsg="Error while adding Playlist"; break;
+                    default: errorMsg="Unknown Error!"; break;
+                }
+            }
+        });
+
+        viewModel.getShouldChangeFragment().observe(getViewLifecycleOwner(), new Observer<Boolean>(){
+
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if(aBoolean){
+               initalizeList();
+               }
+            }
+        });
     }
 
     private void initalizeList() {
@@ -87,6 +117,7 @@ public class PlaylistsFragment extends Fragment {
         database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                playlists.clear();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Playlist playlist = new Playlist();
                     playlist.setTitle(dataSnapshot.child("title").getValue().toString());
@@ -112,5 +143,87 @@ public class PlaylistsFragment extends Fragment {
         });
     }
 
+    public void openDialog() {
 
+
+        dialog = new Dialog(mainActivity, R.style.Theme_AltasNotas);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.setContentView(R.layout.add_playlists_dialog);
+        dialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setGravity(Gravity.CENTER);
+
+        ImageButton cancel, accept;
+
+        TextView  dialog_playlist_name = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_name);
+        TextView  dialog_playlist_desc = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_desc);
+
+        cancel = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_cancel_btn);
+        accept = dialog.getWindow().getDecorView().findViewById(R.id.add_playlist_dialog_accept_btn);
+
+
+        cancel.setOnClickListener(v -> dialog.dismiss());
+
+
+
+        accept.setOnClickListener(v -> {
+            name= dialog_playlist_name.getText().toString();
+            desc=dialog_playlist_desc.getText().toString();
+            validInput();
+        });
+
+        dialog.show();
+
+    }
+
+    public void validInput() {
+        name = name.trim();
+        desc = desc.trim();
+
+
+        if (name.isEmpty() && desc.isEmpty()) {
+            Toast.makeText(mainActivity, "Both fields are empty.\nPlease fill data.", Toast.LENGTH_SHORT).show();
+        } else {
+            if (name.isEmpty() || desc.isEmpty()) {
+                if (name.isEmpty()) {
+                    Toast.makeText(mainActivity, "Name is empty.\nPlease fill data.", Toast.LENGTH_SHORT).show();
+                }
+
+                if (desc.isEmpty()) {
+                    Toast.makeText(mainActivity, "Description is empty.\nPlease fill data.", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                name = name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
+                desc = desc.substring(0, 1).toUpperCase() + desc.substring(1).toLowerCase();
+                String finalName = name;
+                String finalDesc = desc;
+                database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot != null) {
+                            int x = (int) snapshot.getChildrenCount();
+                            for (DataSnapshot ds : snapshot.getChildren()) {
+                                if (ds.child("title").getValue().toString().trim().equals(finalName)) {
+                                    x--;
+                                    Toast.makeText(mainActivity, "Playlist exist with same title!", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            if (x == snapshot.getChildrenCount()) {
+                                dialog.dismiss();
+                                viewModel.createPlaylist(finalName, finalDesc);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.d(MainActivity.FIREBASE,"Firebase DB error");
+                    }
+                });
+
+            }
+        }
+    }
 }

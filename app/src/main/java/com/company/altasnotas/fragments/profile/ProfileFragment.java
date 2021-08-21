@@ -58,6 +58,8 @@ import static android.app.Activity.RESULT_OK;
 
 
 public class ProfileFragment extends Fragment {
+    public static FragmentProfileBinding binding;
+
     private DatabaseReference database_ref;
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
@@ -65,8 +67,6 @@ public class ProfileFragment extends Fragment {
     private ProfileFragmentViewModel viewModel;
     private StorageReference storageReference;
     private ProgressDialog progress;
-    public static FragmentProfileBinding binding;
-
     private MainActivity mainActivity;
 
     @Override
@@ -83,7 +83,7 @@ public class ProfileFragment extends Fragment {
 
 
         viewModel = new ViewModelProvider(requireActivity()).get(ProfileFragmentViewModel.class);
-        viewModel.downloadProfile((MainActivity) getActivity(), mAuth, database_ref, binding.profileFullName, binding.profileEmail, binding.profileUserImg, binding.profileDetailsCreationText, binding.profileDetailsCreationDate);
+        viewModel.downloadProfile();
 
         binding.profileUserImgBtn.setOnClickListener(v -> {
             if (ActivityCompat.checkSelfPermission(getActivity(),
@@ -105,7 +105,8 @@ public class ProfileFragment extends Fragment {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             binding.profileFullName.setText(String.valueOf(taskEditText.getText()));
-                            viewModel.updateProfile(mAuth, database_ref, binding.profileFullName);
+                            viewModel.setProfileName(binding.profileFullName.getText().toString());
+                            viewModel.updateProfile();
                         }
                     })
                     .setNegativeButton("Cancel", null)
@@ -155,7 +156,35 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        MainActivity.viewModel.getPhotoUrl().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                          Glide.with(mainActivity).load(s).error(R.drawable.img_not_found).into(binding.profileUserImg);
+            }
+        });
 
+        viewModel.getCreationDate().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                binding.profileDetailsCreationDate.setVisibility(View.VISIBLE);
+                binding.profileDetailsCreationDate.setText(s);
+                binding.profileDetailsCreationText.setVisibility(View.VISIBLE);
+            }
+        });
+
+        viewModel.getProfileName().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                binding.profileFullName.setText(s);
+            }
+        });
+
+        viewModel.getProfileEmail().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                binding.profileEmail.setText(s);
+            }
+        });
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
