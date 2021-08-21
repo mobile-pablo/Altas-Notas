@@ -52,7 +52,7 @@ public class PlaylistsFragment extends Fragment {
     private ArrayList<Playlist> playlists;
     private PlaylistsFragmentAdapter adapter;
     private PlaylistsFragmentViewModel viewModel;
-
+    private MainActivity mainActivity;
     public static FragmentPlaylistsBinding binding;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -60,7 +60,8 @@ public class PlaylistsFragment extends Fragment {
         // Inflate the layout for this fragment
         binding= FragmentPlaylistsBinding.inflate(inflater,container,false);
         View view = binding.getRoot();
-        MainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
+        mainActivity = (MainActivity) getActivity();
+        mainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
 
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();

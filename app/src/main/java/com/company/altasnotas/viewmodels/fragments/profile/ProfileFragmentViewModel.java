@@ -296,7 +296,7 @@ public class ProfileFragmentViewModel extends ViewModel {
                         creationDate.setVisibility(View.VISIBLE);
                         creationDate.setText(formatter.format(date));
 
-                    Glide.with(mainActivity).load(mainActivity.photoUrl.getValue()).error(R.drawable.img_not_found).into(profile_img);
+                    Glide.with(mainActivity).load(MainActivity.viewModel.getPhotoUrl().getValue()).error(R.drawable.img_not_found).into(profile_img);
                     /*
                            //  Image download
                         StorageReference storageReference = storage.getReference();

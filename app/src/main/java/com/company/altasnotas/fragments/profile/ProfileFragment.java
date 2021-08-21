@@ -14,24 +14,16 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -42,7 +34,6 @@ import com.company.altasnotas.databinding.FragmentProfileBinding;
 import com.company.altasnotas.viewmodels.fragments.profile.ProfileFragmentViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -50,13 +41,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
@@ -66,95 +53,92 @@ public class ProfileFragment extends Fragment {
     private DatabaseReference database_ref;
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
-    private Uri returnUri=null;
+    private Uri returnUri = null;
     private ProfileFragmentViewModel model;
     private StorageReference storageReference;
 
     public static FragmentProfileBinding binding;
 
-
+    private MainActivity mainActivity;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-     binding = FragmentProfileBinding.inflate(inflater, container,false);
-     View view = binding.getRoot();
-
-        MainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
-          mAuth = FirebaseAuth.getInstance();
-          database = FirebaseDatabase.getInstance();
-          database_ref = database.getReference();
-
-
-
-          model =  new ViewModelProvider(requireActivity()).get(ProfileFragmentViewModel.class);
-          model.downloadProfile((MainActivity) getActivity(), mAuth,  database_ref,   binding.profileFullName,   binding.profileEmail,   binding.profileUserImg,  binding.profileDetailsCreationText, binding.profileDetailsCreationDate);
-
-        binding.profileUserImgBtn.setOnClickListener(v->{
-              if(ActivityCompat.checkSelfPermission(getActivity(),
-                      Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-              {
-                  requestPermissions(
-                          new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                          2000);
-              }
-              else {
-                  CropImage.activity()
-                          .start(getContext(), this);
-              }
-          });
-        binding.profileNameEditBtn.setOnClickListener(v->{
-              final EditText taskEditText = new EditText(v.getContext());
-              AlertDialog dialog = new AlertDialog.Builder(v.getContext())
-                      .setTitle("Change username")
-                      .setView(taskEditText)
-                      .setPositiveButton("Accept", new DialogInterface.OnClickListener() {
-                          @Override
-                          public void onClick(DialogInterface dialog, int which) {
-                              binding.profileFullName.setText(String.valueOf(taskEditText.getText()));
-                              model.updateProfile(mAuth,database_ref ,  binding.profileFullName);
-                          }
-                      })
-                      .setNegativeButton("Cancel", null)
-                      .create();
+        binding = FragmentProfileBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
+        mainActivity = (MainActivity) getActivity();
+        mainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
+        mAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
+        database_ref = database.getReference();
 
 
-              dialog.setView(taskEditText,50,0,50,0);
-                dialog.show();
-              taskEditText.setText(  binding.profileFullName.getText());
-          });
+        model = new ViewModelProvider(requireActivity()).get(ProfileFragmentViewModel.class);
+        model.downloadProfile((MainActivity) getActivity(), mAuth, database_ref, binding.profileFullName, binding.profileEmail, binding.profileUserImg, binding.profileDetailsCreationText, binding.profileDetailsCreationDate);
 
-        binding.profileDetailsDeleteBox.setOnClickListener(v->{
-              AlertDialog dialog = new AlertDialog.Builder(v.getContext())
-                      .setTitle("Delete Profile?")
-                      .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                          @Override
-                          public void onClick(DialogInterface dialog, int which) {
-                              model.deleteProfile((MainActivity) getActivity(), mAuth,database_ref);
-                          }
-                      })
-                      .setNegativeButton("Cancel", null)
-                      .create();
+        binding.profileUserImgBtn.setOnClickListener(v -> {
+            if (ActivityCompat.checkSelfPermission(getActivity(),
+                    Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        2000);
+            } else {
+                CropImage.activity()
+                        .start(getContext(), this);
+            }
+        });
+        binding.profileNameEditBtn.setOnClickListener(v -> {
+            final EditText taskEditText = new EditText(v.getContext());
+            AlertDialog dialog = new AlertDialog.Builder(v.getContext())
+                    .setTitle("Change username")
+                    .setView(taskEditText)
+                    .setPositiveButton("Accept", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            binding.profileFullName.setText(String.valueOf(taskEditText.getText()));
+                            model.updateProfile(mAuth, database_ref, binding.profileFullName);
+                        }
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .create();
 
-              dialog.show();
-          });
 
-      return view;
+            dialog.setView(taskEditText, 50, 0, 50, 0);
+            dialog.show();
+            taskEditText.setText(binding.profileFullName.getText());
+        });
+
+        binding.profileDetailsDeleteBox.setOnClickListener(v -> {
+            AlertDialog dialog = new AlertDialog.Builder(v.getContext())
+                    .setTitle("Delete Profile?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            model.deleteProfile((MainActivity) getActivity(), mAuth, database_ref);
+                        }
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .create();
+
+            dialog.show();
+        });
+
+        return view;
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
 
-        if(resultCode ==RESULT_CANCELED){
-           Log.d("RESULT","RESULT HAVE BEEN CANCELED");
+        if (resultCode == RESULT_CANCELED) {
+            Log.d("RESULT", "RESULT HAVE BEEN CANCELED");
         }
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
-               returnUri = result.getUriContent();
+                returnUri = result.getUriContent();
                 ProgressDialog progress = new ProgressDialog(getContext());
                 progress.setTitle("Loading Photo");
                 progress.setMessage("Please wait...");
@@ -162,10 +146,10 @@ public class ProfileFragment extends Fragment {
                 progress.show();
                 try {
 
-                    Bitmap compresedImg =  ProfileFragmentViewModel.getBitmapFormUri(getActivity(), returnUri);
-                    Bitmap compressImgRotated = rotateImageIfRequired(getContext(), compresedImg,returnUri);
+                    Bitmap compresedImg = ProfileFragmentViewModel.getBitmapFormUri(getActivity(), returnUri);
+                    Bitmap compressImgRotated = rotateImageIfRequired(getContext(), compresedImg, returnUri);
                     ByteArrayOutputStream bao = new ByteArrayOutputStream();
-                    compressImgRotated = getResizedBitmap(compressImgRotated,300);
+                    compressImgRotated = getResizedBitmap(compressImgRotated, 300);
                     compressImgRotated.compress(Bitmap.CompressFormat.PNG, 100, bao);
                     byte[] byteArray = bao.toByteArray();
 
@@ -173,27 +157,27 @@ public class ProfileFragment extends Fragment {
 
                     //Upload image
 
-           //         storageReference = FirebaseStorage.getInstance().getReferenceFromUrl("gs://altas-notas.appspot.com");
+                    //         storageReference = FirebaseStorage.getInstance().getReferenceFromUrl("gs://altas-notas.appspot.com");
                     storageReference = FirebaseStorage.getInstance().getReference();
-                    storageReference.child("images/profiles/"+mAuth.getCurrentUser().getUid()).putBytes(byteArray).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    storageReference.child("images/profiles/" + mAuth.getCurrentUser().getUid()).putBytes(byteArray).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                            if(!task.isSuccessful()){
+                            if (!task.isSuccessful()) {
                                 Log.d(MainActivity.FIREBASE, "Upload image failed");
                                 progress.dismiss();
-                            }else{
-                                if(getActivity()!=null) {
+                            } else {
+                                if (getActivity() != null) {
                                     storageReference.child("images/profiles/" + mAuth.getCurrentUser().getUid()).getDownloadUrl().addOnCompleteListener(getActivity(), new OnCompleteListener<Uri>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Uri> task) {
                                             if (task.isSuccessful()) {
                                                 MainActivity mainActivity = (MainActivity) getActivity();
-                                                if(task.getResult()!=null && mainActivity!=null) {
+                                                if (task.getResult() != null && mainActivity != null) {
                                                     progress.dismiss();
-                                                    Glide.with(requireActivity()).load(task.getResult()).apply(RequestOptions.centerCropTransform()).error(R.drawable.img_not_found).into(  binding.profileUserImg);
-                                                    mainActivity.photoUrl.setValue( task.getResult().toString());
+                                                    Glide.with(requireActivity()).load(task.getResult()).apply(RequestOptions.centerCropTransform()).error(R.drawable.img_not_found).into(binding.profileUserImg);
+                                                    mainActivity.viewModel.setPhotoUrl(task.getResult().toString());
                                                 }
-                                            }else if(task.getResult()==null){
+                                            } else if (task.getResult() == null) {
                                                 progress.dismiss();
                                             }
                                         }
@@ -204,10 +188,9 @@ public class ProfileFragment extends Fragment {
                     });
 
 
-
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Log.d(MainActivity.FIREBASE,"Error while compressing and uploading photo to Firebase");
+                    Log.d(MainActivity.FIREBASE, "Error while compressing and uploading photo to Firebase");
                 }
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
@@ -215,40 +198,43 @@ public class ProfileFragment extends Fragment {
             }
         }
     }
+
     private static Bitmap rotateImageIfRequired(Context context, Bitmap img, Uri selectedImage) throws IOException {
 
-            InputStream input = context.getContentResolver().openInputStream(selectedImage);
-            ExifInterface ei;
-            if (Build.VERSION.SDK_INT > 23)
-                ei = new ExifInterface(input);
-            else
-                ei = new ExifInterface(selectedImage.getPath());
+        InputStream input = context.getContentResolver().openInputStream(selectedImage);
+        ExifInterface ei;
+        if (Build.VERSION.SDK_INT > 23)
+            ei = new ExifInterface(input);
+        else
+            ei = new ExifInterface(selectedImage.getPath());
 
-            int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
 
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    return rotateImage(img, 90);
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    return rotateImage(img, 180);
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    return rotateImage(img, 270);
-                default:
-                    return img;
-            }
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                return rotateImage(img, 90);
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                return rotateImage(img, 180);
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                return rotateImage(img, 270);
+            default:
+                return img;
         }
+    }
+
     private static Bitmap rotateImage(Bitmap img, int degree) {
-            Matrix matrix = new Matrix();
-            matrix.postRotate(degree);
-            Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
-            img.recycle();
-            return rotatedImg;
-        }
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degree);
+        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
+        img.recycle();
+        return rotatedImg;
+    }
+
     public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
         int width = image.getWidth();
         int height = image.getHeight();
 
-        float bitmapRatio = (float)width / (float) height;
+        float bitmapRatio = (float) width / (float) height;
         if (bitmapRatio > 1) {
             width = maxSize;
             height = (int) (width / bitmapRatio);
@@ -258,7 +244,6 @@ public class ProfileFragment extends Fragment {
         }
         return Bitmap.createScaledBitmap(image, width, height, true);
     }
-
 
 
 }

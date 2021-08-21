@@ -1,6 +1,5 @@
 package com.company.altasnotas.fragments.player;
 
-import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -23,10 +22,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
-import androidx.databinding.DataBindingUtil;
-import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.palette.graphics.Palette;
@@ -39,7 +35,6 @@ import com.bumptech.glide.request.transition.Transition;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.ChoosePlaylistAdapter;
-import com.company.altasnotas.databinding.BottomPlaylistSongPlayerSettingsLayoutBinding;
 import com.company.altasnotas.databinding.FragmentPlayerBinding;
 import com.company.altasnotas.fragments.favorites.FavoritesFragment;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
@@ -52,10 +47,8 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.util.Log;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -97,12 +90,12 @@ public class PlayerFragment extends Fragment {
             BackgroundService.LocalBinder binder = (BackgroundService.LocalBinder) iBinder;
             mService = binder.getService();
             mBound = true;
-        if(mService.position==null){
-         mService.destroyNotif();
-        }else{
-            initializePlayer();
-            initializeMiniPlayer();
-        }
+            if (mService.position == null) {
+                mService.destroyNotif();
+            } else {
+                initializePlayer();
+                initializeMiniPlayer();
+            }
         }
 
         @Override
@@ -112,26 +105,26 @@ public class PlayerFragment extends Fragment {
     };
 
 
-
-    private Boolean shouldPlay=null;
+    private Boolean shouldPlay = null;
 
     private BottomSheetDialog bottomSheetDialog;
     private BottomSheetDialog choosePlaylistDialog;
     private BottomSheetDialog songInPlaylistDialog;
     private PlayerFragmentViewModel viewModel;
 
-
+    private MainActivity mainActivity;
     //Mini Player
     public static FragmentPlayerBinding binding;
-    public PlayerFragment(Playlist playlist, int position, long seekedTo, Boolean isReOpen,Integer state, Boolean ready, Integer isFav) {
+
+    public PlayerFragment(Playlist playlist, int position, long seekedTo, Boolean isReOpen, Integer state, Boolean ready, Integer isFav) {
         this.playlist = null;
         this.playlist = playlist;
         this.position = position;
         this.seekedTo = seekedTo;
-        this.isReOpen=isReOpen;
-        this.state=state;
-        this.ready=ready;
-        this.isFav=isFav;
+        this.isReOpen = isReOpen;
+        this.state = state;
+        this.ready = ready;
+        this.isFav = isFav;
         //We are sending playlist to this player and let it play all of it
        /*  isFav
         0 - Playlist
@@ -144,39 +137,46 @@ public class PlayerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        binding = FragmentPlayerBinding.inflate(inflater,container,false);
+        binding = FragmentPlayerBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+        mainActivity = (MainActivity) getActivity();
 
         title = binding.playerView.findViewById(R.id.player_song_title);
         author = binding.playerView.findViewById(R.id.player_song_author);
         song_img = binding.playerView.findViewById(R.id.player_song_img);
         playerView = binding.playerView.findViewById(R.id.player_view);
+
         playerView.setBackgroundColor(Color.TRANSPARENT);
+
         player_full_box = binding.playerView.findViewById(R.id.player_full_box);
+
         viewModel = new ViewModelProvider(requireActivity()).get(PlayerFragmentViewModel.class);
-        MainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
+
+        mainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
+
         fav_btn = binding.playerView.findViewById(R.id.player_song_fav_btn);
         settings_btn = binding.playerView.findViewById(R.id.player_song_options_btn);
+
         database_ref = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-        
+
         //Mini Player
-        MainActivity.activityMainBinding.slidingLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+        mainActivity.activityMainBinding.slidingLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View panel, float slideOffset) {
             }
 
             @Override
             public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
-                if(newState == SlidingUpPanelLayout.PanelState.EXPANDED){
+                if (newState == SlidingUpPanelLayout.PanelState.EXPANDED) {
                     binding.miniIncluded.getRoot().setVisibility(View.GONE);
                 }
 
-                if(newState== SlidingUpPanelLayout.PanelState.HIDDEN){
+                if (newState == SlidingUpPanelLayout.PanelState.HIDDEN) {
                     binding.miniIncluded.getRoot().setVisibility(View.VISIBLE);
                 }
 
-                if(newState== SlidingUpPanelLayout.PanelState.COLLAPSED){
+                if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
                     binding.miniIncluded.getRoot().setVisibility(View.VISIBLE);
                 }
             }
@@ -188,21 +188,21 @@ public class PlayerFragment extends Fragment {
         binding.miniIncluded.miniPlayerDescription.setSelected(true);
 
 
-                intent = new Intent(getActivity(), BackgroundService.class);
-                intent.putExtra("playlist", playlist);
-                intent.putExtra("pos", position);
-                intent.putExtra("path", playlist.getSongs().get(position).getPath());
-                intent.putExtra("playlistTitle", playlist.getTitle());
-                intent.putExtra("desc", playlist.getDescription());
-                intent.putExtra("ms", seekedTo);
-                intent.putExtra("isFav",isFav);
-                intent.putParcelableArrayListExtra("songs", playlist.getSongs());
+        intent = new Intent(getActivity(), BackgroundService.class);
+        intent.putExtra("playlist", playlist);
+        intent.putExtra("pos", position);
+        intent.putExtra("path", playlist.getSongs().get(position).getPath());
+        intent.putExtra("playlistTitle", playlist.getTitle());
+        intent.putExtra("desc", playlist.getDescription());
+        intent.putExtra("ms", seekedTo);
+        intent.putExtra("isFav", isFav);
+        intent.putParcelableArrayListExtra("songs", playlist.getSongs());
 
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    ContextCompat.startForegroundService(getActivity(), intent);
-                } else {
-                    getActivity().startService(intent);
-                }
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            ContextCompat.startForegroundService(getActivity(), intent);
+        } else {
+            getActivity().startService(intent);
+        }
 
         setUI();
 
@@ -272,22 +272,22 @@ public class PlayerFragment extends Fragment {
 
             if (fav_btn.getDrawable().getConstantState().equals(fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
 
-                viewModel.addToFav( getActivity(),database_ref,mAuth,playlist,position,fav_btn,binding.miniIncluded.miniPlayerFavBtn, CurrentPlaylistFragment.adapter);
+                viewModel.addToFav(getActivity(), database_ref, mAuth, playlist, position, fav_btn, binding.miniIncluded.miniPlayerFavBtn, CurrentPlaylistFragment.adapter);
             } else {
-                viewModel.removeFromFav( getActivity(), database_ref,mAuth,playlist,position,fav_btn,binding.miniIncluded.miniPlayerFavBtn, CurrentPlaylistFragment.adapter);
+                viewModel.removeFromFav(getActivity(), database_ref, mAuth, playlist, position, fav_btn, binding.miniIncluded.miniPlayerFavBtn, CurrentPlaylistFragment.adapter);
             }
         });
 
         settings_btn.setOnClickListener(v -> {
-           if(isFav==0){
+            if (isFav == 0) {
                 openSongInPlaylistsSettingsDialog();
-           }else{
-               openSettingsDialog();
-           }
+            } else {
+                openSettingsDialog();
+            }
         });
 
 
-        binding.miniIncluded.miniPlayerDismissBtn.setOnClickListener(v->{
+        binding.miniIncluded.miniPlayerDismissBtn.setOnClickListener(v -> {
             dismissPlayer();
         });
 
@@ -295,43 +295,41 @@ public class PlayerFragment extends Fragment {
 
             if (binding.miniIncluded.miniPlayerFavBtn.getDrawable().getConstantState().equals(binding.miniIncluded.miniPlayerFavBtn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
 
-                viewModel.addToFav( getActivity(),database_ref,mAuth,playlist,position,fav_btn,binding.miniIncluded.miniPlayerFavBtn, CurrentPlaylistFragment.adapter);
+                viewModel.addToFav(getActivity(), database_ref, mAuth, playlist, position, fav_btn, binding.miniIncluded.miniPlayerFavBtn, CurrentPlaylistFragment.adapter);
             } else {
-                viewModel.removeFromFav( getActivity(), database_ref,mAuth,playlist,position,fav_btn,binding.miniIncluded.miniPlayerFavBtn, CurrentPlaylistFragment.adapter);
+                viewModel.removeFromFav(getActivity(), database_ref, mAuth, playlist, position, fav_btn, binding.miniIncluded.miniPlayerFavBtn, CurrentPlaylistFragment.adapter);
             }
         });
         return view;
     }
 
     public void dismissPlayer() {
-        MainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+        mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
 
-        if(playerView!=null) {
+        if (playerView != null) {
             mService.destroyNotif();
         }
 
-        MainActivity.currentSongTitle.setValue("");
-        MainActivity.currentSongAlbum.setValue("");
-        MainActivity.currentSongAuthor.setValue("");
+        mainActivity.clearCurrentSong();
 
         Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
         if (currentFragment instanceof CurrentPlaylistFragment) {
-           if(CurrentPlaylistFragment.adapter!=null){
-               CurrentPlaylistFragment.adapter.notifyDataSetChanged();
-           }
+            if (CurrentPlaylistFragment.adapter != null) {
+                CurrentPlaylistFragment.adapter.notifyDataSetChanged();
+            }
         }
         if (currentFragment instanceof FavoritesFragment) {
             FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
-           if(favoritesFragment.viewModel!=null){
-               if(favoritesFragment.viewModel.adapter!=null){
-                   favoritesFragment.viewModel.adapter.notifyDataSetChanged();
-               }
-           }
+            if (favoritesFragment.viewModel != null) {
+                if (favoritesFragment.viewModel.adapter != null) {
+                    favoritesFragment.viewModel.adapter.notifyDataSetChanged();
+                }
+            }
         }
         //Very important
         if (mBound) {
             getActivity().unbindService(mConnection);
-            mBound=false;
+            mBound = false;
         }
 
 
@@ -340,7 +338,7 @@ public class PlayerFragment extends Fragment {
 
     public void initializeMiniPlayer() {
         if (mBound) {
-            if(mService.position!=null){
+            if (mService.position != null) {
                 SimpleExoPlayer player = mService.getPlayerInstance();
                 exoListener = new ExoListener(player);
                 player.addListener(exoListener);
@@ -357,12 +355,13 @@ public class PlayerFragment extends Fragment {
             }
         }
     }
+
     private void openSongInPlaylistsSettingsDialog() {
         songInPlaylistDialog = new BottomSheetDialog(getContext());
         songInPlaylistDialog.setContentView(R.layout.bottom_playlist_song_player_settings_layout);
 
         LinearLayout showAlbum = songInPlaylistDialog.findViewById(R.id.bottom_settings_album_box);
-        LinearLayout showPlaylist= songInPlaylistDialog.findViewById(R.id.bottom_settings_show_playlist_box);
+        LinearLayout showPlaylist = songInPlaylistDialog.findViewById(R.id.bottom_settings_show_playlist_box);
         LinearLayout share = songInPlaylistDialog.findViewById(R.id.bottom_settings_share_box);
         LinearLayout dismissDialog = songInPlaylistDialog.findViewById(R.id.bottom_settings_dismiss_box);
 
@@ -389,7 +388,7 @@ public class PlayerFragment extends Fragment {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        android.util.Log.d(MainActivity.FIREBASE,"Error: " + error.getMessage());
+                        android.util.Log.d(MainActivity.FIREBASE, "Error: " + error.getMessage());
                     }
 
                 });
@@ -398,11 +397,11 @@ public class PlayerFragment extends Fragment {
             }
         });
 
-        showPlaylist.setOnClickListener(v->{
-          for(int i=0; i<getActivity().getSupportFragmentManager().getBackStackEntryCount(); i++){
-              getActivity().getSupportFragmentManager().popBackStack();
-          }
-            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getTitle(), "",playlist, 0)).addToBackStack("null").commit();
+        showPlaylist.setOnClickListener(v -> {
+            for (int i = 0; i < getActivity().getSupportFragmentManager().getBackStackEntryCount(); i++) {
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
+            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new CurrentPlaylistFragment(playlist.getTitle(), "", playlist, 0)).addToBackStack("null").commit();
 
             songInPlaylistDialog.dismiss();
         });
@@ -448,7 +447,7 @@ public class PlayerFragment extends Fragment {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        android.util.Log.d(MainActivity.FIREBASE,"Error: " + error.getMessage());
+                        android.util.Log.d(MainActivity.FIREBASE, "Error: " + error.getMessage());
                     }
 
                 });
@@ -494,7 +493,7 @@ public class PlayerFragment extends Fragment {
 
                 }
 
-                if(snapshot.getChildrenCount()!=0) {
+                if (snapshot.getChildrenCount() != 0) {
                     if (x == snapshot.getChildrenCount()) {
 
 
@@ -506,9 +505,9 @@ public class PlayerFragment extends Fragment {
 
                     chooseState.setVisibility(View.GONE);
                     chooseRecyclerView.setVisibility(View.VISIBLE);
-                }else{
-                        chooseState.setVisibility(View.VISIBLE);
-                        chooseRecyclerView.setVisibility(View.GONE);
+                } else {
+                    chooseState.setVisibility(View.VISIBLE);
+                    chooseRecyclerView.setVisibility(View.GONE);
                 }
             }
 
@@ -535,51 +534,48 @@ public class PlayerFragment extends Fragment {
 
     public void initializePlayer() {
         if (mBound) {
-   if(mService.position!=null){
-       SimpleExoPlayer player = mService.getPlayerInstance();
-       exoListener = new ExoListener(player);
-       player.addListener(exoListener);
-       playerView.setKeepContentOnPlayerReset(true);
-       playerView.setPlayer(player);
-       playerView.setUseController(true);
-       playerView.showController();
-       playerView.setControllerShowTimeoutMs(0);
-       playerView.setCameraDistance(0);
-       playerView.setControllerAutoShow(true);
+            if (mService.position != null) {
+                SimpleExoPlayer player = mService.getPlayerInstance();
+                exoListener = new ExoListener(player);
+                player.addListener(exoListener);
+                playerView.setKeepContentOnPlayerReset(true);
+                playerView.setPlayer(player);
+                playerView.setUseController(true);
+                playerView.showController();
+                playerView.setControllerShowTimeoutMs(0);
+                playerView.setCameraDistance(0);
+                playerView.setControllerAutoShow(true);
 
-       System.out.println(isReOpen+","+ shouldPlay);
-       if(state==null || ready==null){
-           if(isReOpen)
-           {
-               //By this When Notification is Open and ExoPlayer is Paused. It remains that way.
-               player.setPlayWhenReady(player.getPlayWhenReady() && player.getPlaybackState() == Player.STATE_READY);
-           }
-           else
-           {
-               if(shouldPlay!=null){
-                   player.setPlayWhenReady(shouldPlay);
-               }else{
-                   player.setPlayWhenReady(true);
-               }
-           }
+                System.out.println(isReOpen + "," + shouldPlay);
+                if (state == null || ready == null) {
+                    if (isReOpen) {
+                        //By this When Notification is Open and ExoPlayer is Paused. It remains that way.
+                        player.setPlayWhenReady(player.getPlayWhenReady() && player.getPlaybackState() == Player.STATE_READY);
+                    } else {
+                        if (shouldPlay != null) {
+                            player.setPlayWhenReady(shouldPlay);
+                        } else {
+                            player.setPlayWhenReady(true);
+                        }
+                    }
 
 
-       }else{
+                } else {
 
-           if(!(ready && state == Player.STATE_READY)){
-               player.setPlayWhenReady(false);
-           }else{
-               player.setPlayWhenReady(true);
-           }
-       }
-   }
+                    if (!(ready && state == Player.STATE_READY)) {
+                        player.setPlayWhenReady(false);
+                    } else {
+                        player.setPlayWhenReady(true);
+                    }
+                }
+            }
         }
     }
 
     @Override
     public void onStart() {
         super.onStart();
-       requireActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        requireActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
   /*
         Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.main_mini_player_container);
         if (currentFragment instanceof MiniPlayerFragment) {
@@ -593,22 +589,22 @@ public class PlayerFragment extends Fragment {
 
     public void setUI() {
         setMiniUI();
-        if(getActivity()!=null) {
+        if (getActivity() != null) {
             Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
             if (currentFragment instanceof PlayerFragment) {
                 Glide.with(getActivity()).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(new CustomTarget<Drawable>() {
                     @Override
                     public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                        if(resource!=null) {
+                        if (resource != null) {
                             song_img.setImageDrawable(resource);
                             Bitmap b = drawableToBitmap(resource);
                             palette = Palette.from(b).generate();
-                          viewModel.setUpInfoBackgroundColor(getActivity(), player_full_box, palette);
+                            viewModel.setUpInfoBackgroundColor(getActivity(), player_full_box, palette);
                             if (fav_btn.getDrawable().getConstantState().equals(fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
                                 fav_btn.getDrawable().setTint(Color.WHITE);
-                            }else{
+                            } else {
                                 fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_light_orange));
-                              }
+                            }
                         }
                     }
 
@@ -624,9 +620,9 @@ public class PlayerFragment extends Fragment {
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
 
                         //We add extra space because This Light font have small spacing between words.
-                     String local_title = playlist.getSongs().get(position).getTitle();
-                     title.setTag(" ");
-                     String space = (String) title.getTag();
+                        String local_title = playlist.getSongs().get(position).getTitle();
+                        title.setTag(" ");
+                        String space = (String) title.getTag();
                         title.setText(local_title.replace(space, (space += " ")));
                         title.setTag(space);
 
@@ -640,7 +636,7 @@ public class PlayerFragment extends Fragment {
                 });
 
                 //Loading fav btn state
-                if(mAuth.getCurrentUser()!=null){
+                if (mAuth.getCurrentUser() != null) {
                     database_ref.child("fav_music")
                             .child(mAuth.getCurrentUser().getUid())
                             .orderByKey()
@@ -678,7 +674,7 @@ public class PlayerFragment extends Fragment {
                                                                     ) {
                                                                         //We found a song in Album and We need to set icon
                                                                         fav_btn.setImageResource(R.drawable.ic_heart_full);
-                                                                        fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(),R.color.project_light_orange));
+                                                                        fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_light_orange));
                                                                     }
                                                                 }
 
@@ -702,19 +698,19 @@ public class PlayerFragment extends Fragment {
                             });
                 }
             }
-        }else{
+        } else {
             Log.d("Activity", "Activity is null");
         }
     }
 
-    public  void setMiniUI() {
-        if(getActivity()!=null) {
+    public void setMiniUI() {
+        if (getActivity() != null) {
             Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
             if (currentFragment instanceof PlayerFragment) {
                 Glide.with(getActivity()).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(new CustomTarget<Drawable>() {
                     @Override
                     public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                        if(resource!=null) {
+                        if (resource != null) {
                             binding.miniIncluded.miniPlayerImg.setImageDrawable(resource);
                         }
                     }
@@ -743,7 +739,7 @@ public class PlayerFragment extends Fragment {
 
 
         //Loading fav btn state
-        if(mAuth.getCurrentUser()!=null){
+        if (mAuth.getCurrentUser() != null) {
             database_ref.child("fav_music")
                     .child(mAuth.getCurrentUser().getUid())
                     .orderByKey()
@@ -781,7 +777,7 @@ public class PlayerFragment extends Fragment {
                                                             ) {
                                                                 //We found a song in Album and We need to set icon
                                                                 binding.miniIncluded.miniPlayerFavBtn.setImageResource(R.drawable.ic_heart_full);
-                                                                binding.miniIncluded.miniPlayerFavBtn.getDrawable().setTint(ContextCompat.getColor(getActivity(),R.color.project_dark_velvet));
+                                                                binding.miniIncluded.miniPlayerFavBtn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_dark_velvet));
                                                             }
                                                         }
 
@@ -808,22 +804,22 @@ public class PlayerFragment extends Fragment {
 
         if (binding.miniIncluded.miniPlayerFavBtn.getDrawable().getConstantState().equals(binding.miniIncluded.miniPlayerFavBtn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
             binding.miniIncluded.miniPlayerFavBtn.getDrawable().setTint(Color.BLACK);
-        }else{
+        } else {
             binding.miniIncluded.miniPlayerFavBtn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_dark_velvet));
         }
     }
 
-    public static Bitmap drawableToBitmap (Drawable drawable) {
+    public static Bitmap drawableToBitmap(Drawable drawable) {
         Bitmap bitmap = null;
 
         if (drawable instanceof BitmapDrawable) {
             BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
-            if(bitmapDrawable.getBitmap() != null) {
+            if (bitmapDrawable.getBitmap() != null) {
                 return bitmapDrawable.getBitmap();
             }
         }
 
-        if(drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
+        if (drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
             bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Single color bitmap will be created of 1x1 pixel
         } else {
             bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
@@ -836,8 +832,9 @@ public class PlayerFragment extends Fragment {
     }
 
     public void setSongState(boolean b) {
-        shouldPlay =b;
+        shouldPlay = b;
     }
+
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
@@ -845,7 +842,7 @@ public class PlayerFragment extends Fragment {
         initializeMiniPlayer();
     }
 
-    public  class ExoListener implements Player.Listener {
+    public class ExoListener implements Player.Listener {
         SimpleExoPlayer player;
 
         public ExoListener(SimpleExoPlayer player) {
@@ -857,13 +854,13 @@ public class PlayerFragment extends Fragment {
             mService.setPosition(player.getCurrentWindowIndex());
             position = player.getCurrentWindowIndex();
             playerView.setPlayer(player);
-            state= player.getPlaybackState();
+            state = player.getPlaybackState();
             ready = player.getPlayWhenReady();
-          if(CurrentPlaylistFragment.adapter!=null){
-              CurrentPlaylistFragment.adapter.notifyDataSetChanged();
-          }
+            if (CurrentPlaylistFragment.adapter != null) {
+                CurrentPlaylistFragment.adapter.notifyDataSetChanged();
+            }
 
-            Log.d("Exo","playbackState = " + playbackState + " playWhenReady = " + playWhenReady );
+            Log.d("Exo", "playbackState = " + playbackState + " playWhenReady = " + playWhenReady);
             switch (playbackState) {
                 case Player.STATE_IDLE:
                     // free
@@ -900,21 +897,23 @@ public class PlayerFragment extends Fragment {
 
         @Override
         public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-                 position = player.getCurrentWindowIndex();
-                MainActivity.currentSongTitle.setValue(playlist.getSongs().get(position).getTitle());
-                MainActivity.currentSongAlbum.setValue(playlist.getTitle());
-                MainActivity.currentSongAuthor.setValue(playlist.getDescription());
-              if(CurrentPlaylistFragment.adapter!=null){
-              CurrentPlaylistFragment.adapter.notifyDataSetChanged();
-          }
+            position = player.getCurrentWindowIndex();
+            mainActivity.viewModel.setCurrentSongTitle(playlist.getSongs().get(position).getTitle());
+            mainActivity.viewModel.setCurrentSongAlbum(playlist.getTitle());
+            mainActivity.viewModel.setCurrentSongAuthor(playlist.getDescription());
+
+            if (CurrentPlaylistFragment.adapter != null) {
+                CurrentPlaylistFragment.adapter.notifyDataSetChanged();
+            }
 
             setUI();
             fav_btn.setImageResource(R.drawable.ic_heart_empty);
             mService.setPosition(position);
         }
     }
-    public  PlayerFragment getPlayerFragment(){
-        return  this;
+
+    public PlayerFragment getPlayerFragment() {
+        return this;
     }
 }
 

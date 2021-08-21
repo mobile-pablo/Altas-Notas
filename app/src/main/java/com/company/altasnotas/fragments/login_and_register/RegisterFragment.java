@@ -20,15 +20,16 @@ public class RegisterFragment extends Fragment {
 
     RegisterFragmentViewModel model;
     private static FragmentRegisterBinding binding;
+    private MainActivity mainActivity;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentRegisterBinding.inflate(inflater, container,false);
         View view = binding.getRoot();
-
+        mainActivity = (MainActivity) getActivity();
         model = new ViewModelProvider(requireActivity()).get(RegisterFragmentViewModel.class);
-        MainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
+        mainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
 
         binding.registerWMailBtn.setOnClickListener(v -> {
             model.register((MainActivity) getActivity(), binding.registerEmailEdittext.getText().toString().toLowerCase().trim(), binding.registerPasswordOneEdittext.getText().toString().toLowerCase().trim(), binding.registerPasswordTwoEdittext.getText().toString().toLowerCase().trim());

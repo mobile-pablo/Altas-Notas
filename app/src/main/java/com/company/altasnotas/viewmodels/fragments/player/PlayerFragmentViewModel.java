@@ -164,17 +164,18 @@ public class PlayerFragmentViewModel extends ViewModel {
                                             FavoritesFragment fav = (FavoritesFragment) currentFragment;
 
 
-                                            if(MainActivity.currentSongAlbum.getValue().equals(fav.viewModel.playlist.getTitle())){
-                                                Log.d("FavoritesFragment", "Album value:"+ MainActivity.currentSongAlbum.getValue()+", Title: "+ fav.viewModel.playlist.getTitle());
+
+                                            if(MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(fav.viewModel.getPlaylist().getTitle())){
+                                                Log.d("FavoritesFragment", "Album value:"+ MainActivity.viewModel.getCurrentSongAlbum().getValue()+", Title: "+ fav.viewModel.getPlaylist().getTitle());
 
                                             }
 
                                             Fragment frag = activity.getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
                                             if (frag instanceof PlayerFragment) {
 
-                                                if(MainActivity.currentSongTitle.getValue().equals(fav.viewModel.playlist.getSongs().get(position).getTitle()) &&
-                                                        MainActivity.currentSongAlbum.getValue().equals(fav.viewModel.playlist.getTitle()) &&
-                                                        MainActivity.currentSongAuthor.getValue().equals( fav.viewModel.playlist.getDescription())
+                                                if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(fav.viewModel.getPlaylist().getSongs().get(position).getTitle()) &&
+                                                        MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(fav.viewModel.getPlaylist().getTitle()) &&
+                                                        MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( fav.viewModel.getPlaylist().getDescription())
                                                 ){
                                                 ((PlayerFragment) frag).dismissPlayer();
                                                 }

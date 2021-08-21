@@ -95,7 +95,7 @@ public class CurrentPlaylistFragment extends Fragment {
     private final String author;
     private final String album;
     private final Integer isAlbum;
-
+    private MainActivity mainActivity;
     private Uri returnUri;
     private StorageReference storageReference;
 
@@ -109,7 +109,8 @@ public class CurrentPlaylistFragment extends Fragment {
 
        binding= FragmentCurrentPlaylistBinding.inflate(inflater,container,false);
         View view = binding.getRoot();
-        MainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
+        mainActivity = (MainActivity) getActivity();
+        mainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
 
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
@@ -152,7 +153,7 @@ public class CurrentPlaylistFragment extends Fragment {
         }
 
 
-        MainActivity.currentSongTitle.observe(getViewLifecycleOwner(), new Observer<String>() {
+       mainActivity.viewModel.getCurrentSongTitle().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String s) {
              if(adapter!=null){

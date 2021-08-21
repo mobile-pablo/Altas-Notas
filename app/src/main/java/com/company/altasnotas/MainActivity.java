@@ -24,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.company.altasnotas.databinding.ActivityMainBinding;
 import com.company.altasnotas.fragments.favorites.FavoritesFragment;
@@ -34,6 +35,8 @@ import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.fragments.playlists.PlaylistsFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
+import com.company.altasnotas.viewmodels.activities.MainActivityViewModel;
+import com.company.altasnotas.viewmodels.fragments.profile.ProfileFragmentViewModel;
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
@@ -63,25 +66,29 @@ import static android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
 public class MainActivity extends AppCompatActivity {
 
     FirebaseAuth mAuth;
-    public MutableLiveData<String> photoUrl;
+
  //   public BottomNavigationView bottomNavigationView;
-    public static MutableLiveData<String> currentSongTitle = new MutableLiveData<>();
-    public static MutableLiveData<String> currentSongAlbum = new MutableLiveData<>();
-    public static MutableLiveData<String> currentSongAuthor = new MutableLiveData<>();
+
     public static Integer dialogHeight;
     public static final String FIREBASE = "Firebase";
-
-    public  static ActivityMainBinding activityMainBinding;
+    public static MainActivityViewModel viewModel;
+    public  ActivityMainBinding activityMainBinding;
     private String frag;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
        activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
        setContentView(activityMainBinding.getRoot());
-        currentSongTitle.setValue("");
-        currentSongAuthor.setValue("");
-        currentSongAlbum.setValue("");
+        viewModel =  new ViewModelProvider(this).get(MainActivityViewModel.class);
+        viewModel.setCurrentSongTitle("");
+        viewModel.setCurrentSongAlbum("");
+        viewModel.setCurrentSongAuthor("");
+        viewModel.setPhotoUrl("");
+
 
 
 
@@ -92,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
         activityMainBinding.mainNavBottom.setItemIconTintList(null);
         activityMainBinding.mainNavBottom.setOnNavigationItemSelectedListener(navListener);
 
-        photoUrl = new MutableLiveData<>("");
         mAuth = FirebaseAuth.getInstance();
 
         updateUI(mAuth.getCurrentUser());
@@ -145,6 +151,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public static void clearCurrentSong() {
+        viewModel.setCurrentSongTitle("");
+        viewModel.setCurrentSongAlbum("");
+        viewModel.setCurrentSongAuthor("");
+    }
     private void hideSystemUI() {
         // Enables regular immersive mode.
         // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
@@ -174,9 +185,9 @@ public class MainActivity extends AppCompatActivity {
                    Integer isFav = PlayerFragment.mService.isFav;
 
                    System.out.println(ready+","+ state);
-                   currentSongTitle.setValue(playlist.getSongs().get(position).getTitle());
-                   currentSongAlbum.setValue(playlist.getTitle());
-                   currentSongAuthor.setValue(playlist.getDescription());
+                   viewModel.setCurrentSongTitle(playlist.getSongs().get(position).getTitle());
+                   viewModel.setCurrentSongAlbum(playlist.getTitle());
+                   viewModel.setCurrentSongAuthor(playlist.getDescription());
                    PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo, true, state, null, isFav);
                   getSupportFragmentManager().beginTransaction().replace(R.id.sliding_layout_frag, playerFragment).commit();
                   getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
@@ -240,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
             CurrentPlaylistFragment.adapter.notifyDataSetChanged();
         }
 
-        photoUrl.setValue("");
+        viewModel.setPhotoUrl("");
 
         Fragment frag = getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
         if (frag instanceof PlayerFragment) {
@@ -374,9 +385,8 @@ public class MainActivity extends AppCompatActivity {
                     storageReference.child("images/profiles/" + mAuth.getCurrentUser().getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
-                            photoUrl.setValue(uri.toString());
-                            // Glide.with(mainActivity).load(uri).error(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
-                        }
+                            viewModel.setPhotoUrl(uri.toString());
+                                }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception exception) {
@@ -385,13 +395,11 @@ public class MainActivity extends AppCompatActivity {
                                 String url = snapshot.child("photoUrl").getValue().toString();
                                 if (url != null) {
 
-                                    photoUrl.setValue(url);
-                                    //   Glide.with(mainActivity).load(url).error(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
+                                    viewModel.setPhotoUrl(url);
 
                                 } else {
-                                    photoUrl.setValue("");
-                                    // Glide.with(mainActivity).load(R.drawable.img_not_found).apply(RequestOptions.circleCropTransform()).into(profile_img);
-                                }
+                                    viewModel.setPhotoUrl("");
+                                    }
                                 Log.d(FIREBASE,"Storage exception: " + exception.getLocalizedMessage() + "\nLoad from Page URL instead");
 
                             }

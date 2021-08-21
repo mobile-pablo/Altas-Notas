@@ -134,8 +134,8 @@ public class LoginFragmentViewModel extends ViewModel {
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
         User user;
         if (newUser) {
-            mainActivity.photoUrl.setValue(photo);
-            user = new User(mAuth.getCurrentUser().getDisplayName(), mAuth.getCurrentUser().getEmail(),  mainActivity.photoUrl.getValue(), i);
+            MainActivity.viewModel.setPhotoUrl(photo);
+            user = new User(mAuth.getCurrentUser().getDisplayName(), mAuth.getCurrentUser().getEmail(),  MainActivity.viewModel.getPhotoUrl().getValue(), i);
             database.child("users").child(mAuth.getCurrentUser().getUid()).setValue(user);
         } else {
             database.child("users").child(mAuth.getCurrentUser().getUid()).child("login_method").setValue(i);

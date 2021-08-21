@@ -1,6 +1,5 @@
 package com.company.altasnotas.viewmodels.fragments.favorites;
 
-import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -13,7 +12,6 @@ import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
 import com.company.altasnotas.models.FavoriteFirebaseSong;
 import com.company.altasnotas.models.Playlist;
-import com.company.altasnotas.models.Song;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -23,7 +21,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 
 public class FavoritesFragmentViewModel extends ViewModel {
@@ -32,63 +29,36 @@ public class FavoritesFragmentViewModel extends ViewModel {
     private DatabaseReference database_ref;
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
-    public Playlist playlist;
-    public  CurrentPlaylistAdapter adapter;
+
+    private Playlist playlist;
+    public CurrentPlaylistAdapter adapter;
     private CountDownLatch conditionLatch;
-    public  ArrayList<FavoriteFirebaseSong> favoriteFirebaseSongs;
+    private ArrayList<FavoriteFirebaseSong> favoriteFirebaseSongs;
     private MutableLiveData<Integer> _imageViewDrawable = new MutableLiveData<Integer>();
-    private MutableLiveData<Drawable> _settingsDrawable = new MutableLiveData<>();
 
     private MutableLiveData<String>
             _titleText = new MutableLiveData<>(),
             _descriptionText = new MutableLiveData<>();
 
 
+    private MutableLiveData<Boolean> _favStateBool =
+            new MutableLiveData<>();
 
-    private MutableLiveData<Boolean> _favStateBool  =
-            new MutableLiveData<>(),
-            _isReadyToInit  = new MutableLiveData<>();
-
-    public LiveData<Drawable> getSettingsDrawable(){
-        if(_settingsDrawable==null){
-            _settingsDrawable=new MutableLiveData<>();
-        }
-        return _settingsDrawable;
-    }
-    public LiveData<Integer> getImageViewDrawable(){
-        if(_imageViewDrawable==null){
-            _imageViewDrawable=new MutableLiveData<Integer>();
-        }
+    public LiveData<Integer> getImageViewDrawable() {
         return _imageViewDrawable;
     }
-    public LiveData<String> getTitleText(){
-        if(_titleText==null){
-            _titleText=new MutableLiveData<>();
-        }
+
+    public LiveData<String> getTitleText() {
         return _titleText;
     }
-    public LiveData<String> getDescriptionText(){
-        if(_descriptionText==null){
-            _descriptionText=new MutableLiveData<>();
-        }
+
+    public LiveData<String> getDescriptionText() {
         return _descriptionText;
     }
-    public LiveData<Boolean> getFavStateBool(){
-        if(_favStateBool==null){
-            _favStateBool=new MutableLiveData<>();
-        }
+
+    public LiveData<Boolean> getFavStateBool() {
         return _favStateBool;
     }
-
-
-
-
-
-
-
-
-
-
 
 
     public void addSongToFavFirebase(String author, String album, Integer i) {
@@ -145,18 +115,18 @@ public class FavoritesFragmentViewModel extends ViewModel {
 
 
                             if (favoriteFirebaseSongs.size() == x) {
-                               _favStateBool.setValue(false);
-                            }else{
+                                _favStateBool.setValue(false);
+                            } else {
                                 _favStateBool.setValue(true);
                             }
                         } else {
 
-                         _favStateBool.setValue(true);
+                            _favStateBool.setValue(true);
                         }
 
 
                     } else {
-                        Log.d(MainActivity.FIREBASE,"This Song doesnt exist in Album");
+                        Log.d(MainActivity.FIREBASE, "This Song doesnt exist in Album");
 
                     }
                 }
@@ -170,6 +140,25 @@ public class FavoritesFragmentViewModel extends ViewModel {
             });
         }
     }
+
+
+    public Playlist getPlaylist() {
+        return playlist;
+    }
+
+    public void setPlaylist(Playlist playlist) {
+        this.playlist = playlist;
+    }
+
+    public ArrayList<FavoriteFirebaseSong> getFavoriteFirebaseSongs() {
+        return favoriteFirebaseSongs;
+    }
+
+    public void setFavoriteFirebaseSongs(ArrayList<FavoriteFirebaseSong> favoriteFirebaseSongs) {
+        this.favoriteFirebaseSongs = favoriteFirebaseSongs;
+    }
+
+
 
 
 }

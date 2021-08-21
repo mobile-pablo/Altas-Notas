@@ -38,21 +38,22 @@ public class FavoritesFragment extends Fragment {
     public FavoritesFragmentViewModel viewModel;
     public static FragmentCurrentPlaylistBinding binding;
     private DatabaseReference database_ref;
+    private MainActivity mainActivity;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        binding = FragmentCurrentPlaylistBinding.inflate(inflater,container,false);
+        binding = FragmentCurrentPlaylistBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-        database_ref= FirebaseDatabase.getInstance().getReference();
-
-        MainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
+        database_ref = FirebaseDatabase.getInstance().getReference();
+        mainActivity= (MainActivity) getActivity();
+        mainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
 
         binding.currentPlaylistSettings.setVisibility(View.INVISIBLE);
 
-        viewModel  = new ViewModelProvider(requireActivity()).get(FavoritesFragmentViewModel.class);
+        viewModel = new ViewModelProvider(requireActivity()).get(FavoritesFragmentViewModel.class);
 
-       initalizeObservers();
+        initalizeObservers();
         viewModel.initializeFavorites();
 
         return view;
@@ -81,11 +82,11 @@ public class FavoritesFragment extends Fragment {
         viewModel.getFavStateBool().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                if(!aBoolean){
+                if (!aBoolean) {
                     binding.currentPlaylistRecyclerView.setVisibility(View.VISIBLE);
                     binding.currentPlaylistRecyclerState.setVisibility(View.GONE);
-                    initializeFavoritesRecyclerView(viewModel.favoriteFirebaseSongs);
-                }else{
+                    initializeFavoritesRecyclerView(viewModel.getFavoriteFirebaseSongs());
+                } else {
                     binding.currentPlaylistRecyclerView.setVisibility(View.GONE);
                     binding.currentPlaylistRecyclerState.setVisibility(View.VISIBLE);
                     binding.currentPlaylistRecyclerState.setText("Empty Playlist");
@@ -116,11 +117,11 @@ public class FavoritesFragment extends Fragment {
                             Collections.sort(songs, (f1, f2) -> f1.getDateTime().compareTo(f2.getDateTime()));
 
 
-                            viewModel.playlist.setSongs(songs);
+                            viewModel.getPlaylist().setSongs(songs);
 
-                            if ( viewModel.playlist.getSongs() != null) {
+                            if (viewModel.getPlaylist().getSongs() != null) {
 
-                                adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), viewModel.playlist, 1);
+                                adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), viewModel.getPlaylist(), 1);
                                 binding.currentPlaylistRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
                                 binding.currentPlaylistRecyclerView.setAdapter(adapter);
                                 adapter.notifyDataSetChanged();
@@ -131,7 +132,6 @@ public class FavoritesFragment extends Fragment {
                                         binding.currentPlaylistRecyclerView.setBackground(songBg);
                                     }
                                 }
-
 
 
                             }

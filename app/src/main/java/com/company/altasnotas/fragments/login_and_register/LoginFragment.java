@@ -53,17 +53,18 @@ public class LoginFragment extends Fragment {
     private LoginFragmentViewModel model;
     private FirebaseAuth mAuth;
     public static FragmentLoginBinding binding;
+    private MainActivity mainActivity;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
       binding = FragmentLoginBinding.inflate(inflater, container,false);
       View view = binding.getRoot();
-
+        mainActivity = (MainActivity) getActivity();
         mAuth = FirebaseAuth.getInstance();
         model = new ViewModelProvider(requireActivity()).get(LoginFragmentViewModel.class);
 
-        MainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
+        mainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
         if(mGoogleApiClient!=null){
             if (mGoogleApiClient.isConnected()) {
                 Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
