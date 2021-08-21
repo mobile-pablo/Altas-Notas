@@ -11,19 +11,14 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class IntroActivity extends AppCompatActivity {
-
+    private final Integer START_DELAY=1500;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
 
-        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.img_zoom_out);
-        ImageView logo = findViewById(R.id.intro_logo);
-        logo.startAnimation(animation);
-
-        View decorView = getWindow().getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-        decorView.setSystemUiVisibility(uiOptions);
+        startAnimation();
+        setFullScreen();
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -32,6 +27,19 @@ public class IntroActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             }
-        }, 1500);
+        }, START_DELAY);
+    }
+
+    private void setFullScreen() {
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+    }
+
+    private void startAnimation() {
+        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.img_zoom_out);
+        ImageView logo = findViewById(R.id.intro_logo);
+        logo.startAnimation(animation);
+
     }
 }

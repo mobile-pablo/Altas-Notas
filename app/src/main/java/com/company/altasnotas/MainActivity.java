@@ -1,29 +1,19 @@
 package com.company.altasnotas;
 
-import android.app.ActionBar;
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowInsets;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.company.altasnotas.databinding.ActivityMainBinding;
@@ -34,9 +24,7 @@ import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.fragments.playlists.PlaylistsFragment;
 import com.company.altasnotas.models.Playlist;
-import com.company.altasnotas.models.Song;
 import com.company.altasnotas.viewmodels.activities.MainActivityViewModel;
-import com.company.altasnotas.viewmodels.fragments.profile.ProfileFragmentViewModel;
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
@@ -57,8 +45,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
-import java.util.ArrayList;
-
 import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
 import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
 import static android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
@@ -67,35 +53,28 @@ public class MainActivity extends AppCompatActivity {
 
     FirebaseAuth mAuth;
 
- //   public BottomNavigationView bottomNavigationView;
 
     public static Integer dialogHeight;
     public static final String FIREBASE = "Firebase";
     public static MainActivityViewModel viewModel;
-    public  ActivityMainBinding activityMainBinding;
+    public ActivityMainBinding activityMainBinding;
     private String frag;
-
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-       activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
-       setContentView(activityMainBinding.getRoot());
-        viewModel =  new ViewModelProvider(this).get(MainActivityViewModel.class);
+        activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(activityMainBinding.getRoot());
+        viewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
         viewModel.setCurrentSongTitle("");
         viewModel.setCurrentSongAlbum("");
         viewModel.setCurrentSongAuthor("");
         viewModel.setPhotoUrl("");
 
 
-
-
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-       getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int height = displayMetrics.heightPixels;
-        dialogHeight= (int) (height* 0.4);
+        setDefaultDialogHeight();
         activityMainBinding.mainNavBottom.setItemIconTintList(null);
         activityMainBinding.mainNavBottom.setOnNavigationItemSelectedListener(navListener);
 
@@ -103,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
 
         updateUI(mAuth.getCurrentUser());
         downloadPhoto();
-
 
 
         if (savedInstanceState == null) {
@@ -118,31 +96,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        frag = getIntent().getStringExtra("frag");
-        if (frag != null) {
-            if (frag.equals("PlayerFragment")) {
-
-                for (int i = 0; i < getSupportFragmentManager().getBackStackEntryCount(); i++) {
-                    getSupportFragmentManager().popBackStack();
-                }
-                activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.sliding_layout_frag);
-                if (currentFragment instanceof PlayerFragment) {
-                    PlayerFragment playerFragment = (PlayerFragment) currentFragment;
-                    playerFragment.initializePlayer();
-                    playerFragment.initializeMiniPlayer();
-                    playerFragment.setUI();
-                }
-                activityMainBinding.mainNavBottom.setSelectedItemId(R.id.nav_home_item);
-                getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
-            }
-        }else{
-            Log.d("MainActivity", "Frag is null");
-            activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-        }
-
+    onNotificationOpened(getIntent());
         reInitializePlayerViews();
     }
+
+    private void setDefaultDialogHeight() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int height = displayMetrics.heightPixels;
+        dialogHeight = (int) (height * 0.4);
+    }
+
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
@@ -156,55 +120,57 @@ public class MainActivity extends AppCompatActivity {
         viewModel.setCurrentSongAlbum("");
         viewModel.setCurrentSongAuthor("");
     }
+
     private void hideSystemUI() {
         // Enables regular immersive mode.
         // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
         // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN|
-                        SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION|
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                        SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
                         SYSTEM_UI_FLAG_LAYOUT_STABLE
-        | SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                        | SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
     }
+
     //This function is called when I get back to App where I exit by onBackPressed
     private void reInitializePlayerViews() {
-       if(PlayerFragment.mBound){
-           if(PlayerFragment.mService!=null) {
+        if (PlayerFragment.mBound) {
+            if (PlayerFragment.mService != null) {
 
-               if (PlayerFragment.playerView.getPlayer() != null) {
-                   System.out.println("Restore players!");
-                   Playlist playlist = PlayerFragment.mService.playlist;
-                   Integer position = PlayerFragment.mService.position;
-                   Boolean ready = PlayerFragment.mService.getPlayerInstance().getPlayWhenReady();
-                   Integer state = PlayerFragment.mService.getPlayerInstance().getPlaybackState();
-                   Long seekedTo = PlayerFragment.mService.getPlayerInstance().getContentPosition();
-                   Integer isFav = PlayerFragment.mService.isFav;
+                if (PlayerFragment.playerView.getPlayer() != null) {
+                    System.out.println("Restore players!");
+                    Playlist playlist = PlayerFragment.mService.playlist;
+                    Integer position = PlayerFragment.mService.position;
+                    Boolean ready = PlayerFragment.mService.getPlayerInstance().getPlayWhenReady();
+                    Integer state = PlayerFragment.mService.getPlayerInstance().getPlaybackState();
+                    Long seekedTo = PlayerFragment.mService.getPlayerInstance().getContentPosition();
+                    Integer isFav = PlayerFragment.mService.isFav;
 
-                   System.out.println(ready+","+ state);
-                   viewModel.setCurrentSongTitle(playlist.getSongs().get(position).getTitle());
-                   viewModel.setCurrentSongAlbum(playlist.getTitle());
-                   viewModel.setCurrentSongAuthor(playlist.getDescription());
-                   PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo, true, state, null, isFav);
-                  getSupportFragmentManager().beginTransaction().replace(R.id.sliding_layout_frag, playerFragment).commit();
-                  getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
-                   activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                   activityMainBinding.mainActivityBox.setVisibility(View.VISIBLE);
+                    System.out.println(ready + "," + state);
+                    viewModel.setCurrentSongTitle(playlist.getSongs().get(position).getTitle());
+                    viewModel.setCurrentSongAlbum(playlist.getTitle());
+                    viewModel.setCurrentSongAuthor(playlist.getDescription());
+                    PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo, true, state, null, isFav);
+                    getSupportFragmentManager().beginTransaction().replace(R.id.sliding_layout_frag, playerFragment).commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
+                    activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                    activityMainBinding.mainActivityBox.setVisibility(View.VISIBLE);
 
-                      if (PlayerFragment.fav_btn.getDrawable().getConstantState().equals(PlayerFragment.fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
-                       PlayerFragment.fav_btn.getDrawable().setTint(Color.WHITE);
-                   }
+                    if (PlayerFragment.fav_btn.getDrawable().getConstantState().equals(PlayerFragment.fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+                        PlayerFragment.fav_btn.getDrawable().setTint(Color.WHITE);
+                    }
 
-                   if (PlayerFragment.binding.miniIncluded.miniPlayerFavBtn.getDrawable().getConstantState().equals(PlayerFragment.binding.miniIncluded.miniPlayerFavBtn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
-                       PlayerFragment.binding.miniIncluded.miniPlayerFavBtn.getDrawable().setTint(Color.BLACK);
-                   }
-               }else{
-                  activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-               }
-           }
+                    if (PlayerFragment.binding.miniIncluded.miniPlayerFavBtn.getDrawable().getConstantState().equals(PlayerFragment.binding.miniIncluded.miniPlayerFavBtn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+                        PlayerFragment.binding.miniIncluded.miniPlayerFavBtn.getDrawable().setTint(Color.BLACK);
+                    }
+                } else {
+                    activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+                }
+            }
         }
     }
 
@@ -232,9 +198,9 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
 
-            if (selectedFragment[0] != null){
-                //.setCustomAnimations(R.anim.slide_in_up, R.anim.slide_out_up)
-                if(  activityMainBinding.slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED){
+            if (selectedFragment[0] != null) {
+
+                if (activityMainBinding.slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
                     activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                 }
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, selectedFragment[0]).commit();
@@ -244,10 +210,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     public void logoutUser() {
-        //Logout
-
-
-        if(CurrentPlaylistFragment.adapter!=null){
+        if (CurrentPlaylistFragment.adapter != null) {
             CurrentPlaylistFragment.adapter.notifyDataSetChanged();
         }
 
@@ -270,16 +233,16 @@ public class MainActivity extends AppCompatActivity {
             FacebookSdk.sdkInitialize(getApplicationContext());
         }
 
-        if(LoginFragment.mGoogleApiClient!=null){
+        if (LoginFragment.mGoogleApiClient != null) {
 
             if (LoginFragment.mGoogleApiClient.isConnected()) {
                 LoginFragment.mGoogleApiClient.clearDefaultAccountAndReconnect();
                 Auth.GoogleSignInApi.signOut(LoginFragment.mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
                     @Override
                     public void onResult(@NonNull Status status) {
-                        if(status.isSuccess()){
+                        if (status.isSuccess()) {
                             Log.d("Google", "Signed out from Google");
-                        }else{
+                        } else {
                             Log.d("Google", "Error while sigining out from Google");
                         }
                     }
@@ -295,22 +258,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-
         if (isLoggedIn == true || mAuth.getCurrentUser() == null) {
 
-            for (int i = 0; i <   getSupportFragmentManager().getBackStackEntryCount(); i++) {
+            for (int i = 0; i < getSupportFragmentManager().getBackStackEntryCount(); i++) {
                 getSupportFragmentManager().popBackStack();
             }
-            getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new LoginFragment()).commit();
+            getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.main_fragment_container, new LoginFragment()).commit();
         }
     }
 
-
     public void updateUI(FirebaseUser user) {
-
-
-        Menu menu = activityMainBinding.mainNavBottom.getMenu();
-
         if (user != null) {
             activityMainBinding.mainNavBottom.setVisibility(View.VISIBLE);
         } else {
@@ -337,6 +294,81 @@ public class MainActivity extends AppCompatActivity {
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
+       onNotificationOpened(intent);
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (LoginFragment.mGoogleApiClient != null && LoginFragment.mGoogleApiClient.isConnected()) {
+            LoginFragment.mGoogleApiClient.stopAutoManage(this);
+            LoginFragment.mGoogleApiClient.disconnect();
+        }
+    }
+
+    public void downloadPhoto() {
+
+        DatabaseReference database_ref = FirebaseDatabase.getInstance().getReference();
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+
+        mAuth = FirebaseAuth.getInstance();
+
+        if (mAuth.getCurrentUser() != null) {
+
+            if (!mAuth.getCurrentUser().getUid().isEmpty()) {
+
+                database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        storageReference.child("images/profiles/" + mAuth.getCurrentUser().getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                viewModel.setPhotoUrl(uri.toString());
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
+
+                                if ((Integer.parseInt(snapshot.child("login_method").getValue().toString())) != 1) {
+                                    String url = snapshot.child("photoUrl").getValue().toString();
+                                    if (url != null) {
+
+                                        viewModel.setPhotoUrl(url);
+
+                                    } else {
+                                        viewModel.setPhotoUrl("");
+                                    }
+                                    Log.d(FIREBASE, "Storage exception: " + exception.getLocalizedMessage() + "\nLoad from Page URL instead");
+
+                                }
+                            }
+                        }
+                      );
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.d(FIREBASE, "DatabaseError: " + error.getMessage());
+                    }
+                });
+            }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+
+
+        if (activityMainBinding.slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
+            activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+
+    private void onNotificationOpened(Intent intent){
         frag = intent.getStringExtra("frag");
         if (frag != null) {
             if (frag.equals("PlayerFragment")) {
@@ -355,75 +387,9 @@ public class MainActivity extends AppCompatActivity {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, new HomeFragment(true)).commit();
 
             }
-        }else{
+        } else {
             System.out.println("Frag is null");
             activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-        }
-    }
-
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (  LoginFragment.mGoogleApiClient != null &&   LoginFragment.mGoogleApiClient.isConnected()) {
-            LoginFragment.mGoogleApiClient.stopAutoManage(this);
-            LoginFragment.mGoogleApiClient.disconnect();
-        }
-    }
-
-    public void downloadPhoto() {
-
-        DatabaseReference database_ref = FirebaseDatabase.getInstance().getReference();
-        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-        //  Image download
-        mAuth= FirebaseAuth.getInstance();
-        if(mAuth.getCurrentUser()!=null) {
-        if(!mAuth.getCurrentUser().getUid().isEmpty()){
-            database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    storageReference.child("images/profiles/" + mAuth.getCurrentUser().getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            viewModel.setPhotoUrl(uri.toString());
-                                }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-
-                            if ((Integer.parseInt(snapshot.child("login_method").getValue().toString())) != 1) {
-                                String url = snapshot.child("photoUrl").getValue().toString();
-                                if (url != null) {
-
-                                    viewModel.setPhotoUrl(url);
-
-                                } else {
-                                    viewModel.setPhotoUrl("");
-                                    }
-                                Log.d(FIREBASE,"Storage exception: " + exception.getLocalizedMessage() + "\nLoad from Page URL instead");
-
-                            }
-                        }
-                    });
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Log.d(FIREBASE,"DatabaseError: " + error.getMessage());
-                }
-            });
-        }
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-
-
-        if(  activityMainBinding.slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED){
-            activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-        }else{
-            super.onBackPressed();
         }
     }
 }
