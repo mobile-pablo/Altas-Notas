@@ -125,11 +125,14 @@ public class PlayerFragment extends Fragment {
         this.state = state;
         this.ready = ready;
         this.isFav = isFav;
+
         //We are sending playlist to this player and let it play all of it
-       /*  isFav
-        0 - Playlist
-        -1 - Album
-        1 - Fav
+       /*
+       isFav
+        0  - Playlist
+       -1  - Album
+        1  - Fav
+
          */
     }
 

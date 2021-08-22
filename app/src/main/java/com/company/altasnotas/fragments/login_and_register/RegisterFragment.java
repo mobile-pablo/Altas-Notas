@@ -101,10 +101,4 @@ public class RegisterFragment extends Fragment {
 
 
     }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding=null;
-    }
 }
