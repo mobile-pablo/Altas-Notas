@@ -97,22 +97,26 @@ public class ProfileFragmentViewModel extends ViewModel {
         if ((originalWidth == -1) || (originalHeight == -1))
             return null;
         //Image resolution is based on 480x800
-        float hh = 800f;//The height is set as 800f here
-        float ww = 480f;//Set the width here to 480f
+        float hh = 800f;
+        float ww = 480f;
         //Zoom ratio. Because it is a fixed scale, only one data of height or width is used for calculation
         int be = 1;//be=1 means no scaling
-        if (originalWidth > originalHeight && originalWidth > ww) {//If the width is large, scale according to the fixed size of the width
+
+        if (originalWidth > originalHeight && originalWidth > ww) {
             be = (int) (originalWidth / ww);
-        } else if (originalWidth < originalHeight && originalHeight > hh) {//If the height is high, scale according to the fixed size of the width
+        } else if (originalWidth < originalHeight && originalHeight > hh) {
             be = (int) (originalHeight / hh);
         }
-        if (be <= 0)
+
+        if (be <= 0){
             be = 1;
+        }
+
         //Proportional compression
         BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
-        bitmapOptions.inSampleSize = be;//Set scaling
-        bitmapOptions.inDither = true;//optional
-        bitmapOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;//optional
+        bitmapOptions.inSampleSize = be;
+        bitmapOptions.inDither = true;
+        bitmapOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;
         input = ac.getContentResolver().openInputStream(uri);
         Bitmap bitmap = BitmapFactory.decodeStream(input, null, bitmapOptions);
         input.close();
@@ -122,17 +126,17 @@ public class ProfileFragmentViewModel extends ViewModel {
     public static Bitmap compressImage(Bitmap image) {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);//Quality compression method, here 100 means no compression, store the compressed data in the BIOS
+        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         int options = 100;
-        while (baos.toByteArray().length / 1024 > 100) {  //Cycle to determine if the compressed image is greater than 100kb, greater than continue compression
+        while (baos.toByteArray().length / 1024 > 100) {
             baos.reset();
 
-            image.compress(Bitmap.CompressFormat.JPEG, options, baos);//Here, the compression options are used to store the compressed data in the BIOS
+            image.compress(Bitmap.CompressFormat.JPEG, options, baos);
             if (options >= 30) {
                 options -= 10;
             } else {
                 ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());
-                Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);//Generate image from ByteArrayInputStream data
+                Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);
                 return bitmap;
             }
         }
@@ -146,19 +150,9 @@ public class ProfileFragmentViewModel extends ViewModel {
         initializeFirebase();
 
         uid = mAuth.getCurrentUser().getUid();
-         keys = new ArrayList<>();
+        keys = new ArrayList<>();
 
-
-
-
-        /*
-        We need to delete
-        - Playlists data   + img
-        - Profile data +img
-        - Fav music
-        */
-
-       deleteImgProfile();
+        deleteImgProfile();
 
         deletePlaylists();
         deleteFavMusic();

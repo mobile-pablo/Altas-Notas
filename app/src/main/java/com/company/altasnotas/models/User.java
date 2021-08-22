@@ -45,9 +45,7 @@ public class User {
         this.login_method = login_method;
     }
 
-    public User(){
-
-    }
+    public User(){}
 
 
 }

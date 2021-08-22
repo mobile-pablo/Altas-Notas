@@ -4,16 +4,13 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Song implements Parcelable {
-    //Song isnt on their own objects.Its object connected to array of songs for playlist
-
     private String author;
     private String album;
     private String title;
     private String path;
     private String image_url;
-
-
     private Integer order;
+    private Long dateTime;
 
     public Song(String author, String album, String title, String path, String image_url, Integer order) {
         this.author = author;
@@ -110,7 +107,6 @@ public class Song implements Parcelable {
         dest.writeInt(order);
     }
 
-    private Long dateTime;
 
     public Long getDateTime() {
         return dateTime;

@@ -120,6 +120,7 @@ public class PlayerFragmentViewModel extends ViewModel {
             }
         }
     }
+
     public static int manipulateColor(int color, float factor) {
         int a = Color.alpha(color);
         int r = Math.round(Color.red(color) * factor);
@@ -130,6 +131,7 @@ public class PlayerFragmentViewModel extends ViewModel {
                 Math.min(g,255),
                 Math.min(b,255));
     }
+
     public void removeFromFav(FragmentActivity activity, DatabaseReference database_ref, FirebaseAuth mAuth, Playlist playlist, Integer position, ImageButton fav_btn,ImageButton mini_fav_btn, CurrentPlaylistAdapter adapter) {
         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

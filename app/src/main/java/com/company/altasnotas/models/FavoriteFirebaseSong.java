@@ -6,9 +6,7 @@ public class FavoriteFirebaseSong {
     private String album;
 
 
-    public FavoriteFirebaseSong() {
-
-    }
+    public FavoriteFirebaseSong() {}
 
     public FavoriteFirebaseSong(Integer numberInAlbum, String author, String album) {
         this.numberInAlbum = numberInAlbum;

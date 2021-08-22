@@ -61,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
     private String frag;
     private FirebaseAuth mAuth;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,13 +68,12 @@ public class MainActivity extends AppCompatActivity {
         activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(activityMainBinding.getRoot());
         viewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
-        viewModel.setCurrentSongTitle("");
-        viewModel.setCurrentSongAlbum("");
-        viewModel.setCurrentSongAuthor("");
+        clearCurrentSong();
         viewModel.setPhotoUrl("");
 
 
         setDefaultDialogHeight();
+
         activityMainBinding.mainNavBottom.setItemIconTintList(null);
         activityMainBinding.mainNavBottom.setOnNavigationItemSelectedListener(navListener);
 
@@ -175,11 +173,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     private final BottomNavigationView.OnNavigationItemSelectedListener navListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            //Selected fragment is in array becouse I wanted to use him in onDataChange in Listener.
+            //Selected fragment is in array because I wanted to use him in onDataChange in Listener.
             final Fragment[] selectedFragment = {null};
 
             for (int i = 0; i < getSupportFragmentManager().getBackStackEntryCount(); i++) {
@@ -276,17 +273,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
-
-
     }
-
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -297,7 +290,6 @@ public class MainActivity extends AppCompatActivity {
         decorView.setSystemUiVisibility(uiOptions);
        onNotificationOpened(intent);
     }
-
 
     @Override
     protected void onStop() {
@@ -359,15 +351,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-
-
         if (activityMainBinding.slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
             activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         } else {
             super.onBackPressed();
         }
     }
-
 
     private void onNotificationOpened(Intent intent){
         frag = intent.getStringExtra("frag");
