@@ -42,7 +42,7 @@ public class HomeFragment extends Fragment {
     private ArrayList<String> authors;
     private ArrayList<String> albums;
     private MainActivity mainActivity;
-    private Boolean isOpenByLogin;
+    private final Boolean isOpenByLogin;
 
     public static FragmentHomeBinding binding;
 
@@ -63,7 +63,7 @@ public class HomeFragment extends Fragment {
         initializePlaylists();
 
         binding.homeLogoutBtn.setOnClickListener(v -> {
-            mainActivity.clearCurrentSong();
+            MainActivity.clearCurrentSong();
             mainActivity.logoutUser();
         });
 
@@ -71,11 +71,11 @@ public class HomeFragment extends Fragment {
             mainActivity.downloadPhoto();
         }
 
-        mainActivity.viewModel.getPhotoUrl().observe(mainActivity, new Observer<String>() {
+        MainActivity.viewModel.getPhotoUrl().observe(mainActivity, new Observer<String>() {
             @Override
             public void onChanged(String s) {
-                if (mainActivity.viewModel.getPhotoUrl() != null) {
-                    Glide.with(mainActivity).load(mainActivity.viewModel.getPhotoUrl().getValue()).error(R.drawable.img_not_found).into(binding.homeProfileBtn);
+                if (MainActivity.viewModel.getPhotoUrl() != null) {
+                    Glide.with(mainActivity).load(MainActivity.viewModel.getPhotoUrl().getValue()).error(R.drawable.img_not_found).into(binding.homeProfileBtn);
                 }
             }
         });

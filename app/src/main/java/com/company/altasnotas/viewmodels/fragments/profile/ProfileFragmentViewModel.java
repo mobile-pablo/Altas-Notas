@@ -261,7 +261,7 @@ public class ProfileFragmentViewModel extends ViewModel {
                         localUser.photoUrl = snapshot.child("photoUrl").getValue().toString();
                         localUser.login_method = Integer.parseInt(snapshot.child("login_method").getValue().toString());
 
-                        localUser.name = _profileName.getValue().toString();
+                        localUser.name = _profileName.getValue();
                         database_ref.child("users").child(mAuth.getCurrentUser().getUid()).setValue(localUser);
                     }
                 }

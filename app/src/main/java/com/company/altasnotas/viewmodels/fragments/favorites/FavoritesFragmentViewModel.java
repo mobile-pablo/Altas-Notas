@@ -114,11 +114,7 @@ public class FavoritesFragmentViewModel extends ViewModel {
                             }
 
 
-                            if (favoriteFirebaseSongs.size() == x) {
-                                _favStateBool.setValue(false);
-                            } else {
-                                _favStateBool.setValue(true);
-                            }
+                            _favStateBool.setValue(favoriteFirebaseSongs.size() != x);
                         } else {
 
                             _favStateBool.setValue(true);

@@ -1,51 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="140dp"
+    android:layout_width="match_parent"
     android:layout_height="70dp"
-    android:layout_gravity="bottom"
     android:background="@drawable/custom_mini_player_view_bg"
-    android:layoutDirection="ltr"
-    android:orientation="horizontal"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp"
-    tools:targetApi="21">
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:orientation="horizontal">
+
+        <com.google.android.exoplayer2.ui.DefaultTimeBar
+            android:id="@id/exo_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:background="@android:color/transparent"
+            android:clickable="false"
+            android:focusable="false"
+            android:padding="0dp"
+            app:scrubber_enabled_size="0dp"
+            app:scrubber_disabled_size="0dp"
+            app:scrubber_dragged_size="0dp"
+            app:played_color="@color/project_dark_velvet"
+            app:scrubber_color="@android:color/transparent"
+            app:buffered_color="@android:color/transparent"
+            app:unplayed_color="@android:color/transparent"/>
+    </LinearLayout>
+    <LinearLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="68dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/mini_player_small_box"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/mini_player_img"
+                android:layout_width="70dp"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:src="@drawable/ic_launcher_background" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/mini_player_img"
+                android:layout_toRightOf="@id/mini_player_fav_btn"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/mini_player_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:ellipsize="marquee"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:fontFamily="@font/roboto"
+                    android:gravity="center_vertical|left"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:text="TextView"
+                    android:textColor="#000000"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/mini_player_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:ellipsize="marquee"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:fontFamily="@font/oswald_light"
+                    android:gravity="top|left"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:text="TextView"
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/mini_player_dismiss_btn"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:src="@drawable/cross" />
+
+        <ImageButton
+            android:id="@+id/mini_player_fav_btn"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_heart_empty" />
 
 
-    <ImageButton
-        android:id="@id/exo_prev"
-        style="@style/ExoMediaButton.Previous"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        app:tint="@color/project_light_velvet" />
-
-    <ImageButton
-        android:id="@id/exo_play"
-        style="@style/ExoMediaButton.Play"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:background="@android:color/transparent"
-        android:layout_weight="1"
-        app:tint="@color/project_dark_velvet" />
-
-    <ImageButton
-        android:id="@id/exo_pause"
-        style="@style/ExoMediaButton.Pause"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:background="@android:color/transparent"
-        android:layout_weight="1"
-        app:tint="@color/project_dark_velvet" />
-
-    <ImageButton
-        android:id="@id/exo_next"
-        style="@style/ExoMediaButton.Next"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:background="@android:color/transparent"
-        android:layout_weight="1"
-        app:tint="@color/project_light_velvet" />
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="140dp"
+            android:layout_height="70dp"
+            android:layout_gravity="bottom"
+            android:layoutDirection="ltr"
+            android:orientation="horizontal"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            tools:targetApi="21">
 
 
+            <ImageButton
+                android:id="@id/exo_prev"
+                style="@style/ExoMediaButton.Previous"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                app:tint="@color/project_light_velvet" />
+
+            <ImageButton
+                android:id="@id/exo_play"
+                style="@style/ExoMediaButton.Play"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                app:tint="@color/project_dark_velvet" />
+
+            <ImageButton
+                android:id="@id/exo_pause"
+                style="@style/ExoMediaButton.Pause"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                app:tint="@color/project_dark_velvet" />
+
+            <ImageButton
+                android:id="@id/exo_next"
+                style="@style/ExoMediaButton.Next"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                app:tint="@color/project_light_velvet" />
+
+
+        </LinearLayout>
+
+
+    </LinearLayout>
 </LinearLayout>
+
+
+

@@ -113,9 +113,9 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
         holder.currentTitle.setText(songs.get(position).getTitle());
         holder.currentAuthor.setText(songs.get(position).getAuthor());
 
-    if(activity.viewModel.getCurrentSongTitle().getValue().equals(songs.get(position).getTitle()) &&
-            activity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
-            activity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getDescription())
+    if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(songs.get(position).getTitle()) &&
+            MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
+            MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getDescription())
                     ){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             holder.currentTitle.setTextColor(activity.getColor(R.color.project_light_orange));
@@ -138,17 +138,17 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
 
 
-            if (!((activity.viewModel.getCurrentSongTitle().getValue().equals(songs.get(position).getTitle()))
+            if (!((MainActivity.viewModel.getCurrentSongTitle().getValue().equals(songs.get(position).getTitle()))
                     &&
-                   activity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle())
+                   MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle())
                     &&
-                   activity.viewModel.getCurrentSongAuthor().equals(playlist.getDescription())
+                   MainActivity.viewModel.getCurrentSongAuthor().equals(playlist.getDescription())
             ))
             {
 
-               activity.viewModel.setCurrentSongTitle(songs.get(position).getTitle());
-                activity.viewModel.setCurrentSongAlbum(playlist.getTitle());
-              activity.viewModel.setCurrentSongAuthor(playlist.getDescription());
+               MainActivity.viewModel.setCurrentSongTitle(songs.get(position).getTitle());
+                MainActivity.viewModel.setCurrentSongAlbum(playlist.getTitle());
+              MainActivity.viewModel.setCurrentSongAuthor(playlist.getDescription());
                 holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
 
                 Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
@@ -209,9 +209,9 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                                             holder.currentFav_btn.setImageResource(R.drawable.ic_heart_full);
 
 
-                                                            if(activity.viewModel.getCurrentSongTitle().getValue().equals(songs.get(position).getTitle()) &&
-                                                                    activity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
-                                                                    activity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getDescription())
+                                                            if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(songs.get(position).getTitle()) &&
+                                                                    MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
+                                                                    MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getDescription())
                                                             )
                                                             {
                                                                 holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
@@ -315,9 +315,9 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
                                         FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
                                         if(miniFrag instanceof  PlayerFragment){
-                                            if(activity.viewModel.getCurrentSongTitle().getValue().equals(playlist.getSongs().get(position).getTitle()) &&
-                                                    activity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
-                                                    activity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getDescription())
+                                            if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(playlist.getSongs().get(position).getTitle()) &&
+                                                    MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
+                                                    MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getDescription())
                                             ){
 
                                                 ((PlayerFragment) miniFrag).dismissPlayer();
@@ -325,12 +325,12 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                             }else{
 
                                                 if(
-                                                        playlist.getSongs().get(position).getTitle().equals(activity.viewModel.getCurrentSongTitle().getValue())
+                                                        playlist.getSongs().get(position).getTitle().equals(MainActivity.viewModel.getCurrentSongTitle().getValue())
                                                                 &&
-                                                            playlist.getSongs().get(position).getAuthor().equals(activity.viewModel.getCurrentSongAuthor().getValue())
+                                                            playlist.getSongs().get(position).getAuthor().equals(MainActivity.viewModel.getCurrentSongAuthor().getValue())
                                                 ){
-                                                    PlayerFragment.binding.miniIncluded.miniPlayerFavBtn.setImageResource(R.drawable.ic_heart_empty);
-                                                    PlayerFragment.binding.miniIncluded.miniPlayerFavBtn.getDrawable().setTint(Color.BLACK);
+                                                    PlayerFragment.mini_fav_btn.setImageResource(R.drawable.ic_heart_empty);
+                                                    PlayerFragment.mini_fav_btn.getDrawable().setTint(Color.BLACK);
 
 
                                                     PlayerFragment.fav_btn.setImageResource(R.drawable.ic_heart_empty);
@@ -356,13 +356,13 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
                                     }else{
                                         if(miniFrag instanceof  PlayerFragment){
-                                            if(activity.viewModel.getCurrentSongTitle().getValue().equals(playlist.getSongs().get(position).getTitle()) &&
-                                                    activity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
-                                                    activity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getDescription())
+                                            if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(playlist.getSongs().get(position).getTitle()) &&
+                                                    MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
+                                                    MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getDescription())
                                             ){
 
-                                              PlayerFragment.binding.miniIncluded.miniPlayerFavBtn.setImageResource(R.drawable.ic_heart_empty);
-                                              PlayerFragment.binding.miniIncluded.miniPlayerFavBtn.getDrawable().setTint(Color.BLACK);
+                                              PlayerFragment.mini_fav_btn.setImageResource(R.drawable.ic_heart_empty);
+                                              PlayerFragment.mini_fav_btn.getDrawable().setTint(Color.BLACK);
 
 
                                                 PlayerFragment.fav_btn.setImageResource(R.drawable.ic_heart_empty);
@@ -420,9 +420,9 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                             if (frag instanceof PlayerFragment) {
                                 ((PlayerFragment) frag).setUI();
                             }
-                        if(activity.viewModel.getCurrentSongTitle().getValue().equals(playlist.getSongs().get(position).getTitle()) &&
-                                activity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
-                                activity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getDescription())
+                        if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(playlist.getSongs().get(position).getTitle()) &&
+                                MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
+                                MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getDescription())
                         ){
                             fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_light_orange));
                         }else{
@@ -544,9 +544,9 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                                 playlist.getSongs().remove(playlist.getSongs().get(position));
                                                 notifyDataSetChanged();
                                                 if (playlist.getSongs().size() == 0) {
-                                                    currentPlaylistFragment.binding.currentPlaylistRecyclerView.setVisibility(View.GONE);
-                                                    currentPlaylistFragment.binding.currentPlaylistRecyclerState.setText("Empty Playlist");
-                                                    currentPlaylistFragment.binding.currentPlaylistRecyclerState.setVisibility(View.VISIBLE);
+                                                    CurrentPlaylistFragment.binding.currentPlaylistRecyclerView.setVisibility(View.GONE);
+                                                    CurrentPlaylistFragment.binding.currentPlaylistRecyclerState.setText("Empty Playlist");
+                                                    CurrentPlaylistFragment.binding.currentPlaylistRecyclerState.setVisibility(View.VISIBLE);
                                                 }
                                             }
                                         } else {

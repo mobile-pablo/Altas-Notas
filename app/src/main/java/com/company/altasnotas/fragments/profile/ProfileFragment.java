@@ -231,7 +231,7 @@ public class ProfileFragment extends Fragment {
                                                 if (task.getResult() != null && mainActivity != null) {
                                                     progress.dismiss();
                                                     Glide.with(requireActivity()).load(task.getResult()).apply(RequestOptions.centerCropTransform()).error(R.drawable.img_not_found).into(binding.profileUserImg);
-                                                    mainActivity.viewModel.setPhotoUrl(task.getResult().toString());
+                                                    MainActivity.viewModel.setPhotoUrl(task.getResult().toString());
                                                 }
                                             } else if (task.getResult() == null) {
                                                 progress.dismiss();

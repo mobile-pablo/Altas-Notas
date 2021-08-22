@@ -142,7 +142,7 @@ public class CurrentPlaylistFragment extends Fragment {
         }
 
 
-       mainActivity.viewModel.getCurrentSongTitle().observe(getViewLifecycleOwner(), new Observer<String>() {
+       MainActivity.viewModel.getCurrentSongTitle().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String s) {
              if(adapter!=null){

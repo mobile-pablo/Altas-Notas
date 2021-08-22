@@ -71,11 +71,7 @@ public class RegisterFragmentViewModel extends ViewModel {
          *  3 - Facebook
          */
         database.child("users").child(mAuth.getCurrentUser().getUid()).setValue(user).addOnCompleteListener(task1 -> {
-            if (task1.isSuccessful()) {
-                _isRegistered.setValue(true);
-            }else {
-                _isRegistered.setValue(false);
-            }
+            _isRegistered.setValue(task1.isSuccessful());
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
