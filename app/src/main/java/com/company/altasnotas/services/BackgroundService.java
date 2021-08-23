@@ -19,6 +19,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
@@ -74,6 +75,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
             .setContentType(C.CONTENT_TYPE_MOVIE)
             .build();
 
+    private final String SERVICE ="BACKGROUND SERVICE";
+
     @Override
     public synchronized void onCreate() {
         super.onCreate();
@@ -90,7 +93,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         if(getMainLooper().getThread().isAlive()){
              onDestroy();
              PlayerFragment.playerView.setPlayer(null);
-             PlayerFragment.binding.miniIncluded.miniPlayerView.setPlayer(null);
+             PlayerFragment.binding.miniPlayerView.setPlayer(null);
         }
     }
     @Override
@@ -110,8 +113,10 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
                 playlist.setSongs(songs);
 
                 releasePlayer();
-            //   startPlayer();
-                 testingPlayer();
+                destroyNotif();
+             //   startPlayer();
+                   testingPlayer();
+
 
                 playerNotificationManager = PlayerNotificationManager
                         .createWithNotificationChannel(context,CHANNEL_ID,R.string.app_name, Integer.parseInt(NOTIFICATION_ID), new PlayerNotificationManager.MediaDescriptionAdapter() {
@@ -258,7 +263,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
             position = intent.getIntExtra("pos", 0);
             ArrayList<Song> songs = intent.getParcelableArrayListExtra("songs");
             playlist.setSongs(songs);
-         //  startPlayer();
+          // startPlayer();
              testingPlayer();
 
 
@@ -405,6 +410,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
             playerNotificationManager.setFastForwardIncrementMs(0);
             playerNotificationManager.setPlayer(player);
         }
+        Log.d(SERVICE, "OnStartCommand Called");
         return START_STICKY;
     }
     @Override
@@ -426,14 +432,10 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
 
     @Override
     public synchronized void onDestroy() {
-        releasePlayer();
+        Log.d(SERVICE, "onDestroy Called");
         super.onDestroy();
+        releasePlayer();
         MainActivity.clearCurrentSong();
-
-
-        stopForeground(true);
-        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.cancel(Integer.parseInt(NOTIFICATION_ID));
     }
 
     public synchronized void releasePlayer() {
@@ -508,7 +510,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     public synchronized SimpleExoPlayer testingPlayer() {
 
 
-        Uri uri = Uri.parse("https://media1.vocaroo.com/mp3/1nS8YXb35PBj");
+        Uri localUri = Uri.parse("https://media1.vocaroo.com/mp3/1nS8YXb35PBj");
 
 
 
@@ -517,11 +519,10 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "app"));
         ArrayList<MediaSource> mediaSources = new ArrayList<>();
         for (Song song : playlist.getSongs()) {
-            MediaSource audioSource = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
+            MediaSource audioSource = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(localUri);
             mediaSources.add(audioSource);
         }
 
-        player.setAudioAttributes(audioAttributes, true);
 
         ConcatenatingMediaSource concatenatingMediaSource = new ConcatenatingMediaSource();
         concatenatingMediaSource.addMediaSources(mediaSources);
@@ -532,10 +533,31 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
             player.seekTo(seekedTo);
         }
 
-        player.prepare(concatenatingMediaSource, false, false);
+        player.setAudioAttributes(audioAttributes, true);
 
+        player.prepare(concatenatingMediaSource, false, false);
         mediaSession = new MediaSessionCompat(context, "sample");
         mediaSessionConnector = new MediaSessionConnector(mediaSession);
+        mediaSessionConnector.setMediaButtonEventHandler(new MediaSessionConnector.MediaButtonEventHandler() {
+            @Override
+            public boolean onMediaButtonEvent(Player player, ControlDispatcher controlDispatcher, Intent mediaButtonEvent) {
+                KeyEvent event = mediaButtonEvent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+                Integer x=  event.getKeyCode();
+
+                if (event.getAction() == KeyEvent.ACTION_UP)
+                {
+                    switch (x){
+                        case    KeyEvent.KEYCODE_MEDIA_NEXT:
+                            player.next();
+                            break;
+                        case    KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+                            player.previous();
+                            break;
+                    }
+                }
+                return false;
+            }
+        });
         mediaSessionConnector.setPlayer(player);
 
         if (mediaSession != null) {
@@ -581,6 +603,11 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         position = integer;
     }
 
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.d(SERVICE, "OnUnBind Called");
+        return super.onUnbind(intent);
+    }
 
     public class LocalBinder extends Binder {
         public synchronized  BackgroundService getService() {

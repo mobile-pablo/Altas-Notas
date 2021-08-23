@@ -48,9 +48,6 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
     private final DatabaseReference database_ref = FirebaseDatabase.getInstance().getReference();
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
-
-
-
     public CurrentPlaylistAdapter(MainActivity activity, Playlist playlist, Integer isFavFragment) {
         CurrentPlaylistAdapter.playlist = playlist;
         songs = playlist.getSongs();
@@ -125,13 +122,8 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
             holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
         }
     }else{
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            holder.currentTitle.setTextColor(activity.getColor(R.color.black));
-            holder.currentFav_btn.getDrawable().setTint(activity.getColor(R.color.black));
-        }else{
-            holder.currentTitle.setTextColor(ContextCompat.getColor( activity,R.color.black));
-            holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.black));
-        }
+        holder.currentTitle.setTextColor(Color.BLACK);
+        holder.currentFav_btn.getDrawable().setTint(Color.BLACK);
     }
 
         holder.currentBox.setOnClickListener(v -> {
@@ -145,22 +137,10 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                    MainActivity.viewModel.getCurrentSongAuthor().equals(playlist.getDescription())
             ))
             {
-
                MainActivity.viewModel.setCurrentSongTitle(songs.get(position).getTitle());
                 MainActivity.viewModel.setCurrentSongAlbum(playlist.getTitle());
               MainActivity.viewModel.setCurrentSongAuthor(playlist.getDescription());
-                holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
-
-                Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
-             if(currentFragment instanceof  FavoritesFragment){
-                 if(FavoritesFragment.binding.currentPlaylistRecyclerView!=null){
-                     FavoritesFragment.binding.currentPlaylistRecyclerView.getAdapter().notifyDataSetChanged();
-                 }
-             }
-
-             if(currentFragment instanceof CurrentPlaylistFragment){
-                 notifyDataSetChanged();
-             }
+              holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
 
                 PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0, false, null, null, isFavFragment);
                 activity.getSupportFragmentManager().beginTransaction().replace(R.id.slidingLayoutFrag, playerFragment).commit();

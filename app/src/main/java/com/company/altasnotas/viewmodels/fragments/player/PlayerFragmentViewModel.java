@@ -38,100 +38,6 @@ import com.google.firebase.database.ValueEventListener;
 
 public class PlayerFragmentViewModel extends ViewModel {
 
-
-    public void setUpInfoBackgroundColor(Activity activity, LinearLayout ll, Palette palette) {
-        Palette.Swatch swatch =  palette.getDominantSwatch();
-        if (swatch != null) {
-            int swatchRgb = swatch.getRgb();
-
-            String hex = Integer.toHexString(swatchRgb);
-            System.out.println("Hex: "+ hex);
-            String[] startCTable = hex.split("");
-            String alphaHex ="",redHex ="", greenHex="", blueHex="";
-
-            System.out.println("L: "+startCTable.length);
-            for (int i = 0; i <startCTable.length; i++) {
-                switch (i){
-                    case 0:
-                    case 1:
-                        alphaHex += startCTable[i];
-                        break;
-
-                    case 2:
-                    case 3:
-                        redHex +=startCTable[i];
-                        break;
-
-
-                    case 4:
-                    case 5:
-                        greenHex +=startCTable[i];
-                        break;
-
-
-                    case 6:
-                    case 7:
-                        blueHex +=startCTable[i];
-                        break;
-
-                }
-            }
-            //We have taken color from Swatch divided to seprate Colors and now we turn them into Integers
-
-            Integer alphaInt, redInt, greenInt, blueInt;
-
-            alphaInt = Integer.parseInt(alphaHex,16);
-            redInt = manipulateColor(Integer.parseInt(redHex,16), 1.4f);
-            greenInt = manipulateColor(Integer.parseInt(greenHex,16), 1.4f);
-            blueInt = manipulateColor(Integer.parseInt(blueHex,16), 1.4f);
-            System.out.println("R: "+redInt+", "+ ", G: "+greenInt+", B"+blueInt);
-            Integer startColor = Color.argb(alphaInt,redInt, greenInt, blueInt);
-
-            if(alphaInt>20){
-                alphaInt -=0;
-            }
-
-            Integer darkerRed =   manipulateColor(redInt,0.2f);
-            Integer darkerGreen = manipulateColor(greenInt,0.2f);
-            Integer darkerBlue =  manipulateColor(blueInt,0.2f);
-
-            Integer endColor = Color.argb(alphaInt,darkerRed,darkerGreen,darkerBlue);
-
-            GradientDrawable gradientDrawable = new GradientDrawable(
-                    GradientDrawable.Orientation.TOP_BOTTOM,
-                    new int[]{startColor, endColor});
-
-            if(activity!=null){
-                Glide.with(activity)
-                        .load(gradientDrawable)
-                        .error(R.drawable.custom_player_fragment_bg)
-                        .into(new CustomTarget<Drawable>(){
-                            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-                            @Override
-                            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                                ll.setBackground(resource);
-                            }
-
-                            @Override
-                            public void onLoadCleared(@Nullable Drawable placeholder) {
-
-                            }
-                        });
-            }
-        }
-    }
-
-    public static int manipulateColor(int color, float factor) {
-        int a = Color.alpha(color);
-        int r = Math.round(Color.red(color) * factor);
-        int g = Math.round(Color.green(color) * factor);
-        int b = Math.round(Color.blue(color) * factor);
-        return Color.argb(a,
-                Math.min(r,255),
-                Math.min(g,255),
-                Math.min(b,255));
-    }
-
     public void removeFromFav(FragmentActivity activity, DatabaseReference database_ref, FirebaseAuth mAuth, Playlist playlist, Integer position, ImageButton fav_btn,ImageButton mini_fav_btn, CurrentPlaylistAdapter adapter) {
         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -180,7 +86,7 @@ public class PlayerFragmentViewModel extends ViewModel {
 
                                         Fragment playerF = activity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
                                         if(playerF instanceof PlayerFragment){
-                                            fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.white));
+                                            fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_light_orange));
                                             mini_fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.black));
                                          }
 

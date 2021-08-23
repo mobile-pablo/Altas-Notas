@@ -24,6 +24,7 @@
             app:scrubber_enabled_size="0dp"
             app:scrubber_disabled_size="0dp"
             app:scrubber_dragged_size="0dp"
+            android:enabled="false"
             app:played_color="@color/project_dark_velvet"
             app:scrubber_color="@android:color/transparent"
             app:buffered_color="@android:color/transparent"
@@ -46,8 +47,7 @@
                 android:id="@+id/mini_player_img"
                 android:layout_width="70dp"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:src="@drawable/ic_launcher_background" />
+                android:padding="10dp" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -64,6 +64,7 @@
                     android:layout_weight="1"
                     android:ellipsize="marquee"
                     android:focusable="true"
+                    android:clickable="true"
                     android:focusableInTouchMode="true"
                     android:fontFamily="@font/roboto"
                     android:gravity="center_vertical|left"
@@ -87,19 +88,13 @@
                     android:marqueeRepeatLimit="marquee_forever"
                     android:scrollHorizontally="true"
                     android:singleLine="true"
+                    android:clickable="true"
                     android:text="TextView"
                     android:textColor="#000000"
                     android:textSize="12sp" />
 
             </LinearLayout>
         </LinearLayout>
-
-        <ImageButton
-            android:id="@+id/mini_player_dismiss_btn"
-            android:layout_width="30dp"
-            android:layout_height="match_parent"
-            android:background="@android:color/transparent"
-            android:src="@drawable/cross" />
 
         <ImageButton
             android:id="@+id/mini_player_fav_btn"

@@ -46,8 +46,7 @@ android {
 
 dependencies {
 
-    //Gif
-    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.17'
+
     implementation 'androidx.appcompat:appcompat:1.3.0-alpha02'
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
@@ -84,6 +83,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage:7.0.0'
     implementation 'com.firebaseui:firebase-ui-auth:4.1.0'
 
+
+    //Gif
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.17'
 
     //Facebook
     implementation 'com.facebook.android:facebook-android-sdk:[5,6)'

@@ -13,7 +13,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-        <include layout="@layout/mini_player_layout" android:id="@+id/miniIncluded"/>
+
+        <com.google.android.exoplayer2.ui.PlayerView
+            android:id="@+id/miniPlayerView"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_gravity="bottom"
+            app:controller_layout_id="@layout/custom_mini_exo_player_view"
+            app:hide_on_touch="false"
+            app:show_buffering="when_playing"
+            app:shutter_background_color="@android:color/transparent"
+            app:use_artwork="false" />
 
         <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/playerView"
