@@ -72,7 +72,9 @@ public class PlaylistsFragmentViewModel extends ViewModel {
                 if (!task.isSuccessful()) {
                     _errorState.setValue(1);
                     _shouldChangeFragment.setValue(false);
-                } else {
+                }
+                else
+                {
                     database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).child("isAlbum").setValue(playlist.isAlbum()).addOnCompleteListener( new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -82,13 +84,17 @@ public class PlaylistsFragmentViewModel extends ViewModel {
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
                                             _shouldChangeFragment.setValue(true);
-                                        }else{
+                                        }
+                                        else
+                                        {
                                             _shouldChangeFragment.setValue(false);
                                             _errorState.setValue(3);
                                         }
                                     }
                                 });
-                            }else{
+                            }
+                            else
+                            {
                                 _shouldChangeFragment.setValue(false);
                                 _errorState.setValue(2);
                             }

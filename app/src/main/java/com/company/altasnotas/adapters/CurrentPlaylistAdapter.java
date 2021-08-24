@@ -61,7 +61,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                 FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
                 if (playlist.getSongs().size() == 0) {
                     FavoritesFragment.binding.currentPlaylistRecyclerView.setVisibility(View.GONE);
-                    FavoritesFragment.binding.currentPlaylistRecyclerState.setText("Empty Playlist");
+                    FavoritesFragment.binding.currentPlaylistRecyclerState.setText("Empty Favorites");
                     FavoritesFragment.binding.currentPlaylistRecyclerState.setVisibility(View.VISIBLE);
                 } else {
                     FavoritesFragment.binding.currentPlaylistRecyclerView.setVisibility(View.VISIBLE);
@@ -110,44 +110,46 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
         holder.currentTitle.setText(songs.get(position).getTitle());
         holder.currentAuthor.setText(songs.get(position).getAuthor());
 
-    if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(songs.get(position).getTitle()) &&
+         if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(songs.get(position).getTitle()) &&
             MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
-            MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getDescription())
-                    ){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            holder.currentTitle.setTextColor(activity.getColor(R.color.project_light_orange));
-            holder.currentFav_btn.getDrawable().setTint(activity.getColor(R.color.project_light_orange));
-        }else{
-            holder.currentTitle.setTextColor(ContextCompat.getColor( activity,R.color.project_light_orange));
-            holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
+            MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getDescription()))
+        {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                {
+                holder.currentTitle.setTextColor(activity.getColor(R.color.project_light_orange));
+                holder.currentFav_btn.getDrawable().setTint(activity.getColor(R.color.project_light_orange));
+                }
+                else
+                {
+                    holder.currentTitle.setTextColor(ContextCompat.getColor( activity,R.color.project_light_orange));
+                    holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
+                }
+           }
+           else
+           {
+            holder.currentTitle.setTextColor(Color.BLACK);
+            holder.currentFav_btn.getDrawable().setTint(Color.BLACK);
+           }
+
+        holder.currentBox.setOnClickListener(v ->
+          {
+
+                if (! ((MainActivity.viewModel.getCurrentSongTitle().getValue().equals(songs.get(position).getTitle())) &&
+                       MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
+                       MainActivity.viewModel.getCurrentSongAuthor().equals(playlist.getDescription())))
+                {
+                   MainActivity.viewModel.setCurrentSongTitle(songs.get(position).getTitle());
+                    MainActivity.viewModel.setCurrentSongAlbum(playlist.getTitle());
+                  MainActivity.viewModel.setCurrentSongAuthor(playlist.getDescription());
+                  holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
+
+                    PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0, false, null, null, isFavFragment);
+                    activity.getSupportFragmentManager().beginTransaction().replace(R.id.slidingLayoutFrag, playerFragment).commit();
+                    activity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+
+                }
         }
-    }else{
-        holder.currentTitle.setTextColor(Color.BLACK);
-        holder.currentFav_btn.getDrawable().setTint(Color.BLACK);
-    }
-
-        holder.currentBox.setOnClickListener(v -> {
-
-
-
-            if (!((MainActivity.viewModel.getCurrentSongTitle().getValue().equals(songs.get(position).getTitle()))
-                    &&
-                   MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle())
-                    &&
-                   MainActivity.viewModel.getCurrentSongAuthor().equals(playlist.getDescription())
-            ))
-            {
-               MainActivity.viewModel.setCurrentSongTitle(songs.get(position).getTitle());
-                MainActivity.viewModel.setCurrentSongAlbum(playlist.getTitle());
-              MainActivity.viewModel.setCurrentSongAuthor(playlist.getDescription());
-              holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
-
-                PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0, false, null, null, isFavFragment);
-                activity.getSupportFragmentManager().beginTransaction().replace(R.id.slidingLayoutFrag, playerFragment).commit();
-                activity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-
-        }
-        });
+        );
         //Loading fav btn
         holder.databaseReference.child("fav_music")
                 .child(holder.mAuth.getCurrentUser().getUid())
@@ -160,12 +162,9 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
                             for (DataSnapshot ds : snapshot.getChildren()) {
 
-
-                                if (
-                                        ds.child("album").getValue().equals(mySong.getAlbum())
+                                if (ds.child("album").getValue().equals(mySong.getAlbum())
                                                 &&
-                                                ds.child("author").getValue().equals(mySong.getAuthor())
-                                ) {
+                                                ds.child("author").getValue().equals(mySong.getAuthor())){
                                     //Same album and Author now we check song title
                                     holder.databaseReference
                                             .child("music")
@@ -176,31 +175,28 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
                                                 @Override
                                                 public void onDataChange(@NonNull DataSnapshot snap) {
-
-                                                    //    holder.currentAuthor.setText(snap.child("description").getValue().toString());
                                                     for (DataSnapshot s : snap.child("songs").getChildren()) {
 
-                                                        if (
-                                                                s.child("order").getValue().toString().trim().equals(ds.child("numberInAlbum").getValue().toString().trim())
-                                                                        &&
-                                                                        s.child("title").getValue().equals(mySong.getTitle())
-                                                        ) {
+                                                        if (s.child("order").getValue().toString().trim().equals(ds.child("numberInAlbum").getValue().toString().trim()) &&
+                                                            s.child("title").getValue().equals(mySong.getTitle())){
                                                             //We found a song in Album and We need to set icon
                                                             holder.currentFav_btn.setImageResource(R.drawable.ic_heart_full);
 
 
                                                             if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(songs.get(position).getTitle()) &&
                                                                     MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
-                                                                    MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getDescription())
-                                                            )
-                                                            {
-                                                                holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
+                                                                    MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getDescription())) {
 
-                                                            }else{
+                                                                holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
+                                                            }
+                                                            else
+                                                            {
 
                                                                 if (holder.currentFav_btn.getDrawable().getConstantState().equals(holder.currentFav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
                                                                     holder.currentFav_btn.getDrawable().setTint(Color.BLACK);
-                                                                }else{
+                                                                }
+                                                                else
+                                                                {
                                                                     holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_dark_velvet));
                                                                 }
                                                             }
@@ -291,10 +287,12 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                     fav_btn.getDrawable().setTint(Color.BLACK);
                                     Fragment miniFrag = activity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
                                     Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
-                                    if (currentFragment instanceof FavoritesFragment) {
+                                    if (currentFragment instanceof FavoritesFragment)
+                                    {
 
                                         FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
-                                        if(miniFrag instanceof  PlayerFragment){
+                                        if(miniFrag instanceof  PlayerFragment)
+                                        {
                                             if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(playlist.getSongs().get(position).getTitle()) &&
                                                     MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
                                                     MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getDescription())
@@ -302,66 +300,89 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
                                                 ((PlayerFragment) miniFrag).dismissPlayer();
 
-                                            }else{
+                                             }
+                                        else
+                                        {
 
-                                                if(
-                                                        playlist.getSongs().get(position).getTitle().equals(MainActivity.viewModel.getCurrentSongTitle().getValue())
-                                                                &&
-                                                            playlist.getSongs().get(position).getAuthor().equals(MainActivity.viewModel.getCurrentSongAuthor().getValue())
-                                                ){
+                                            if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(playlist.getSongs().get(position).getTitle()) &&
+                                                    MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getSongs().get(position).getAlbum()) &&
+                                                    MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getSongs().get(position).getAuthor()))
+                                            {
                                                     PlayerFragment.mini_fav_btn.setImageResource(R.drawable.ic_heart_empty);
                                                     PlayerFragment.mini_fav_btn.getDrawable().setTint(Color.BLACK);
 
-
                                                     PlayerFragment.fav_btn.setImageResource(R.drawable.ic_heart_empty);
-                                                    PlayerFragment.fav_btn.getDrawable().setTint(Color.WHITE);
-                                                }
+                                                    PlayerFragment.fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_light_orange));
+                                             }
 
                                             }
                                         }
 
                                         favoritesFragment.viewModel.initializeFavorites();
                                         //    activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();
-                                        if(playlist!=null){
+                                        if(playlist!=null)
+                                        {
                                             if (playlist.getSongs().size() == 0) {
                                                 FavoritesFragment.binding.currentPlaylistRecyclerView.setVisibility(View.GONE);
                                                 FavoritesFragment.binding.currentPlaylistRecyclerState.setText("Empty Favorites");
                                                 FavoritesFragment.binding.currentPlaylistRecyclerState.setVisibility(View.VISIBLE);
                                             }
-                                        }else{
+                                        }
+                                        else
+                                        {
                                             FavoritesFragment.binding.currentPlaylistRecyclerView.setVisibility(View.GONE);
                                             FavoritesFragment.binding.currentPlaylistRecyclerState.setText("Empty Favorites");
                                             FavoritesFragment.binding.currentPlaylistRecyclerState.setVisibility(View.VISIBLE);
                                         }
 
-                                    }else{
-                                        if(miniFrag instanceof  PlayerFragment){
+                                    }
+                                    else
+                                    {
+                                        if(miniFrag instanceof  PlayerFragment)
+                                        {
                                             if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(playlist.getSongs().get(position).getTitle()) &&
                                                     MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
-                                                    MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getDescription())
-                                            ){
+                                                    MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getDescription()))
+                                            {
 
                                               PlayerFragment.mini_fav_btn.setImageResource(R.drawable.ic_heart_empty);
                                               PlayerFragment.mini_fav_btn.getDrawable().setTint(Color.BLACK);
 
 
                                                 PlayerFragment.fav_btn.setImageResource(R.drawable.ic_heart_empty);
-                                                PlayerFragment.fav_btn.getDrawable().setTint(Color.WHITE);
+                                                PlayerFragment.fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_light_orange));
+                                            }else {
+                                                if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(playlist.getSongs().get(position).getTitle()) &&
+                                                   MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getSongs().get(position).getAlbum()) &&
+                                                 MainActivity.viewModel.getCurrentSongAuthor().getValue().equals(playlist.getSongs().get(position).getAuthor())){
+                                                    PlayerFragment.mini_fav_btn.setImageResource(R.drawable.ic_heart_empty);
+                                                    PlayerFragment.mini_fav_btn.getDrawable().setTint(Color.BLACK);
+
+
+                                                    PlayerFragment.fav_btn.setImageResource(R.drawable.ic_heart_empty);
+                                                    PlayerFragment.fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_light_orange));
+                                                }
                                             }
                                         }
 
                                       notifyDataSetChanged();
                                         //    activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();
-                                        if(playlist!=null){
-                                            if (playlist.getSongs().size() == 0) {
+                                        if(currentFragment instanceof CurrentPlaylistFragment){
+                                         if(playlist!=null)
+                                        {
+                                            if (playlist.getSongs().size() == 0)
+                                            {
                                                 CurrentPlaylistFragment.binding.currentPlaylistRecyclerView.setVisibility(View.GONE);
                                                 CurrentPlaylistFragment.binding.currentPlaylistRecyclerState.setText("Empty Playlist");
                                                 CurrentPlaylistFragment.binding.currentPlaylistRecyclerState.setVisibility(View.VISIBLE);
                                             }
-                                        }else{
+                                        }
+                                        else
+                                        {
                                             CurrentPlaylistFragment.binding.currentPlaylistRecyclerView.setVisibility(View.GONE);
                                             CurrentPlaylistFragment.binding.currentPlaylistRecyclerState.setText("Empty Playlist");
                                             CurrentPlaylistFragment.binding.currentPlaylistRecyclerState.setVisibility(View.VISIBLE);
+                                        }
                                         }
                                     }
 
@@ -403,9 +424,12 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                         if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(playlist.getSongs().get(position).getTitle()) &&
                                 MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
                                 MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getDescription())
-                        ){
+                        )
+                                        {
                             fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_light_orange));
-                        }else{
+                               }
+                                        else
+                                        {
                             fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_dark_velvet));
                         }
 
@@ -461,7 +485,8 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                             x.setDir_title(playlist.getSongs().get(position).getAlbum());
                             x.setDir_desc(playlist.getSongs().get(position).getAuthor());
                             bottomSheetDialog.dismiss();
-                            if(!(x.getTitle().equals(playlist.getTitle()) && x.getDescription().equals(playlist.getDescription()))){
+                            if(!(x.getTitle().equals(playlist.getTitle()) && x.getDescription().equals(playlist.getDescription())))
+                                        {
                                 activity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
                             }
 
@@ -636,7 +661,9 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                     }
                     chooseState.setVisibility(View.GONE);
                     chooseRecyclerView.setVisibility(View.VISIBLE);
-                }else{
+                       }
+                                        else
+                                        {
                     chooseState.setVisibility(View.VISIBLE);
                     chooseRecyclerView.setVisibility(View.GONE);
                 }

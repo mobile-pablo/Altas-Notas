@@ -53,7 +53,8 @@ public class PlayerFragmentViewModel extends ViewModel {
                                 if (task.isSuccessful()) {
                                     fav_btn.setImageResource(R.drawable.ic_heart_empty);
                                     mini_fav_btn.setImageResource(R.drawable.ic_heart_empty);
-                                    if(activity!=null){
+                                    if(activity!=null)
+                                        {
                                         Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
                                         if (currentFragment instanceof CurrentPlaylistFragment) {
                                             adapter.notifyDataSetChanged();
@@ -85,7 +86,8 @@ public class PlayerFragmentViewModel extends ViewModel {
                                         }
 
                                         Fragment playerF = activity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
-                                        if(playerF instanceof PlayerFragment){
+                                        if(playerF instanceof PlayerFragment)
+                                        {
                                             fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.project_light_orange));
                                             mini_fav_btn.getDrawable().setTint(ContextCompat.getColor(activity, R.color.black));
                                          }

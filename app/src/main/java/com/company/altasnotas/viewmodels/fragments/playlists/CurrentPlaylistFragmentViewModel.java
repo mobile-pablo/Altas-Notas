@@ -259,7 +259,7 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
                                       }
                                 });
                             }else{
-
+                            Log.d(MainActivity.FIREBASE, "Error while setting isAlbum");
                             }
                         }
                     });
