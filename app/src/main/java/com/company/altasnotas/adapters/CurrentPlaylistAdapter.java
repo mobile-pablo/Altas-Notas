@@ -304,10 +304,12 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                              }
                                         else
                                         {
-
+                                            System.out.println("T: "+MainActivity.viewModel.getCurrentSongTitle().getValue()+", "+playlist.getSongs().get(position).getTitle());
+                                            System.out.println("T: "+MainActivity.viewModel.getCurrentSongAlbum().getValue()+", "+playlist.getSongs().get(position).getVisualAlbum());
+                                            System.out.println("T: "+MainActivity.viewModel.getCurrentSongAuthor().getValue()+", "+playlist.getSongs().get(position).getVisualAuthor());
                                             if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(playlist.getSongs().get(position).getTitle()) &&
-                                                    MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getSongs().get(position).getAlbum()) &&
-                                                    MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getSongs().get(position).getAuthor()))
+                                                    MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getSongs().get(position).getVisualAlbum()) &&
+                                                    MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getSongs().get(position).getVisualAuthor()))
                                             {
                                                     PlayerFragment.mini_fav_btn.setImageResource(R.drawable.ic_heart_empty);
                                                     PlayerFragment.mini_fav_btn.getDrawable().setTint(Color.BLACK);

@@ -111,6 +111,8 @@ public class FavoritesFragment extends Fragment {
                             if (Integer.parseInt(ds.child("order").getValue().toString()) == song.getNumberInAlbum()) {
 
                                 Song local_song = new Song(snapshot.child("dir_desc").getValue().toString(), snapshot.child("dir_title").getValue().toString(), ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString(), song.getNumberInAlbum());
+                                local_song.setVisualAlbum(snapshot.child("title").getValue().toString());
+                                local_song.setVisualAuthor(snapshot.child("description").getValue().toString());
                                 local_song.setDateTime(song.getDateTime());
                                 songs.add(local_song);
                             }
