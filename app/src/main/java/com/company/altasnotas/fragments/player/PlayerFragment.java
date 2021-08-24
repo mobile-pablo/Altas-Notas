@@ -72,13 +72,10 @@ public class PlayerFragment extends Fragment {
             BackgroundService.LocalBinder binder = (BackgroundService.LocalBinder) iBinder;
             mService = binder.getService();
             mBound = true;
-            if (mService.position == null) {
-             //   mService.destroyNotif();
-            } else {
-             //   initializePlayer();
-             //   initializeMiniPlayer();
-            }
-
+         if(!isReOpen){
+             mService.clearOldPlayer();
+             mService.initializePlayer(intent);
+         }
             initializePlayer();
             initializeMiniPlayer();
         }
@@ -174,15 +171,6 @@ public class PlayerFragment extends Fragment {
         database_ref = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
 
-        //Mini Player
-        findMiniPlayer();
-
-        setUPSlideListener();
-
-        setUpInfoBox();
-
-
-
         intent = new Intent(getActivity(), BackgroundService.class);
         intent.putExtra("playlist", playlist);
         intent.putExtra("pos", position);
@@ -195,9 +183,18 @@ public class PlayerFragment extends Fragment {
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             ContextCompat.startForegroundService(mainActivity, intent);
+
         } else {
             mainActivity.startService(intent);
         }
+
+
+        //Mini Player
+        findMiniPlayer();
+
+        setUPSlideListener();
+
+        setUpInfoBox();
 
         setUI();
 

@@ -27,8 +27,8 @@
                 android:layout_gravity="center"
                 android:layout_margin="10dp"
                 android:background="@android:color/transparent"
-                android:drawableTint="@color/white"
-                android:src="@drawable/ic_arrow_bottom" />
+                android:src="@drawable/ic_arrow_bottom"
+                app:tint="@color/white"/>
 
             <LinearLayout
                 android:id="@+id/playerSongInfoBox"
@@ -77,8 +77,8 @@
                 android:layout_gravity="center"
                 android:layout_margin="10dp"
                 android:background="@android:color/transparent"
-                android:drawableTint="@color/white"
-                android:src="@drawable/ic_three_dots_vertical" />
+                android:src="@drawable/ic_three_dots_vertical"
+                app:tint="@color/white"/>
         </LinearLayout>
     </LinearLayout>
     <androidx.constraintlayout.widget.ConstraintLayout

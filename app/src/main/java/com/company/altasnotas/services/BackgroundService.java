@@ -88,7 +88,166 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     public synchronized IBinder onBind(Intent intent) {
         return mBinder;
     }
-    
+
+    public void initializePlayer(Intent intent) {
+        externalPath = intent.getStringExtra("path");
+        externalPlaylistTitle = intent.getStringExtra("playlistTitle");
+        externalDescription = intent.getStringExtra("desc");
+        seekedTo = intent.getLongExtra("ms", 0);
+        isFav = intent.getIntExtra("isFav",-1);
+
+        playlist = intent.getParcelableExtra("playlist");
+        position = intent.getIntExtra("pos", 0);
+        ArrayList<Song> songs = intent.getParcelableArrayListExtra("songs");
+        playlist.setSongs(songs);
+       startPlayer();
+       // testingPlayer();
+
+
+        playerNotificationManager = PlayerNotificationManager
+                .createWithNotificationChannel(context,CHANNEL_ID,R.string.app_name, Integer.parseInt(NOTIFICATION_ID), new PlayerNotificationManager.MediaDescriptionAdapter() {
+                    @Override
+                    public CharSequence getCurrentContentTitle(Player player) {
+                        return playlist.getSongs().get(position).getTitle();
+                    }
+
+                    @Nullable
+                    @Override
+                    public PendingIntent createCurrentContentIntent(Player player) {
+                        Intent intent = new Intent(context, MainActivity.class);
+                        intent.putExtra("frag", "PlayerFragment");
+                        intent.putExtra("playlist", playlist);
+                        intent.putExtra("pos", position);
+                        intent.putParcelableArrayListExtra("songs", songs);
+                        intent.putExtra("ms", player.getContentPosition());
+                        intent.putExtra("isFav", isFav);
+                        intent.putExtra("state", player.getPlaybackState());
+                        intent.putExtra("ready", player.getPlayWhenReady());
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                | Intent.FLAG_ACTIVITY_SINGLE_TOP );
+                        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    }
+
+                    @Nullable
+                    @Override
+                    public CharSequence getCurrentContentText(Player player) {
+                        return playlist.getSongs().get(position).getAuthor();
+                    }
+
+                    @Nullable
+                    @Override
+                    public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
+
+                        Uri uri = Uri.parse(playlist.getSongs().get(position).getImage_url());
+                        Glide.with(getApplicationContext())
+                                .load(uri).into(new CustomTarget<Drawable>() {
+                            @Override
+                            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                                callback.onBitmap(drawableToBitmap(resource));
+                            }
+
+                            @Override
+                            public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                            }
+                        });
+                        return null;
+
+                    }
+
+
+                });
+        playerNotificationManager = new PlayerNotificationManager.Builder(context,
+                Integer.parseInt(NOTIFICATION_ID),
+                CHANNEL_ID,
+                new PlayerNotificationManager.MediaDescriptionAdapter() {
+                    @Override
+                    public CharSequence getCurrentContentTitle(Player player) {
+                        return playlist.getSongs().get(position).getTitle();
+                    }
+
+                    @Nullable
+                    @Override
+                    public PendingIntent createCurrentContentIntent(Player player) {
+                        Intent intent = new Intent(context, MainActivity.class);
+                        intent.putExtra("frag", "PlayerFragment");
+                        intent.putExtra("playlist", playlist);
+                        intent.putExtra("pos", position);
+                        intent.putParcelableArrayListExtra("songs", songs);
+                        intent.putExtra("ms", player.getContentPosition());
+                        intent.putExtra("isFav", isFav);
+                        intent.putExtra("state", player.getPlaybackState());
+                        intent.putExtra("ready", player.getPlayWhenReady());
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                | Intent.FLAG_ACTIVITY_SINGLE_TOP );
+                        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    }
+
+                    @Nullable
+                    @Override
+                    public CharSequence getCurrentContentText(Player player) {
+                        return playlist.getSongs().get(position).getAuthor();
+                    }
+
+                    @Nullable
+                    @Override
+                    public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
+
+                        Uri uri = Uri.parse(playlist.getSongs().get(position).getImage_url());
+                        Glide.with(getApplicationContext())
+                                .load(uri).into(new CustomTarget<Drawable>() {
+                            @Override
+                            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                                callback.onBitmap(drawableToBitmap(resource));
+                            }
+
+                            @Override
+                            public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                            }
+                        });
+                        return null;
+
+                    }
+
+
+                })
+                .setNotificationListener(
+                        new PlayerNotificationManager.NotificationListener() {
+                            @Override
+                            public void onNotificationPosted(int notificationId, Notification notification, boolean ongoing) {
+                                if (ongoing) {
+                                    // Make sure the service will not get destroyed while playing media.
+                                    startForeground(notificationId, notification);
+                                } else {
+                                    // Make notification cancellable.
+                                    stopForeground(false);
+                                }
+                            }
+
+                            @Override
+                            public void onNotificationCancelled(int notificationId, boolean dismissedByUser) {
+                                stopForeground(true);
+                                stopSelf();
+                            }
+                        })
+                .build();
+
+
+
+
+        mediaSession = new MediaSessionCompat(context, context.getString(R.string.app_name));
+        mediaSession.setActive(true);
+        playerNotificationManager.setMediaSessionToken(mediaSession.getSessionToken());
+
+        playerNotificationManager.setSmallIcon(R.drawable.ic_altas_notes_notif);
+        playerNotificationManager.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+        playerNotificationManager.setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL);
+        playerNotificationManager.setRewindIncrementMs(0);
+        playerNotificationManager.setFastForwardIncrementMs(0);
+        playerNotificationManager.setPlayer(player);
+    }
+
     public synchronized void destroyNotif(){
         if(getMainLooper().getThread().isAlive()){
              onDestroy();
@@ -98,321 +257,10 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     }
     @Override
     public synchronized int onStartCommand(Intent intent, int flags, int startId) {
-        externalPath = intent.getStringExtra("path");
-        externalPlaylistTitle = intent.getStringExtra("playlistTitle");
-        externalDescription = intent.getStringExtra("desc");
-        seekedTo = intent.getLongExtra("ms", 0);
-        isFav = intent.getIntExtra("isFav",-1);
-
-        if (playlist != null) {
-            if (!(playlist.getSongs().get(position).getPath().equals(externalPath) && playlist.getTitle().equals(externalPlaylistTitle) && playlist.getDescription().equals(externalDescription))) {
-
-                playlist = intent.getParcelableExtra("playlist");
-                position = intent.getIntExtra("pos", 0);
-                ArrayList<Song> songs = intent.getParcelableArrayListExtra("songs");
-                playlist.setSongs(songs);
-
-                releasePlayer();
-                destroyNotif();
-             //   startPlayer();
-                   testingPlayer();
-
-
-                playerNotificationManager = PlayerNotificationManager
-                        .createWithNotificationChannel(context,CHANNEL_ID,R.string.app_name, Integer.parseInt(NOTIFICATION_ID), new PlayerNotificationManager.MediaDescriptionAdapter() {
-                            @Override
-                            public CharSequence getCurrentContentTitle(Player player) {
-                                return playlist.getSongs().get(position).getTitle();
-                            }
-
-                            @Nullable
-                            @Override
-                            public PendingIntent createCurrentContentIntent(Player player) {
-                                Intent intent = new Intent(context, MainActivity.class);
-                                intent.putExtra("frag", "PlayerFragment");
-                                intent.putExtra("playlist", playlist);
-                                intent.putExtra("pos", position);
-                                intent.putParcelableArrayListExtra("songs", songs);
-                                intent.putExtra("ms", player.getContentPosition());
-                                intent.putExtra("isFav", isFav);
-                                intent.putExtra("state", player.getPlaybackState());
-                                intent.putExtra("ready", player.getPlayWhenReady());
-                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                                        | Intent.FLAG_ACTIVITY_SINGLE_TOP );
-                                return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                            }
-
-                            @Nullable
-                            @Override
-                            public CharSequence getCurrentContentText(Player player) {
-                                return playlist.getSongs().get(position).getAuthor();
-                            }
-
-                            @Nullable
-                            @Override
-                            public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
-
-
-                                Uri uri = Uri.parse(playlist.getSongs().get(position).getImage_url());
-                                Glide.with(getApplicationContext())
-                                        .load(uri).into(new CustomTarget<Drawable>() {
-                                    @Override
-                                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                                        callback.onBitmap(drawableToBitmap(resource));
-                                    }
-
-                                    @Override
-                                    public void onLoadCleared(@Nullable Drawable placeholder) {
-
-                                    }
-                                });
-                                return null;
-
-                            }
-                        });
-
-
-                playerNotificationManager = new PlayerNotificationManager.Builder(context,
-                        Integer.parseInt(NOTIFICATION_ID),
-                        CHANNEL_ID,
-                        new PlayerNotificationManager.MediaDescriptionAdapter() {
-                            @Override
-                            public CharSequence getCurrentContentTitle(Player player) {
-                                return playlist.getSongs().get(position).getTitle();
-                            }
-
-                            @Nullable
-                            @Override
-                            public PendingIntent createCurrentContentIntent(Player player) {
-                                Intent intent = new Intent(context, MainActivity.class);
-                                intent.putExtra("frag", "PlayerFragment");
-                                intent.putExtra("playlist", playlist);
-                                intent.putExtra("pos", position);
-                                intent.putParcelableArrayListExtra("songs", songs);
-                                intent.putExtra("ms", player.getContentPosition());
-                                intent.putExtra("isFav", isFav);
-                                intent.putExtra("state", player.getPlaybackState());
-                                intent.putExtra("ready", player.getPlayWhenReady());
-                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                                        | Intent.FLAG_ACTIVITY_SINGLE_TOP );
-                                return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                            }
-
-                            @Nullable
-                            @Override
-                            public CharSequence getCurrentContentText(Player player) {
-                                return playlist.getSongs().get(position).getAuthor();
-                            }
-
-                            @Nullable
-                            @Override
-                            public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
-
-
-                                Uri uri = Uri.parse(playlist.getSongs().get(position).getImage_url());
-                                Glide.with(getApplicationContext())
-                                        .load(uri).into(new CustomTarget<Drawable>() {
-                                    @Override
-                                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                                        callback.onBitmap(drawableToBitmap(resource));
-                                    }
-
-                                    @Override
-                                    public void onLoadCleared(@Nullable Drawable placeholder) {
-
-                                    }
-                                });
-                                return null;
-
-                            }
-                        })
-                        .setNotificationListener(
-                                new PlayerNotificationManager.NotificationListener() {
-                                    @Override
-                                    public void onNotificationPosted(int notificationId, Notification notification, boolean ongoing) {
-                                        if (ongoing) {
-                                            // Make sure the service will not get destroyed while playing media.
-                                            startForeground(notificationId, notification);
-                                        } else {
-                                            // Make notification cancellable.
-                                            stopForeground(false);
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onNotificationCancelled(int notificationId, boolean dismissedByUser) {
-                                        stopForeground(true);
-                                        stopSelf();
-                                    }
-                                })
-                        .build();
-
-                MediaSessionCompat mediaSession = new MediaSessionCompat(context, context.getString(R.string.app_name));
-                mediaSession.setActive(true);
-                playerNotificationManager.setMediaSessionToken(mediaSession.getSessionToken());
-
-                playerNotificationManager.setSmallIcon(R.drawable.ic_altas_notes_notif);
-                playerNotificationManager.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-                playerNotificationManager.setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL);
-                playerNotificationManager.setRewindIncrementMs(0);
-                playerNotificationManager.setFastForwardIncrementMs(0);
-                playerNotificationManager.setPlayer(player);
-            }
-        } else {
-            playlist = intent.getParcelableExtra("playlist");
-            position = intent.getIntExtra("pos", 0);
-            ArrayList<Song> songs = intent.getParcelableArrayListExtra("songs");
-            playlist.setSongs(songs);
-          // startPlayer();
-             testingPlayer();
-
-
-            playerNotificationManager = PlayerNotificationManager
-                    .createWithNotificationChannel(context,CHANNEL_ID,R.string.app_name, Integer.parseInt(NOTIFICATION_ID), new PlayerNotificationManager.MediaDescriptionAdapter() {
-                        @Override
-                        public CharSequence getCurrentContentTitle(Player player) {
-                            return playlist.getSongs().get(position).getTitle();
-                        }
-
-                        @Nullable
-                        @Override
-                        public PendingIntent createCurrentContentIntent(Player player) {
-                            Intent intent = new Intent(context, MainActivity.class);
-                            intent.putExtra("frag", "PlayerFragment");
-                            intent.putExtra("playlist", playlist);
-                            intent.putExtra("pos", position);
-                            intent.putParcelableArrayListExtra("songs", songs);
-                            intent.putExtra("ms", player.getContentPosition());
-                            intent.putExtra("isFav", isFav);
-                            intent.putExtra("state", player.getPlaybackState());
-                            intent.putExtra("ready", player.getPlayWhenReady());
-                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                                    | Intent.FLAG_ACTIVITY_SINGLE_TOP );
-                            return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                        }
-
-                        @Nullable
-                        @Override
-                        public CharSequence getCurrentContentText(Player player) {
-                            return playlist.getSongs().get(position).getAuthor();
-                        }
-
-                        @Nullable
-                        @Override
-                        public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
-
-                            Uri uri = Uri.parse(playlist.getSongs().get(position).getImage_url());
-                            Glide.with(getApplicationContext())
-                                    .load(uri).into(new CustomTarget<Drawable>() {
-                                @Override
-                                public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                                    callback.onBitmap(drawableToBitmap(resource));
-                                }
-
-                                @Override
-                                public void onLoadCleared(@Nullable Drawable placeholder) {
-
-                                }
-                            });
-                            return null;
-
-                        }
-
-
-                    });
-            playerNotificationManager = new PlayerNotificationManager.Builder(context,
-                    Integer.parseInt(NOTIFICATION_ID),
-                    CHANNEL_ID,
-                    new PlayerNotificationManager.MediaDescriptionAdapter() {
-                        @Override
-                        public CharSequence getCurrentContentTitle(Player player) {
-                            return playlist.getSongs().get(position).getTitle();
-                        }
-
-                        @Nullable
-                        @Override
-                        public PendingIntent createCurrentContentIntent(Player player) {
-                            Intent intent = new Intent(context, MainActivity.class);
-                            intent.putExtra("frag", "PlayerFragment");
-                            intent.putExtra("playlist", playlist);
-                            intent.putExtra("pos", position);
-                            intent.putParcelableArrayListExtra("songs", songs);
-                            intent.putExtra("ms", player.getContentPosition());
-                            intent.putExtra("isFav", isFav);
-                            intent.putExtra("state", player.getPlaybackState());
-                            intent.putExtra("ready", player.getPlayWhenReady());
-                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                                    | Intent.FLAG_ACTIVITY_SINGLE_TOP );
-                            return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                        }
-
-                        @Nullable
-                        @Override
-                        public CharSequence getCurrentContentText(Player player) {
-                            return playlist.getSongs().get(position).getAuthor();
-                        }
-
-                        @Nullable
-                        @Override
-                        public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
-
-                            Uri uri = Uri.parse(playlist.getSongs().get(position).getImage_url());
-                            Glide.with(getApplicationContext())
-                                    .load(uri).into(new CustomTarget<Drawable>() {
-                                @Override
-                                public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                                    callback.onBitmap(drawableToBitmap(resource));
-                                }
-
-                                @Override
-                                public void onLoadCleared(@Nullable Drawable placeholder) {
-
-                                }
-                            });
-                            return null;
-
-                        }
-
-
-                    })
-                    .setNotificationListener(
-                            new PlayerNotificationManager.NotificationListener() {
-                                @Override
-                                public void onNotificationPosted(int notificationId, Notification notification, boolean ongoing) {
-                                    if (ongoing) {
-                                        // Make sure the service will not get destroyed while playing media.
-                                        startForeground(notificationId, notification);
-                                    } else {
-                                        // Make notification cancellable.
-                                        stopForeground(false);
-                                    }
-                                }
-
-                                @Override
-                                public void onNotificationCancelled(int notificationId, boolean dismissedByUser) {
-                                    stopForeground(true);
-                                    stopSelf();
-                                }
-                            })
-                    .build();
-
-
-
-
-            MediaSessionCompat mediaSession = new MediaSessionCompat(context, context.getString(R.string.app_name));
-            mediaSession.setActive(true);
-            playerNotificationManager.setMediaSessionToken(mediaSession.getSessionToken());
-
-            playerNotificationManager.setSmallIcon(R.drawable.ic_altas_notes_notif);
-            playerNotificationManager.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-            playerNotificationManager.setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL);
-            playerNotificationManager.setRewindIncrementMs(0);
-            playerNotificationManager.setFastForwardIncrementMs(0);
-            playerNotificationManager.setPlayer(player);
-        }
         Log.d(SERVICE, "OnStartCommand Called");
         return START_STICKY;
     }
+
     @Override
     public synchronized void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
@@ -433,9 +281,13 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     @Override
     public synchronized void onDestroy() {
         Log.d(SERVICE, "onDestroy Called");
-        super.onDestroy();
         releasePlayer();
         MainActivity.clearCurrentSong();
+        stopForeground(true);
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.cancel(Integer.parseInt(NOTIFICATION_ID));
+        super.onDestroy();
+
     }
 
     public synchronized void releasePlayer() {
@@ -592,8 +444,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
 
     public synchronized SimpleExoPlayer getPlayerInstance() {
         if (player == null) {
-            return testingPlayer();
-          //  return startPlayer();
+         //   return testingPlayer();
+            return startPlayer();
         } else {
             return player;
         }
@@ -607,6 +459,15 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     public boolean onUnbind(Intent intent) {
         Log.d(SERVICE, "OnUnBind Called");
         return super.onUnbind(intent);
+    }
+
+    public void clearOldPlayer() {
+        if(player!=null){
+            player.pause();
+            player.setPlayWhenReady(true);
+            player.release();
+            player=null;
+        }
     }
 
     public class LocalBinder extends Binder {

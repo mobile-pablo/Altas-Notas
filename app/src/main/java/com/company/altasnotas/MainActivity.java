@@ -270,6 +270,7 @@ public class MainActivity extends AppCompatActivity {
             activityMainBinding.mainNavBottom.setVisibility(View.VISIBLE);
         } else {
             activityMainBinding.mainNavBottom.setVisibility(View.GONE);
+            activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
         }
     }
 
@@ -308,13 +309,13 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         if (mAuth.getCurrentUser() != null) {
-
-            if (!mAuth.getCurrentUser().getUid().isEmpty()) {
+            String uid = mAuth.getCurrentUser().getUid();
+            if (uid!=null) {
 
                 database_ref.child("users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        storageReference.child("images/profiles/" + mAuth.getCurrentUser().getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        storageReference.child("images/profiles/" + uid).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
                                 viewModel.setPhotoUrl(uri.toString());

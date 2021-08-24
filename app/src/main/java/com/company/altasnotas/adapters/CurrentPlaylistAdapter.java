@@ -263,7 +263,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
             holder.photo.setVisibility(View.GONE);
         } else {
             holder.photo.setVisibility(View.VISIBLE);
-            Glide.with(activity.getApplicationContext()).load(songs.get(position).getImage_url()).into(holder.photo);
+            Glide.with(activity.getApplicationContext()).load(songs.get(position).getImage_url()).error(R.drawable.img_not_found).into(holder.photo);
         }
 
 
