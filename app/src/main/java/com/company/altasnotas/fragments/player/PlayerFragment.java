@@ -693,7 +693,11 @@ public class PlayerFragment extends Fragment {
                 database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        mini_player_title.setText(playlist.getSongs().get(position).getTitle());
+                        if(playlist.getSongs().get(position)!=null) {
+                            mini_player_title.setText(playlist.getSongs().get(position).getTitle());
+                        }else{
+                            Log.d("PlayerFragment", "Error while getting Song");
+                        }
                         mini_player_desc.setText(snapshot.child("description").getValue().toString());
                     }
 

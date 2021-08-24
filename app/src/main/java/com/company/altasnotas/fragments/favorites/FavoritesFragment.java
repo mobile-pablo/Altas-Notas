@@ -3,6 +3,7 @@ package com.company.altasnotas.fragments.favorites;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -110,7 +111,13 @@ public class FavoritesFragment extends Fragment {
                         for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
                             if (Integer.parseInt(ds.child("order").getValue().toString()) == song.getNumberInAlbum()) {
 
-                                Song local_song = new Song(snapshot.child("dir_desc").getValue().toString(), snapshot.child("dir_title").getValue().toString(), ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString(), song.getNumberInAlbum());
+                                Object gif = ds.child("gif_url").getValue();
+                                String gif_str="";
+                                if(gif!=null){
+                                    gif_str=gif.toString();
+                                }
+                                Song local_song = new Song(snapshot.child("dir_desc").getValue().toString(), snapshot.child("dir_title").getValue().toString(), ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString(), song.getNumberInAlbum(),gif_str);
+                                Log.d("Gif", gif_str);
                                 local_song.setVisualAlbum(snapshot.child("title").getValue().toString());
                                 local_song.setVisualAuthor(snapshot.child("description").getValue().toString());
                                 local_song.setDateTime(song.getDateTime());

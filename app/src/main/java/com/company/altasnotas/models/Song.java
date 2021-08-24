@@ -12,13 +12,15 @@ public class Song implements Parcelable {
     private Integer order;
     private Long dateTime;
     private String visualAlbum,visualAuthor;
-    public Song(String author, String album, String title, String path, String image_url, Integer order) {
+    private String gifUrl;
+    public Song(String author, String album, String title, String path, String image_url, Integer order, String gifUrl) {
         this.author = author;
         this.album = album;
         this.title = title;
         this.path = path;
         this.image_url = image_url;
         this.order = order;
+        this.gifUrl = gifUrl;
     }
 
     protected Song(Parcel in) {
@@ -28,8 +30,7 @@ public class Song implements Parcelable {
         path = in.readString();
         image_url = in.readString();
         order = in.readInt();
-        visualAlbum=in.readString();
-        visualAuthor=in.readString();
+        gifUrl =in.readString();
     }
 
     public static final Creator<Song> CREATOR = new Creator<Song>() {
@@ -115,6 +116,14 @@ public class Song implements Parcelable {
         this.visualAlbum = visualAlbum;
     }
 
+    public String getGifUrl() {
+        return gifUrl;
+    }
+
+    public void setGifUrl(String gifUrl) {
+        this.gifUrl = gifUrl;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(author);
@@ -123,8 +132,7 @@ public class Song implements Parcelable {
         dest.writeString(path);
         dest.writeString(image_url);
         dest.writeInt(order);
-        dest.writeString(visualAlbum);
-        dest.writeString(visualAuthor);
+        dest.writeString(gifUrl);
     }
 
 

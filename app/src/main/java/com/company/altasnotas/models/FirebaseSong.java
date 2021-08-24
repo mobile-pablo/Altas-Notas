@@ -4,15 +4,16 @@ public class FirebaseSong {
     private Integer order;
     private String path;
     private String title;
-
+    private String gifUrl;
     public FirebaseSong() {
 
     }
 
-    public FirebaseSong(int order, String path, String title) {
+    public FirebaseSong(int order, String path, String title, String gifUrl) {
         this.order = order;
         this.path = path;
         this.title = title;
+        this.gifUrl = gifUrl;
     }
 
     public Integer getOrder() {
@@ -39,4 +40,11 @@ public class FirebaseSong {
         this.title = title;
     }
 
+    public String getGifUrl() {
+        return gifUrl;
+    }
+
+    public void setGifUrl(String gifUrl) {
+        this.gifUrl = gifUrl;
+    }
 }

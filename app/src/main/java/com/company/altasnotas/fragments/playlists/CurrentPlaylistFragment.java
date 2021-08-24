@@ -208,7 +208,7 @@ public class CurrentPlaylistFragment extends Fragment {
 
                             for (FirebaseSong song : firebaseSongs) {
 
-                                Song local_song = new Song(playlist.getDir_desc(), playlist.getDir_title(), song.getTitle(), song.getPath(), playlist.getImage_id(), song.getOrder());
+                                Song local_song = new Song(playlist.getDir_desc(), playlist.getDir_title(), song.getTitle(), song.getPath(), playlist.getImage_id(), song.getOrder(),song.getGifUrl());
                                 songs.add(local_song);
                             }
 
@@ -362,8 +362,14 @@ public class CurrentPlaylistFragment extends Fragment {
 
 
                             if (Integer.parseInt(ds.child("order").getValue().toString()) == song.getNumberInAlbum()) {
-                                Song local_song = new Song(song.getAuthor(), song.getAlbum(), ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString(), song.getNumberInAlbum());
+                                Object gif = ds.child("gif_url").getValue();
+                                String gif_str="";
+                                if(gif!=null){
+                                    gif_str=gif.toString();
+                                }
+                                Song local_song = new Song(song.getAuthor(), song.getAlbum(), ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString(), song.getNumberInAlbum(),gif_str);
                                 local_song.setDateTime(song.getDateTime());
+                                Log.d("Gif", gif_str);
                                 songs.add(local_song);
 
                             }
