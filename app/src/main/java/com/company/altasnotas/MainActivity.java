@@ -227,10 +227,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (mAuth.getCurrentUser() != null) {
             mAuth.signOut();
-            updateUI(null);
             FacebookSdk.sdkInitialize(getApplicationContext());
         }
-
+        updateUI(null);
         if (LoginFragment.mGoogleApiClient != null) {
 
             if (LoginFragment.mGoogleApiClient.isConnected()) {
@@ -280,6 +279,7 @@ public class MainActivity extends AppCompatActivity {
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
+        Log.d("MainActivity", "OnResume called!");
     }
 
     @Override

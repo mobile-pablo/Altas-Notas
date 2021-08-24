@@ -100,8 +100,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         position = intent.getIntExtra("pos", 0);
         ArrayList<Song> songs = intent.getParcelableArrayListExtra("songs");
         playlist.setSongs(songs);
-       startPlayer();
-       // testingPlayer();
+      // startPlayer();
+        testingPlayer();
 
 
         playerNotificationManager = PlayerNotificationManager
@@ -249,8 +249,11 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     }
 
     public synchronized void destroyNotif(){
+        Log.d(SERVICE, "Destroy Notif called!");
         if(getMainLooper().getThread().isAlive()){
-             onDestroy();
+            onDestroy();
+            stopSelf();
+             stopForeground(true);
              PlayerFragment.playerView.setPlayer(null);
              PlayerFragment.binding.miniPlayerView.setPlayer(null);
         }
@@ -258,17 +261,14 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     @Override
     public synchronized int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(SERVICE, "OnStartCommand Called");
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     @Override
     public synchronized void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
         stopSelf();
-        if (mediaSession != null) {
-            mediaSession.setActive(false);
-        }
-
+        releasePlayer();
 
         MainActivity.clearCurrentSong();
 
@@ -287,14 +287,15 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.cancel(Integer.parseInt(NOTIFICATION_ID));
         super.onDestroy();
-
     }
 
     public synchronized void releasePlayer() {
         if (player != null) {
             playerNotificationManager.setPlayer(null);
-            player.release();
-            player = null;
+            player.pause();
+            player.seekTo(0);
+         //   player.release();
+           // player = null;
         }
 
 
@@ -441,11 +442,10 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         return bitmap;
     }
 
-
     public synchronized SimpleExoPlayer getPlayerInstance() {
         if (player == null) {
-         //   return testingPlayer();
-            return startPlayer();
+            return testingPlayer();
+          //  return startPlayer();
         } else {
             return player;
         }
@@ -461,6 +461,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         return super.onUnbind(intent);
     }
 
+    //This function is used When I change Song by RecyclerView
     public void clearOldPlayer() {
         if(player!=null){
             player.pause();

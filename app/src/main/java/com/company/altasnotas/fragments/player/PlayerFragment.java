@@ -65,19 +65,20 @@ import java.util.ArrayList;
 
 
 public class PlayerFragment extends Fragment {
-
+    public static Boolean isDimissed;
     public final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             BackgroundService.LocalBinder binder = (BackgroundService.LocalBinder) iBinder;
             mService = binder.getService();
             mBound = true;
-         if(!isReOpen){
-             mService.clearOldPlayer();
-             mService.initializePlayer(intent);
-         }
+            if(!isReOpen){
+                mService.clearOldPlayer();
+                mService.initializePlayer(intent);
+            }
             initializePlayer();
             initializeMiniPlayer();
+            Log.d("PlayerFragment", "OnService Connected");
         }
 
         @Override
@@ -151,87 +152,90 @@ public class PlayerFragment extends Fragment {
         View view = binding.getRoot();
         mainActivity = (MainActivity) getActivity();
 
-        playerView = binding.playerView.findViewById(R.id.playerView);
-        playerUpperBox = playerView.findViewById(R.id.playerSongUpperBox);
-        title = playerView.findViewById(R.id.playerSongTitle);
-        author = playerView.findViewById(R.id.playerSongDescription);
-        song_img = playerView.findViewById(R.id.playerSongImg);
-        current_info = playerView.findViewById(R.id.playerSongInfoTextView);
-        current_info_title = playerView.findViewById(R.id.playerSongInfoPlaylistTextView);
+        if(!isDimissed){
+            playerView = binding.playerView.findViewById(R.id.playerView);
+            playerUpperBox = playerView.findViewById(R.id.playerSongUpperBox);
+            title = playerView.findViewById(R.id.playerSongTitle);
+            author = playerView.findViewById(R.id.playerSongDescription);
+            song_img = playerView.findViewById(R.id.playerSongImg);
+            current_info = playerView.findViewById(R.id.playerSongInfoTextView);
+            current_info_title = playerView.findViewById(R.id.playerSongInfoPlaylistTextView);
 
-        player_full_box = binding.playerView.findViewById(R.id.playerFullBox);
+            player_full_box = binding.playerView.findViewById(R.id.playerFullBox);
 
-        viewModel = new ViewModelProvider(requireActivity()).get(PlayerFragmentViewModel.class);
+            viewModel = new ViewModelProvider(requireActivity()).get(PlayerFragmentViewModel.class);
 
-        mainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
+            mainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
 
-        fav_btn = binding.playerView.findViewById(R.id.playerSongFavBtn);
-        settings_btn = binding.playerView.findViewById(R.id.playerSongSettingsBtn);
-        hide_btn = binding.playerView.findViewById(R.id.playerSongHideBtn);
-        database_ref = FirebaseDatabase.getInstance().getReference();
-        mAuth = FirebaseAuth.getInstance();
+            fav_btn = binding.playerView.findViewById(R.id.playerSongFavBtn);
+            settings_btn = binding.playerView.findViewById(R.id.playerSongSettingsBtn);
+            hide_btn = binding.playerView.findViewById(R.id.playerSongHideBtn);
+            database_ref = FirebaseDatabase.getInstance().getReference();
+            mAuth = FirebaseAuth.getInstance();
 
-        intent = new Intent(getActivity(), BackgroundService.class);
-        intent.putExtra("playlist", playlist);
-        intent.putExtra("pos", position);
-        intent.putExtra("path", playlist.getSongs().get(position).getPath());
-        intent.putExtra("playlistTitle", playlist.getTitle());
-        intent.putExtra("desc", playlist.getDescription());
-        intent.putExtra("ms", seekedTo);
-        intent.putExtra("isFav", isFav);
-        intent.putParcelableArrayListExtra("songs", playlist.getSongs());
+            intent = new Intent(getActivity(), BackgroundService.class);
+            intent.putExtra("playlist", playlist);
+            intent.putExtra("pos", position);
+            intent.putExtra("path", playlist.getSongs().get(position).getPath());
+            intent.putExtra("playlistTitle", playlist.getTitle());
+            intent.putExtra("desc", playlist.getDescription());
+            intent.putExtra("ms", seekedTo);
+            intent.putExtra("isFav", isFav);
+            intent.putParcelableArrayListExtra("songs", playlist.getSongs());
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            ContextCompat.startForegroundService(mainActivity, intent);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                ContextCompat.startForegroundService(mainActivity, intent);
 
-        } else {
-            mainActivity.startService(intent);
+            } else {
+                mainActivity.startService(intent);
+            }
+
+            //Mini Player
+            findMiniPlayer();
+
+            setUPSlideListener();
+
+            setUpInfoBox();
+
+
+            setUI();
+
+            fav_btn.setOnClickListener(v -> {
+
+                if (fav_btn.getDrawable().getConstantState().equals(fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+
+                    viewModel.addToFav(getActivity(), database_ref, mAuth, playlist, position, fav_btn, mini_fav_btn, CurrentPlaylistFragment.adapter);
+                } else {
+                    viewModel.removeFromFav(getActivity(), database_ref, mAuth, playlist, position, fav_btn, mini_fav_btn, CurrentPlaylistFragment.adapter);
+                }
+            });
+
+            settings_btn.setOnClickListener(v -> {
+                if (isFav == 0) {
+                    openSongInPlaylistsSettingsDialog();
+                } else {
+                    openSettingsDialog();
+                }
+            });
+
+            hide_btn.setOnClickListener(v->{
+                mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            });
+
+            mini_fav_btn.setOnClickListener(v -> {
+
+                if (mini_fav_btn.getDrawable().getConstantState().equals(mini_fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState()))
+                {
+                    viewModel.addToFav(getActivity(), database_ref, mAuth, playlist, position, fav_btn, mini_fav_btn, CurrentPlaylistFragment.adapter);
+                }
+                else
+                {
+                    viewModel.removeFromFav(getActivity(), database_ref, mAuth, playlist, position, fav_btn, mini_fav_btn, CurrentPlaylistFragment.adapter);
+                }
+
+            });
         }
 
-
-        //Mini Player
-        findMiniPlayer();
-
-        setUPSlideListener();
-
-        setUpInfoBox();
-
-        setUI();
-
-        fav_btn.setOnClickListener(v -> {
-
-            if (fav_btn.getDrawable().getConstantState().equals(fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
-
-                viewModel.addToFav(getActivity(), database_ref, mAuth, playlist, position, fav_btn, mini_fav_btn, CurrentPlaylistFragment.adapter);
-            } else {
-                viewModel.removeFromFav(getActivity(), database_ref, mAuth, playlist, position, fav_btn, mini_fav_btn, CurrentPlaylistFragment.adapter);
-            }
-        });
-
-        settings_btn.setOnClickListener(v -> {
-            if (isFav == 0) {
-                openSongInPlaylistsSettingsDialog();
-            } else {
-                openSettingsDialog();
-            }
-        });
-
-        hide_btn.setOnClickListener(v->{
-            mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-        });
-
-        mini_fav_btn.setOnClickListener(v -> {
-
-            if (mini_fav_btn.getDrawable().getConstantState().equals(mini_fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState()))
-            {
-                viewModel.addToFav(getActivity(), database_ref, mAuth, playlist, position, fav_btn, mini_fav_btn, CurrentPlaylistFragment.adapter);
-            }
-            else
-            {
-                viewModel.removeFromFav(getActivity(), database_ref, mAuth, playlist, position, fav_btn, mini_fav_btn, CurrentPlaylistFragment.adapter);
-            }
-
-        });
         return view;
     }
 
@@ -291,11 +295,12 @@ public class PlayerFragment extends Fragment {
         MainActivity.clearCurrentSong();
         notifyAdapters();
 
+        isDimissed=true;
+        shouldPlay=true;
         if (mBound) {
-            getActivity().unbindService(mConnection);
-            mBound = false;
+        mainActivity.unbindService(mConnection);
+        mBound=false;
         }
-
         Log.d("PlayerFragment", "Player dismissed!");
     }
 
@@ -525,8 +530,7 @@ public class PlayerFragment extends Fragment {
                 playerView.setCameraDistance(0);
                 playerView.setControllerAutoShow(true);
 
-                Log.d("isReOpen", String.valueOf(isReOpen));
-                Log.d("shouldPlay", String.valueOf(shouldPlay));
+
                 if (state == null || ready == null) {
                     if (isReOpen) {
                         //By this When Notification is Open and ExoPlayer is Paused. It remains that way.
@@ -551,7 +555,10 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        requireActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        if(!isDimissed)
+        {
+        mainActivity.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        }
     }
 
     public void setUI() {

@@ -67,7 +67,6 @@ public class FavoritesFragment extends Fragment {
         viewModel.getImageViewDrawable().observe(getViewLifecycleOwner(), new Observer<Integer>() {
             @Override
             public void onChanged(Integer integer) {
-                System.out.println("Image changed!");
                 Glide.with(getContext()).load(integer).into(binding.currentPlaylistImg);
             }
         });
