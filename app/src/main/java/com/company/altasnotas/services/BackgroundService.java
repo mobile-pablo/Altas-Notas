@@ -252,10 +252,6 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         Log.d(SERVICE, "Destroy Notif called!");
         if(getMainLooper().getThread().isAlive()){
             onDestroy();
-            stopSelf();
-             stopForeground(true);
-             PlayerFragment.playerView.setPlayer(null);
-             PlayerFragment.binding.miniPlayerView.setPlayer(null);
         }
     }
     @Override
@@ -280,8 +276,12 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         releasePlayer();
         MainActivity.clearCurrentSong();
         stopForeground(true);
+        stopSelf();
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.cancel(Integer.parseInt(NOTIFICATION_ID));
+        PlayerFragment.isDimissed=true;
+        PlayerFragment.playerView.setPlayer(null);
+        PlayerFragment.binding.miniPlayerView.setPlayer(null);
         super.onDestroy();
     }
 

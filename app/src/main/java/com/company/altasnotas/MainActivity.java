@@ -141,30 +141,32 @@ public class MainActivity extends AppCompatActivity {
             if (PlayerFragment.mService != null) {
 
                 if (PlayerFragment.playerView.getPlayer() != null) {
-                    System.out.println("Restore players!");
-                    Playlist playlist = PlayerFragment.mService.playlist;
-                    Integer position = PlayerFragment.mService.position;
-                    Boolean ready = PlayerFragment.mService.getPlayerInstance().getPlayWhenReady();
-                    Integer state = PlayerFragment.mService.getPlayerInstance().getPlaybackState();
-                    Long seekedTo = PlayerFragment.mService.getPlayerInstance().getContentPosition();
-                    Integer isFav = PlayerFragment.mService.isFav;
+                    if(!PlayerFragment.isDimissed){
+                        System.out.println("Restore players!");
+                        Playlist playlist = PlayerFragment.mService.playlist;
+                        Integer position = PlayerFragment.mService.position;
+                        Boolean ready = PlayerFragment.mService.getPlayerInstance().getPlayWhenReady();
+                        Integer state = PlayerFragment.mService.getPlayerInstance().getPlaybackState();
+                        Long seekedTo = PlayerFragment.mService.getPlayerInstance().getContentPosition();
+                        Integer isFav = PlayerFragment.mService.isFav;
 
-                    System.out.println(ready + "," + state);
-                    viewModel.setCurrentSongTitle(playlist.getSongs().get(position).getTitle());
-                    viewModel.setCurrentSongAlbum(playlist.getTitle());
-                    viewModel.setCurrentSongAuthor(playlist.getDescription());
-                    PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo, true, state, null, isFav);
-                    getSupportFragmentManager().beginTransaction().replace(R.id.slidingLayoutFrag, playerFragment).commit();
-                    getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, new HomeFragment(true)).commit();
-                    activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                    activityMainBinding.mainActivityBox.setVisibility(View.VISIBLE);
+                        System.out.println(ready + "," + state);
+                        viewModel.setCurrentSongTitle(playlist.getSongs().get(position).getTitle());
+                        viewModel.setCurrentSongAlbum(playlist.getTitle());
+                        viewModel.setCurrentSongAuthor(playlist.getDescription());
+                        PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo, true, state, null, isFav);
+                        getSupportFragmentManager().beginTransaction().replace(R.id.slidingLayoutFrag, playerFragment).commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, new HomeFragment(true)).commit();
+                        activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                        activityMainBinding.mainActivityBox.setVisibility(View.VISIBLE);
 
-                    if (PlayerFragment.fav_btn.getDrawable().getConstantState().equals(PlayerFragment.fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
-                        PlayerFragment.fav_btn.getDrawable().setTint(Color.WHITE);
-                    }
+                        if (PlayerFragment.fav_btn.getDrawable().getConstantState().equals(PlayerFragment.fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+                            PlayerFragment.fav_btn.getDrawable().setTint(Color.WHITE);
+                        }
 
-                    if (PlayerFragment.mini_fav_btn.getDrawable().getConstantState().equals(PlayerFragment.mini_fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
-                        PlayerFragment.mini_fav_btn.getDrawable().setTint(Color.BLACK);
+                        if (PlayerFragment.mini_fav_btn.getDrawable().getConstantState().equals(PlayerFragment.mini_fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+                            PlayerFragment.mini_fav_btn.getDrawable().setTint(Color.BLACK);
+                        }
                     }
                 } else {
                     activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
