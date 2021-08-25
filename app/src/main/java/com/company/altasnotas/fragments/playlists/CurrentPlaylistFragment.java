@@ -375,7 +375,7 @@ public class CurrentPlaylistFragment extends Fragment {
                                 }
                                 Song local_song = new Song(song.getAuthor(), song.getAlbum(), ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString(), song.getNumberInAlbum(),gif_str);
                                 local_song.setDateTime(song.getDateTime());
-                                Log.d("Gif", gif_str);
+
                                 songs.add(local_song);
 
                             }

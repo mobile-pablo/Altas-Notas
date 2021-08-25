@@ -569,10 +569,10 @@ public class PlayerFragment extends Fragment {
     }
 
     public void setUI() {
-        setMiniUI();
         if (mainActivity != null) {
-            Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
+            Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
             if (currentFragment instanceof PlayerFragment) {
+                setMiniUI();
                 Glide.with(getActivity()).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(new CustomTarget<Drawable>() {
                     @Override
                     public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
@@ -700,11 +700,15 @@ public class PlayerFragment extends Fragment {
                 database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if(playlist.getSongs().get(position)!=null) {
-                            mini_player_title.setText(playlist.getSongs().get(position).getTitle());
-                        }else{
-                            Log.d("PlayerFragment", "Error while getting Song");
-                        }
+
+                        //We add extra space because This Light font have small spacing between words.
+                        String local_title = playlist.getSongs().get(position).getTitle();
+                        mini_player_title.setTag(" ");
+                        String space = (String) mini_player_title.getTag();
+                        mini_player_title.setText(local_title);
+                        mini_player_title.setTag(space);
+
+
                         mini_player_desc.setText(snapshot.child("description").getValue().toString());
                     }
 
@@ -822,6 +826,9 @@ public class PlayerFragment extends Fragment {
     }
 
     public void setUpInfoBackgroundColor(Palette palette) {
+        if(mainActivity!=null)
+        {
+            if(playlist.getSongs().get(position).getGifUrl().isEmpty()){
         Palette.Swatch swatch =  palette.getDominantSwatch();
         if (swatch != null) {
             int swatchRgb = swatch.getRgb();
@@ -893,13 +900,13 @@ public class PlayerFragment extends Fragment {
                     GradientDrawable.Orientation.TOP_BOTTOM,
                     new int[]{startColor, endColor});
 
-            if(mainActivity!=null)
-            {
 
-                System.out.println("Gif : "+playlist.getSongs().get(position).getGifUrl());
-                if(playlist.getSongs().get(position).getGifUrl().isEmpty()){
+
+
+
                     player_small_box.setVisibility(View.VISIBLE);
                     gifImageView.setVisibility(View.INVISIBLE);
+
                 Glide.with(mainActivity)
                         .load(gradientDrawable)
                         .error(R.drawable.custom_player_fragment_bg)
@@ -915,13 +922,17 @@ public class PlayerFragment extends Fragment {
                             public void onLoadCleared(@Nullable Drawable placeholder) {
 
                             }
-                        });}else{
-                    player_small_box.setVisibility(View.INVISIBLE);
-                    player_full_box.setBackgroundColor(Color.TRANSPARENT);
-                    gifImageView.setVisibility(View.VISIBLE);
-                    Glide.with(mainActivity).load(playlist.getSongs().get(position).getGifUrl()).into(gifImageView);
+                        });
+
                 }
-            }
+        }
+         else
+         {
+                player_small_box.setVisibility(View.INVISIBLE);
+                player_full_box.setBackgroundColor(Color.parseColor("#AA000000"));
+                gifImageView.setVisibility(View.VISIBLE);
+                Glide.with(mainActivity).load(playlist.getSongs().get(position).getGifUrl()).into(gifImageView);
+         }
         }
     }
 

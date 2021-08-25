@@ -134,11 +134,11 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
         holder.currentBox.setOnClickListener(v ->
           {
 
-                if (! ((MainActivity.viewModel.getCurrentSongTitle().getValue().equals(songs.get(position).getTitle())) &&
+                if (! ((MainActivity.viewModel.getCurrentSongTitle().getValue().equals(playlist.getSongs().get(position).getTitle())) &&
                        MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
-                       MainActivity.viewModel.getCurrentSongAuthor().equals(playlist.getDescription())))
+                       MainActivity.viewModel.getCurrentSongAuthor().getValue().equals(playlist.getDescription())))
                 {
-                   MainActivity.viewModel.setCurrentSongTitle(songs.get(position).getTitle());
+                   MainActivity.viewModel.setCurrentSongTitle(playlist.getSongs().get(position).getTitle());
                     MainActivity.viewModel.setCurrentSongAlbum(playlist.getTitle());
                   MainActivity.viewModel.setCurrentSongAuthor(playlist.getDescription());
                   holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
@@ -147,7 +147,6 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                     PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0, false, null, null, isFavFragment);
                     activity.getSupportFragmentManager().beginTransaction().replace(R.id.slidingLayoutFrag, playerFragment).commit();
                     activity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-
                 }
         }
         );
@@ -304,9 +303,6 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                              }
                                         else
                                         {
-                                            System.out.println("T: "+MainActivity.viewModel.getCurrentSongTitle().getValue()+", "+playlist.getSongs().get(position).getTitle());
-                                            System.out.println("T: "+MainActivity.viewModel.getCurrentSongAlbum().getValue()+", "+playlist.getSongs().get(position).getVisualAlbum());
-                                            System.out.println("T: "+MainActivity.viewModel.getCurrentSongAuthor().getValue()+", "+playlist.getSongs().get(position).getVisualAuthor());
                                             if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(playlist.getSongs().get(position).getTitle()) &&
                                                     MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getSongs().get(position).getVisualAlbum()) &&
                                                     MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getSongs().get(position).getVisualAuthor()))

@@ -117,7 +117,6 @@ public class FavoritesFragment extends Fragment {
                                     gif_str=gif.toString();
                                 }
                                 Song local_song = new Song(snapshot.child("dir_desc").getValue().toString(), snapshot.child("dir_title").getValue().toString(), ds.child("title").getValue().toString(), ds.child("path").getValue().toString(), snapshot.child("image_id").getValue().toString(), song.getNumberInAlbum(),gif_str);
-                                Log.d("Gif", gif_str);
                                 local_song.setVisualAlbum(snapshot.child("title").getValue().toString());
                                 local_song.setVisualAuthor(snapshot.child("description").getValue().toString());
                                 local_song.setDateTime(song.getDateTime());
