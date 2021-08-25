@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -24,6 +25,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -62,6 +64,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
+
+import pl.droidsonroids.gif.GifImageView;
 
 
 public class PlayerFragment extends Fragment {
@@ -108,6 +112,7 @@ public class PlayerFragment extends Fragment {
     private Intent intent;
     private Palette palette;
     private LinearLayout player_full_box;
+    private ConstraintLayout player_small_box;
     private  Integer isFav;
     private Integer state;
     private Boolean ready;
@@ -117,7 +122,7 @@ public class PlayerFragment extends Fragment {
     private BottomSheetDialog songInPlaylistDialog;
     private PlayerFragmentViewModel viewModel;
     private MainActivity mainActivity;
-
+    private GifImageView gifImageView;
 
     //Mini Player
     public static ImageButton mini_fav_btn;
@@ -155,9 +160,11 @@ public class PlayerFragment extends Fragment {
         if(!isDimissed){
             playerView = binding.playerView.findViewById(R.id.playerView);
             playerUpperBox = playerView.findViewById(R.id.playerSongUpperBox);
+            player_small_box = playerView.findViewById(R.id.playerSmallBox);
             title = playerView.findViewById(R.id.playerSongTitle);
             author = playerView.findViewById(R.id.playerSongDescription);
             song_img = playerView.findViewById(R.id.playerSongImg);
+            gifImageView = binding.playerView.findViewById(R.id.playerSongGif);
             current_info = playerView.findViewById(R.id.playerSongInfoTextView);
             current_info_title = playerView.findViewById(R.id.playerSongInfoPlaylistTextView);
 
@@ -888,6 +895,11 @@ public class PlayerFragment extends Fragment {
 
             if(mainActivity!=null)
             {
+
+                System.out.println("Gif : "+playlist.getSongs().get(position).getGifUrl());
+                if(playlist.getSongs().get(position).getGifUrl().isEmpty()){
+                    player_small_box.setVisibility(View.VISIBLE);
+                    gifImageView.setVisibility(View.INVISIBLE);
                 Glide.with(mainActivity)
                         .load(gradientDrawable)
                         .error(R.drawable.custom_player_fragment_bg)
@@ -903,7 +915,12 @@ public class PlayerFragment extends Fragment {
                             public void onLoadCleared(@Nullable Drawable placeholder) {
 
                             }
-                        });
+                        });}else{
+                    player_small_box.setVisibility(View.INVISIBLE);
+                    player_full_box.setBackgroundColor(Color.TRANSPARENT);
+                    gifImageView.setVisibility(View.VISIBLE);
+                    Glide.with(mainActivity).load(playlist.getSongs().get(position).getGifUrl()).into(gifImageView);
+                }
             }
         }
     }

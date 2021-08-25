@@ -199,6 +199,12 @@ public class CurrentPlaylistFragment extends Fragment {
                                 firebaseSong.setOrder(Integer.valueOf(ds.child("order").getValue().toString()));
                                 firebaseSong.setPath(ds.child("path").getValue().toString());
                                 firebaseSong.setTitle(ds.child("title").getValue().toString());
+                                Object gif =ds.child("gif_url").getValue();
+                                String gif_str = "";
+                                if(gif!=null){
+                                    gif_str = gif.toString();
+                                }
+                                firebaseSong.setGifUrl(gif_str);
                                 firebaseSongs.add(firebaseSong);
                             }
 
