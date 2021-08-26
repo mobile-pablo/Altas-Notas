@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,6 +50,7 @@ import com.company.altasnotas.viewmodels.fragments.player.PlayerFragmentViewMode
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.DefaultTimeBar;
@@ -64,12 +66,14 @@ import com.google.firebase.database.ValueEventListener;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import pl.droidsonroids.gif.GifImageView;
 
 
 public class PlayerFragment extends Fragment {
     public static Boolean isDimissed;
+
     public final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -96,6 +100,7 @@ public class PlayerFragment extends Fragment {
     public static BackgroundService mService;
     public static ImageButton fav_btn;
     public static FragmentPlayerBinding binding;
+    public static ImageButton shuffleBtn, repeatBtn;
 
     private final Long seekedTo;
     private final Boolean isReOpen;
@@ -123,6 +128,8 @@ public class PlayerFragment extends Fragment {
     private PlayerFragmentViewModel viewModel;
     private MainActivity mainActivity;
     private GifImageView gifImageView;
+    public static   int randomPosition;
+    public static Integer shuffleClicked=0;
 
     //Mini Player
     public static ImageButton mini_fav_btn;
@@ -164,6 +171,8 @@ public class PlayerFragment extends Fragment {
             title = playerView.findViewById(R.id.playerSongTitle);
             author = playerView.findViewById(R.id.playerSongDescription);
             song_img = playerView.findViewById(R.id.playerSongImg);
+            shuffleBtn = playerView.findViewById(R.id.customShuffle);
+            repeatBtn= playerView.findViewById(R.id.customRepeat);
             gifImageView = binding.playerView.findViewById(R.id.playerSongGif);
             current_info = playerView.findViewById(R.id.playerSongInfoTextView);
             current_info_title = playerView.findViewById(R.id.playerSongInfoPlaylistTextView);
@@ -180,22 +189,7 @@ public class PlayerFragment extends Fragment {
             database_ref = FirebaseDatabase.getInstance().getReference();
             mAuth = FirebaseAuth.getInstance();
 
-            intent = new Intent(getActivity(), BackgroundService.class);
-            intent.putExtra("playlist", playlist);
-            intent.putExtra("pos", position);
-            intent.putExtra("path", playlist.getSongs().get(position).getPath());
-            intent.putExtra("playlistTitle", playlist.getTitle());
-            intent.putExtra("desc", playlist.getDescription());
-            intent.putExtra("ms", seekedTo);
-            intent.putExtra("isFav", isFav);
-            intent.putParcelableArrayListExtra("songs", playlist.getSongs());
-
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                ContextCompat.startForegroundService(mainActivity, intent);
-
-            } else {
-                mainActivity.startService(intent);
-            }
+            startMusicService();
 
             //Mini Player
             findMiniPlayer();
@@ -206,6 +200,8 @@ public class PlayerFragment extends Fragment {
 
 
             setUI();
+            reinitializeShuffleBtn();
+            reinitializeRepeatBtn();
 
             fav_btn.setOnClickListener(v -> {
 
@@ -241,9 +237,95 @@ public class PlayerFragment extends Fragment {
                 }
 
             });
+
+            shuffleBtn.setOnClickListener(v->{
+                if (shuffleBtn.getDrawable().getConstantState().equals(shuffleBtn.getContext().getDrawable(R.drawable.ic_shuffle).getConstantState()))
+                {
+                 do{
+                      randomPosition = new Random().nextInt(playlist.getSongs().size());
+                  }
+                 while (randomPosition==position);
+
+                    mService.setShuffleEnabled(true);
+                      shuffleBtn.setImageResource(R.drawable.ic_shuffle_clicked);
+                }
+                else
+                {
+                    mService.setShuffleEnabled(false);
+                    shuffleBtn.setImageResource(R.drawable.ic_shuffle);
+                    mService.getPlayerInstance().setShuffleModeEnabled(false);
+                    mService.getPlayerInstance().setShuffleOrder(new ShuffleOrder.UnshuffledShuffleOrder(playlist.getSongs().size()));
+                }
+            });
+
+            repeatBtn.setOnClickListener(v -> {
+                SimpleExoPlayer player= mService.getPlayerInstance();
+                if (repeatBtn.getDrawable().getConstantState().equals(repeatBtn.getContext().getDrawable(R.drawable.ic_repeat).getConstantState()))
+                {
+                    player.setRepeatMode(Player.REPEAT_MODE_ALL);
+                    mService.setRepeat(Player.REPEAT_MODE_ALL);
+                    repeatBtn.setImageResource(R.drawable.ic_repeat_clicked);
+                }else if(repeatBtn.getDrawable().getConstantState().equals(repeatBtn.getContext().getDrawable(R.drawable.ic_repeat_clicked).getConstantState())){
+                    player.setRepeatMode(Player.REPEAT_MODE_ONE);
+                    mService.setRepeat(Player.REPEAT_MODE_ONE);
+                    repeatBtn.setImageResource(R.drawable.ic_repeat_one);
+                }else{
+                    player.setRepeatMode(Player.REPEAT_MODE_OFF);
+                    mService.setRepeat(Player.REPEAT_MODE_OFF);
+                    repeatBtn.setImageResource(R.drawable.ic_repeat);
+                }
+
+            });
         }
 
         return view;
+    }
+
+    private void reinitializeRepeatBtn() {
+        if(mService!=null){
+            Integer isRepeated = mService.getRepeat();
+            if(isRepeated!=null){
+                switch (isRepeated){
+                    case 2: repeatBtn.setImageResource(R.drawable.ic_repeat_clicked); break;
+                    case 1: repeatBtn.setImageResource(R.drawable.ic_repeat_one); break;
+                    case 0: repeatBtn.setImageResource(R.drawable.ic_repeat); break;
+                    default: Log.d("ExoPlayer", "Wrong State on Repeat Btn!"); break;
+                }
+            }
+        }
+    }
+
+
+    private void startMusicService() {
+        intent = new Intent(getActivity(), BackgroundService.class);
+        intent.putExtra("playlist", playlist);
+        intent.putExtra("pos", position);
+        intent.putExtra("path", playlist.getSongs().get(position).getPath());
+        intent.putExtra("playlistTitle", playlist.getTitle());
+        intent.putExtra("desc", playlist.getDescription());
+        intent.putExtra("ms", seekedTo);
+        intent.putExtra("isFav", isFav);
+        intent.putParcelableArrayListExtra("songs", playlist.getSongs());
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            ContextCompat.startForegroundService(mainActivity, intent);
+
+        } else {
+            mainActivity.startService(intent);
+        }
+    }
+
+    private void reinitializeShuffleBtn() {
+        if(mService!=null){
+         Boolean isShuffled = mService.getPlayerInstance().getShuffleModeEnabled();
+            if(isShuffled!=null){
+                if(isShuffled){
+                    shuffleBtn.setImageResource(R.drawable.ic_shuffle_clicked);
+                }else{
+                    shuffleBtn.setImageResource(R.drawable.ic_shuffle);
+                }
+            }
+        }
     }
 
     private void setUpInfoBox() {
@@ -536,7 +618,6 @@ public class PlayerFragment extends Fragment {
                 playerView.setControllerShowTimeoutMs(0);
                 playerView.setCameraDistance(0);
                 playerView.setControllerAutoShow(true);
-
 
                 if (state == null || ready == null) {
                     if (isReOpen) {
@@ -956,8 +1037,7 @@ public class PlayerFragment extends Fragment {
 
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-            mService.setPosition(player.getCurrentWindowIndex());
-            position = player.getCurrentWindowIndex();
+            position = mService.position;
             playerView.setPlayer(player);
             state = player.getPlaybackState();
             ready = player.getPlayWhenReady();
@@ -977,7 +1057,6 @@ public class PlayerFragment extends Fragment {
                     // Get ready
                     break;
                 case Player.STATE_ENDED:
-                    // End
                     break;
                 default:
                     break;
@@ -1002,7 +1081,9 @@ public class PlayerFragment extends Fragment {
 
         @Override
         public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-            position = player.getCurrentWindowIndex();
+            changePosition(player);
+
+            setUI();
             MainActivity.viewModel.setCurrentSongTitle(playlist.getSongs().get(position).getTitle());
             MainActivity.viewModel.setCurrentSongAlbum(playlist.getTitle());
             MainActivity.viewModel.setCurrentSongAuthor(playlist.getDescription());
@@ -1011,9 +1092,25 @@ public class PlayerFragment extends Fragment {
                 CurrentPlaylistFragment.adapter.notifyDataSetChanged();
             }
 
-            setUI();
             fav_btn.setImageResource(R.drawable.ic_heart_empty);
             mService.setPosition(position);
+        }
+    }
+
+    private void changePosition(SimpleExoPlayer player) {
+        if(!mService.getShuffle()){
+            position = player.getCurrentWindowIndex();
+        }
+        else
+        {
+            shuffleClicked++;
+            if( shuffleClicked%4==0){
+                position =randomPosition;
+                do{
+                    randomPosition = new Random().nextInt(playlist.getSongs().size());
+                }
+                while (randomPosition==position);
+            }
         }
     }
 

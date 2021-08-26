@@ -27,6 +27,7 @@ import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
+import com.google.android.exoplayer2.Player;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -144,6 +145,13 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                   holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
 
                   PlayerFragment.isDimissed=false;
+
+
+                    if(PlayerFragment.mService!=null){
+                        PlayerFragment.mService.setRepeat(Player.REPEAT_MODE_OFF);
+                        PlayerFragment.mService.setShuffleEnabled(false);
+                        PlayerFragment.mService.getPlayerInstance().setShuffleModeEnabled(false);
+                    }
                     PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0, false, null, null, isFavFragment);
                     activity.getSupportFragmentManager().beginTransaction().replace(R.id.slidingLayoutFrag, playerFragment).commit();
                     activity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);

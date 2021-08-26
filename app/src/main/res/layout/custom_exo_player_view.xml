@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
+    android:layout_height="match_parent">
 
     <pl.droidsonroids.gif.GifImageView
         android:id="@+id/playerSongGif"
@@ -251,44 +250,69 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:orientation="horizontal"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:layout_marginBottom="50dp"
             android:paddingTop="4dp">
 
+            <ImageButton
+                android:id="@+id/customShuffle"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="left"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_shuffle" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@id/exo_prev"
+                    style="@style/ExoMediaButton.Previous"
+                    android:layout_marginRight="20dp"
+                    android:padding="7dp"
+                    android:scaleType="fitCenter"
+                    android:visibility="visible" />
+
+                <ImageButton
+                    android:id="@id/exo_play"
+                    style="@style/ExoMediaButton.Play"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:background="@drawable/exo_player_round_play_bg"
+                    app:tint="@android:color/black" />
+
+                <ImageButton
+                    android:id="@id/exo_pause"
+                    style="@style/ExoMediaButton.Pause"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:background="@drawable/exo_player_round_play_bg"
+                    app:tint="@android:color/black" />
+
+                <ImageButton
+                    android:id="@id/exo_next"
+                    style="@style/ExoMediaButton.Next"
+                    android:layout_marginLeft="20dp"
+                    android:padding="7dp"
+                    android:scaleType="fitCenter"
+                    android:visibility="visible" />
+            </LinearLayout>
 
             <ImageButton
-                android:id="@id/exo_prev"
-                style="@style/ExoMediaButton.Previous"
-                android:layout_marginRight="20dp"
-                android:scaleType="fitCenter"
-                android:padding="7dp"
-                android:visibility="visible" />
-
-            <ImageButton
-                android:id="@id/exo_play"
-                style="@style/ExoMediaButton.Play"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                android:background="@drawable/exo_player_round_play_bg"
-                app:tint="@android:color/black"/>
-
-            <ImageButton
-                android:id="@id/exo_pause"
-                style="@style/ExoMediaButton.Pause"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                android:background="@drawable/exo_player_round_play_bg"
-                app:tint="@android:color/black"/>
-
-            <ImageButton
-                android:id="@id/exo_next"
-                android:layout_marginLeft="20dp"
-                android:scaleType="fitCenter"
-                android:padding="7dp"
-                style="@style/ExoMediaButton.Next"
-                android:visibility="visible" />
-
+                android:id="@+id/customRepeat"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:background="@android:color/transparent"
+                android:scaleX="0.9"
+                android:scaleY="0.9"
+                android:src="@drawable/ic_repeat" />
 
         </LinearLayout>
     </LinearLayout>

@@ -68,13 +68,14 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     public Long seekedTo;
     public Integer isFav;
     private String externalPath, externalPlaylistTitle, externalDescription;
-    private   MediaSessionCompat mediaSession;
+    public    MediaSessionCompat mediaSession;
     private  MediaSessionConnector mediaSessionConnector;
     private final AudioAttributes audioAttributes = new AudioAttributes.Builder()
             .setUsage(C.USAGE_MEDIA)
             .setContentType(C.CONTENT_TYPE_MOVIE)
             .build();
-
+    private Boolean isShuffled=false;
+    private Integer isRepeated=0;
     private final String SERVICE ="BACKGROUND SERVICE";
 
     @Override
@@ -465,6 +466,22 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
             player.release();
             player=null;
         }
+    }
+
+    public void setShuffleEnabled(boolean b) {
+        isShuffled=b;
+    }
+
+    public Boolean getShuffle(){
+        return isShuffled;
+    }
+
+    public void setRepeat(int repeatModeOff) {
+        isRepeated= repeatModeOff;
+    }
+
+    public Integer getRepeat(){
+        return isRepeated;
     }
 
     public class LocalBinder extends Binder {
