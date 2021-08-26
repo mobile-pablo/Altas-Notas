@@ -87,6 +87,7 @@ public class PlayerFragment extends Fragment {
             }
             initializePlayer();
             initializeMiniPlayer();
+
             Log.d("PlayerFragment", "OnService Connected");
         }
 
@@ -168,9 +169,12 @@ public class PlayerFragment extends Fragment {
         mainActivity = (MainActivity) getActivity();
 
         if(!isDimissed){
+            viewModel = new ViewModelProvider(mainActivity).get(PlayerFragmentViewModel.class);
             playerView = binding.playerView.findViewById(R.id.playerView);
+            player_full_box = binding.playerView.findViewById(R.id.playerFullBox);
             playerUpperBox = playerView.findViewById(R.id.playerSongUpperBox);
             player_small_box = playerView.findViewById(R.id.playerSmallBox);
+
             title = playerView.findViewById(R.id.playerSongTitle);
             author = playerView.findViewById(R.id.playerSongDescription);
             song_img = playerView.findViewById(R.id.playerSongImg);
@@ -178,13 +182,11 @@ public class PlayerFragment extends Fragment {
             prev_btn = playerView.findViewById(R.id.exo_prev);
             shuffleBtn = playerView.findViewById(R.id.customShuffle);
             repeatBtn= playerView.findViewById(R.id.customRepeat);
+
             gifImageView = binding.playerView.findViewById(R.id.playerSongGif);
+
             current_info = playerView.findViewById(R.id.playerSongInfoTextView);
             current_info_title = playerView.findViewById(R.id.playerSongInfoPlaylistTextView);
-
-            player_full_box = binding.playerView.findViewById(R.id.playerFullBox);
-
-            viewModel = new ViewModelProvider(requireActivity()).get(PlayerFragmentViewModel.class);
 
             mainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
 
@@ -657,6 +659,9 @@ public class PlayerFragment extends Fragment {
         if (mBound) {
             if (mService.position != null) {
                 SimpleExoPlayer player = mService.getPlayerInstance();
+                if(player==null){
+                    player= mService.testingPlayer();
+                }
                 exoListener = new ExoListener(player);
                 player.addListener(exoListener);
                 playerView.setKeepContentOnPlayerReset(true);

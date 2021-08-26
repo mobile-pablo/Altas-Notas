@@ -148,10 +148,13 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
 
                     if(PlayerFragment.mService!=null){
+                        if(PlayerFragment.mService.getPlayerInstance()!=null){
                         PlayerFragment.mService.setRepeat(Player.REPEAT_MODE_OFF);
-                        PlayerFragment.mService.setShuffleEnabled(false);
-                        PlayerFragment.mService.getPlayerInstance().setShuffleModeEnabled(false);
+                       PlayerFragment.mService.setShuffleEnabled(false);
+                           PlayerFragment.mService.getPlayerInstance().setShuffleModeEnabled(false);
+                       }
                     }
+
                     PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0, false, null, null, isFavFragment);
                     activity.getSupportFragmentManager().beginTransaction().replace(R.id.slidingLayoutFrag, playerFragment).commit();
                     activity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);

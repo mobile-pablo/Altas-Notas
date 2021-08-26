@@ -101,8 +101,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         position = intent.getIntExtra("pos", 0);
         ArrayList<Song> songs = intent.getParcelableArrayListExtra("songs");
         playlist.setSongs(songs);
-       startPlayer();
-      //  testingPlayer();
+     //  startPlayer();
+        testingPlayer();
 
 
         playerNotificationManager = PlayerNotificationManager
@@ -158,6 +158,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
 
 
                 });
+
+
         playerNotificationManager = new PlayerNotificationManager.Builder(context,
                 Integer.parseInt(NOTIFICATION_ID),
                 CHANNEL_ID,
@@ -284,6 +286,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         PlayerFragment.playerView.setPlayer(null);
         PlayerFragment.binding.miniPlayerView.setPlayer(null);
         super.onDestroy();
+        stopForeground(true);
+        stopSelf();
     }
 
     public synchronized void releasePlayer() {
@@ -440,12 +444,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     }
 
     public synchronized SimpleExoPlayer getPlayerInstance() {
-        if (player == null) {
-        //    return testingPlayer();
-            return startPlayer();
-        } else {
-            return player;
-        }
+        return player;
     }
 
     public synchronized void setPosition(Integer integer) {
