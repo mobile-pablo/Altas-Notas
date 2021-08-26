@@ -47,6 +47,7 @@ import com.company.altasnotas.models.Playlist;
 import com.company.altasnotas.models.Song;
 import com.company.altasnotas.services.BackgroundService;
 import com.company.altasnotas.viewmodels.fragments.player.PlayerFragmentViewModel;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -112,6 +113,7 @@ public class PlayerFragment extends Fragment {
     private ImageView song_img;
     private ExoListener exoListener;
     private TextView title, author, current_info, current_info_title;
+    private ImageButton next_btn, prev_btn;
     private DatabaseReference database_ref;
     private FirebaseAuth mAuth;
     private Intent intent;
@@ -135,6 +137,7 @@ public class PlayerFragment extends Fragment {
     public static ImageButton mini_fav_btn;
     private TextView mini_player_title, mini_player_desc;
     private ImageView mini_player_img;
+    private ImageButton mini_next_btn, mini_prev_btn;
     private DefaultTimeBar miniTimeBar;
 
     public PlayerFragment(Playlist playlist, int position, long seekedTo, Boolean isReOpen, Integer state, Boolean ready, Integer isFav) {
@@ -171,6 +174,8 @@ public class PlayerFragment extends Fragment {
             title = playerView.findViewById(R.id.playerSongTitle);
             author = playerView.findViewById(R.id.playerSongDescription);
             song_img = playerView.findViewById(R.id.playerSongImg);
+            next_btn= playerView.findViewById(R.id.exo_next);
+            prev_btn = playerView.findViewById(R.id.exo_prev);
             shuffleBtn = playerView.findViewById(R.id.customShuffle);
             repeatBtn= playerView.findViewById(R.id.customRepeat);
             gifImageView = binding.playerView.findViewById(R.id.playerSongGif);
@@ -198,10 +203,9 @@ public class PlayerFragment extends Fragment {
 
             setUpInfoBox();
 
-
-            setUI();
             reinitializeShuffleBtn();
             reinitializeRepeatBtn();
+            setUI(position);
 
             fav_btn.setOnClickListener(v -> {
 
@@ -241,10 +245,14 @@ public class PlayerFragment extends Fragment {
             shuffleBtn.setOnClickListener(v->{
                 if (shuffleBtn.getDrawable().getConstantState().equals(shuffleBtn.getContext().getDrawable(R.drawable.ic_shuffle).getConstantState()))
                 {
-                 do{
-                      randomPosition = new Random().nextInt(playlist.getSongs().size());
-                  }
-                 while (randomPosition==position);
+                    if(playlist.getSongs().size()>1){
+                        do{
+                            randomPosition = new Random().nextInt(playlist.getSongs().size());
+                        }
+                        while (randomPosition==position);
+                    }else{
+                        randomPosition=position;
+                    }
 
                     mService.setShuffleEnabled(true);
                       shuffleBtn.setImageResource(R.drawable.ic_shuffle_clicked);
@@ -254,7 +262,6 @@ public class PlayerFragment extends Fragment {
                     mService.setShuffleEnabled(false);
                     shuffleBtn.setImageResource(R.drawable.ic_shuffle);
                     mService.getPlayerInstance().setShuffleModeEnabled(false);
-                    mService.getPlayerInstance().setShuffleOrder(new ShuffleOrder.UnshuffledShuffleOrder(playlist.getSongs().size()));
                 }
             });
 
@@ -276,9 +283,41 @@ public class PlayerFragment extends Fragment {
                 }
 
             });
+
+            next_btn.setOnClickListener(v -> {
+                if(mService!=null){
+                    SimpleExoPlayer player = mService.getPlayerInstance();
+                   if( player.getRepeatMode()==Player.REPEAT_MODE_ONE){
+                       player.seekTo(0);
+                       updateUI(player);
+                   }else{
+                       trackChanged(1);
+                   }
+
+                }
+            });
+
+            prev_btn.setOnClickListener(v -> {
+                SimpleExoPlayer player = mService.getPlayerInstance();
+                if( player.getRepeatMode()==Player.REPEAT_MODE_ONE){
+                    player.seekTo(0);
+                    updateUI(player);
+                }else{
+                    trackChanged(0);
+                }
+            });
         }
 
         return view;
+    }
+
+    private void trackChanged(Integer shouldAdd) {
+
+      if(shouldAdd!=null){
+          changePosition(mService.getPlayerInstance(), shouldAdd);
+      }
+
+      updateUI(mService.getPlayerInstance());
     }
 
     private void reinitializeRepeatBtn() {
@@ -317,7 +356,7 @@ public class PlayerFragment extends Fragment {
 
     private void reinitializeShuffleBtn() {
         if(mService!=null){
-         Boolean isShuffled = mService.getPlayerInstance().getShuffleModeEnabled();
+         Boolean isShuffled = mService.getShuffle();
             if(isShuffled!=null){
                 if(isShuffled){
                     shuffleBtn.setImageResource(R.drawable.ic_shuffle_clicked);
@@ -367,11 +406,20 @@ public class PlayerFragment extends Fragment {
         mini_fav_btn = binding.miniPlayerView.findViewById(R.id.mini_player_fav_btn);
         mini_player_title = binding.miniPlayerView.findViewById(R.id.mini_player_title);
         mini_player_desc = binding.miniPlayerView.findViewById(R.id.mini_player_description);
+        mini_next_btn = binding.miniPlayerView.findViewById(R.id.exo_next);
+        mini_prev_btn =binding.miniPlayerView.findViewById(R.id.exo_prev);
         mini_player_img = binding.miniPlayerView.findViewById(R.id.mini_player_img);
         miniTimeBar = binding.miniPlayerView.findViewById(R.id.exo_progress);
         miniTimeBar.setEnabled(false);
         mini_player_title.setSelected(true);
         mini_player_desc.setSelected(true);
+
+        mini_next_btn.setOnClickListener(v->{
+            next_btn.callOnClick();
+        });
+        mini_prev_btn.setOnClickListener(v -> {
+            prev_btn.callOnClick();
+        });
     }
 
     public void dismissPlayer() {
@@ -649,7 +697,7 @@ public class PlayerFragment extends Fragment {
         }
     }
 
-    public void setUI() {
+    public void setUI(Integer position) {
         if (mainActivity != null) {
             Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
             if (currentFragment instanceof PlayerFragment) {
@@ -904,6 +952,8 @@ public class PlayerFragment extends Fragment {
         super.onViewStateRestored(savedInstanceState);
         initializePlayer();
         initializeMiniPlayer();
+        reinitializeRepeatBtn();
+        reinitializeShuffleBtn();
     }
 
     public void setUpInfoBackgroundColor(Palette palette) {
@@ -1028,6 +1078,10 @@ public class PlayerFragment extends Fragment {
                 Math.min(b,255));
     }
 
+    public Integer getPosition() {
+        return position;
+    }
+
     public class ExoListener implements Player.Listener {
         SimpleExoPlayer player;
 
@@ -1045,22 +1099,6 @@ public class PlayerFragment extends Fragment {
                 CurrentPlaylistFragment.adapter.notifyDataSetChanged();
             }
 
-            Log.d("Exo", "playbackState = " + playbackState + " playWhenReady = " + playWhenReady);
-            switch (playbackState) {
-                case Player.STATE_IDLE:
-                    // free
-                    break;
-                case Player.STATE_BUFFERING:
-                    // Buffer
-                    break;
-                case Player.STATE_READY:
-                    // Get ready
-                    break;
-                case Player.STATE_ENDED:
-                    break;
-                default:
-                    break;
-            }
         }
 
         @Override
@@ -1081,38 +1119,63 @@ public class PlayerFragment extends Fragment {
 
         @Override
         public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-            changePosition(player);
-
-            setUI();
-            MainActivity.viewModel.setCurrentSongTitle(playlist.getSongs().get(position).getTitle());
-            MainActivity.viewModel.setCurrentSongAlbum(playlist.getTitle());
-            MainActivity.viewModel.setCurrentSongAuthor(playlist.getDescription());
-
-            if (CurrentPlaylistFragment.adapter != null) {
-                CurrentPlaylistFragment.adapter.notifyDataSetChanged();
-            }
-
-            fav_btn.setImageResource(R.drawable.ic_heart_empty);
-            mService.setPosition(position);
+            updateUI(player);
         }
     }
 
-    private void changePosition(SimpleExoPlayer player) {
+    private void updateUI(SimpleExoPlayer player) {
+        setUI(player.getCurrentWindowIndex());
+        MainActivity.viewModel.setCurrentSongTitle(playlist.getSongs().get(player.getCurrentWindowIndex()).getTitle());
+        MainActivity.viewModel.setCurrentSongAlbum(playlist.getTitle());
+        MainActivity.viewModel.setCurrentSongAuthor(playlist.getDescription());
+
+        if (CurrentPlaylistFragment.adapter != null) {
+            CurrentPlaylistFragment.adapter.notifyDataSetChanged();
+        }
+
+        fav_btn.setImageResource(R.drawable.ic_heart_empty);
+    }
+
+    private void changePosition(SimpleExoPlayer player, Integer shouldAdd) {
         if(!mService.getShuffle()){
             position = player.getCurrentWindowIndex();
+
+                   if(shouldAdd!=null){
+                       if(shouldAdd==1){
+                           if(position< playlist.getSongs().size()-1){
+                               position++;
+                           }
+                       }else{
+                           if(position>0){
+                               position--;
+                           }
+                       }
+                   }
+
+            mService.setPosition(position);
+            player.seekTo(position, C.INDEX_UNSET);
         }
         else
         {
             shuffleClicked++;
-            if( shuffleClicked%4==0){
+         //   if( shuffleClicked%4==0){
                 position =randomPosition;
-                do{
-                    randomPosition = new Random().nextInt(playlist.getSongs().size());
+                mService.setPosition(position);
+                player.seekTo(position, C.INDEX_UNSET);
+
+                if(playlist.getSongs().size()>1){
+                    do{
+                        randomPosition = new Random().nextInt(playlist.getSongs().size());
+                    }
+                    while (randomPosition==position);
+
+
+                }else{
+                    randomPosition = position;
+
                 }
-                while (randomPosition==position);
-            }
+        //    }
         }
     }
-
 }
 

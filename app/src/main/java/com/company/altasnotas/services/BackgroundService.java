@@ -101,8 +101,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
         position = intent.getIntExtra("pos", 0);
         ArrayList<Song> songs = intent.getParcelableArrayListExtra("songs");
         playlist.setSongs(songs);
-      // startPlayer();
-        testingPlayer();
+       startPlayer();
+      //  testingPlayer();
 
 
         playerNotificationManager = PlayerNotificationManager
@@ -441,8 +441,8 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
 
     public synchronized SimpleExoPlayer getPlayerInstance() {
         if (player == null) {
-            return testingPlayer();
-          //  return startPlayer();
+        //    return testingPlayer();
+            return startPlayer();
         } else {
             return player;
         }

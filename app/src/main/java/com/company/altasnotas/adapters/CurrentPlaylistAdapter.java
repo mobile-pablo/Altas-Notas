@@ -426,7 +426,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                         fav_btn.setImageResource(R.drawable.ic_heart_full);
                              Fragment frag = activity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
                             if (frag instanceof PlayerFragment) {
-                                ((PlayerFragment) frag).setUI();
+                                ((PlayerFragment) frag).setUI(((PlayerFragment) frag).getPosition());
                             }
                         if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(playlist.getSongs().get(position).getTitle()) &&
                                 MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
