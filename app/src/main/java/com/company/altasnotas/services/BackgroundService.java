@@ -260,7 +260,7 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
     @Override
     public synchronized int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(SERVICE, "OnStartCommand Called");
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     @Override

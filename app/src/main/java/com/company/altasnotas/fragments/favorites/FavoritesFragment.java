@@ -111,7 +111,7 @@ public class FavoritesFragment extends Fragment {
                         for (DataSnapshot ds : snapshot.child("songs").getChildren()) {
                             if (Integer.parseInt(ds.child("order").getValue().toString()) == song.getNumberInAlbum()) {
 
-                                Object gif = ds.child("gif_url").getValue();
+                                Object gif = ds.child("videoPath").getValue();
                                 String gif_str="";
                                 if(gif!=null){
                                     gif_str=gif.toString();

@@ -5,16 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <pl.droidsonroids.gif.GifImageView
-        android:id="@+id/playerSongGif"
+    <VideoView
+        android:id="@+id/playerVideoView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="invisible"
-        android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/playerFullBox"
@@ -25,7 +23,6 @@
         android:foreground="#00ffffff"
         android:layoutDirection="ltr"
         android:orientation="vertical"
-        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -119,9 +116,9 @@
                 android:id="@+id/playerSongImg"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:scaleType="fitCenter"
                 android:layout_marginTop="50dp"
                 android:layout_marginBottom="50dp"
+                android:scaleType="fitCenter"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -201,6 +198,7 @@
                     android:src="@drawable/ic_heart_empty" />
             </FrameLayout>
         </LinearLayout>
+
         <com.google.android.exoplayer2.ui.DefaultTimeBar
             android:id="@id/exo_progress"
             android:layout_width="match_parent"
@@ -208,11 +206,10 @@
             android:layout_marginLeft="18dp"
             android:layout_marginRight="18dp"
             app:bar_height="3dp"
+            app:buffered_color="#0fffffff"
             app:played_color="@color/project_light_orange"
             app:scrubber_color="@color/project_dark_orange"
-            app:buffered_color="#0fffffff"
-            app:unplayed_color="#0fffffff"
-         />
+            app:unplayed_color="#0fffffff" />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -247,13 +244,14 @@
                 android:textSize="14sp"
                 android:textStyle="bold" />
         </RelativeLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="50dp"
+            android:orientation="horizontal"
             android:paddingTop="4dp">
 
             <ImageButton

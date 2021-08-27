@@ -10,18 +10,24 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.media.AudioAttributes;
+import android.media.AudioFocusRequest;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,6 +35,8 @@ import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -51,7 +59,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.DefaultTimeBar;
@@ -68,8 +75,6 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
 import java.util.Random;
-
-import pl.droidsonroids.gif.GifImageView;
 
 
 public class PlayerFragment extends Fragment {
@@ -113,13 +118,13 @@ public class PlayerFragment extends Fragment {
     private Playlist playlist;
     private int position;
     private ImageView song_img;
+    private Palette palette;
     private ExoListener exoListener;
     private TextView title, author, current_info, current_info_title;
     private ImageButton next_btn, prev_btn;
     private DatabaseReference database_ref;
     private FirebaseAuth mAuth;
     private Intent intent;
-    private Palette palette;
     private LinearLayout player_full_box;
     private ConstraintLayout player_small_box;
     private  Integer isFav;
@@ -131,7 +136,7 @@ public class PlayerFragment extends Fragment {
     private BottomSheetDialog songInPlaylistDialog;
     private PlayerFragmentViewModel viewModel;
     private MainActivity mainActivity;
-    private GifImageView gifImageView;
+    private VideoView videoLayout;
     public static   int randomPosition;
     public static Integer shuffleClicked=0;
 
@@ -141,6 +146,8 @@ public class PlayerFragment extends Fragment {
     private ImageView mini_player_img;
     private ImageButton mini_next_btn, mini_prev_btn;
     private DefaultTimeBar miniTimeBar;
+
+    private MutableLiveData<String> _url = new MutableLiveData<>();
 
     public PlayerFragment(Playlist playlist, int position, long seekedTo, Boolean isReOpen, Integer state, Boolean ready, Integer isFav, Boolean isChangingFragment) {
         this.playlist = null;
@@ -169,9 +176,8 @@ public class PlayerFragment extends Fragment {
         binding = FragmentPlayerBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         mainActivity = (MainActivity) getActivity();
-
+        viewModel = new ViewModelProvider(mainActivity).get(PlayerFragmentViewModel.class);
         if(!isDimissed){
-            viewModel = new ViewModelProvider(mainActivity).get(PlayerFragmentViewModel.class);
             playerView = binding.playerView.findViewById(R.id.playerView);
             player_full_box = binding.playerView.findViewById(R.id.playerFullBox);
             playerUpperBox = playerView.findViewById(R.id.playerSongUpperBox);
@@ -185,8 +191,7 @@ public class PlayerFragment extends Fragment {
             shuffleBtn = playerView.findViewById(R.id.customShuffle);
             repeatBtn= playerView.findViewById(R.id.customRepeat);
 
-            gifImageView = binding.playerView.findViewById(R.id.playerSongGif);
-
+            videoLayout = binding.playerView.findViewById(R.id.playerVideoView);
             current_info = playerView.findViewById(R.id.playerSongInfoTextView);
             current_info_title = playerView.findViewById(R.id.playerSongInfoPlaylistTextView);
 
@@ -427,6 +432,7 @@ public class PlayerFragment extends Fragment {
     }
 
     public void dismissPlayer() {
+        videoLayout.pause();
         mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
 
         if (playerView != null) {
@@ -716,8 +722,11 @@ public class PlayerFragment extends Fragment {
                             song_img.setImageDrawable(resource);
                             Bitmap b = drawableToBitmap(resource);
                             palette = Palette.from(b).generate();
-                            setUpInfoBackgroundColor(palette);
+                            setUpInfoBackgroundColor();
                             fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_light_orange));
+
+
+
                         }
                     }
 
@@ -961,9 +970,10 @@ public class PlayerFragment extends Fragment {
         initializeMiniPlayer();
         reinitializeRepeatBtn();
         reinitializeShuffleBtn();
+        setUPVideoLayout();
     }
 
-    public void setUpInfoBackgroundColor(Palette palette) {
+    public void setUpInfoBackgroundColor() {
         if(mainActivity!=null)
         {
             if(playlist.getSongs().get(position).getGifUrl().isEmpty()){
@@ -1043,7 +1053,7 @@ public class PlayerFragment extends Fragment {
 
 
                     player_small_box.setVisibility(View.VISIBLE);
-                    gifImageView.setVisibility(View.INVISIBLE);
+            videoLayout.setVisibility(View.INVISIBLE);
 
                 Glide.with(mainActivity)
                         .load(gradientDrawable)
@@ -1066,13 +1076,37 @@ public class PlayerFragment extends Fragment {
         }
          else
          {
-                player_small_box.setVisibility(View.INVISIBLE);
-                player_full_box.setBackgroundColor(Color.parseColor("#AA000000"));
-                gifImageView.setVisibility(View.VISIBLE);
-                Glide.with(mainActivity).load(playlist.getSongs().get(position).getGifUrl()).into(gifImageView);
+            setUPVideoLayout();
          }
         }
     }
+
+    public void setUPVideoLayout() {
+        if(!playlist.getSongs().get(position).getGifUrl().isEmpty()) {
+            player_small_box.setVisibility(View.INVISIBLE);
+          //  player_full_box.setBackgroundColor(Color.TRANSPARENT);
+                player_full_box.setBackgroundResource(R.drawable.custom_full_box_canvas_bg);
+            String url = playlist.getSongs().get(position).getGifUrl();
+            Uri uri = Uri.parse(url);
+            videoLayout.setMediaController(null);
+            videoLayout.setVideoURI(uri);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                //set this BEFORE start playback
+                videoLayout.setAudioFocusRequest(AudioManager.AUDIOFOCUS_NONE);
+            }
+
+            videoLayout.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    videoLayout.seekTo(0);
+                    videoLayout.start();
+                }
+            });
+            videoLayout.start();
+        }
+    }
+
 
     public static int manipulateColor(int color, float factor) {
         int a = Color.alpha(color);
@@ -1185,11 +1219,9 @@ public class PlayerFragment extends Fragment {
     }
 
     @Override
-    public void onStop() {
-        Log.d("PlayerFragment", "On Stop Clicked!");
-        super.onStop();
-
-      removeNotifOnStop();
+    public void onDestroy() {
+        super.onDestroy();
+        removeNotifOnStop();
     }
 
     private void removeNotifOnStop() {
@@ -1202,6 +1234,12 @@ public class PlayerFragment extends Fragment {
                 isChangingFragment=false;
             }
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setUPVideoLayout();
     }
 }
 

@@ -199,7 +199,7 @@ public class CurrentPlaylistFragment extends Fragment {
                                 firebaseSong.setOrder(Integer.valueOf(ds.child("order").getValue().toString()));
                                 firebaseSong.setPath(ds.child("path").getValue().toString());
                                 firebaseSong.setTitle(ds.child("title").getValue().toString());
-                                Object gif =ds.child("gif_url").getValue();
+                                Object gif =ds.child("videoPath").getValue();
                                 String gif_str = "";
                                 if(gif!=null){
                                     gif_str = gif.toString();
@@ -368,7 +368,7 @@ public class CurrentPlaylistFragment extends Fragment {
 
 
                             if (Integer.parseInt(ds.child("order").getValue().toString()) == song.getNumberInAlbum()) {
-                                Object gif = ds.child("gif_url").getValue();
+                                Object gif = ds.child("videoPath").getValue();
                                 String gif_str="";
                                 if(gif!=null){
                                     gif_str=gif.toString();
