@@ -103,6 +103,7 @@ public class PlayerFragment extends Fragment {
     public static ImageButton fav_btn;
     public static FragmentPlayerBinding binding;
     public static ImageButton shuffleBtn, repeatBtn;
+    public static Boolean isChangingFragment;
 
     private final Long seekedTo;
     private final Boolean isReOpen;
@@ -141,7 +142,7 @@ public class PlayerFragment extends Fragment {
     private ImageButton mini_next_btn, mini_prev_btn;
     private DefaultTimeBar miniTimeBar;
 
-    public PlayerFragment(Playlist playlist, int position, long seekedTo, Boolean isReOpen, Integer state, Boolean ready, Integer isFav) {
+    public PlayerFragment(Playlist playlist, int position, long seekedTo, Boolean isReOpen, Integer state, Boolean ready, Integer isFav, Boolean isChangingFragment) {
         this.playlist = null;
         this.playlist = playlist;
         this.position = position;
@@ -150,6 +151,7 @@ public class PlayerFragment extends Fragment {
         this.state = state;
         this.ready = ready;
         this.isFav = isFav;
+        this.isChangingFragment= isChangingFragment;
 
         //We are sending playlist to this player and let it play all of it
        /*
@@ -1177,9 +1179,28 @@ public class PlayerFragment extends Fragment {
 
                 }else{
                     randomPosition = position;
-
                 }
         //    }
+        }
+    }
+
+    @Override
+    public void onStop() {
+        Log.d("PlayerFragment", "On Stop Clicked!");
+        super.onStop();
+
+      removeNotifOnStop();
+    }
+
+    private void removeNotifOnStop() {
+        if(isChangingFragment!=null){
+            if(!isChangingFragment){
+                if(mBound){
+                    dismissPlayer();
+                }
+            }else{
+                isChangingFragment=false;
+            }
         }
     }
 }

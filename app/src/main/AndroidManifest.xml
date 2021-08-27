@@ -72,7 +72,11 @@
             android:theme="@style/Base.Theme.AppCompat"/>
 
 
-        <service android:name=".services.BackgroundService"/>
+        <service
+            android:name=".services.BackgroundService"
+            android:enabled="true"
+            android:exported="false"
+            android:stopWithTask="true"/>
     </application>
 
 </manifest>

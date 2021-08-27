@@ -265,21 +265,20 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
 
     @Override
     public synchronized void onTaskRemoved(Intent rootIntent) {
+      Log.d(SERVICE, "OnTaskRemoved called!");
         super.onTaskRemoved(rootIntent);
-
-        destroyNotif();
-        releasePlayer();
-        PlayerFragment.playerView.setPlayer(null);
-        PlayerFragment.binding.miniPlayerView.setPlayer(null);
     }
 
     @Override
     public synchronized void onDestroy() {
         Log.d(SERVICE, "onDestroy Called");
+
         releasePlayer();
         MainActivity.clearCurrentSong();
+
         stopForeground(true);
         stopSelf();
+
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.cancel(Integer.parseInt(NOTIFICATION_ID));
         PlayerFragment.isDimissed=true;
@@ -295,8 +294,6 @@ public class BackgroundService extends Service implements ExoPlayer.EventListene
             playerNotificationManager.setPlayer(null);
             player.pause();
             player.seekTo(0);
-         //   player.release();
-           // player = null;
         }
 
 

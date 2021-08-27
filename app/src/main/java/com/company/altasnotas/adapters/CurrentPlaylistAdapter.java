@@ -155,7 +155,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                        }
                     }
 
-                    PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0, false, null, null, isFavFragment);
+                    PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0, false, null, null, isFavFragment,true);
                     activity.getSupportFragmentManager().beginTransaction().replace(R.id.slidingLayoutFrag, playerFragment).commit();
                     activity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                 }
