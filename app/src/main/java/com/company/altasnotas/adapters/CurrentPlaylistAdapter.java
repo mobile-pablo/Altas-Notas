@@ -146,18 +146,22 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
                   PlayerFragment.isDimissed=false;
 
+                  Fragment currentMiniFrag = activity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
+                PlayerFragment playerFragment = null;
+                  if(currentMiniFrag instanceof PlayerFragment){
+                      activity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+                      playerFragment = (PlayerFragment) currentMiniFrag;
+                      PlayerFragment.mService.setRepeat(Player.REPEAT_MODE_OFF);
+                      PlayerFragment.mService.setShuffleEnabled(false);
+                      PlayerFragment.mService.getPlayerInstance().setShuffleModeEnabled(false);
+                      playerFragment.reinitializeFragment(playlist, position, 0, false, null, null, isFavFragment, true);
 
-                    if(PlayerFragment.mService!=null){
-                        if(PlayerFragment.mService.getPlayerInstance()!=null){
-                        PlayerFragment.mService.setRepeat(Player.REPEAT_MODE_OFF);
-                       PlayerFragment.mService.setShuffleEnabled(false);
-                           PlayerFragment.mService.getPlayerInstance().setShuffleModeEnabled(false);
-                       }
-                    }
 
-                    PlayerFragment playerFragment = new PlayerFragment(playlist, position, 0, false, null, null, isFavFragment,true);
-                    activity.getSupportFragmentManager().beginTransaction().replace(R.id.slidingLayoutFrag, playerFragment).commit();
-                    activity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                  }else {
+
+                  playerFragment = new PlayerFragment(playlist, position, 0, false, null, null, isFavFragment, true);
+                activity.getSupportFragmentManager().beginTransaction().replace(R.id.slidingLayoutFrag, playerFragment).commit();
+                  }
                 }
         }
         );
@@ -254,7 +258,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
             }
         });
 
-        holder.databaseReference.child("music").child("albums").child(songs.get(position).getAuthor()).child(songs.get(position).getAlbum()).addValueEventListener(new ValueEventListener() {
+        holder.databaseReference.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snap) {
                 holder.currentAuthor.setText(snap.child("description").getValue().toString());

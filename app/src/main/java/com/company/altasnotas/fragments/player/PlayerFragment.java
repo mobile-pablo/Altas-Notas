@@ -10,14 +10,10 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.media.AudioAttributes;
-import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +21,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
 
@@ -35,8 +30,6 @@ import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -80,7 +73,7 @@ import java.util.Random;
 public class PlayerFragment extends Fragment {
     public static Boolean isDimissed;
 
-    public final ServiceConnection mConnection = new ServiceConnection() {
+    public ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             BackgroundService.LocalBinder binder = (BackgroundService.LocalBinder) iBinder;
@@ -110,8 +103,8 @@ public class PlayerFragment extends Fragment {
     public static ImageButton shuffleBtn, repeatBtn;
     public static Boolean isChangingFragment;
 
-    private final Long seekedTo;
-    private final Boolean isReOpen;
+    private Long seekedTo;
+    private Boolean isReOpen;
 
     private LinearLayout playerUpperBox;
     private ImageButton settings_btn, hide_btn;
@@ -136,7 +129,7 @@ public class PlayerFragment extends Fragment {
     private BottomSheetDialog songInPlaylistDialog;
     private PlayerFragmentViewModel viewModel;
     private MainActivity mainActivity;
-    private VideoView videoLayout;
+    private VideoView videoView;
     public static   int randomPosition;
     public static Integer shuffleClicked=0;
 
@@ -146,8 +139,6 @@ public class PlayerFragment extends Fragment {
     private ImageView mini_player_img;
     private ImageButton mini_next_btn, mini_prev_btn;
     private DefaultTimeBar miniTimeBar;
-
-    private MutableLiveData<String> _url = new MutableLiveData<>();
 
     public PlayerFragment(Playlist playlist, int position, long seekedTo, Boolean isReOpen, Integer state, Boolean ready, Integer isFav, Boolean isChangingFragment) {
         this.playlist = null;
@@ -168,6 +159,51 @@ public class PlayerFragment extends Fragment {
         1  - Fav
 
          */
+    }
+
+    public void reinitializeFragment(Playlist playlist, int position, long seekedTo, Boolean isReOpen, Integer state, Boolean ready, Integer isFav, Boolean isChangingFragment) {
+        this.playlist = null;
+        this.playlist = playlist;
+        this.position = position;
+        this.seekedTo = seekedTo;
+        this.isReOpen = isReOpen;
+        this.state = state;
+        this.ready = ready;
+        this.isFav = isFav;
+        this.isChangingFragment= isChangingFragment;
+
+        videoView.setVisibility(View.INVISIBLE);
+        startMusicService();
+
+     if(mBound){
+         mainActivity.unbindService(mConnection);
+     }
+        mConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                BackgroundService.LocalBinder binder = (BackgroundService.LocalBinder) iBinder;
+                mService = binder.getService();
+                mBound = true;
+                if(!isReOpen){
+                    mService.clearOldPlayer();
+                    mService.initializePlayer(intent);
+                }
+                initializePlayer();
+                initializeMiniPlayer();
+
+                Log.d("PlayerFragment", "OnService Connected");
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
+                mBound = false;
+            }
+        };
+
+        if(!isDimissed)
+        {
+            mainActivity.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        }
     }
 
     @Override
@@ -191,7 +227,7 @@ public class PlayerFragment extends Fragment {
             shuffleBtn = playerView.findViewById(R.id.customShuffle);
             repeatBtn= playerView.findViewById(R.id.customRepeat);
 
-            videoLayout = binding.playerView.findViewById(R.id.playerVideoView);
+            videoView = binding.playerView.findViewById(R.id.playerVideoView);
             current_info = playerView.findViewById(R.id.playerSongInfoTextView);
             current_info_title = playerView.findViewById(R.id.playerSongInfoPlaylistTextView);
 
@@ -220,9 +256,9 @@ public class PlayerFragment extends Fragment {
 
                 if (fav_btn.getDrawable().getConstantState().equals(fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
 
-                    viewModel.addToFav(getActivity(), database_ref, mAuth, playlist, position, fav_btn, mini_fav_btn, CurrentPlaylistFragment.adapter);
+                    viewModel.addToFav(mainActivity, database_ref, mAuth, playlist, position, fav_btn, mini_fav_btn, CurrentPlaylistFragment.adapter);
                 } else {
-                    viewModel.removeFromFav(getActivity(), database_ref, mAuth, playlist, position, fav_btn, mini_fav_btn, CurrentPlaylistFragment.adapter);
+                    viewModel.removeFromFav(mainActivity, database_ref, mAuth, playlist, position, fav_btn, mini_fav_btn, CurrentPlaylistFragment.adapter);
                 }
             });
 
@@ -239,16 +275,31 @@ public class PlayerFragment extends Fragment {
             });
 
             mini_fav_btn.setOnClickListener(v -> {
-
+               if(viewModel==null){
+                   viewModel = new ViewModelProvider(mainActivity).get(PlayerFragmentViewModel.class);
+               }
                 if (mini_fav_btn.getDrawable().getConstantState().equals(mini_fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState()))
                 {
-                    viewModel.addToFav(getActivity(), database_ref, mAuth, playlist, position, fav_btn, mini_fav_btn, CurrentPlaylistFragment.adapter);
+                    viewModel.addToFav(mainActivity,
+                            database_ref,
+                            mAuth,
+                            playlist,
+                            position,
+                            fav_btn,
+                            mini_fav_btn,
+                            CurrentPlaylistFragment.adapter);
                 }
                 else
                 {
-                    viewModel.removeFromFav(getActivity(), database_ref, mAuth, playlist, position, fav_btn, mini_fav_btn, CurrentPlaylistFragment.adapter);
+                    viewModel.removeFromFav(mainActivity,
+                            database_ref,
+                            mAuth,
+                            playlist,
+                            position,
+                            fav_btn,
+                            mini_fav_btn,
+                            CurrentPlaylistFragment.adapter);
                 }
-
             });
 
             shuffleBtn.setOnClickListener(v->{
@@ -294,6 +345,7 @@ public class PlayerFragment extends Fragment {
             });
 
             next_btn.setOnClickListener(v -> {
+                clearVideoView();
                 if(mService!=null){
                     SimpleExoPlayer player = mService.getPlayerInstance();
                    if( player.getRepeatMode()==Player.REPEAT_MODE_ONE){
@@ -307,6 +359,7 @@ public class PlayerFragment extends Fragment {
             });
 
             prev_btn.setOnClickListener(v -> {
+                videoView.setVisibility(View.INVISIBLE);
                 SimpleExoPlayer player = mService.getPlayerInstance();
                 if( player.getRepeatMode()==Player.REPEAT_MODE_ONE){
                     player.seekTo(0);
@@ -318,6 +371,14 @@ public class PlayerFragment extends Fragment {
         }
 
         return view;
+    }
+
+    private void clearVideoView() {
+        videoView.setVisibility(View.INVISIBLE);
+        videoView.stopPlayback();
+        videoView.clearAnimation();
+        videoView.suspend(); // clears media player
+        videoView.setVideoURI(null);
     }
 
     private void trackChanged(Integer shouldAdd) {
@@ -432,8 +493,9 @@ public class PlayerFragment extends Fragment {
     }
 
     public void dismissPlayer() {
-        videoLayout.pause();
+        clearVideoView();
         mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+        MainActivity.clearCurrentSong();
 
         if (playerView != null) {
             mService.destroyNotif();
@@ -442,13 +504,15 @@ public class PlayerFragment extends Fragment {
         MainActivity.clearCurrentSong();
         notifyAdapters();
 
-        isDimissed=true;
+
         shouldPlay=true;
         if (mBound) {
         mainActivity.unbindService(mConnection);
         mBound=false;
         }
+
         Log.d("PlayerFragment", "Player dismissed!");
+        isDimissed=true;
     }
 
     private void notifyAdapters() {
@@ -668,7 +732,8 @@ public class PlayerFragment extends Fragment {
             if (mService.position != null) {
                 SimpleExoPlayer player = mService.getPlayerInstance();
                 if(player==null){
-                    player= mService.testingPlayer();
+                //    player= mService.testingPlayer();
+                    player= mService.startPlayer();
                 }
                 exoListener = new ExoListener(player);
                 player.addListener(exoListener);
@@ -679,6 +744,9 @@ public class PlayerFragment extends Fragment {
                 playerView.setControllerShowTimeoutMs(0);
                 playerView.setCameraDistance(0);
                 playerView.setControllerAutoShow(true);
+
+                Log.d("ExoPlayer", "State :"+state);
+                Log.d("ExoPlayer", "Ready: "+ready);
 
                 if (state == null || ready == null) {
                     if (isReOpen) {
@@ -711,23 +779,20 @@ public class PlayerFragment extends Fragment {
     }
 
     public void setUI(Integer position) {
+        mAuth = FirebaseAuth.getInstance();
         if (mainActivity != null) {
             Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
             if (currentFragment instanceof PlayerFragment) {
-                setMiniUI();
-                Glide.with(getActivity()).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(new CustomTarget<Drawable>() {
+                Glide.with(mainActivity).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(new CustomTarget<Drawable>() {
                     @Override
                     public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                        if (resource != null) {
                             song_img.setImageDrawable(resource);
+                            mini_player_img.setImageDrawable(resource);
                             Bitmap b = drawableToBitmap(resource);
                             palette = Palette.from(b).generate();
+                            videoView.setVisibility(View.VISIBLE);
                             setUpInfoBackgroundColor();
-                            fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_light_orange));
-
-
-
-                        }
+                            fav_btn.getDrawable().setTint(ContextCompat.getColor(mainActivity, R.color.project_light_orange));
                     }
 
                     @Override
@@ -737,19 +802,28 @@ public class PlayerFragment extends Fragment {
                 });
 
                 database_ref = FirebaseDatabase.getInstance().getReference();
+
+
                 database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                        //We add extra space because This Light font have small spacing between words.
-                        String local_title = playlist.getSongs().get(position).getTitle();
-                        title.setTag(" ");
-                        String space = (String) title.getTag();
-                        title.setText(local_title.replace(space, (space += " ")));
-                        title.setTag(space);
+                         if(snapshot.exists()){
+
+                                     //We add extra space because This Light font have small spacing between words.
+                                     String local_title = playlist.getSongs().get(position).getTitle();
+                                     String local_desc =snapshot.child("description").getValue().toString();
+                                     title.setTag(" ");
+                                     String space = (String) title.getTag();
+                                     local_title =local_title.replace(space, (space += " "));
+                                     title.setText(local_title);
+                                     mini_player_title.setText(local_title);
+                                     title.setTag(space);
 
 
-                        author.setText(snapshot.child("description").getValue().toString());
+                                     author.setText(local_desc);
+                                     mini_player_desc.setText(local_desc);
+                         }
                     }
 
                     @Override
@@ -757,183 +831,85 @@ public class PlayerFragment extends Fragment {
                     }
                 });
 
-                //Loading fav btn state
-                database_ref.child("fav_music")
-                        .child(mAuth.getCurrentUser().getUid())
-                        .orderByKey()
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                if (snapshot != null) {
-                                    Song mySong = playlist.getSongs().get(position);
 
-                                    for (DataSnapshot ds : snapshot.getChildren()) {
+                 if(mAuth.getCurrentUser()!=null){
 
-                                        if (
-                                                ds.child("album").getValue().equals(mySong.getAlbum())
-                                                        &&
-                                                        ds.child("author").getValue().equals(mySong.getAuthor())
-                                        ) {
-                                            //Same album and Author now we check song title
-                                            database_ref
-                                                    .child("music")
-                                                    .child("albums")
-                                                    .child(mySong.getAuthor())
-                                                    .child(mySong.getAlbum())
-                                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    database_ref.child("fav_music")
+                                        .child(mAuth.getCurrentUser().getUid())
+                                        .orderByKey()
+                                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                if (snapshot != null) {
 
-                                                        @Override
-                                                        public void onDataChange(@NonNull DataSnapshot snap) {
 
-                                                            for (DataSnapshot s : snap.child("songs").getChildren()) {
+                                                    Song mySong = playlist.getSongs().get(position);
 
-                                                                if (
-                                                                        s.child("order").getValue().toString().trim().equals(ds.child("numberInAlbum").getValue().toString().trim())
-                                                                                &&
-                                                                                s.child("title").getValue().equals(mySong.getTitle())
-                                                                ) {
-                                                                    //We found a song in Album and We need to set icon
-                                                                    fav_btn.setImageResource(R.drawable.ic_heart_full);
-                                                                    fav_btn.getDrawable().setTint(ContextCompat.getColor(getActivity(), R.color.project_light_orange));
+                                                    for (DataSnapshot ds : snapshot.getChildren()) {
 
-                                                                }
-                                                            }
+                                                        if (
+                                                                ds.child("album").getValue().equals(mySong.getAlbum())
+                                                                        &&
+                                                                        ds.child("author").getValue().equals(mySong.getAuthor())
+                                                        ) {
+                                                            //Same album and Author now we check song title
+                                                            database_ref
+                                                                    .child("music")
+                                                                    .child("albums")
+                                                                    .child(mySong.getAuthor())
+                                                                    .child(mySong.getAlbum())
+                                                                    .addListenerForSingleValueEvent(new ValueEventListener() {
 
+                                                                        @Override
+                                                                        public void onDataChange(@NonNull DataSnapshot snap) {
+
+                                                                            for (DataSnapshot s : snap.child("songs").getChildren()) {
+
+                                                                                if (
+                                                                                        s.child("order").getValue().toString().trim().equals(ds.child("numberInAlbum").getValue().toString().trim())
+                                                                                                &&
+                                                                                                s.child("title").getValue().equals(mySong.getTitle())
+                                                                                ) {
+                                                                                    //We found a song in Album and We need to set icon
+                                                                                    fav_btn.setImageResource(R.drawable.ic_heart_full);
+                                                                                    fav_btn.getDrawable().setTint(ContextCompat.getColor(mainActivity, R.color.project_light_orange));
+                                                                                    mini_fav_btn.setImageResource(R.drawable.ic_heart_full);
+                                                                                    mini_fav_btn.getDrawable().setTint(ContextCompat.getColor(mainActivity, R.color.project_dark_velvet));
+
+
+                                                                                }
+                                                                            }
+
+                                                                        }
+
+                                                                        @Override
+                                                                        public void onCancelled(@NonNull DatabaseError error) {
+
+                                                                        }
+                                                                    });
                                                         }
+                                                    }
 
-                                                        @Override
-                                                        public void onCancelled(@NonNull DatabaseError error) {
+                                                }
+                                            }
 
-                                                        }
-                                                    });
-                                        }
-                                    }
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError error) {
 
-                                }
-                            }
+                                            }
+                                        });
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
+                 }
 
-                            }
-                        });
+                if (mini_fav_btn.getDrawable().getConstantState().equals(mini_fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+                    mini_fav_btn.getDrawable().setTint(Color.BLACK);
+                } else {
+                    mini_fav_btn.getDrawable().setTint(ContextCompat.getColor(mainActivity, R.color.project_dark_velvet));
+                }
+
             }
         } else {
             Log.d("Activity", "Activity is null");
-        }
-    }
-
-    public void setMiniUI() {
-        if (getActivity() != null) {
-            Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
-            if (currentFragment instanceof PlayerFragment) {
-                Glide.with(getActivity()).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(new CustomTarget<Drawable>() {
-                    @Override
-                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                        if (resource != null) {
-                            mini_player_img.setImageDrawable(resource);
-                        }
-                    }
-
-                    @Override
-                    public void onLoadCleared(@Nullable Drawable placeholder) {
-
-                    }
-                });
-
-                database_ref = FirebaseDatabase.getInstance().getReference();
-                database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                        //We add extra space because This Light font have small spacing between words.
-                        String local_title = playlist.getSongs().get(position).getTitle();
-                        mini_player_title.setTag(" ");
-                        String space = (String) mini_player_title.getTag();
-                        mini_player_title.setText(local_title);
-                        mini_player_title.setTag(space);
-
-
-                        mini_player_desc.setText(snapshot.child("description").getValue().toString());
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                    }
-                });
-
-            }
-        }
-
-
-        //Loading fav btn state
-        if (mAuth.getCurrentUser() != null) {
-            database_ref.child("fav_music")
-                    .child(mAuth.getCurrentUser().getUid())
-                    .orderByKey()
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                            if (snapshot != null) {
-                                Song mySong = playlist.getSongs().get(position);
-
-                                for (DataSnapshot ds : snapshot.getChildren()) {
-
-                                    if (
-                                            ds.child("album").getValue().equals(mySong.getAlbum())
-                                                    &&
-                                                    ds.child("author").getValue().equals(mySong.getAuthor())
-                                    ) {
-                                        //Same album and Author now we check song title
-                                        database_ref
-                                                .child("music")
-                                                .child("albums")
-                                                .child(mySong.getAuthor())
-                                                .child(mySong.getAlbum())
-                                                .addListenerForSingleValueEvent(new ValueEventListener() {
-
-                                                    @Override
-                                                    public void onDataChange(@NonNull DataSnapshot snap) {
-
-                                                        for (DataSnapshot s : snap.child("songs").getChildren()) {
-
-                                                            if (
-                                                                    s.child("order").getValue().toString().trim().equals(ds.child("numberInAlbum").getValue().toString().trim())
-                                                                            &&
-                                                                            s.child("title").getValue().equals(mySong.getTitle())
-                                                            ) {
-                                                                //We found a song in Album and We need to set icon
-                                                              mini_fav_btn.setImageResource(R.drawable.ic_heart_full);
-                                                              mini_fav_btn.getDrawable().setTint(ContextCompat.getColor(mainActivity, R.color.project_dark_velvet));
-                                                            }
-                                                        }
-
-                                                    }
-
-                                                    @Override
-                                                    public void onCancelled(@NonNull DatabaseError error) {
-
-                                                    }
-                                                });
-                                    }
-                                }
-
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
-        }
-
-
-        if (mini_fav_btn.getDrawable().getConstantState().equals(mini_fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
-            mini_fav_btn.getDrawable().setTint(Color.BLACK);
-        } else {
-            mini_fav_btn.getDrawable().setTint(ContextCompat.getColor(mainActivity, R.color.project_dark_velvet));
         }
     }
 
@@ -966,11 +942,17 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        initializePlayer();
-        initializeMiniPlayer();
-        reinitializeRepeatBtn();
-        reinitializeShuffleBtn();
-        setUPVideoLayout();
+        if(!isDimissed){
+            initializePlayer();
+            initializeMiniPlayer();
+            reinitializeRepeatBtn();
+            reinitializeShuffleBtn();
+            if(mService!=null){
+                if(mService.getPlayerInstance()!=null){
+                    updateUI(mService.getPlayerInstance());
+                }
+            }
+        }
     }
 
     public void setUpInfoBackgroundColor() {
@@ -1053,7 +1035,7 @@ public class PlayerFragment extends Fragment {
 
 
                     player_small_box.setVisibility(View.VISIBLE);
-            videoLayout.setVisibility(View.INVISIBLE);
+            videoView.setVisibility(View.INVISIBLE);
 
                 Glide.with(mainActivity)
                         .load(gradientDrawable)
@@ -1076,34 +1058,46 @@ public class PlayerFragment extends Fragment {
         }
          else
          {
-            setUPVideoLayout();
+            initializeVideoView();
          }
         }
     }
 
-    public void setUPVideoLayout() {
+    public void initializeVideoView() {
         if(!playlist.getSongs().get(position).getGifUrl().isEmpty()) {
             player_small_box.setVisibility(View.INVISIBLE);
-          //  player_full_box.setBackgroundColor(Color.TRANSPARENT);
-                player_full_box.setBackgroundResource(R.drawable.custom_full_box_canvas_bg);
+            player_full_box.setBackgroundResource(R.drawable.custom_full_box_canvas_bg);
             String url = playlist.getSongs().get(position).getGifUrl();
-            Uri uri = Uri.parse(url);
-            videoLayout.setMediaController(null);
-            videoLayout.setVideoURI(uri);
+            videoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                @Override
+                public boolean onError(MediaPlayer mp, int what, int extra) {
+                    Log.d("VideoView", "Error");
+                    return false;
+                }
+            });
+
+
+            videoView.setMediaController(null);
+            videoView.setVideoPath(url);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 //set this BEFORE start playback
-                videoLayout.setAudioFocusRequest(AudioManager.AUDIOFOCUS_NONE);
+                videoView.setAudioFocusRequest(AudioManager.AUDIOFOCUS_NONE);
             }
 
-            videoLayout.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
-                public void onCompletion(MediaPlayer mp) {
-                    videoLayout.seekTo(0);
-                    videoLayout.start();
+                public void onPrepared(MediaPlayer mp) {
+                    mp.setVolume(0,0);
+                    mp.setLooping(true);
                 }
             });
-            videoLayout.start();
+
+            if(!videoView.isPlaying()){
+                videoView.start();
+            }
+        }else{
+            Log.d("VideoLayout", "VideoLayout source is null");
         }
     }
 
@@ -1132,7 +1126,6 @@ public class PlayerFragment extends Fragment {
 
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-            position = mService.position;
             playerView.setPlayer(player);
             state = player.getPlaybackState();
             ready = player.getPlayWhenReady();
@@ -1165,19 +1158,23 @@ public class PlayerFragment extends Fragment {
     }
 
     private void updateUI(SimpleExoPlayer player) {
-        setUI(player.getCurrentWindowIndex());
-        MainActivity.viewModel.setCurrentSongTitle(playlist.getSongs().get(player.getCurrentWindowIndex()).getTitle());
+        if(mainActivity.activityMainBinding.slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.HIDDEN){
+            mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        }
+        fav_btn.setImageResource(R.drawable.ic_heart_empty);
+        mini_fav_btn.setImageResource(R.drawable.ic_heart_empty);
+        setUI(position);
+        MainActivity.viewModel.setCurrentSongTitle(playlist.getSongs().get(position).getTitle());
         MainActivity.viewModel.setCurrentSongAlbum(playlist.getTitle());
         MainActivity.viewModel.setCurrentSongAuthor(playlist.getDescription());
 
         if (CurrentPlaylistFragment.adapter != null) {
             CurrentPlaylistFragment.adapter.notifyDataSetChanged();
         }
-
-        fav_btn.setImageResource(R.drawable.ic_heart_empty);
     }
 
     private void changePosition(SimpleExoPlayer player, Integer shouldAdd) {
+        Log.d("PlayerFragment", "changePosition called!");
         if(!mService.getShuffle()){
             position = player.getCurrentWindowIndex();
 
@@ -1239,7 +1236,13 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        setUPVideoLayout();
+     if(!isDimissed){
+         if(mService!=null){
+             if(mService.getPlayerInstance()!=null){
+                 updateUI(mService.getPlayerInstance());
+             }
+         }
+     }
     }
 }
 

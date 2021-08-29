@@ -26,6 +26,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import static android.content.ContentValues.TAG;
 import static java.sql.DriverManager.println;
@@ -58,7 +59,8 @@ public class LoginFragmentViewModel extends ViewModel {
                         for (int i = 0; i < count; i++) {
                             mainActivity.getSupportFragmentManager().popBackStack();
                         }
-
+                        mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+                        MainActivity.clearCurrentSong();
                         mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.mainFragmentContainer, new HomeFragment(true)).commit();
                     } else {
                         Toast.makeText(context, "Wrong email or password", Toast.LENGTH_SHORT).show();
@@ -118,6 +120,8 @@ public class LoginFragmentViewModel extends ViewModel {
                     for (int i = 0; i < count; i++) {
                         mainActivity.getSupportFragmentManager().popBackStack();
                     }
+                    mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+                    MainActivity.clearCurrentSong();
                     mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.mainFragmentContainer, new HomeFragment(true)).commit();
 
                 } else {
@@ -167,6 +171,8 @@ public class LoginFragmentViewModel extends ViewModel {
 
                     BottomNavigationView bottomNavigationView = mainActivity.findViewById(R.id.mainNavBottom);
                     bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
+                    mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+                    MainActivity.clearCurrentSong();
                     mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.mainFragmentContainer, new HomeFragment(true)).commit();
                 } else {
                     AccessToken accessToken = AccessToken.getCurrentAccessToken();

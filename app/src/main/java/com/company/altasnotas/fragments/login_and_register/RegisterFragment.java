@@ -17,6 +17,7 @@ import com.company.altasnotas.databinding.FragmentRegisterBinding;
 import com.company.altasnotas.fragments.home.HomeFragment;
 import com.company.altasnotas.viewmodels.fragments.login_and_register.RegisterFragmentViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 
 public class RegisterFragment extends Fragment {
@@ -72,7 +73,8 @@ public class RegisterFragment extends Fragment {
                 BottomNavigationView bottomNavigationView = mainActivity.findViewById(R.id.mainNavBottom);
                 bottomNavigationView.setSelectedItemId(R.id.nav_home_item);
                 Toast.makeText(mainActivity, "Register success", Toast.LENGTH_SHORT).show();
-
+                mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+                MainActivity.clearCurrentSong();
                 mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.mainFragmentContainer, new HomeFragment(true)).commit();
 
             }
