@@ -323,10 +323,9 @@ public class CurrentPlaylistFragment extends Fragment {
                                 }
 
 
-                                playlist.setAlbum((Boolean) snapshot.child("isAlbum").getValue());
-                                if (!playlist.isAlbum()) {
-                                    binding.currentPlaylistPhotoBtn.setVisibility(View.VISIBLE);
-                                }
+                                playlist.setAlbum(false);
+                                binding.currentPlaylistPhotoBtn.setVisibility(View.VISIBLE);
+
 
 
                                 if (x != 0) {

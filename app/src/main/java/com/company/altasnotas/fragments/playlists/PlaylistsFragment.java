@@ -117,8 +117,7 @@ public class PlaylistsFragment extends Fragment {
                     playlist.setDescription(dataSnapshot.child("description").getValue().toString());
                     playlist.setImage_id(dataSnapshot.child("image_id").getValue().toString());
                     playlist.setYear(dataSnapshot.child("year").getValue().toString());
-                    playlist.setAlbum((Boolean) dataSnapshot.child("isAlbum").getValue());
-
+                    playlist.setAlbum(false);
                     playlists.add(playlist);
                 }
 

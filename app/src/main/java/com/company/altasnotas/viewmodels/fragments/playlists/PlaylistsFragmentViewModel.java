@@ -75,28 +75,16 @@ public class PlaylistsFragmentViewModel extends ViewModel {
                 }
                 else
                 {
-                    database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).child("isAlbum").setValue(playlist.isAlbum()).addOnCompleteListener( new OnCompleteListener<Void>() {
+                    database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).child("album").removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
-                                database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(key).child("album").removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-                                            _shouldChangeFragment.setValue(true);
-                                        }
-                                        else
-                                        {
-                                            _shouldChangeFragment.setValue(false);
-                                            _errorState.setValue(3);
-                                        }
-                                    }
-                                });
+                                _shouldChangeFragment.setValue(true);
                             }
                             else
                             {
                                 _shouldChangeFragment.setValue(false);
-                                _errorState.setValue(2);
+                                _errorState.setValue(3);
                             }
                         }
                     });
