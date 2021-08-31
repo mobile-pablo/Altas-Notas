@@ -39,6 +39,7 @@ import com.google.firebase.database.ValueEventListener;
 public class PlayerFragmentViewModel extends ViewModel {
 
     public void removeFromFav(FragmentActivity activity, DatabaseReference database_ref, FirebaseAuth mAuth, Playlist playlist, Integer position, ImageButton fav_btn,ImageButton mini_fav_btn, CurrentPlaylistAdapter adapter) {
+        Fragment frag = activity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
         database_ref.child("fav_music").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -63,14 +64,6 @@ public class PlayerFragmentViewModel extends ViewModel {
                                         if (currentFragment instanceof FavoritesFragment) {
                                             FavoritesFragment fav = (FavoritesFragment) currentFragment;
 
-
-
-                                            if(MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(fav.viewModel.getPlaylist().getTitle())){
-                                                Log.d("FavoritesFragment", "Album value:"+ MainActivity.viewModel.getCurrentSongAlbum().getValue()+", Title: "+ fav.viewModel.getPlaylist().getTitle());
-
-                                            }
-
-                                            Fragment frag = activity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
                                             if (frag instanceof PlayerFragment) {
 
                                                 if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(fav.viewModel.getPlaylist().getSongs().get(position).getTitle()) &&
@@ -83,6 +76,21 @@ public class PlayerFragmentViewModel extends ViewModel {
 
                                             }
                                             fav.viewModel.initializeFavorites();
+                                        }
+                                        else{
+
+                                       if(FavoritesFragment.viewModel!=null){
+                                           if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(  FavoritesFragment.viewModel.getPlaylist().getSongs().get(position).getTitle()) &&
+                                                    MainActivity.viewModel.getCurrentSongAlbum().getValue().equals( FavoritesFragment.viewModel.getPlaylist().getTitle()) &&
+                                                    MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( FavoritesFragment.viewModel.getPlaylist().getDescription())
+                                            ) {
+                                                System.out.println("F: "+playlist.getTitle());
+                                                if(playlist.getTitle().equals("Favorites")){
+                                                    ((PlayerFragment) frag).dismissPlayer();
+                                                }
+                                            }
+                                       }
+
                                         }
 
                                         Fragment playerF = activity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);

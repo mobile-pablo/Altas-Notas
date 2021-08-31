@@ -36,7 +36,7 @@ import static com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment
 
 public class FavoritesFragment extends Fragment {
 
-    public FavoritesFragmentViewModel viewModel;
+    public static FavoritesFragmentViewModel viewModel;
     public static FragmentCurrentPlaylistBinding binding;
 
     private DatabaseReference database_ref;
@@ -93,7 +93,7 @@ public class FavoritesFragment extends Fragment {
                 } else {
                     binding.currentPlaylistRecyclerView.setVisibility(View.GONE);
                     binding.currentPlaylistRecyclerState.setVisibility(View.VISIBLE);
-                    binding.currentPlaylistRecyclerState.setText("Empty Playlist");
+                    binding.currentPlaylistRecyclerState.setText("Empty Favorites");
                 }
             }
         });

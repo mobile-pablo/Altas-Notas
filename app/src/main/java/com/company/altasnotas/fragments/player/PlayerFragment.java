@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -176,6 +177,9 @@ public class PlayerFragment extends Fragment {
         this.ready = ready;
         this.isFav = isFav;
         this.isChangingFragment= isChangingFragment;
+        mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+        isDimissed=false;
+        clearVideoView();
 
         videoView.setVisibility(View.INVISIBLE);
         startMusicService();
@@ -195,7 +199,7 @@ public class PlayerFragment extends Fragment {
                 }
                 initializePlayer();
                 initializeMiniPlayer();
-
+                updateUI(mService.getPlayerInstance());
                 Log.d("PlayerFragment", "OnService Connected");
             }
 
@@ -378,12 +382,12 @@ public class PlayerFragment extends Fragment {
     }
 
     private void clearVideoView() {
+        mediaPlayer=null;
         videoView.setVisibility(View.INVISIBLE);
         videoView.stopPlayback();
         videoView.clearAnimation();
         videoView.suspend();
         videoView.setVideoURI(null);
-        mediaPlayer=null;
     }
 
     private void trackChanged(Integer shouldAdd) {
@@ -735,6 +739,7 @@ public class PlayerFragment extends Fragment {
     public void initializePlayer() {
         if (mBound) {
             if (mService.position != null) {
+                mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                 SimpleExoPlayer player = mService.getPlayerInstance();
                 if(player==null){
                     player= mService.testingPlayer();
@@ -791,13 +796,15 @@ public class PlayerFragment extends Fragment {
                 Glide.with(mainActivity).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(new CustomTarget<Drawable>() {
                     @Override
                     public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                            song_img.setImageDrawable(resource);
-                            mini_player_img.setImageDrawable(resource);
-                            Bitmap b = drawableToBitmap(resource);
-                            palette = Palette.from(b).generate();
-                            videoView.setVisibility(View.VISIBLE);
-                            setUpInfoBackgroundColor();
-                            fav_btn.getDrawable().setTint(ContextCompat.getColor(mainActivity, R.color.project_light_orange));
+                       if(resource!=null){
+                           song_img.setImageDrawable(resource);
+                           mini_player_img.setImageDrawable(resource);
+                           Bitmap b = drawableToBitmap(resource);
+                           palette = Palette.from(b).generate();
+                           videoView.setVisibility(View.VISIBLE);
+                           setUpInfoBackgroundColor();
+                           fav_btn.getDrawable().setTint(ContextCompat.getColor(mainActivity, R.color.project_light_orange));
+                       }
                     }
 
                     @Override
@@ -1079,7 +1086,12 @@ public class PlayerFragment extends Fragment {
                 player_small_box.setVisibility(View.INVISIBLE);
                 player_full_box.setBackgroundResource(R.drawable.custom_full_box_canvas_bg);
                 String url = playlist.getSongs().get(position).getGifUrl();
-                Uri uri = Uri.parse(""+url);
+                Uri uri = Uri.parse(url);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    //set this BEFORE start playback
+                    videoView.setAudioFocusRequest(AudioManager.AUDIOFOCUS_NONE);
+                }
+
                 videoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
                     @Override
                     public boolean onError(MediaPlayer mp, int what, int extra) {
@@ -1093,6 +1105,10 @@ public class PlayerFragment extends Fragment {
                     public void onPrepared(MediaPlayer mp) {
                         mediaPlayer=mp;
                         mp.setVolume(0,0);
+                        mp.setAudioAttributes(new AudioAttributes.Builder()
+                                .setUsage(AudioAttributes.USAGE_MEDIA)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_MOVIE)
+                                .build());
                     }
                 });
 
@@ -1109,14 +1125,16 @@ public class PlayerFragment extends Fragment {
                 videoView.setMediaController(null);
                 videoView.setVideoURI(uri);
                 Log.d("VideoLayout", "VideoLayout setting source");
+
             }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                //set this BEFORE start playback
-                videoView.setAudioFocusRequest(AudioManager.AUDIOFOCUS_NONE);
-            }
-            videoView.start();
-            Log.d("VideoLayout", "VideoLayout started");
+
+         if(!videoView.isPlaying()){
+             videoView.start();
+             Log.d("VideoLayout", "VideoLayout started");
+         }
+
+
         }else{
             Log.d("VideoLayout", "VideoLayout source is null");
         }
@@ -1253,6 +1271,7 @@ public class PlayerFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         removeNotifOnStop();
+        clearVideoView();
     }
 
     private void removeNotifOnStop() {
@@ -1271,7 +1290,7 @@ public class PlayerFragment extends Fragment {
     public void onPause() {
         super.onPause();
       if(mediaPlayer!=null){
-          mediaPlayer.pause();
+          videoView.pause();
       }
     }
 
@@ -1279,8 +1298,9 @@ public class PlayerFragment extends Fragment {
     public void onResume() {
         super.onResume();
         if(mediaPlayer!=null){
-           videoView.seekTo(0);
-           videoView.start();
+            if(!videoView.isPlaying()){
+                videoView.start();
+            }
         }
     }
 }

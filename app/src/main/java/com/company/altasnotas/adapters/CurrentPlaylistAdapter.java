@@ -149,7 +149,6 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                   Fragment currentMiniFrag = activity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
                 PlayerFragment playerFragment = null;
                   if(currentMiniFrag instanceof PlayerFragment){
-                      activity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
                       playerFragment = (PlayerFragment) currentMiniFrag;
                       PlayerFragment.mService.setRepeat(Player.REPEAT_MODE_OFF);
                       PlayerFragment.mService.setShuffleEnabled(false);
