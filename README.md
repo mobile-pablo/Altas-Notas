@@ -20,7 +20,7 @@ Export project from Zip and Import full folder
 * MVVM
 * Firebase services
 * ExoPlayer library
-* Services
+* Foreground Service
 * Facebook login integration 
 * Google login integration 
 
