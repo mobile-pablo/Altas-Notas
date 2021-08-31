@@ -2,11 +2,13 @@
 Music Player based on Firebase Services
 
 
+## 🎥 Preview
+
+<p align="center">
+<img src="video.gif" width="270px">
+</p>
+
 <br /><br/>
-## 🕹️ Instalation and How to Use
-Export project from Zip and Import full folder
-
-
 <br /><br/>
 
 
@@ -45,25 +47,24 @@ Export project from Zip and Import full folder
 
 
 <br /><br/>
-## 📷 Screenshots
 
-<p align="center">
-<img src="video.gif" width="270px">
-</p>
 
-## 🌊 Details
+## 🌊 Instalation 
+
+
 
 
 ### Setup[0] -  Run this project in Your envoirment
-
-
-If You want to recreate my project in Your own envoirment,
-
+<br/><br/>
+<p>If You want to recreate my project in Your own envoirment,</p>
+<p>You need to download this repository and export it from zip.</p>
+<p>After that import full folder to Your Android Studio</p>
+<br/><br/>
 <p>You need's to add new file ( google-services.json ) which allows connection with Firebase services. </p>
 <p>For security reasons I let this file hidden.</p>
 <p>Tutorial how to connect it : <a href="https://firebase.google.com/docs/android/setup"> ✨ Tutorial ✨ </a></p>
 
-
+<br/><br/><br/>
 ### Setup[1] - Realtime DB
 
 In 4 different picture's I want to show how I made DB structure
