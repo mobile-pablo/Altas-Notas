@@ -41,7 +41,7 @@ Export project from Zip and Import full folder
 * Custom Progress bar's while fetching Firebase Data
 * Artist Page
 * Multiple Artist's at same song
-* Diffrent Layout for diffrent phone's
+* Different Layout for different phone's
 
 
 <br /><br/>
@@ -66,7 +66,7 @@ If You want to recreate my project in Your own envoirment,
 
 ### Setup[1] - Realtime DB
 
-In 4 diffrent picture's I want to show how I made DB structure
+In 4 different picture's I want to show how I made DB structure
 
 
 <div> <img  src="photo_1.png" height="300" /> </div>
