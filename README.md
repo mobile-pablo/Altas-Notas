@@ -5,7 +5,7 @@ Music Player based on Firebase Services
 ## 🎥 Preview
 
 <p align="center">
-<img src="video.gif" width="270px">
+<img src="readme_media/video.gif" width="270px">
 </p>
 
 <br /><br/>
@@ -70,7 +70,7 @@ Music Player based on Firebase Services
 In 4 different picture's I want to show how I made DB structure
 
 
-<div> <img  src="photo_1.png" height="300" /> </div>
+<div> <img  src="readme_media/photo_1.png" height="300" /> </div>
 <br/>
  <p>Photo above show's summary structure. I divided data to those catagories. </p>
 <br/><br/>
@@ -78,21 +78,21 @@ In 4 different picture's I want to show how I made DB structure
 
 
 
-<div> <img  src="photo_2.png" height="300"  /> </div>
+<div> <img  src="readme_media/photo_2.png" height="300"  /> </div>
 <br/>
 <p>Every song that is added to favorites list is added to List where title of List is ID of current user. </p>
 <p>Every song here have different ID make randomly  </p>
 <br/><br/>
 
 
-<div> <img  src="photo_3.png" height="300" /> </div>
+<div> <img  src="readme_media/photo_3.png" height="300" /> </div>
  <br/>
  <p>Here's how I store album data. It only part which You Have to COPY</p>
  <p>Without filling at least one album in Your DB, There will be none to download from.</p>
  <br/><br/>
 
 
-<div> <img  src="photo_4.png" height="300" /> </div>
+<div> <img  src="readme_media/photo_4.png" height="300" /> </div>
  <br/>
  <p>Thats how every song look like. Their dir name is irrevelant. </p>
  <p>Most important is their 3 (or 4 sometimes) values </p>
