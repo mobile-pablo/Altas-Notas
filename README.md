@@ -11,8 +11,11 @@ Export project from Zip and Import full folder
 
 
 ## 💻 Progress
-
-▰▰▰▰▰▰▰▰▰▰ 100%
+ ![Progress](https://progress-bar.dev/100/?title=v1.00&width=200&color=B076CA)
+ 
+ ![Progress](https://progress-bar.dev/100/?title=v1.10&width=200&color=9D55BD)
+ 
+ ![Progress](https://progress-bar.dev/80/?title=v1.50&width=200&color=730DA1)
 
 
 ## 👾 Tech Stack
