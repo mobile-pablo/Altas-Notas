@@ -28,14 +28,21 @@ Export project from Zip and Import full folder
 * Google login integration 
 
 
+
 ## 🚀 v2.0
 * SearchView connected with Albums and Songs from Firebase
 * Change songs by Swipe
-* Short links of Songs (in Sharing)
+* Short links of Songs (Firebase dynamic links)
 * Two Themes
 * Last albums played
 * Navigation Component
 * Edit Playlist's Title and Description
+* Sorting Song Order in Playlist
+* Custom Progress bar's while fetching Firebase Data
+* Artist Page
+* Multiple Artist's at same song
+* Diffrent Layout for diffrent phone's
+
 
 <br /><br/>
 ## 📷 Screenshots
