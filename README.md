@@ -1,5 +1,5 @@
 # 🎵  Altas-Notas
-My version of Spotify based on Firebase services
+Music Player based on Firebase Services
 
 
 <br /><br/>
@@ -15,6 +15,15 @@ Export project from Zip and Import full folder
 ▰▰▰▰▰▰▰▰▰▰ 100%
 
 
+## 👾 Tech Stack
+* Java
+* MVVM
+* Firebase services
+* ExoPlayer library
+* Services
+* Facebook login integration 
+* Google login integration 
+
 
 ## 🚀 v2.0
 * SearchView connected with Albums and Songs from Firebase
@@ -23,7 +32,6 @@ Export project from Zip and Import full folder
 * Two Themes
 * Last albums played
 * Navigation Component
-* Mini controller of ExoPlayer added to MainActivity
 * Edit Playlist's Title and Description
 
 <br /><br/>
