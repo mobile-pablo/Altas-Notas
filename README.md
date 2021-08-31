@@ -1,5 +1,5 @@
 # 🎵  Altas-Notas
-My version of Spotify based on Firebase services
+Music Player based on Firebase Services
 
 
 <br /><br/>
@@ -11,20 +11,38 @@ Export project from Zip and Import full folder
 
 
 ## 💻 Progress
+ ![Progress](https://progress-bar.dev/100/?title=v1.00&width=200&color=B076CA)
+ 
+ ![Progress](https://progress-bar.dev/100/?title=v1.10&width=200&color=9D55BD)
+ 
+ ![Progress](https://progress-bar.dev/80/?title=v1.50&width=200&color=730DA1)
 
-▰▰▰▰▰▰▰▰▰▰ 100%
+
+## 👾 Tech Stack
+* Java
+* MVVM
+* Firebase services
+* ExoPlayer
+* Foreground Service
+* Facebook login integration 
+* Google login integration 
 
 
 
 ## 🚀 v2.0
 * SearchView connected with Albums and Songs from Firebase
 * Change songs by Swipe
-* Short links of Songs (in Sharing)
+* Short links of Songs (Firebase dynamic links)
 * Two Themes
 * Last albums played
 * Navigation Component
-* Mini controller of ExoPlayer added to MainActivity
 * Edit Playlist's Title and Description
+* Sorting Song Order in Playlist
+* Custom Progress bar's while fetching Firebase Data
+* Artist Page
+* Multiple Artist's at same song
+* Diffrent Layout for diffrent phone's
+
 
 <br /><br/>
 ## 📷 Screenshots
