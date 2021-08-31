@@ -69,7 +69,7 @@ If You want to recreate my project in Your own envoirment,
 In 4 diffrent picture's I want to show how I made DB structure
 
 
-<div align="center"> <img  src="photo_1.png" height="300" /> </div>
+<div> <img  src="photo_1.png" height="300" /> </div>
 <br/>
  <p>Photo above show's summary structure. I divided data to those catagories. </p>
 <br/><br/>
