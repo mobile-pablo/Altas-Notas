@@ -743,7 +743,9 @@ public class PlayerFragment extends Fragment {
     public void initializePlayer() {
         if (mBound) {
             if (mService.position != null) {
+                if(!isFirstOpen){
                 mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                }
                 SimpleExoPlayer player = mService.getPlayerInstance();
                 if(player==null){
                     player= mService.testingPlayer();
