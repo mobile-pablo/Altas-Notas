@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
                         viewModel.setCurrentSongTitle(playlist.getSongs().get(position).getTitle());
                         viewModel.setCurrentSongAlbum(playlist.getTitle());
                         viewModel.setCurrentSongAuthor(playlist.getDescription());
-                        PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo, true, state, null, isFav,true);
+                        PlayerFragment playerFragment = new PlayerFragment(playlist, position, seekedTo, true, state, null, isFav,true,false);
                         getSupportFragmentManager().beginTransaction().replace(R.id.slidingLayoutFrag, playerFragment).commit();
                         getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, new HomeFragment(true)).commit();
                         activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
@@ -376,6 +376,7 @@ public class MainActivity extends AppCompatActivity {
                     PlayerFragment playerFragment = (PlayerFragment) currentFragment;
                     playerFragment.initializePlayer();
                     playerFragment.initializeMiniPlayer();
+                    playerFragment.videoView.start();
                 }
                 getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, new HomeFragment(true)).commit();
 

@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -21,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
 
@@ -102,6 +104,7 @@ public class PlayerFragment extends Fragment {
     public static FragmentPlayerBinding binding;
     public static ImageButton shuffleBtn, repeatBtn;
     public static Boolean isChangingFragment;
+    public static Boolean isFirstOpen;
 
     private Long seekedTo;
     private Boolean isReOpen;
@@ -129,7 +132,8 @@ public class PlayerFragment extends Fragment {
     private BottomSheetDialog songInPlaylistDialog;
     private PlayerFragmentViewModel viewModel;
     private MainActivity mainActivity;
-    private VideoView videoView;
+    public VideoView videoView;
+    private MediaPlayer mediaPlayer;
     public static   int randomPosition;
     public static Integer shuffleClicked=0;
 
@@ -140,7 +144,7 @@ public class PlayerFragment extends Fragment {
     private ImageButton mini_next_btn, mini_prev_btn;
     private DefaultTimeBar miniTimeBar;
 
-    public PlayerFragment(Playlist playlist, int position, long seekedTo, Boolean isReOpen, Integer state, Boolean ready, Integer isFav, Boolean isChangingFragment) {
+    public PlayerFragment(Playlist playlist, int position, long seekedTo, Boolean isReOpen, Integer state, Boolean ready, Integer isFav, Boolean isChangingFragment,Boolean isFirstOpen) {
         this.playlist = null;
         this.playlist = playlist;
         this.position = position;
@@ -150,6 +154,7 @@ public class PlayerFragment extends Fragment {
         this.ready = ready;
         this.isFav = isFav;
         this.isChangingFragment= isChangingFragment;
+        this.isFirstOpen=isFirstOpen;
 
         //We are sending playlist to this player and let it play all of it
        /*
@@ -250,7 +255,6 @@ public class PlayerFragment extends Fragment {
 
             reinitializeShuffleBtn();
             reinitializeRepeatBtn();
-            setUI(position);
 
             fav_btn.setOnClickListener(v -> {
 
@@ -377,8 +381,9 @@ public class PlayerFragment extends Fragment {
         videoView.setVisibility(View.INVISIBLE);
         videoView.stopPlayback();
         videoView.clearAnimation();
-        videoView.suspend(); // clears media player
+        videoView.suspend();
         videoView.setVideoURI(null);
+        mediaPlayer=null;
     }
 
     private void trackChanged(Integer shouldAdd) {
@@ -732,8 +737,8 @@ public class PlayerFragment extends Fragment {
             if (mService.position != null) {
                 SimpleExoPlayer player = mService.getPlayerInstance();
                 if(player==null){
-                //    player= mService.testingPlayer();
-                    player= mService.startPlayer();
+                    player= mService.testingPlayer();
+                //    player= mService.startPlayer();
                 }
                 exoListener = new ExoListener(player);
                 player.addListener(exoListener);
@@ -949,93 +954,101 @@ public class PlayerFragment extends Fragment {
             reinitializeShuffleBtn();
             if(mService!=null){
                 if(mService.getPlayerInstance()!=null){
-                    updateUI(mService.getPlayerInstance());
+                  updateUI(mService.getPlayerInstance());
                 }
             }
         }
     }
 
     public void setUpInfoBackgroundColor() {
-        if(mainActivity!=null)
-        {
-            if(playlist.getSongs().get(position).getGifUrl().isEmpty()){
-        Palette.Swatch swatch =  palette.getDominantSwatch();
-        if (swatch != null) {
-            int swatchRgb = swatch.getRgb();
+            if(!playlist.getSongs().get(position).getGifUrl().isEmpty()) {
+                initializeVideoView();
+            }
+            else {
+                setUpDefaultBackground();
+            }
 
-            String hex = Integer.toHexString(swatchRgb);
-            Log.d("Hex", hex);
-            String[] startCTable = hex.split("");
-            String alphaHex ="",redHex ="", greenHex="", blueHex="";
+        }
 
-            for (int i = 0; i <startCTable.length; i++) {
-                switch (i)
-                {
-                    case 0:
-                    case 1:
-                        alphaHex += startCTable[i];
-                        break;
+    private void setUpDefaultBackground() {
+        if(playlist.getSongs().get(position).getGifUrl().isEmpty()){
+            Palette.Swatch swatch =  palette.getDominantSwatch();
+            if (swatch != null) {
+                int swatchRgb = swatch.getRgb();
 
-                    case 2:
-                    case 3:
-                        redHex +=startCTable[i];
-                        break;
+                String hex = Integer.toHexString(swatchRgb);
+                Log.d("Hex", hex);
+                String[] startCTable = hex.split("");
+                String alphaHex ="",redHex ="", greenHex="", blueHex="";
+
+                for (int i = 0; i <startCTable.length; i++) {
+                    switch (i)
+                    {
+                        case 0:
+                        case 1:
+                            alphaHex += startCTable[i];
+                            break;
+
+                        case 2:
+                        case 3:
+                            redHex +=startCTable[i];
+                            break;
 
 
-                    case 4:
-                    case 5:
-                        greenHex +=startCTable[i];
-                        break;
+                        case 4:
+                        case 5:
+                            greenHex +=startCTable[i];
+                            break;
 
 
-                    case 6:
-                    case 7:
-                        blueHex +=startCTable[i];
-                        break;
+                        case 6:
+                        case 7:
+                            blueHex +=startCTable[i];
+                            break;
 
+                    }
                 }
-            }
-            //We have taken color from Swatch divided to seprate Colors and now we turn them into Integers
+                //We have taken color from Swatch divided to seprate Colors and now we turn them into Integers
 
-            Integer alphaInt, redInt, greenInt, blueInt;
+                Integer alphaInt, redInt, greenInt, blueInt;
 
-            alphaInt = Integer.parseInt(alphaHex,16);
-            redInt = manipulateColor(Integer.parseInt(redHex,16), 1.4f);
-            greenInt = manipulateColor(Integer.parseInt(greenHex,16), 1.4f);
-            blueInt = manipulateColor(Integer.parseInt(blueHex,16), 1.4f);
+                alphaInt = Integer.parseInt(alphaHex,16);
+                redInt = manipulateColor(Integer.parseInt(redHex,16), 1.4f);
+                greenInt = manipulateColor(Integer.parseInt(greenHex,16), 1.4f);
+                blueInt = manipulateColor(Integer.parseInt(blueHex,16), 1.4f);
 
-            Log.d("ColorLight","R: "+redInt+", "+ ", G: "+greenInt+", B: "+blueInt);
+                Log.d("ColorLight","R: "+redInt+", "+ ", G: "+greenInt+", B: "+blueInt);
 
-            Integer startColor = Color.argb(alphaInt,redInt, greenInt, blueInt);
+                Integer startColor = Color.argb(alphaInt,redInt, greenInt, blueInt);
 
-            if(alphaInt>20)
-            {
-                alphaInt -=0;
-            }
+                if(alphaInt>20)
+                {
+                    alphaInt -=0;
+                }
 
-            if ((redInt*0.299 + greenInt*0.587 + blueInt*0.114) > 130){
+                if ((redInt*0.299 + greenInt*0.587 + blueInt*0.114) > 130){
 
-                playerUpperBox.setBackground(ContextCompat.getDrawable(mainActivity,R.drawable.custom_player_upper_box_bg));
-                 }else{
-                playerUpperBox.setBackground(null);
-            }
+                    playerUpperBox.setBackground(ContextCompat.getDrawable(mainActivity,R.drawable.custom_player_upper_box_bg));
+                }else{
+                    playerUpperBox.setBackground(null);
+                }
 
-            Integer darkerRed =   manipulateColor(redInt,0.2f);
-            Integer darkerGreen = manipulateColor(greenInt,0.2f);
-            Integer darkerBlue =  manipulateColor(blueInt,0.2f);
-            Log.d("ColorDark","R: "+darkerRed+", "+ ", G: "+darkerGreen+", B: "+darkerBlue);
-            Integer endColor = Color.argb(alphaInt,darkerRed,darkerGreen,darkerBlue);
+                Integer darkerRed =   manipulateColor(redInt,0.2f);
+                Integer darkerGreen = manipulateColor(greenInt,0.2f);
+                Integer darkerBlue =  manipulateColor(blueInt,0.2f);
+                Log.d("ColorDark","R: "+darkerRed+", "+ ", G: "+darkerGreen+", B: "+darkerBlue);
+                Integer endColor = Color.argb(alphaInt,darkerRed,darkerGreen,darkerBlue);
 
-            GradientDrawable gradientDrawable = new GradientDrawable(
-                    GradientDrawable.Orientation.TOP_BOTTOM,
-                    new int[]{startColor, endColor});
-
+                GradientDrawable gradientDrawable = new GradientDrawable(
+                        GradientDrawable.Orientation.TOP_BOTTOM,
+                        new int[]{startColor, endColor});
 
 
 
 
-                    player_small_box.setVisibility(View.VISIBLE);
-            videoView.setVisibility(View.INVISIBLE);
+
+                player_small_box.setVisibility(View.VISIBLE);
+                videoView.setVisibility(View.INVISIBLE);
 
                 Glide.with(mainActivity)
                         .load(gradientDrawable)
@@ -1054,48 +1067,56 @@ public class PlayerFragment extends Fragment {
                             }
                         });
 
-                }
-        }
-         else
-         {
-            initializeVideoView();
-         }
-        }
+            }
     }
+}
 
     public void initializeVideoView() {
+
         if(!playlist.getSongs().get(position).getGifUrl().isEmpty()) {
-            player_small_box.setVisibility(View.INVISIBLE);
-            player_full_box.setBackgroundResource(R.drawable.custom_full_box_canvas_bg);
-            String url = playlist.getSongs().get(position).getGifUrl();
-            videoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-                @Override
-                public boolean onError(MediaPlayer mp, int what, int extra) {
-                    Log.d("VideoView", "Error");
-                    return false;
-                }
-            });
+            if(mediaPlayer==null){
+                System.out.println("Initialize VIDEO!");
+                player_small_box.setVisibility(View.INVISIBLE);
+                player_full_box.setBackgroundResource(R.drawable.custom_full_box_canvas_bg);
+                String url = playlist.getSongs().get(position).getGifUrl();
+                Uri uri = Uri.parse(""+url);
+                videoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                    @Override
+                    public boolean onError(MediaPlayer mp, int what, int extra) {
+                        Log.d("VideoView", "Error");
+                        return false;
+                    }
+                });
+
+                videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        mediaPlayer=mp;
+                        mp.setVolume(0,0);
+                    }
+                });
+
+                //This line below helps not make big bandwidth usage
+                videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        mp.start();
+                    }
+                });
 
 
-            videoView.setMediaController(null);
-            videoView.setVideoPath(url);
+                // Init Video
+                videoView.setMediaController(null);
+                videoView.setVideoURI(uri);
+                Log.d("VideoLayout", "VideoLayout setting source");
+            }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 //set this BEFORE start playback
                 videoView.setAudioFocusRequest(AudioManager.AUDIOFOCUS_NONE);
             }
-
-            videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    mp.setVolume(0,0);
-                    mp.setLooping(true);
-                }
-            });
-
-            if(!videoView.isPlaying()){
-                videoView.start();
-            }
+            videoView.start();
+            Log.d("VideoLayout", "VideoLayout started");
         }else{
             Log.d("VideoLayout", "VideoLayout source is null");
         }
@@ -1153,11 +1174,24 @@ public class PlayerFragment extends Fragment {
 
         @Override
         public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-            updateUI(player);
+            if(isFirstOpen){
+                position=player.getCurrentWindowIndex();
+                mService.setPosition(position);
+                updateUI(player);
+                isFirstOpen=false;
+            }else{
+                if(position!=player.getCurrentWindowIndex()){
+                    clearVideoView();
+                    position = player.getCurrentWindowIndex();
+                    mService.setPosition(position);
+                    updateUI(player);
+
+                }
+            }
         }
     }
 
-    private void updateUI(SimpleExoPlayer player) {
+    public void updateUI(SimpleExoPlayer player) {
         if(mainActivity.activityMainBinding.slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.HIDDEN){
             mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         }
@@ -1234,15 +1268,20 @@ public class PlayerFragment extends Fragment {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+      if(mediaPlayer!=null){
+          mediaPlayer.pause();
+      }
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
-     if(!isDimissed){
-         if(mService!=null){
-             if(mService.getPlayerInstance()!=null){
-                 updateUI(mService.getPlayerInstance());
-             }
-         }
-     }
+        if(mediaPlayer!=null){
+           videoView.seekTo(0);
+           videoView.start();
+        }
     }
 }
 

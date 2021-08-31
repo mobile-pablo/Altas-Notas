@@ -159,7 +159,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
                   }else {
 
-                  playerFragment = new PlayerFragment(playlist, position, 0, false, null, null, isFavFragment, true);
+                  playerFragment = new PlayerFragment(playlist, position, 0, false, null, null, isFavFragment, true,true);
                 activity.getSupportFragmentManager().beginTransaction().replace(R.id.slidingLayoutFrag, playerFragment).commit();
                   }
                 }
