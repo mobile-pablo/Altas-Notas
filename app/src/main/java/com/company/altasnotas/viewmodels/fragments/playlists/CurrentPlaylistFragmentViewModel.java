@@ -14,6 +14,8 @@ import androidx.lifecycle.ViewModel;
 
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
+import com.company.altasnotas.fragments.home.HomeFragment;
+import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.models.FavoriteFirebaseSong;
 import com.company.altasnotas.models.Playlist;
@@ -147,8 +149,10 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
                                                 public void onComplete(@NonNull Task<Void> task) {
                                                   if (task.isSuccessful()) {
                                                       _deleteState.setValue(0);
+                                                      openHomeFragment();
                                                     } else {
                                                       _deleteState.setValue(1);
+                                                      openHomeFragment();
                                                     }
                                                 }
                                             });
@@ -157,11 +161,13 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
                                         @Override
                                         public void onFailure(@NonNull Exception exception) {
                                             _deleteState.setValue(2);
+                                            openHomeFragment();
                                         }
                                     });
 
                                 } else {
                                     _deleteState.setValue(3);
+                                    openHomeFragment();
                                 }
                             }
                         });
@@ -172,7 +178,7 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 _deleteState.setValue(4);
-                System.out.println("Error while  deleting Playlist");
+                openHomeFragment();
             }
         });
     }
@@ -467,6 +473,14 @@ public class CurrentPlaylistFragmentViewModel  extends ViewModel {
 
     public void setShouldOpenCopy(boolean b) {
         _shouldOpenCopy.setValue(b);
+    }
+
+    private void openHomeFragment() {
+        for (int i = 0; i < mainActivity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
+            mainActivity.getSupportFragmentManager().popBackStack();
+        }
+        mainActivity.activityMainBinding.mainNavBottom.setSelectedItemId(R.id.nav_home_item);
+        mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, new HomeFragment(false)).commit();
     }
 
 }

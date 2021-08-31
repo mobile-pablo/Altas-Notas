@@ -39,6 +39,7 @@ import com.company.altasnotas.R;
 import com.company.altasnotas.adapters.CurrentPlaylistAdapter;
 import com.company.altasnotas.databinding.FragmentCurrentPlaylistBinding;
 import com.company.altasnotas.fragments.home.HomeFragment;
+import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.fragments.profile.ProfileFragment;
 import com.company.altasnotas.models.FavoriteFirebaseSong;
 import com.company.altasnotas.models.FirebaseSong;
@@ -245,7 +246,7 @@ public class CurrentPlaylistFragment extends Fragment {
                             binding.currentPlaylistRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
                             adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, -1);
                             adapter.notifyDataSetChanged();
-                            Drawable songBg = AppCompatResources.getDrawable(requireContext(), R.drawable.custom_song_bg);
+                            Drawable songBg = AppCompatResources.getDrawable(mainActivity, R.drawable.custom_song_bg);
                             binding.currentPlaylistRecyclerView.setBackground(songBg);
                             binding.currentPlaylistRecyclerView.setAdapter(adapter);
                         }
@@ -592,7 +593,8 @@ public class CurrentPlaylistFragment extends Fragment {
                     case 1: errorMsg="Error while deleting Photo"; break;
                     case 2:errorMsg="Photo wasn't found"; break;
                     case 3:
-                    case 4: errorMsg="Error while  deleting Playlist"; break;
+                    case 4:
+                        errorMsg="Error while  deleting Playlist"; break;
                     case 5: errorMsg="Photo to copy isnt found!"; break;
                     default: errorMsg="Unknown error!"; break;
                 }
@@ -601,27 +603,14 @@ public class CurrentPlaylistFragment extends Fragment {
                    Log.d("DeletePlaylist", errorMsg);
                 }
 
-                switch (integer){
-                    case 0:
-                    case 2:
-                    case 3:
-                    case 4:
-                    default:
-                        if(errorMsg!=null){
-                        Log.d("DeletePlaylist", errorMsg);
-                    }
-                    break;
+             if(MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle())){
+                 Fragment miniFrag = mainActivity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
 
-                    case 1:
-                if(errorMsg!=null) {
-                    Toast.makeText(mainActivity, errorMsg, Toast.LENGTH_SHORT).show();
-                }
-                    break;
+                 if(miniFrag instanceof PlayerFragment){
+                        ((PlayerFragment) miniFrag).dismissPlayer();
+                 }
                 }
 
-               if(integer<5){
-                   openHomeFragment();
-               }
             }
         });
 
@@ -654,14 +643,7 @@ public class CurrentPlaylistFragment extends Fragment {
         }
     }
 
-    private void openHomeFragment() {
-        mainActivity.activityMainBinding.mainNavBottom.setSelectedItemId(R.id.nav_home_item);
 
-        for (int i = 0; i < mainActivity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
-            mainActivity.getSupportFragmentManager().popBackStack();
-        }
-        mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, new HomeFragment(false)).commit();
-    }
 
 
 }

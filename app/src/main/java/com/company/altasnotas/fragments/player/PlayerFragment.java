@@ -588,6 +588,7 @@ public class PlayerFragment extends Fragment {
                             x.setDir_title(playlist.getSongs().get(position).getAlbum());
                             x.setDir_desc(playlist.getSongs().get(position).getAuthor());
                             songInPlaylistDialog.dismiss();
+                            mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                             getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
                         }
                     }
@@ -608,12 +609,13 @@ public class PlayerFragment extends Fragment {
                 getActivity().getSupportFragmentManager().popBackStack();
             }
             getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(playlist.getTitle(), "", playlist, 0)).addToBackStack("null").commit();
-
+            mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
             songInPlaylistDialog.dismiss();
         });
 
         share.setOnClickListener(v -> {
             share();
+            mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
             songInPlaylistDialog.dismiss();
         });
         dismissDialog.setOnClickListener(v -> songInPlaylistDialog.dismiss());
@@ -647,6 +649,7 @@ public class PlayerFragment extends Fragment {
                             x.setDir_title(playlist.getSongs().get(position).getAlbum());
                             x.setDir_desc(playlist.getSongs().get(position).getAuthor());
                             bottomSheetDialog.dismiss();
+                            mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                             getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
                         }
                     }
@@ -670,6 +673,7 @@ public class PlayerFragment extends Fragment {
 
         share.setOnClickListener(v -> {
             share();
+            mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
             bottomSheetDialog.dismiss();
         });
         dismissDialog.setOnClickListener(v -> bottomSheetDialog.dismiss());

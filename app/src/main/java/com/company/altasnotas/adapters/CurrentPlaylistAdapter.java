@@ -558,7 +558,21 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                         if (task.isSuccessful()) {
                                             Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
                                             if (currentFragment instanceof CurrentPlaylistFragment) {
+
                                                 CurrentPlaylistFragment currentPlaylistFragment = (CurrentPlaylistFragment) currentFragment;
+
+                                                if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(playlist.getSongs().get(position).getTitle())
+                                                    &&
+                                                    MainActivity.viewModel.getCurrentSongAuthor().getValue().equals(playlist.getDescription())
+                                                    &&
+                                                    MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle())
+                                                ){
+                                                    Fragment miniFrag = activity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
+                                                    if(miniFrag instanceof PlayerFragment){
+                                                        ((PlayerFragment) miniFrag).dismissPlayer();
+                                                    }
+                                                }
+
                                                 playlist.getSongs().remove(playlist.getSongs().get(position));
                                                 notifyDataSetChanged();
                                                 if (playlist.getSongs().size() == 0) {

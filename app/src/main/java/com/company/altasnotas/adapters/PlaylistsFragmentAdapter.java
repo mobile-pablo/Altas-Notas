@@ -27,6 +27,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
+import com.company.altasnotas.fragments.player.PlayerFragment;
 import com.company.altasnotas.fragments.playlists.CurrentPlaylistFragment;
 import com.company.altasnotas.fragments.playlists.PlaylistsFragment;
 import com.company.altasnotas.models.FavoriteFirebaseSong;
@@ -255,6 +256,12 @@ public class PlaylistsFragmentAdapter extends RecyclerView.Adapter<PlaylistsFrag
                                             PlaylistsFragment.binding.playlistsRecyclerState.setVisibility(View.VISIBLE);
                                         }
 
+                                        if(MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle())){
+                                            Fragment miniFrag = mainActivity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
+                                            if(miniFrag instanceof PlayerFragment){
+                                                ((PlayerFragment) miniFrag).dismissPlayer();
+                                            }
+                                        }
                                     }
 
                                 } else {
