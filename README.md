@@ -48,7 +48,7 @@ Export project from Zip and Import full folder
 ## 📷 Screenshots
 
 <p align="center">
-<img src="gif.gif" width="270px">
+<img src="video.gif" width="270px">
 </p>
 
 <p align="center">
