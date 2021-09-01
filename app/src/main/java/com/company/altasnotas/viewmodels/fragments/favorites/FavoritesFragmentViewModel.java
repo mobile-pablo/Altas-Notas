@@ -84,7 +84,7 @@ public class FavoritesFragmentViewModel extends ViewModel {
         playlist.setDescription("Store here Your favorites Songs!");
         playlist.setYear(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
         _titleText.setValue(playlist.getTitle());
-        _descriptionText.setValue(playlist.getDescription() + "\n(" + playlist.getYear() + ")");
+        _descriptionText.setValue(playlist.getDescription());
 
         _imageViewDrawable.setValue(R.drawable.fav_songs);
 
