@@ -122,7 +122,7 @@ public class PlayerFragment extends Fragment {
     private DatabaseReference database_ref;
     private FirebaseAuth mAuth;
     private Intent intent;
-    private LinearLayout player_full_box;
+    private LinearLayout player_full_box, player_info_box;
     private ConstraintLayout player_small_box;
     private  Integer isFav;
     private Integer state;
@@ -227,6 +227,7 @@ public class PlayerFragment extends Fragment {
             player_full_box = binding.playerView.findViewById(R.id.playerFullBox);
             playerUpperBox = playerView.findViewById(R.id.playerSongUpperBox);
             player_small_box = playerView.findViewById(R.id.playerSmallBox);
+            player_info_box = playerView.findViewById(R.id.playerSongInfoBox);
 
             title = playerView.findViewById(R.id.playerSongTitle);
             author = playerView.findViewById(R.id.playerSongDescription);
@@ -255,7 +256,7 @@ public class PlayerFragment extends Fragment {
 
             setUPSlideListener();
 
-            setUpInfoBox();
+
 
             reinitializeShuffleBtn();
             reinitializeRepeatBtn();
@@ -374,6 +375,29 @@ public class PlayerFragment extends Fragment {
                     updateUI(player);
                 }else{
                     trackChanged(0);
+                }
+            });
+
+
+            player_info_box.setOnClickListener(v -> {
+             Fragment selectedFragment = null;
+                switch (isFav){
+                    case -1: selectedFragment = new CurrentPlaylistFragment(playlist.getDir_desc(), playlist.getDir_title(), playlist, 1); break;
+                    case 0: selectedFragment = new CurrentPlaylistFragment(playlist.getTitle(), "",playlist,0); break;
+                    case 1: selectedFragment = new FavoritesFragment(); break;
+                }
+
+                if(selectedFragment!=null){
+                    mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                    for (int i = 0; i < mainActivity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
+                            mainActivity.getSupportFragmentManager().popBackStack();
+                    }
+                    mainActivity
+                            .getSupportFragmentManager()
+                            .beginTransaction()
+                            .setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up)
+                            .replace(R.id.mainFragmentContainer,selectedFragment).addToBackStack(null).commit();
+
                 }
             });
         }
@@ -796,6 +820,7 @@ public class PlayerFragment extends Fragment {
 
     public void setUI(Integer position) {
         mAuth = FirebaseAuth.getInstance();
+        setUpInfoBox();
         if (mainActivity != null) {
             Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
             if (currentFragment instanceof PlayerFragment) {
