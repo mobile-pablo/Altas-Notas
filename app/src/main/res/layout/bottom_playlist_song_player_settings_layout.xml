@@ -49,36 +49,6 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/bottomSettingsShowPlaylistBox"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="25dp"
-                android:layout_marginRight="25dp"
-                android:background="@android:color/transparent"
-                app:srcCompat="@drawable/ic_playlist"
-                app:tint="@color/white" />
-
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="25dp"
-                android:fontFamily="@font/lato"
-                android:gravity="center_vertical|left"
-                android:letterSpacing="0.15"
-                android:text="Show Playlist"
-                android:textColor="#BFFFFFFF"
-                android:textSize="18sp" />
-        </LinearLayout>
-
-        <LinearLayout
             android:id="@+id/bottomSettingsShareBox"
             android:layout_width="match_parent"
             android:layout_height="50dp"

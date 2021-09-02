@@ -3,7 +3,6 @@ package com.company.altasnotas.fragments.favorites;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,17 +57,17 @@ public class FavoritesFragment extends Fragment {
 
         viewModel = new ViewModelProvider(mainActivity).get(FavoritesFragmentViewModel.class);
 
-        initalizeObservers();
+        initializeObservers();
         viewModel.initializeFavorites();
 
         return view;
     }
 
-    private void initalizeObservers() {
+    private void initializeObservers() {
         viewModel.getImageViewDrawable().observe(getViewLifecycleOwner(), new Observer<Integer>() {
             @Override
             public void onChanged(Integer integer) {
-                Glide.with(getContext()).load(integer).into(binding.currentPlaylistImg);
+                Glide.with(mainActivity).load(integer).into(binding.currentPlaylistImg);
             }
         });
         viewModel.getTitleText().observe(getViewLifecycleOwner(), new Observer<String>() {

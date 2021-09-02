@@ -261,148 +261,152 @@ public class PlayerFragment extends Fragment {
             reinitializeShuffleBtn();
             reinitializeRepeatBtn();
 
-            fav_btn.setOnClickListener(v -> {
+            setUpOnClickListener();
+        }
 
-                if (fav_btn.getDrawable().getConstantState().equals(fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+        return view;
+    }
 
-                    viewModel.addToFav(mainActivity, database_ref, mAuth, playlist, position, fav_btn, mini_fav_btn, CurrentPlaylistFragment.adapter);
-                } else {
-                    viewModel.removeFromFav(mainActivity, database_ref, mAuth, playlist, position, fav_btn, mini_fav_btn, CurrentPlaylistFragment.adapter);
-                }
-            });
+    private void setUpOnClickListener() {
+        fav_btn.setOnClickListener(v -> {
 
-            settings_btn.setOnClickListener(v -> {
-                if (isFav == 0) {
-                    openSongInPlaylistsSettingsDialog();
-                } else {
-                    openSettingsDialog();
-                }
-            });
+            if (fav_btn.getDrawable().getConstantState().equals(fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
 
-            hide_btn.setOnClickListener(v->{
-                mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-            });
+                viewModel.addToFav(mainActivity, database_ref, mAuth, playlist, position, fav_btn, mini_fav_btn, CurrentPlaylistFragment.adapter);
+            } else {
+                viewModel.removeFromFav(mainActivity, database_ref, mAuth, playlist, position, fav_btn, mini_fav_btn, CurrentPlaylistFragment.adapter);
+            }
+        });
 
-            mini_fav_btn.setOnClickListener(v -> {
-               if(viewModel==null){
-                   viewModel = new ViewModelProvider(mainActivity).get(PlayerFragmentViewModel.class);
-               }
-                if (mini_fav_btn.getDrawable().getConstantState().equals(mini_fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState()))
-                {
-                    viewModel.addToFav(mainActivity,
-                            database_ref,
-                            mAuth,
-                            playlist,
-                            position,
-                            fav_btn,
-                            mini_fav_btn,
-                            CurrentPlaylistFragment.adapter);
-                }
-                else
-                {
-                    viewModel.removeFromFav(mainActivity,
-                            database_ref,
-                            mAuth,
-                            playlist,
-                            position,
-                            fav_btn,
-                            mini_fav_btn,
-                            CurrentPlaylistFragment.adapter);
-                }
-            });
+        settings_btn.setOnClickListener(v -> {
+            if (isFav == 0) {
+                openSongInPlaylistsSettingsDialog();
+            } else {
+                openSettingsDialog();
+            }
+        });
 
-            shuffleBtn.setOnClickListener(v->{
-                if (shuffleBtn.getDrawable().getConstantState().equals(shuffleBtn.getContext().getDrawable(R.drawable.ic_shuffle).getConstantState()))
-                {
-                    if(playlist.getSongs().size()>1){
-                        do{
-                            randomPosition = new Random().nextInt(playlist.getSongs().size());
-                        }
-                        while (randomPosition==position);
-                    }else{
-                        randomPosition=position;
+        hide_btn.setOnClickListener(v->{
+            mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        });
+
+        mini_fav_btn.setOnClickListener(v -> {
+            if(viewModel==null){
+                viewModel = new ViewModelProvider(mainActivity).get(PlayerFragmentViewModel.class);
+            }
+            if (mini_fav_btn.getDrawable().getConstantState().equals(mini_fav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState()))
+            {
+                viewModel.addToFav(mainActivity,
+                        database_ref,
+                        mAuth,
+                        playlist,
+                        position,
+                        fav_btn,
+                        mini_fav_btn,
+                        CurrentPlaylistFragment.adapter);
+            }
+            else
+            {
+                viewModel.removeFromFav(mainActivity,
+                        database_ref,
+                        mAuth,
+                        playlist,
+                        position,
+                        fav_btn,
+                        mini_fav_btn,
+                        CurrentPlaylistFragment.adapter);
+            }
+        });
+
+        shuffleBtn.setOnClickListener(v->{
+            if (shuffleBtn.getDrawable().getConstantState().equals(shuffleBtn.getContext().getDrawable(R.drawable.ic_shuffle).getConstantState()))
+            {
+                if(playlist.getSongs().size()>1){
+                    do{
+                        randomPosition = new Random().nextInt(playlist.getSongs().size());
                     }
-
-                    mService.setShuffleEnabled(true);
-                      shuffleBtn.setImageResource(R.drawable.ic_shuffle_clicked);
-                }
-                else
-                {
-                    mService.setShuffleEnabled(false);
-                    shuffleBtn.setImageResource(R.drawable.ic_shuffle);
-                    mService.getPlayerInstance().setShuffleModeEnabled(false);
-                }
-            });
-
-            repeatBtn.setOnClickListener(v -> {
-                SimpleExoPlayer player= mService.getPlayerInstance();
-                if (repeatBtn.getDrawable().getConstantState().equals(repeatBtn.getContext().getDrawable(R.drawable.ic_repeat).getConstantState()))
-                {
-                    player.setRepeatMode(Player.REPEAT_MODE_ALL);
-                    mService.setRepeat(Player.REPEAT_MODE_ALL);
-                    repeatBtn.setImageResource(R.drawable.ic_repeat_clicked);
-                }else if(repeatBtn.getDrawable().getConstantState().equals(repeatBtn.getContext().getDrawable(R.drawable.ic_repeat_clicked).getConstantState())){
-                    player.setRepeatMode(Player.REPEAT_MODE_ONE);
-                    mService.setRepeat(Player.REPEAT_MODE_ONE);
-                    repeatBtn.setImageResource(R.drawable.ic_repeat_one);
+                    while (randomPosition==position);
                 }else{
-                    player.setRepeatMode(Player.REPEAT_MODE_OFF);
-                    mService.setRepeat(Player.REPEAT_MODE_OFF);
-                    repeatBtn.setImageResource(R.drawable.ic_repeat);
+                    randomPosition=position;
                 }
 
-            });
+                mService.setShuffleEnabled(true);
+                shuffleBtn.setImageResource(R.drawable.ic_shuffle_clicked);
+            }
+            else
+            {
+                mService.setShuffleEnabled(false);
+                shuffleBtn.setImageResource(R.drawable.ic_shuffle);
+                mService.getPlayerInstance().setShuffleModeEnabled(false);
+            }
+        });
 
-            next_btn.setOnClickListener(v -> {
-                clearVideoView();
-                if(mService!=null){
-                    SimpleExoPlayer player = mService.getPlayerInstance();
-                   if( player.getRepeatMode()==Player.REPEAT_MODE_ONE){
-                       player.seekTo(0);
-                       updateUI(player);
-                   }else{
-                       trackChanged(1);
-                   }
+        repeatBtn.setOnClickListener(v -> {
+            SimpleExoPlayer player= mService.getPlayerInstance();
+            if (repeatBtn.getDrawable().getConstantState().equals(repeatBtn.getContext().getDrawable(R.drawable.ic_repeat).getConstantState()))
+            {
+                player.setRepeatMode(Player.REPEAT_MODE_ALL);
+                mService.setRepeat(Player.REPEAT_MODE_ALL);
+                repeatBtn.setImageResource(R.drawable.ic_repeat_clicked);
+            }else if(repeatBtn.getDrawable().getConstantState().equals(repeatBtn.getContext().getDrawable(R.drawable.ic_repeat_clicked).getConstantState())){
+                player.setRepeatMode(Player.REPEAT_MODE_ONE);
+                mService.setRepeat(Player.REPEAT_MODE_ONE);
+                repeatBtn.setImageResource(R.drawable.ic_repeat_one);
+            }else{
+                player.setRepeatMode(Player.REPEAT_MODE_OFF);
+                mService.setRepeat(Player.REPEAT_MODE_OFF);
+                repeatBtn.setImageResource(R.drawable.ic_repeat);
+            }
 
-                }
-            });
+        });
 
-            prev_btn.setOnClickListener(v -> {
-                videoView.setVisibility(View.INVISIBLE);
+        next_btn.setOnClickListener(v -> {
+            clearVideoView();
+            if(mService!=null){
                 SimpleExoPlayer player = mService.getPlayerInstance();
                 if( player.getRepeatMode()==Player.REPEAT_MODE_ONE){
                     player.seekTo(0);
                     updateUI(player);
                 }else{
-                    trackChanged(0);
-                }
-            });
-
-
-            player_info_box.setOnClickListener(v -> {
-             Fragment selectedFragment = null;
-                switch (isFav){
-                    case -1: selectedFragment = new CurrentPlaylistFragment(playlist.getDir_desc(), playlist.getDir_title(), playlist, 1); break;
-                    case 0: selectedFragment = new CurrentPlaylistFragment(playlist.getTitle(), "",playlist,0); break;
-                    case 1: selectedFragment = new FavoritesFragment(); break;
+                    trackChanged(1);
                 }
 
-                if(selectedFragment!=null){
-                    mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                    for (int i = 0; i < mainActivity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
-                            mainActivity.getSupportFragmentManager().popBackStack();
-                    }
-                    mainActivity
-                            .getSupportFragmentManager()
-                            .beginTransaction()
-                            .setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up)
-                            .replace(R.id.mainFragmentContainer,selectedFragment).addToBackStack(null).commit();
+            }
+        });
 
+        prev_btn.setOnClickListener(v -> {
+            videoView.setVisibility(View.INVISIBLE);
+            SimpleExoPlayer player = mService.getPlayerInstance();
+            if( player.getRepeatMode()==Player.REPEAT_MODE_ONE){
+                player.seekTo(0);
+                updateUI(player);
+            }else{
+                trackChanged(0);
+            }
+        });
+
+
+        player_info_box.setOnClickListener(v -> {
+            Fragment selectedFragment = null;
+            switch (isFav){
+                case -1: selectedFragment = new CurrentPlaylistFragment(playlist.getDir_desc(), playlist.getDir_title(), playlist, 1); break;
+                case 0: selectedFragment = new CurrentPlaylistFragment(playlist.getTitle(), "",playlist,0); break;
+                case 1: selectedFragment = new FavoritesFragment(); break;
+            }
+
+            if(selectedFragment!=null){
+                mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                for (int i = 0; i < mainActivity.getSupportFragmentManager().getBackStackEntryCount(); i++) {
+                    mainActivity.getSupportFragmentManager().popBackStack();
                 }
-            });
-        }
+                mainActivity
+                        .getSupportFragmentManager()
+                        .beginTransaction()
+                        .setCustomAnimations(R.anim.slide_in_up,R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up)
+                        .replace(R.id.mainFragmentContainer,selectedFragment).addToBackStack(null).commit();
 
-        return view;
+            }
+        });
     }
 
     private void clearVideoView() {
@@ -439,7 +443,7 @@ public class PlayerFragment extends Fragment {
 
 
     private void startMusicService() {
-        intent = new Intent(getActivity(), BackgroundService.class);
+        intent = new Intent(mainActivity, BackgroundService.class);
         intent.putExtra("playlist", playlist);
         intent.putExtra("pos", position);
         intent.putExtra("path", playlist.getSongs().get(position).getPath());
@@ -549,7 +553,7 @@ public class PlayerFragment extends Fragment {
     }
 
     private void notifyAdapters() {
-        Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
+        Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
         if (currentFragment instanceof CurrentPlaylistFragment) {
             if (CurrentPlaylistFragment.adapter != null) {
                 CurrentPlaylistFragment.adapter.notifyDataSetChanged();
@@ -586,11 +590,10 @@ public class PlayerFragment extends Fragment {
     }
 
     private void openSongInPlaylistsSettingsDialog() {
-        songInPlaylistDialog = new BottomSheetDialog(getContext());
+        songInPlaylistDialog = new BottomSheetDialog(mainActivity);
         songInPlaylistDialog.setContentView(R.layout.bottom_playlist_song_player_settings_layout);
 
         LinearLayout showAlbum = songInPlaylistDialog.findViewById(R.id.bottomSettingsAlbumBox);
-        LinearLayout showPlaylist = songInPlaylistDialog.findViewById(R.id.bottomSettingsShowPlaylistBox);
         LinearLayout share = songInPlaylistDialog.findViewById(R.id.bottomSettingsShareBox);
         LinearLayout dismissDialog = songInPlaylistDialog.findViewById(R.id.bottomSettingsDismissBox);
 
@@ -613,7 +616,7 @@ public class PlayerFragment extends Fragment {
                             x.setDir_desc(playlist.getSongs().get(position).getAuthor());
                             songInPlaylistDialog.dismiss();
                             mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
+                            mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
                         }
                     }
 
@@ -628,14 +631,7 @@ public class PlayerFragment extends Fragment {
             }
         });
 
-        showPlaylist.setOnClickListener(v -> {
-            for (int i = 0; i < getActivity().getSupportFragmentManager().getBackStackEntryCount(); i++) {
-                getActivity().getSupportFragmentManager().popBackStack();
-            }
-            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(playlist.getTitle(), "", playlist, 0)).addToBackStack("null").commit();
-            mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-            songInPlaylistDialog.dismiss();
-        });
+
 
         share.setOnClickListener(v -> {
             share();
@@ -648,13 +644,19 @@ public class PlayerFragment extends Fragment {
     }
 
     private void openSettingsDialog() {
-        bottomSheetDialog = new BottomSheetDialog(getContext());
+        bottomSheetDialog = new BottomSheetDialog(mainActivity);
         bottomSheetDialog.setContentView(R.layout.bottom_song_settings_layout);
 
         LinearLayout showAlbum = bottomSheetDialog.findViewById(R.id.bottomSettingsAlbumBox);
         LinearLayout addToPlaylist = bottomSheetDialog.findViewById(R.id.bottomSettingsPlaylistsBox);
         LinearLayout share = bottomSheetDialog.findViewById(R.id.bottomSettingsShareBox);
         LinearLayout dismissDialog = bottomSheetDialog.findViewById(R.id.bottomSettingsDismissBox);
+
+       if(isFav==-1){
+           showAlbum.setVisibility(View.GONE);
+       }else{
+           showAlbum.setVisibility(View.VISIBLE);
+       }
 
         showAlbum.setOnClickListener(v -> {
             //Shows album
@@ -772,8 +774,8 @@ public class PlayerFragment extends Fragment {
                 }
                 SimpleExoPlayer player = mService.getPlayerInstance();
                 if(player==null){
-                    player= mService.testingPlayer();
-                //    player= mService.startPlayer();
+                  //  player= mService.testingPlayer();
+                    player= mService.startPlayer();
                 }
                 exoListener = new ExoListener(player);
                 player.addListener(exoListener);
@@ -1113,7 +1115,6 @@ public class PlayerFragment extends Fragment {
 
         if(!playlist.getSongs().get(position).getGifUrl().isEmpty()) {
             if(mediaPlayer==null){
-                System.out.println("Initialize VIDEO!");
                 player_small_box.setVisibility(View.INVISIBLE);
                 player_full_box.setBackgroundResource(R.drawable.custom_full_box_canvas_bg);
                 String url = playlist.getSongs().get(position).getGifUrl();

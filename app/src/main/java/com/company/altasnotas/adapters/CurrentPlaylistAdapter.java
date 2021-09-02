@@ -609,6 +609,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
         LinearLayout share = bottomSheetDialog.findViewById(R.id.bottomSettingsShareBox);
         LinearLayout dismissDialog = bottomSheetDialog.findViewById(R.id.bottomSettingsDismissBox);
 
+        showAlbum.setVisibility(View.VISIBLE);
         showAlbum.setOnClickListener(v -> {
             //Shows album
             //Download playlist
