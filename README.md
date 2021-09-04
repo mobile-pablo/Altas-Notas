@@ -1,15 +1,10 @@
+<div> <img  src="readme_media/mockup_two.png" width="100%"  /> </div>
+
 # 🎵  Altas-Notas
 Music Player based on Firebase Services
 
 
-## 🎥 Preview
 
-<p align="center">
-<img src="readme_media/video.gif" width="270px">
-</p>
-
-<br /><br/>
-<br /><br/>
 
 
 ## 💻 Progress
@@ -18,6 +13,8 @@ Music Player based on Firebase Services
  ![Progress](https://progress-bar.dev/100/?title=v1.10&width=200&color=9D55BD)
  
  ![Progress](https://progress-bar.dev/80/?title=v1.50&width=200&color=730DA1)
+<br/><br/>
+
 
 
 ## 👾 Tech Stack
@@ -29,6 +26,18 @@ Music Player based on Firebase Services
 * Facebook login integration 
 * Google login integration 
 
+<br /><br/>
+<br /><br/>
+
+
+## 🎥 Preview
+
+<p align="center">
+<img src="readme_media/video.gif" width="270px">
+</p>
+
+<br /><br/>
+<br /><br/>
 
 
 ## 🚀 v2.0
@@ -51,11 +60,11 @@ Music Player based on Firebase Services
 
 ## 🌊 Instalation 
 
-
+<div> <img  src="readme_media/mockup.png" width="100%"  /> </div>
 
 
 ### Setup[0] -  Run this project in Your envoirment
-<br/><br/>
+<br/>
 <p>If You want to recreate my project in Your own envoirment,</p>
 <p>You need to download this repository and export it from zip.</p>
 <p>After that import full folder to Your Android Studio</p>
