@@ -5,8 +5,6 @@ Music Player based on Firebase Services
 
 
 
-
-
 ## 💻 Progress
  ![Progress](https://progress-bar.dev/100/?title=v1.00&width=200&color=B076CA)
  
@@ -116,6 +114,10 @@ In 4 different picture's I want to show how I made DB structure
 
 
 
-<p align="center">
+## 📈 Stats
 <a href="https://api.codetabs.com/v1/loc?github=polonez-byte-112/Altas-Notas">Click here for code stats</a>
-</p>
+
+
+## License
+[![license](https://img.shields.io/github/license/DAVFoundation/captain-n3m0.svg?style=flat-square)](https://github.com/polonez-byte-112/Altas-Notas/blob/master/LICENSE)
+
