@@ -118,6 +118,6 @@ In 4 different picture's I want to show how I made DB structure
 <a href="https://api.codetabs.com/v1/loc?github=polonez-byte-112/Altas-Notas">Click here for code stats</a>
 
 
-## License
+##  <img  src="readme_media/law_icon.png" width="30" /> License
 [![license](https://img.shields.io/github/license/DAVFoundation/captain-n3m0.svg?style=flat-square)](https://github.com/polonez-byte-112/Altas-Notas/blob/master/LICENSE)
 
