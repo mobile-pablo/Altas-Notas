@@ -55,11 +55,14 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
         this.activity = activity;
         this.isFavFragment = isFavFragment;
 
+        reinitializeState(activity);
+    }
+
+    private void reinitializeState(MainActivity activity) {
         if (activity != null) {
 
             Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
             if (currentFragment instanceof FavoritesFragment) {
-                FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
                 if (playlist.getSongs().size() == 0) {
                     FavoritesFragment.binding.currentPlaylistRecyclerView.setVisibility(View.GONE);
                     FavoritesFragment.binding.currentPlaylistRecyclerState.setText("Empty Favorites");
@@ -92,79 +95,126 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
             photo = itemView.findViewById(R.id.currentPlaylistRowImage);
             currentBox = itemView.findViewById(R.id.currentPlaylistRowBox);
 
-            databaseReference = FirebaseDatabase.getInstance().getReference();
-            mAuth = FirebaseAuth.getInstance();
+            reinitializeFirebaseConnection(this);
         }
+    }
+
+    private void reinitializeFirebaseConnection(MyViewHolder holder) {
+        holder.databaseReference = FirebaseDatabase.getInstance().getReference();
+        holder.mAuth = FirebaseAuth.getInstance();
     }
 
 
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new MyViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.current_playlist_row, parent, false));
+        return new CurrentPlaylistAdapter
+                .MyViewHolder(LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.current_playlist_row, parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         holder.setIsRecyclable(false);
 
+        updateDefaultData(holder,position);
+
+        displayHighlight(holder, position);
+
+        holder.currentBox.setOnClickListener(v -> { updatePlayer(holder,position); });
+
+        loadFavBtn(holder,position);
+
+        updateFavBtnEmptyTint(holder,position);
+
+        holder.currentFav_btn.setOnClickListener(v -> { favBtnClick(holder,position); });
+
+        holder.currentSettings_btn.setOnClickListener(v -> {
+            if (isFavFragment != 0) {
+                openSongSettingDialog(position, holder);
+            } else {
+                openPlaylistSongSettingsDialog(position, holder);
+            }
+        });
+
+        updateDescription(holder,position);
+
+        updatePhoto(holder,position);
+    }
+
+    private void updateDefaultData(MyViewHolder holder, int position) {
         holder.currentTitle.setText(songs.get(position).getTitle());
         holder.currentAuthor.setText(songs.get(position).getAuthor());
+    }
 
-         if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(songs.get(position).getTitle()) &&
-            MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
-            MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getDescription()))
+    private void updatePlayer(MyViewHolder holder, Integer position) {
+        if (! ((MainActivity.viewModel.getCurrentSongTitle().getValue().equals(playlist.getSongs().get(position).getTitle())) &&
+                MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
+                MainActivity.viewModel.getCurrentSongAuthor().getValue().equals(playlist.getDescription())))
         {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                {
-                holder.currentTitle.setTextColor(activity.getColor(R.color.project_light_orange));
-                holder.currentFav_btn.getDrawable().setTint(activity.getColor(R.color.project_light_orange));
-                }
-                else
-                {
-                    holder.currentTitle.setTextColor(ContextCompat.getColor( activity,R.color.project_light_orange));
-                    holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
-                }
-           }
-           else
-           {
-            holder.currentTitle.setTextColor(Color.BLACK);
-            holder.currentFav_btn.getDrawable().setTint(Color.BLACK);
-           }
+            MainActivity.viewModel.setCurrentSongTitle(playlist.getSongs().get(position).getTitle());
+            MainActivity.viewModel.setCurrentSongAlbum(playlist.getTitle());
+            MainActivity.viewModel.setCurrentSongAuthor(playlist.getDescription());
+            holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
 
-        holder.currentBox.setOnClickListener(v ->
-          {
+            PlayerFragment.isDimissed=false;
 
-                if (! ((MainActivity.viewModel.getCurrentSongTitle().getValue().equals(playlist.getSongs().get(position).getTitle())) &&
-                       MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
-                       MainActivity.viewModel.getCurrentSongAuthor().getValue().equals(playlist.getDescription())))
-                {
-                   MainActivity.viewModel.setCurrentSongTitle(playlist.getSongs().get(position).getTitle());
-                    MainActivity.viewModel.setCurrentSongAlbum(playlist.getTitle());
-                  MainActivity.viewModel.setCurrentSongAuthor(playlist.getDescription());
-                  holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
-
-                  PlayerFragment.isDimissed=false;
-
-                  Fragment currentMiniFrag = activity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
-                PlayerFragment playerFragment = null;
-                  if(currentMiniFrag instanceof PlayerFragment){
-                      playerFragment = (PlayerFragment) currentMiniFrag;
-                      PlayerFragment.mService.setRepeat(Player.REPEAT_MODE_OFF);
-                      PlayerFragment.mService.setShuffleEnabled(false);
-                      PlayerFragment.mService.getPlayerInstance().setShuffleModeEnabled(false);
-                      playerFragment.reinitializeFragment(playlist, position, 0, false, null, null, isFavFragment, true);
+            Fragment currentMiniFrag = activity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
+            PlayerFragment playerFragment = null;
+            if(currentMiniFrag instanceof PlayerFragment){
+                playerFragment = (PlayerFragment) currentMiniFrag;
+                PlayerFragment.mService.setRepeat(Player.REPEAT_MODE_OFF);
+                PlayerFragment.mService.setShuffleEnabled(false);
+                PlayerFragment.mService.getPlayerInstance().setShuffleModeEnabled(false);
+                playerFragment.reinitializeFragment(playlist, position, 0, false, null, null, isFavFragment, true);
 
 
-                  }else {
+            }else {
 
-                  playerFragment = new PlayerFragment(playlist, position, 0, false, null, null, isFavFragment, true,true);
+                playerFragment = new PlayerFragment(playlist, position, 0, false, null, null, isFavFragment, true,true);
                 activity.getSupportFragmentManager().beginTransaction().replace(R.id.slidingLayoutFrag, playerFragment).commit();
-                  }
-                }
+            }
         }
-        );
-        //Loading fav btn
+    }
+
+    private void favBtnClick(MyViewHolder holder, int position) {
+        if (holder.currentFav_btn.getDrawable().getConstantState().equals(holder.currentFav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+            addToFav(position, holder.currentFav_btn);
+        } else {
+            removeFromFav(position, holder.currentFav_btn);
+        }
+    }
+
+    private void updateDescription(MyViewHolder holder, int position) {
+        holder.databaseReference.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snap) {
+                holder.currentAuthor.setText(snap.child("description").getValue().toString());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void updatePhoto(MyViewHolder holder, int position) {
+        if (playlist.isAlbum()) {
+            holder.photo.setVisibility(View.GONE);
+        } else {
+            holder.photo.setVisibility(View.VISIBLE);
+            Glide.with(activity.getApplicationContext()).load(songs.get(position).getImage_url()).error(R.drawable.img_not_found).into(holder.photo);
+        }
+    }
+
+    private void updateFavBtnEmptyTint(MyViewHolder holder, Integer position) {
+        if (holder.currentFav_btn.getDrawable().getConstantState().equals(holder.currentFav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+            holder.currentFav_btn.getDrawable().setTint(Color.BLACK);
+        }
+    }
+
+    private void loadFavBtn(MyViewHolder holder, int position) {
         holder.databaseReference.child("fav_music")
                 .child(holder.mAuth.getCurrentUser().getUid())
                 .orderByKey()
@@ -177,8 +227,8 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                             for (DataSnapshot ds : snapshot.getChildren()) {
 
                                 if (ds.child("album").getValue().equals(mySong.getAlbum())
-                                                &&
-                                                ds.child("author").getValue().equals(mySong.getAuthor())){
+                                        &&
+                                        ds.child("author").getValue().equals(mySong.getAuthor())){
                                     //Same album and Author now we check song title
                                     holder.databaseReference
                                             .child("music")
@@ -192,7 +242,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                                     for (DataSnapshot s : snap.child("songs").getChildren()) {
 
                                                         if (s.child("order").getValue().toString().trim().equals(ds.child("numberInAlbum").getValue().toString().trim()) &&
-                                                            s.child("title").getValue().equals(mySong.getTitle())){
+                                                                s.child("title").getValue().equals(mySong.getTitle())){
                                                             //We found a song in Album and We need to set icon
                                                             holder.currentFav_btn.setImageResource(R.drawable.ic_heart_full);
 
@@ -235,48 +285,29 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
                     }
                 });
+    }
 
-        if (holder.currentFav_btn.getDrawable().getConstantState().equals(holder.currentFav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
+    private void displayHighlight(MyViewHolder holder, int position) {
+        if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(songs.get(position).getTitle()) &&
+                MainActivity.viewModel.getCurrentSongAlbum().getValue().equals(playlist.getTitle()) &&
+                MainActivity.viewModel.getCurrentSongAuthor().getValue().equals( playlist.getDescription()))
+        {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            {
+                holder.currentTitle.setTextColor(activity.getColor(R.color.project_light_orange));
+                holder.currentFav_btn.getDrawable().setTint(activity.getColor(R.color.project_light_orange));
+            }
+            else
+            {
+                holder.currentTitle.setTextColor(ContextCompat.getColor( activity,R.color.project_light_orange));
+                holder.currentFav_btn.getDrawable().setTint(ContextCompat.getColor(activity,R.color.project_light_orange));
+            }
+        }
+        else
+        {
+            holder.currentTitle.setTextColor(Color.BLACK);
             holder.currentFav_btn.getDrawable().setTint(Color.BLACK);
         }
-
-
-        holder.currentFav_btn.setOnClickListener(v -> {
-            if (holder.currentFav_btn.getDrawable().getConstantState().equals(holder.currentFav_btn.getContext().getDrawable(R.drawable.ic_heart_empty).getConstantState())) {
-                addToFav(position, holder.currentFav_btn);
-            } else {
-                removeFromFav(position, holder.currentFav_btn);
-            }
-        });
-
-        holder.currentSettings_btn.setOnClickListener(v -> {
-            if (isFavFragment != 0) {
-                openSongSettingDialog(position, holder);
-            } else {
-                openPlaylistSongSettingsDialog(position, holder);
-            }
-        });
-
-        holder.databaseReference.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snap) {
-                holder.currentAuthor.setText(snap.child("description").getValue().toString());
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-        if (playlist.isAlbum()) {
-            holder.photo.setVisibility(View.GONE);
-        } else {
-            holder.photo.setVisibility(View.VISIBLE);
-            Glide.with(activity.getApplicationContext()).load(songs.get(position).getImage_url()).error(R.drawable.img_not_found).into(holder.photo);
-        }
-
-
     }
 
     private void removeFromFav(Integer position, ImageButton fav_btn) {
@@ -332,8 +363,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                         }
 
                                         favoritesFragment.viewModel.initializeFavorites();
-                                        //    activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();
-                                        if(playlist!=null)
+                                         if(playlist!=null)
                                         {
                                             if (playlist.getSongs().size() == 0) {
                                                 FavoritesFragment.binding.currentPlaylistRecyclerView.setVisibility(View.GONE);
@@ -379,7 +409,6 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                         }
 
                                       notifyDataSetChanged();
-                                        //    activity.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,new FavoritesFragment()).commit();
                                         if(currentFragment instanceof CurrentPlaylistFragment){
                                          if(playlist!=null)
                                         {
@@ -468,12 +497,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(holder.itemView.getContext());
 
         bottomSheetDialog.setContentView(R.layout.bottom_playlist_song_settings_layout);
-
-      bottomSheetDialog.getBehavior().setPeekHeight(MainActivity.dialogHeight);
-
-
-
-
+        bottomSheetDialog.getBehavior().setPeekHeight(MainActivity.dialogHeight);
 
         LinearLayout showAlbum = bottomSheetDialog.findViewById(R.id.bottomSettingsAlbumBox);
         LinearLayout share = bottomSheetDialog.findViewById(R.id.bottomSettingsShareBox);
@@ -482,39 +506,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
 
         showAlbum.setOnClickListener(v -> {
-            //Shows album
-            //Download playlist
-            Playlist x = new Playlist();
-            if (mAuth.getCurrentUser() != null) {
-
-                database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot != null) {
-                            x.setImage_id(snapshot.child("image_id").getValue().toString());
-                            x.setYear(snapshot.child("year").getValue().toString());
-                            x.setTitle(snapshot.child("title").getValue().toString());
-                            x.setDescription(snapshot.child("description").getValue().toString());
-                            x.setDir_title(playlist.getSongs().get(position).getAlbum());
-                            x.setDir_desc(playlist.getSongs().get(position).getAuthor());
-                            bottomSheetDialog.dismiss();
-                            if(!(x.getTitle().equals(playlist.getTitle()) && x.getDescription().equals(playlist.getDescription())))
-                                        {
-                                activity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
-                            }
-
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        android.util.Log.d(MainActivity.FIREBASE, "Error: " + error.getMessage());
-                    }
-
-                });
-
-
-            }
+            showPlaylistAlbum(bottomSheetDialog,holder,position);
         });
 
         share.setOnClickListener(v -> {
@@ -529,6 +521,40 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
         dismissDialog.setOnClickListener(v -> bottomSheetDialog.dismiss());
 
         bottomSheetDialog.show();
+    }
+
+    private void showPlaylistAlbum(BottomSheetDialog bottomSheetDialog, MyViewHolder holder, Integer position) {
+        Playlist x = new Playlist();
+        if (mAuth.getCurrentUser() != null) {
+
+            database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot != null) {
+                        x.setImage_id(snapshot.child("image_id").getValue().toString());
+                        x.setYear(snapshot.child("year").getValue().toString());
+                        x.setTitle(snapshot.child("title").getValue().toString());
+                        x.setDescription(snapshot.child("description").getValue().toString());
+                        x.setDir_title(playlist.getSongs().get(position).getAlbum());
+                        x.setDir_desc(playlist.getSongs().get(position).getAuthor());
+                        bottomSheetDialog.dismiss();
+                        if(!(x.getTitle().equals(playlist.getTitle()) && x.getDescription().equals(playlist.getDescription())))
+                        {
+                            activity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
+                        }
+
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    android.util.Log.d(MainActivity.FIREBASE, "Error: " + error.getMessage());
+                }
+
+            });
+
+
+        }
     }
 
     private void deleteSongFromPlaylist(Integer position, MyViewHolder holder) {
@@ -558,9 +584,6 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                                         if (task.isSuccessful()) {
                                             Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
                                             if (currentFragment instanceof CurrentPlaylistFragment) {
-
-                                                CurrentPlaylistFragment currentPlaylistFragment = (CurrentPlaylistFragment) currentFragment;
-
                                                 if(MainActivity.viewModel.getCurrentSongTitle().getValue().equals(playlist.getSongs().get(position).getTitle())
                                                     &&
                                                     MainActivity.viewModel.getCurrentSongAuthor().getValue().equals(playlist.getDescription())
@@ -601,7 +624,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
     private void openSongSettingDialog(Integer position, MyViewHolder holder) {
 
-    BottomSheetDialog    bottomSheetDialog = new BottomSheetDialog(activity);
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity);
         bottomSheetDialog.setContentView(R.layout.bottom_song_settings_layout);
         bottomSheetDialog.getBehavior().setPeekHeight(MainActivity.dialogHeight);
         LinearLayout showAlbum = bottomSheetDialog.findViewById(R.id.bottomSettingsAlbumBox);
@@ -611,40 +634,10 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
         showAlbum.setVisibility(View.VISIBLE);
         showAlbum.setOnClickListener(v -> {
-            //Shows album
-            //Download playlist
-            Playlist x = new Playlist();
-            if (mAuth.getCurrentUser() != null) {
-
-                database_ref.child("music").child("albums").child(playlist.getSongs().get(position).getAuthor()).child(playlist.getSongs().get(position).getAlbum()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot != null) {
-                            x.setImage_id(snapshot.child("image_id").getValue().toString());
-                            x.setYear(snapshot.child("year").getValue().toString());
-                            x.setTitle(snapshot.child("title").getValue().toString());
-                            x.setDescription(snapshot.child("description").getValue().toString());
-                            x.setDir_title(playlist.getSongs().get(position).getAlbum());
-                            x.setDir_desc(playlist.getSongs().get(position).getAuthor());
-                            bottomSheetDialog.dismiss();
-                            if(!(x.getTitle().equals(playlist.getTitle()) && x.getDescription().equals(playlist.getDescription()))) {
-                                activity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        android.util.Log.d(MainActivity.FIREBASE, "Error: " + error.getMessage());
-                    }
-
-                });
-
-
-            }
+                showPlaylistAlbum(bottomSheetDialog, holder,position);
         });
         addToPlaylist.setOnClickListener(v -> {
-            //Add to playlist
+
             addToPlaylist(position, holder);
             bottomSheetDialog.dismiss();
         });
@@ -680,24 +673,22 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                 }
 
                 if (snapshot.getChildrenCount()!=0) {
-                    if (x == snapshot.getChildrenCount()) {
 
+                    if (x == snapshot.getChildrenCount()) {
                         ChoosePlaylistAdapter choosePlaylistAdapter = new ChoosePlaylistAdapter(activity, choosePlaylistDialog, playlist.getSongs().get(position), playlists_titles, playlists_keys);
                         chooseRecyclerView.setLayoutManager(new LinearLayoutManager(activity.getApplicationContext(), LinearLayoutManager.VERTICAL, false));
                         choosePlaylistAdapter.notifyDataSetChanged();
                         chooseRecyclerView.setAdapter(choosePlaylistAdapter);
                     }
+
                     chooseState.setVisibility(View.GONE);
                     chooseRecyclerView.setVisibility(View.VISIBLE);
-                       }
-                                        else
-                                        {
+
+                }
+                else{
                     chooseState.setVisibility(View.VISIBLE);
                     chooseRecyclerView.setVisibility(View.GONE);
                 }
-
-
-
             }
 
             @Override
@@ -710,8 +701,6 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
     }
 
     private void share(Integer position) {
-
-        // The application exists
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
         shareIntent.putExtra(android.content.Intent.EXTRA_TITLE, "Altas Notas");

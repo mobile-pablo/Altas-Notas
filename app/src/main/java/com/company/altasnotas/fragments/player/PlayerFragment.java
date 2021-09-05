@@ -222,32 +222,14 @@ public class PlayerFragment extends Fragment {
         View view = binding.getRoot();
         mainActivity = (MainActivity) getActivity();
         viewModel = new ViewModelProvider(mainActivity).get(PlayerFragmentViewModel.class);
+
+        //We check if fragment is dismissed becouse sometimes it
+        // recreate itself after screen goes blank and back again.
         if(!isDimissed){
-            playerView = binding.playerView.findViewById(R.id.playerView);
-            player_full_box = binding.playerView.findViewById(R.id.playerFullBox);
-            playerUpperBox = playerView.findViewById(R.id.playerSongUpperBox);
-            player_small_box = playerView.findViewById(R.id.playerSmallBox);
-            player_info_box = playerView.findViewById(R.id.playerSongInfoBox);
 
-            title = playerView.findViewById(R.id.playerSongTitle);
-            author = playerView.findViewById(R.id.playerSongDescription);
-            song_img = playerView.findViewById(R.id.playerSongImg);
-            next_btn= playerView.findViewById(R.id.exo_next);
-            prev_btn = playerView.findViewById(R.id.exo_prev);
-            shuffleBtn = playerView.findViewById(R.id.customShuffle);
-            repeatBtn= playerView.findViewById(R.id.customRepeat);
-
-            videoView = binding.playerView.findViewById(R.id.playerVideoView);
-            current_info = playerView.findViewById(R.id.playerSongInfoTextView);
-            current_info_title = playerView.findViewById(R.id.playerSongInfoPlaylistTextView);
-
+            findViews();
             mainActivity.activityMainBinding.mainActivityBox.setBackgroundColor(Color.WHITE);
-
-            fav_btn = binding.playerView.findViewById(R.id.playerSongFavBtn);
-            settings_btn = binding.playerView.findViewById(R.id.playerSongSettingsBtn);
-            hide_btn = binding.playerView.findViewById(R.id.playerSongHideBtn);
-            database_ref = FirebaseDatabase.getInstance().getReference();
-            mAuth = FirebaseAuth.getInstance();
+            initializeFirebaseConnection();
 
             startMusicService();
 
@@ -256,8 +238,6 @@ public class PlayerFragment extends Fragment {
 
             setUPSlideListener();
 
-
-
             reinitializeShuffleBtn();
             reinitializeRepeatBtn();
 
@@ -265,6 +245,35 @@ public class PlayerFragment extends Fragment {
         }
 
         return view;
+    }
+
+    private void findViews() {
+        playerView = binding.playerView.findViewById(R.id.playerView);
+        player_full_box = binding.playerView.findViewById(R.id.playerFullBox);
+        playerUpperBox = playerView.findViewById(R.id.playerSongUpperBox);
+        player_small_box = playerView.findViewById(R.id.playerSmallBox);
+        player_info_box = playerView.findViewById(R.id.playerSongInfoBox);
+
+        title = playerView.findViewById(R.id.playerSongTitle);
+        author = playerView.findViewById(R.id.playerSongDescription);
+        song_img = playerView.findViewById(R.id.playerSongImg);
+        next_btn= playerView.findViewById(R.id.exo_next);
+        prev_btn = playerView.findViewById(R.id.exo_prev);
+        shuffleBtn = playerView.findViewById(R.id.customShuffle);
+        repeatBtn= playerView.findViewById(R.id.customRepeat);
+
+        videoView = binding.playerView.findViewById(R.id.playerVideoView);
+        current_info = playerView.findViewById(R.id.playerSongInfoTextView);
+        current_info_title = playerView.findViewById(R.id.playerSongInfoPlaylistTextView);
+
+        fav_btn = binding.playerView.findViewById(R.id.playerSongFavBtn);
+        settings_btn = binding.playerView.findViewById(R.id.playerSongSettingsBtn);
+        hide_btn = binding.playerView.findViewById(R.id.playerSongHideBtn);
+    }
+
+    private void initializeFirebaseConnection(){
+        database_ref = FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
     }
 
     private void setUpOnClickListener() {
@@ -1172,7 +1181,6 @@ public class PlayerFragment extends Fragment {
         }
     }
 
-
     public static int manipulateColor(int color, float factor) {
         int a = Color.alpha(color);
         int r = Math.round(Color.red(color) * factor);
@@ -1186,59 +1194,6 @@ public class PlayerFragment extends Fragment {
 
     public Integer getPosition() {
         return position;
-    }
-
-    public class ExoListener implements Player.Listener {
-        SimpleExoPlayer player;
-
-        public ExoListener(SimpleExoPlayer player) {
-            this.player = player;
-        }
-
-        @Override
-        public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-            playerView.setPlayer(player);
-            state = player.getPlaybackState();
-            ready = player.getPlayWhenReady();
-            if (CurrentPlaylistFragment.adapter != null) {
-                CurrentPlaylistFragment.adapter.notifyDataSetChanged();
-            }
-
-        }
-
-        @Override
-        public void onPlayerError(ExoPlaybackException error) {
-            // Report errors
-            switch (error.type) {
-                case ExoPlaybackException.TYPE_SOURCE:
-                    // Error loading resources
-                    break;
-                case ExoPlaybackException.TYPE_RENDERER:
-                    // Errors in rendering
-                    break;
-                case ExoPlaybackException.TYPE_UNEXPECTED:
-                    // unexpected error
-                    break;
-            }
-        }
-
-        @Override
-        public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-            if(isFirstOpen){
-                position=player.getCurrentWindowIndex();
-                mService.setPosition(position);
-                updateUI(player);
-                isFirstOpen=false;
-            }else{
-                if(position!=player.getCurrentWindowIndex()){
-                    clearVideoView();
-                    position = player.getCurrentWindowIndex();
-                    mService.setPosition(position);
-                    updateUI(player);
-
-                }
-            }
-        }
     }
 
     public void updateUI(SimpleExoPlayer player) {
@@ -1332,6 +1287,59 @@ public class PlayerFragment extends Fragment {
         if(mediaPlayer!=null){
             if(!videoView.isPlaying()){
                 videoView.start();
+            }
+        }
+    }
+
+    public class ExoListener implements Player.Listener {
+        SimpleExoPlayer player;
+
+        public ExoListener(SimpleExoPlayer player) {
+            this.player = player;
+        }
+
+        @Override
+        public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+            playerView.setPlayer(player);
+            state = player.getPlaybackState();
+            ready = player.getPlayWhenReady();
+            if (CurrentPlaylistFragment.adapter != null) {
+                CurrentPlaylistFragment.adapter.notifyDataSetChanged();
+            }
+
+        }
+
+        @Override
+        public void onPlayerError(ExoPlaybackException error) {
+            // Report errors
+            switch (error.type) {
+                case ExoPlaybackException.TYPE_SOURCE:
+                    // Error loading resources
+                    break;
+                case ExoPlaybackException.TYPE_RENDERER:
+                    // Errors in rendering
+                    break;
+                case ExoPlaybackException.TYPE_UNEXPECTED:
+                    // unexpected error
+                    break;
+            }
+        }
+
+        @Override
+        public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+            if(isFirstOpen){
+                position=player.getCurrentWindowIndex();
+                mService.setPosition(position);
+                updateUI(player);
+                isFirstOpen=false;
+            }else{
+                if(position!=player.getCurrentWindowIndex()){
+                    clearVideoView();
+                    position = player.getCurrentWindowIndex();
+                    mService.setPosition(position);
+                    updateUI(player);
+
+                }
             }
         }
     }

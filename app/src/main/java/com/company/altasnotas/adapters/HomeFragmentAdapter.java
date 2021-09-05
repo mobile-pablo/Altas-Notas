@@ -36,24 +36,34 @@ public class HomeFragmentAdapter extends RecyclerView.Adapter<HomeFragmentAdapte
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new HomeFragmentAdapter.MyViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.playlist_home_row, parent, false));
+        return new HomeFragmentAdapter
+                .MyViewHolder(LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.playlist_home_row, parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         holder.setIsRecyclable(false);
-        Glide.with(mainActivity.getApplicationContext()).load(playlists.get(position).getImage_id()).apply(RequestOptions.centerCropTransform()).error(R.drawable.img_not_found).into(holder.home_row_img);
-        holder.home_row_year.setText(playlists.get(position).getYear());
-        holder.home_row_title.setText(playlists.get(position).getTitle());
-        holder.home_row_author.setText(playlists.get(position).getDescription());
+        updateDefaultData(holder,position);
 
         holder.home_row_img.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(authors.get(position), albums.get(position), playlists.get(position), 1)).addToBackStack(null).commit();
-
+                mainActivity.getSupportFragmentManager()
+                        .beginTransaction()
+                        .setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left)
+                        .replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(authors.get(position), albums.get(position), playlists.get(position), 1))
+                        .addToBackStack(null)
+                        .commit();
             }
         });
+    }
+
+    private void updateDefaultData(MyViewHolder holder, int position) {
+        Glide.with(mainActivity.getApplicationContext()).load(playlists.get(position).getImage_id()).apply(RequestOptions.centerCropTransform()).error(R.drawable.img_not_found).into(holder.home_row_img);
+        holder.home_row_year.setText(playlists.get(position).getYear());
+        holder.home_row_title.setText(playlists.get(position).getTitle());
+        holder.home_row_author.setText(playlists.get(position).getDescription());
     }
 
     @Override

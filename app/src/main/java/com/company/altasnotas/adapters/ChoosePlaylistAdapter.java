@@ -55,7 +55,9 @@ public class ChoosePlaylistAdapter extends RecyclerView.Adapter<ChoosePlaylistAd
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ChoosePlaylistAdapter.MyViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.choose_playlist_row, parent, false));
+        return new ChoosePlaylistAdapter
+                .MyViewHolder(LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.choose_playlist_row, parent, false));
     }
 
     @Override
@@ -64,6 +66,16 @@ public class ChoosePlaylistAdapter extends RecyclerView.Adapter<ChoosePlaylistAd
         holder.title.setText(titles.get(position));
 
 
+        loadPhoto(holder,position);
+
+        holder.linearLayout.setOnClickListener(v -> {
+            addToPlaylist(song, keys.get(position));
+            choosePlaylistDialog.dismiss();
+        });
+
+    }
+
+    private void loadPhoto(@NonNull MyViewHolder holder, int position) {
         //Load photo
         storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + keys.get(position)).getDownloadUrl().addOnCompleteListener(mainActivity, new OnCompleteListener<Uri>() {
             @Override
@@ -77,12 +89,6 @@ public class ChoosePlaylistAdapter extends RecyclerView.Adapter<ChoosePlaylistAd
                     Log.d(MainActivity.FIREBASE, "Error while loading photo");
                 }
             }
-        });
-
-
-        holder.linearLayout.setOnClickListener(v -> {
-            addToPlaylist(song, keys.get(position));
-            choosePlaylistDialog.dismiss();
         });
 
     }
