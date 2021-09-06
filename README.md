@@ -10,7 +10,7 @@ Music Player based on Firebase Services
  
  ![Progress](https://progress-bar.dev/100/?title=v1.10&width=200&color=9D55BD)
  
- ![Progress](https://progress-bar.dev/80/?title=v1.50&width=200&color=730DA1)
+ ![Progress](https://progress-bar.dev/100/?title=v1.50&width=200&color=730DA1)
 <br/><br/>
 
 
