@@ -52,24 +52,16 @@ public class HomeFragment extends Fragment {
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+        mainActivity = (MainActivity) getActivity();
 
         initalizeFirebaseConnection();
 
         setUpArrays();
 
-        mainActivity = (MainActivity) getActivity();
-
-        initializeRecyclerView();
-        initializePlaylists();
-
         binding.homeLogoutBtn.setOnClickListener(v -> {
             MainActivity.clearCurrentSong();
             mainActivity.logoutUser();
         });
-
-        if (isOpenByLogin) {
-            mainActivity.downloadPhoto();
-        }
 
         MainActivity.viewModel.getPhotoUrl().observe(mainActivity, new Observer<String>() {
             @Override
@@ -167,5 +159,17 @@ public class HomeFragment extends Fragment {
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         mainActivity.activityMainBinding.mainActivityBox.setBackground(getResources().getDrawable(R.drawable.custom_home_fragment_bg));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        initializeRecyclerView();
+        initializePlaylists();
+
+        if (isOpenByLogin) {
+            mainActivity.downloadPhoto();
+        }
     }
 }

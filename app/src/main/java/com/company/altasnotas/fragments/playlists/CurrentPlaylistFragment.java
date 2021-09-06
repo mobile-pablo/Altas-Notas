@@ -108,37 +108,26 @@ public class CurrentPlaylistFragment extends Fragment {
         storageReference = FirebaseStorage.getInstance().getReference();
         viewModel =  new ViewModelProvider(mainActivity).get(CurrentPlaylistFragmentViewModel.class);
         viewModel.setPlaylist(playlist);
-        binding.currentPlaylistTitle.setText(playlist.getTitle());
-        binding.currentPlaylistDescription.setText(playlist.getDescription() + "\n(" + playlist.getYear() + ")");
 
-        if (!  viewModel.getPlaylist().getImage_id().isEmpty()) {
+        updateDefaultData();
 
-            Glide.with(container)
-                    .load(playlist.getImage_id())
-                    .apply(RequestOptions.centerCropTransform())
-                    .error(R.drawable.img_not_found).into( binding.currentPlaylistImg);
-        } else {
-            Glide.with(container).load(R.drawable.img_not_found).apply(RequestOptions.centerCropTransform()).into(binding.currentPlaylistImg);
-        }
+        binding.currentPlaylistPhotoBtn.setOnClickListener(v -> {
+                if (ActivityCompat.checkSelfPermission(mainActivity,
+                        Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                            2000);
+                } else {
+                    CropImage.activity()
+                            .start(mainActivity, this);
+                }
+            });
 
-        binding.currentPlaylistPhotoBtn.setOnClickListener(v ->
-        {
-            if (ActivityCompat.checkSelfPermission(mainActivity,
-                    Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        2000);
-            } else {
-                CropImage.activity()
-                        .start(mainActivity, this);
-            }
-        });
         if (isAlbum != 0) {
             binding.currentPlaylistSettingsBtn.setVisibility(View.INVISIBLE);
             initializeAlbum(author, album);
         } else {
             binding.currentPlaylistSettingsBtn.setVisibility(View.VISIBLE);
-
             initializePlaylist(author);
         }
 
@@ -161,6 +150,21 @@ public class CurrentPlaylistFragment extends Fragment {
         initializeObservers();
         return view;
 
+    }
+
+    private void updateDefaultData() {
+        binding.currentPlaylistTitle.setText(playlist.getTitle());
+        binding.currentPlaylistDescription.setText(playlist.getDescription() + "\n(" + playlist.getYear() + ")");
+
+        if (!  viewModel.getPlaylist().getImage_id().isEmpty()) {
+
+            Glide.with(mainActivity)
+                    .load(playlist.getImage_id())
+                    .apply(RequestOptions.centerCropTransform())
+                    .error(R.drawable.img_not_found).into( binding.currentPlaylistImg);
+        } else {
+            Glide.with(mainActivity).load(R.drawable.img_not_found).apply(RequestOptions.centerCropTransform()).into(binding.currentPlaylistImg);
+        }
     }
 
 

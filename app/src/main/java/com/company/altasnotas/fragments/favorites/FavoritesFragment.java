@@ -3,11 +3,13 @@ package com.company.altasnotas.fragments.favorites;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -40,6 +42,7 @@ public class FavoritesFragment extends Fragment {
 
     private DatabaseReference database_ref;
     private MainActivity mainActivity;
+    private String FRAGMENT ="FavoritesFragment";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -58,7 +61,6 @@ public class FavoritesFragment extends Fragment {
         viewModel = new ViewModelProvider(mainActivity).get(FavoritesFragmentViewModel.class);
 
         initializeObservers();
-        viewModel.initializeFavorites();
 
         return view;
     }
@@ -156,5 +158,10 @@ public class FavoritesFragment extends Fragment {
                 }
             });
         }
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        viewModel.initializeFavorites();
     }
 }

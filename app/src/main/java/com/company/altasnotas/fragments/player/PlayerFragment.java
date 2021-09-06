@@ -734,18 +734,16 @@ public class PlayerFragment extends Fragment {
 
                     playlists_titles.add(playlistSnapshot.child("title").getValue().toString());
                     playlists_keys.add(playlistSnapshot.getKey());
-
-
                 }
 
                 if (snapshot.getChildrenCount() != 0) {
                     if (x == snapshot.getChildrenCount()) {
 
-
                         ChoosePlaylistAdapter choosePlaylistAdapter = new ChoosePlaylistAdapter(mainActivity, choosePlaylistDialog, playlist.getSongs().get(position), playlists_titles, playlists_keys);
                         chooseRecyclerView.setLayoutManager(new LinearLayoutManager(mainActivity, LinearLayoutManager.VERTICAL, false));
                         choosePlaylistAdapter.notifyDataSetChanged();
                         chooseRecyclerView.setAdapter(choosePlaylistAdapter);
+
                     }
 
                     chooseState.setVisibility(View.GONE);
