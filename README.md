@@ -56,6 +56,16 @@ Music Player based on Firebase Services
 <br /><br/>
 
 
+## ⚠️  Warning
+
+<p>This Project is currently limited by Firebase download bandwith 
+as seen image below</p>
+<p> Becouse of this App may not be working correctly If Bandwith is used.</p>
+
+<div> <img  src="readme_media/firebase_usage.png" width="100%"  /> </div>
+<br/><br/>
+
+
 ## 🌊 Instalation 
 
 <div> <img  src="readme_media/mockup.png" width="100%"  /> </div>
