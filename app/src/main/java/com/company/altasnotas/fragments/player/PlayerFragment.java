@@ -39,7 +39,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.company.altasnotas.MainActivity;
 import com.company.altasnotas.R;
@@ -136,7 +138,6 @@ public class PlayerFragment extends Fragment {
     public VideoView videoView;
     private MediaPlayer mediaPlayer;
     public static   int randomPosition;
-    public static Integer shuffleClicked=0;
 
     //Mini Player
     public static ImageButton mini_fav_btn;
@@ -199,7 +200,7 @@ public class PlayerFragment extends Fragment {
                 }
                 initializePlayer();
                 initializeMiniPlayer();
-                updateUI(mService.getPlayerInstance());
+                updateUI();
                 Log.d("PlayerFragment", "OnService Connected");
             }
 
@@ -375,7 +376,7 @@ public class PlayerFragment extends Fragment {
                 SimpleExoPlayer player = mService.getPlayerInstance();
                 if( player.getRepeatMode()==Player.REPEAT_MODE_ONE){
                     player.seekTo(0);
-                    updateUI(player);
+                    updateUI();
                 }else{
                     trackChanged(1);
                 }
@@ -388,7 +389,7 @@ public class PlayerFragment extends Fragment {
             SimpleExoPlayer player = mService.getPlayerInstance();
             if( player.getRepeatMode()==Player.REPEAT_MODE_ONE){
                 player.seekTo(0);
-                updateUI(player);
+                updateUI();
             }else{
                 trackChanged(0);
             }
@@ -433,7 +434,7 @@ public class PlayerFragment extends Fragment {
           changePosition(mService.getPlayerInstance(), shouldAdd);
       }
 
-      updateUI(mService.getPlayerInstance());
+      updateUI();
     }
 
     private void reinitializeRepeatBtn() {
@@ -569,10 +570,9 @@ public class PlayerFragment extends Fragment {
             }
         }
         if (currentFragment instanceof FavoritesFragment) {
-            FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
-            if (favoritesFragment.viewModel != null) {
-                if (favoritesFragment.viewModel.adapter != null) {
-                    favoritesFragment.viewModel.adapter.notifyDataSetChanged();
+            if (FavoritesFragment.viewModel != null) {
+                if (FavoritesFragment.viewModel.adapter != null) {
+                    FavoritesFragment.viewModel.adapter.notifyDataSetChanged();
                 }
             }
         }
@@ -685,7 +685,7 @@ public class PlayerFragment extends Fragment {
                             x.setDir_desc(playlist.getSongs().get(position).getAuthor());
                             bottomSheetDialog.dismiss();
                             mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
+                            mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).replace(R.id.mainFragmentContainer, new CurrentPlaylistFragment(playlist.getSongs().get(position).getAuthor(), playlist.getSongs().get(position).getAlbum(), x, 1)).addToBackStack("null").commit();
                         }
                     }
 
@@ -717,7 +717,7 @@ public class PlayerFragment extends Fragment {
     }
 
     private void addToPlaylist() {
-        choosePlaylistDialog = new BottomSheetDialog(getContext());
+        choosePlaylistDialog = new BottomSheetDialog(mainActivity);
         choosePlaylistDialog.setContentView(R.layout.choose_playlist_dialog);
         TextView chooseState = choosePlaylistDialog.findViewById(R.id.choosePlaylistRecyclerViewState);
         RecyclerView chooseRecyclerView = choosePlaylistDialog.findViewById(R.id.choosePlaylistRecyclerView);
@@ -742,8 +742,8 @@ public class PlayerFragment extends Fragment {
                     if (x == snapshot.getChildrenCount()) {
 
 
-                        ChoosePlaylistAdapter choosePlaylistAdapter = new ChoosePlaylistAdapter((MainActivity) requireActivity(), choosePlaylistDialog, playlist.getSongs().get(position), playlists_titles, playlists_keys);
-                        chooseRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+                        ChoosePlaylistAdapter choosePlaylistAdapter = new ChoosePlaylistAdapter(mainActivity, choosePlaylistDialog, playlist.getSongs().get(position), playlists_titles, playlists_keys);
+                        chooseRecyclerView.setLayoutManager(new LinearLayoutManager(mainActivity, LinearLayoutManager.VERTICAL, false));
                         choosePlaylistAdapter.notifyDataSetChanged();
                         chooseRecyclerView.setAdapter(choosePlaylistAdapter);
                     }
@@ -771,7 +771,7 @@ public class PlayerFragment extends Fragment {
         shareIntent.putExtra(android.content.Intent.EXTRA_TITLE, "Altas Notas");
         shareIntent.putExtra(Intent.EXTRA_TEXT, "My favorite Song is \"" + playlist.getSongs().get(position).getTitle() + "\" from \"" + playlist.getSongs().get(position).getAuthor() + "\".\nListen this on \"Altas Notas\".\nExternal Link: [ " + playlist.getSongs().get(position).getPath() + " ]");
         startActivity(Intent.createChooser(shareIntent, "Share using"));
-        getContext().startActivity(shareIntent);
+        mainActivity.startActivity(shareIntent);
 
     }
 
@@ -835,7 +835,9 @@ public class PlayerFragment extends Fragment {
         if (mainActivity != null) {
             Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.slidingLayoutFrag);
             if (currentFragment instanceof PlayerFragment) {
-                Glide.with(mainActivity).load(playlist.getSongs().get(position).getImage_url()).error(R.drawable.img_not_found).into(new CustomTarget<Drawable>() {
+                Glide.with(mainActivity)
+                        .load(playlist.getSongs().get(position).getImage_url())
+                        .error(R.drawable.img_not_found).into(new CustomTarget<Drawable>() {
                     @Override
                     public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
                        if(resource!=null){
@@ -846,6 +848,8 @@ public class PlayerFragment extends Fragment {
                            videoView.setVisibility(View.VISIBLE);
                            setUpInfoBackgroundColor();
                            fav_btn.getDrawable().setTint(ContextCompat.getColor(mainActivity, R.color.project_light_orange));
+                       }else{
+                           System.out.println("Resource is null!");
                        }
                     }
 
@@ -1003,7 +1007,7 @@ public class PlayerFragment extends Fragment {
             reinitializeShuffleBtn();
             if(mService!=null){
                 if(mService.getPlayerInstance()!=null){
-                  updateUI(mService.getPlayerInstance());
+                  updateUI();
                 }
             }
         }
@@ -1146,14 +1150,10 @@ public class PlayerFragment extends Fragment {
                     public void onPrepared(MediaPlayer mp) {
                         mediaPlayer=mp;
                         mp.setVolume(0,0);
-                        mp.setAudioAttributes(new AudioAttributes.Builder()
-                                .setUsage(AudioAttributes.USAGE_MEDIA)
-                                .setContentType(AudioAttributes.CONTENT_TYPE_MOVIE)
-                                .build());
                     }
                 });
 
-                //This line below helps not make big bandwidth usage
+                //This line below helped not make big bandwidth usage
                 videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mp) {
@@ -1196,7 +1196,7 @@ public class PlayerFragment extends Fragment {
         return position;
     }
 
-    public void updateUI(SimpleExoPlayer player) {
+    public void updateUI() {
         if(mainActivity.activityMainBinding.slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.HIDDEN){
             mainActivity.activityMainBinding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         }
@@ -1234,8 +1234,6 @@ public class PlayerFragment extends Fragment {
         }
         else
         {
-            shuffleClicked++;
-         //   if( shuffleClicked%4==0){
                 position =randomPosition;
                 mService.setPosition(position);
                 player.seekTo(position, C.INDEX_UNSET);
@@ -1250,7 +1248,6 @@ public class PlayerFragment extends Fragment {
                 }else{
                     randomPosition = position;
                 }
-        //    }
         }
     }
 
@@ -1288,6 +1285,11 @@ public class PlayerFragment extends Fragment {
             if(!videoView.isPlaying()){
                 videoView.start();
             }
+        }
+
+
+        if(!isFirstOpen) {
+            updateUI();
         }
     }
 
@@ -1330,15 +1332,14 @@ public class PlayerFragment extends Fragment {
             if(isFirstOpen){
                 position=player.getCurrentWindowIndex();
                 mService.setPosition(position);
-                updateUI(player);
+                updateUI();
                 isFirstOpen=false;
             }else{
                 if(position!=player.getCurrentWindowIndex()){
                     clearVideoView();
                     position = player.getCurrentWindowIndex();
                     mService.setPosition(position);
-                    updateUI(player);
-
+                    updateUI();
                 }
             }
         }

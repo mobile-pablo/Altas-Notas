@@ -63,9 +63,9 @@ public class PlaylistsFragment extends Fragment {
         database = FirebaseDatabase.getInstance();
         database_ref = database.getReference();
 
-        initalizeList();
+        initializeList();
 
-        viewModel =  new ViewModelProvider(requireActivity()).get(PlaylistsFragmentViewModel.class);
+        viewModel =  new ViewModelProvider(mainActivity).get(PlaylistsFragmentViewModel.class);
         binding.playlistsFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,13 +98,13 @@ public class PlaylistsFragment extends Fragment {
             @Override
             public void onChanged(Boolean aBoolean) {
                 if(aBoolean){
-               initalizeList();
+               initializeList();
                }
             }
         });
     }
 
-    private void initalizeList() {
+    private void initializeList() {
         playlists = new ArrayList<>();
 
         database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
@@ -122,8 +122,8 @@ public class PlaylistsFragment extends Fragment {
                 }
 
 
-                binding.playlistsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-                adapter = new PlaylistsFragmentAdapter((MainActivity) getActivity(), playlists);
+                binding.playlistsRecyclerView.setLayoutManager(new LinearLayoutManager(mainActivity, LinearLayoutManager.VERTICAL, false));
+                adapter = new PlaylistsFragmentAdapter(mainActivity, playlists);
                 adapter.notifyDataSetChanged();
                 binding.playlistsRecyclerView.setAdapter(adapter);
             }

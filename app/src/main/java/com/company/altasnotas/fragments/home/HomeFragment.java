@@ -82,11 +82,11 @@ public class HomeFragment extends Fragment {
 
 
         binding.homeProfileBtn.setOnClickListener(v -> {
-            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.mainFragmentContainer, new ProfileFragment()).addToBackStack(null).commit();
+            mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.mainFragmentContainer, new ProfileFragment()).addToBackStack(null).commit();
         });
 
         if (mAuth.getCurrentUser() == null) {
-            getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.mainFragmentContainer, new LoginFragment()).commit();
+           mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_up, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_up).replace(R.id.mainFragmentContainer, new LoginFragment()).commit();
         }
         return view;
     }
@@ -104,8 +104,8 @@ public class HomeFragment extends Fragment {
     }
 
     private void initializeRecyclerView() {
-        adapter = new HomeFragmentAdapter((MainActivity) getActivity(), authors, albums, playlists);
-        binding.homeRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        adapter = new HomeFragmentAdapter(mainActivity, authors, albums, playlists);
+        binding.homeRecyclerView.setLayoutManager(new GridLayoutManager(mainActivity, 2));
         binding.homeRecyclerView.setAdapter(adapter);
         mainActivity.activityMainBinding.mainActivityBox.setBackground(getResources().getDrawable(R.drawable.custom_home_fragment_bg));
     }

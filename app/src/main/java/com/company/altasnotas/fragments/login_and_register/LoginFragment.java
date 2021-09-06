@@ -74,14 +74,14 @@ public class LoginFragment extends Fragment {
             public void onClick(View v) {
                 email = binding.loginEmailEditText.getText().toString().toLowerCase().trim();
                 password = binding.loginPasswordEditText.getText().toString().toLowerCase().trim();
-                viewModel.login((MainActivity) requireActivity(), email, password);
+                viewModel.login(mainActivity, email, password);
             }
         });
 
         binding.jumpToRegisterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                requireActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).addToBackStack(null).replace(R.id.mainFragmentContainer, new RegisterFragment()).commit();
+                mainActivity.getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left).addToBackStack(null).replace(R.id.mainFragmentContainer, new RegisterFragment()).commit();
             }
         });
 
@@ -100,7 +100,7 @@ public class LoginFragment extends Fragment {
                 .requestEmail()
                 .build();
 
-        mGoogleSignInClient = GoogleSignIn.getClient(getContext(), gso);
+        mGoogleSignInClient = GoogleSignIn.getClient(mainActivity, gso);
         binding.loginGoogleBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,7 +112,7 @@ public class LoginFragment extends Fragment {
 
     private void initializeFacebookLogin() {
         // Initialize Facebook Login button
-        FacebookSdk.sdkInitialize(getContext());
+        FacebookSdk.sdkInitialize(mainActivity);
 
         callbackManager = CallbackManager.Factory.create();
         binding.fbNewLoginButton.setReadPermissions("email", "public_profile");
@@ -125,7 +125,7 @@ public class LoginFragment extends Fragment {
             public void onSuccess(LoginResult loginResult) {
                 AccessToken token = loginResult.getAccessToken();
                 Log.d("Facebook", "Token: " + token.getUserId());
-                viewModel.handleFacebookAccessToken((MainActivity) getActivity(), loginResult.getAccessToken());
+                viewModel.handleFacebookAccessToken(mainActivity, loginResult.getAccessToken());
             }
 
             @Override
@@ -144,8 +144,8 @@ public class LoginFragment extends Fragment {
     private void loginByGoogle() {
 
         if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
-                    .enableAutoManage(getActivity(), new GoogleApiClient.OnConnectionFailedListener() {
+            mGoogleApiClient = new GoogleApiClient.Builder(mainActivity)
+                    .enableAutoManage(mainActivity, new GoogleApiClient.OnConnectionFailedListener() {
                         @Override
                         public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
@@ -161,11 +161,11 @@ public class LoginFragment extends Fragment {
                 mGoogleApiClient.clearDefaultAccountAndReconnect();
             }
 
-            mGoogleApiClient.stopAutoManage(getActivity());
+            mGoogleApiClient.stopAutoManage(mainActivity);
             mGoogleApiClient.disconnect();
             mGoogleApiClient = new GoogleApiClient
-                    .Builder(getActivity())
-                    .enableAutoManage(getActivity(), new GoogleApiClient.OnConnectionFailedListener() {
+                    .Builder(mainActivity)
+                    .enableAutoManage(mainActivity, new GoogleApiClient.OnConnectionFailedListener() {
                         @Override
                         public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
@@ -192,7 +192,7 @@ public class LoginFragment extends Fragment {
                     }
                 });
 
-                mGoogleApiClient.stopAutoManage(getActivity());
+                mGoogleApiClient.stopAutoManage(mainActivity);
                 mGoogleApiClient.disconnect();
             }
 
@@ -228,7 +228,7 @@ public class LoginFragment extends Fragment {
                     // Google Sign In was successful, authenticate with Firebase
                     GoogleSignInAccount account = task.getResult(ApiException.class);
                     Log.d(TAG, "firebaseAuthWithGoogle:" + account.getId());
-                    viewModel.firebaseAuthWithGoogle((MainActivity) getActivity(), account.getIdToken());
+                    viewModel.firebaseAuthWithGoogle(mainActivity, account.getIdToken());
                 } catch (ApiException e) {
                     // Google Sign In failed, update UI appropriately
                     Log.w(TAG, "Google sign in failed", e);

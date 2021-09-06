@@ -131,14 +131,14 @@ public class FavoritesFragment extends Fragment {
 
                             if (viewModel.getPlaylist().getSongs() != null) {
 
-                                adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), viewModel.getPlaylist(), 1);
-                                binding.currentPlaylistRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+                                adapter = new CurrentPlaylistAdapter(mainActivity, viewModel.getPlaylist(), 1);
+                                binding.currentPlaylistRecyclerView.setLayoutManager(new LinearLayoutManager(mainActivity, LinearLayoutManager.VERTICAL, false));
                                 binding.currentPlaylistRecyclerView.setAdapter(adapter);
                                 adapter.notifyDataSetChanged();
-                                if (getActivity() != null) {
-                                    Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
+                                if (mainActivity != null) {
+                                    Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
                                     if (currentFragment instanceof FavoritesFragment) {
-                                        Drawable songBg = AppCompatResources.getDrawable(getActivity(), R.drawable.custom_song_bg);
+                                        Drawable songBg = AppCompatResources.getDrawable(mainActivity, R.drawable.custom_song_bg);
                                         binding.currentPlaylistRecyclerView.setBackground(songBg);
                                     }
                                 }

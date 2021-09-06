@@ -82,18 +82,18 @@ public class ProfileFragment extends Fragment {
         database_ref = database.getReference();
 
 
-        viewModel = new ViewModelProvider(requireActivity()).get(ProfileFragmentViewModel.class);
+        viewModel = new ViewModelProvider(mainActivity).get(ProfileFragmentViewModel.class);
         viewModel.downloadProfile();
 
         binding.profileUserAddImgBtn.setOnClickListener(v -> {
-            if (ActivityCompat.checkSelfPermission(getActivity(),
+            if (ActivityCompat.checkSelfPermission(mainActivity,
                     Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                         2000);
             } else {
                 CropImage.activity()
-                        .start(getContext(), this);
+                        .start(mainActivity, this);
             }
         });
         binding.profileNameEditBtn.setOnClickListener(v -> {
@@ -202,8 +202,8 @@ public class ProfileFragment extends Fragment {
             showProgress("Loading Photo");
                 try {
 
-                    Bitmap compresedImg = ProfileFragmentViewModel.getBitmapFormUri(getActivity(), returnUri);
-                    Bitmap compressImgRotated = rotateImageIfRequired(getContext(), compresedImg, returnUri);
+                    Bitmap compresedImg = ProfileFragmentViewModel.getBitmapFormUri(mainActivity, returnUri);
+                    Bitmap compressImgRotated = rotateImageIfRequired(mainActivity, compresedImg, returnUri);
                     ByteArrayOutputStream bao = new ByteArrayOutputStream();
                     compressImgRotated = getResizedBitmap(compressImgRotated, 300);
                     compressImgRotated.compress(Bitmap.CompressFormat.PNG, 100, bao);
@@ -222,15 +222,15 @@ public class ProfileFragment extends Fragment {
                                 Log.d(MainActivity.FIREBASE, "Upload image failed");
                                 progress.dismiss();
                             } else {
-                                if (getActivity() != null) {
+                                if (mainActivity != null) {
                                     storageReference.child("images/profiles/" + mAuth.getCurrentUser().getUid()).getDownloadUrl().addOnCompleteListener(getActivity(), new OnCompleteListener<Uri>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Uri> task) {
                                             if (task.isSuccessful()) {
-                                                MainActivity mainActivity = (MainActivity) getActivity();
+
                                                 if (task.getResult() != null && mainActivity != null) {
                                                     progress.dismiss();
-                                                    Glide.with(requireActivity()).load(task.getResult()).apply(RequestOptions.centerCropTransform()).error(R.drawable.img_not_found).into(binding.profileUserImg);
+                                                    Glide.with(mainActivity).load(task.getResult()).apply(RequestOptions.centerCropTransform()).error(R.drawable.img_not_found).into(binding.profileUserImg);
                                                     MainActivity.viewModel.setPhotoUrl(task.getResult().toString());
                                                 }
                                             } else if (task.getResult() == null) {

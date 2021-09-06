@@ -106,7 +106,7 @@ public class CurrentPlaylistFragment extends Fragment {
         database = FirebaseDatabase.getInstance();
         database_ref = database.getReference();
         storageReference = FirebaseStorage.getInstance().getReference();
-        viewModel =  new ViewModelProvider(requireActivity()).get(CurrentPlaylistFragmentViewModel.class);
+        viewModel =  new ViewModelProvider(mainActivity).get(CurrentPlaylistFragmentViewModel.class);
         viewModel.setPlaylist(playlist);
         binding.currentPlaylistTitle.setText(playlist.getTitle());
         binding.currentPlaylistDescription.setText(playlist.getDescription() + "\n(" + playlist.getYear() + ")");
@@ -123,14 +123,14 @@ public class CurrentPlaylistFragment extends Fragment {
 
         binding.currentPlaylistPhotoBtn.setOnClickListener(v ->
         {
-            if (ActivityCompat.checkSelfPermission(getActivity(),
+            if (ActivityCompat.checkSelfPermission(mainActivity,
                     Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                         2000);
             } else {
                 CropImage.activity()
-                        .start(getContext(), this);
+                        .start(mainActivity, this);
             }
         });
         if (isAlbum != 0) {
@@ -243,8 +243,8 @@ public class CurrentPlaylistFragment extends Fragment {
                         binding.currentPlaylistPhotoBtn.setVisibility(View.INVISIBLE);
 
                         if (x != 0) {
-                            binding.currentPlaylistRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-                            adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, -1);
+                            binding.currentPlaylistRecyclerView.setLayoutManager(new LinearLayoutManager(mainActivity, LinearLayoutManager.VERTICAL, false));
+                            adapter = new CurrentPlaylistAdapter(mainActivity, playlist, -1);
                             adapter.notifyDataSetChanged();
                             Drawable songBg = AppCompatResources.getDrawable(mainActivity, R.drawable.custom_song_bg);
                             binding.currentPlaylistRecyclerView.setBackground(songBg);
@@ -329,8 +329,8 @@ public class CurrentPlaylistFragment extends Fragment {
 
 
                                 if (x != 0) {
-                                    binding.currentPlaylistRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-                                    adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, 0);
+                                    binding.currentPlaylistRecyclerView.setLayoutManager(new LinearLayoutManager(mainActivity, LinearLayoutManager.VERTICAL, false));
+                                    adapter = new CurrentPlaylistAdapter(mainActivity, playlist, 0);
                                     adapter.notifyDataSetChanged();
                                     binding.currentPlaylistRecyclerView.setAdapter(adapter);
                                 }
@@ -385,10 +385,10 @@ public class CurrentPlaylistFragment extends Fragment {
                                 playlist.setSongs(songs);
 
                                 if (playlist.getSongs() != null) {
-                                    adapter = new CurrentPlaylistAdapter((MainActivity) getActivity(), playlist, 0);
-                                    binding.currentPlaylistRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+                                    adapter = new CurrentPlaylistAdapter(mainActivity, playlist, 0);
+                                    binding.currentPlaylistRecyclerView.setLayoutManager(new LinearLayoutManager(mainActivity, LinearLayoutManager.VERTICAL, false));
                                     binding.currentPlaylistRecyclerView.setAdapter(adapter);
-                                    Drawable songBg = AppCompatResources.getDrawable(requireContext(), R.drawable.custom_song_bg);
+                                    Drawable songBg = AppCompatResources.getDrawable(mainActivity, R.drawable.custom_song_bg);
                                     binding.currentPlaylistRecyclerView.setBackground(songBg);
                                     adapter.notifyDataSetChanged();
                                 }
@@ -424,13 +424,13 @@ public class CurrentPlaylistFragment extends Fragment {
 
                 try {
 
-                    Bitmap compresedImg = ProfileFragmentViewModel.getBitmapFormUri(requireActivity(), returnUri);
-                    Bitmap compressImgRotated =  ProfileFragment.rotateImageIfRequired(requireContext(), compresedImg, returnUri);
+                    Bitmap compresedImg = ProfileFragmentViewModel.getBitmapFormUri(mainActivity, returnUri);
+                    Bitmap compressImgRotated =  ProfileFragment.rotateImageIfRequired(mainActivity, compresedImg, returnUri);
                     ByteArrayOutputStream bao = new ByteArrayOutputStream();
                     compressImgRotated =  viewModel.getResizedBitmap(compressImgRotated, 300);
                     compressImgRotated.compress(Bitmap.CompressFormat.PNG, 100, bao);
 
-                    ProgressDialog progress = new ProgressDialog(getContext());
+                    ProgressDialog progress = new ProgressDialog(mainActivity);
                     progress.setTitle("Loading Photo");
                     progress.setMessage("Please wait...");
                     progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
@@ -456,19 +456,19 @@ public class CurrentPlaylistFragment extends Fragment {
                                             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                                                 if (task.isSuccessful()) {
                                                     System.out.println("Upload image is successful!");
-                                                    if (getActivity() != null) {
-                                                        Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
+                                                    if (mainActivity != null) {
+                                                        Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
                                                         if (currentFragment instanceof CurrentPlaylistFragment) {
-                                                            storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + ds.getKey()).getDownloadUrl().addOnSuccessListener(requireActivity(), new OnSuccessListener<Uri>() {
+                                                            storageReference.child("images/playlists/" + mAuth.getCurrentUser().getUid() + "/" + ds.getKey()).getDownloadUrl().addOnSuccessListener( new OnSuccessListener<Uri>() {
                                                                 @Override
                                                                 public void onSuccess(Uri u) {
                                                                     progress.dismiss();
                                                                     database_ref.child("music").child("playlists").child(mAuth.getCurrentUser().getUid()).child(ds.getKey()).child("image_id").setValue(u.toString());
                                                                     playlist.setImage_id(u.toString());
-                                                                    Glide.with(requireActivity()).load(finalCompressImgRotated).apply(RequestOptions.centerCropTransform()).into(binding.currentPlaylistImg);
+                                                                    Glide.with(mainActivity).load(finalCompressImgRotated).apply(RequestOptions.centerCropTransform()).into(binding.currentPlaylistImg);
 
                                                                 }
-                                                            }).addOnFailureListener(getActivity(), new OnFailureListener() {
+                                                            }).addOnFailureListener( new OnFailureListener() {
                                                                 @Override
                                                                 public void onFailure(@NonNull Exception e) {
                                                                     progress.dismiss();
@@ -578,7 +578,7 @@ public class CurrentPlaylistFragment extends Fragment {
                 }
 
                 if(errorMsg!=null){
-                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mainActivity, errorMsg, Toast.LENGTH_SHORT).show();
                 }
             }
         });
