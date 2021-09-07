@@ -23,7 +23,7 @@ Music Player based on Firebase Services
 * Foreground Service
 * Facebook login integration 
 * Google login integration 
-
+* ViewBinding 
 <br /><br/>
 <br /><br/>
 
