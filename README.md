@@ -74,7 +74,7 @@ as seen image below</p>
 ### Setup[0] -  Run this project in Your envoirment
 <br/>
 <p>If You want to recreate my project in Your own envoirment,</p>
-<p>You need to download this repository and export it from zip.</p>
+<p>Copy link and open Android Studio. Click 'Get from Version Control' and paste link to automaticly download project.</p>
 <p>After that import full folder to Your Android Studio</p>
 <br/><br/>
 <p>You need's to add new file ( google-services.json ) which allows connection with Firebase services. </p>
